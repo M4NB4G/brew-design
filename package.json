@@ -1,0 +1,11 @@
+{
+  "name": "brew-design",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Brew Recipe Designer monorepo (Persyn Chemical Engineering and Consulting).",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ]
+}
