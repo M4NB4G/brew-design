@@ -1,0 +1,36 @@
+/* Phase 3b — design pass. All component-level styling is in inline styles
+   sourced from src/components/shared/styles.js. This file owns only global
+   resets and the Google Font import. Do not add component rules here. */
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  background: linear-gradient(180deg, #f5f7fa 0%, #eaf0f6 100%);
+  min-height: 100vh;
+  color: #1f3147;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Suppress browser-default number-input spinner arrows — values are
+   meaningful numbers, not stepped counters. The spinner adds clutter. */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
