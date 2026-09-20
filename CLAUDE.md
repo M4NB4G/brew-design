@@ -109,8 +109,9 @@ inspector's.
 - **Builder.** Recommend the strongest available model — Opus or Fable —
   for Tier A and B, at high effort. Sonnet is acceptable for Tier C and D.
 - **Inspector.** Recommend a cross-family read when warranted — Tier A, or
-  any number whose rule is not a spreadsheet cell or an engine constant:
-  Fable when the builder is Opus or Sonnet, Opus when the builder is Fable.
+  any number whose rule is not a spreadsheet cell, an engine constant, or a
+  definitional unit factor (100 for percent, 1000 for trillion): Fable when
+  the builder is Opus or Sonnet, Opus when the builder is Fable.
   Otherwise recommend Sonnet when the builder is Opus, and Opus when the
   builder is Sonnet or Fable. Default effort; its value is in reading and
   running, not reasoning depth.

@@ -8,7 +8,7 @@ table is written when the item starts. Landed items are removed.
 
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
-| Percent helpers | FGDB, efficiency, attenuation, and alpha convert fraction↔percent in `display.js`, round-tripped in the smoke test | suites + inspector |
+| Percent helpers | FGDB, efficiency, attenuation, alpha, and ABV convert fraction↔percent in `display.js`, pinned in `test/percent.test.js` — spec agreed, see `docs/items/percent-helpers.md` | suites + inspector + far end |
 | Options page | Pre-boil, post-boil, and ferment volumes are corrected to 60 °F from their measurement temperatures via `correctVolumeToRef`; mash water is not; °C display toggle | suites + inspector + far end |
 | Empty-field handling | Clearing a field explains why downstream stats are blank and never writes NaN into state | suites + inspector |
 | Inverse solver UI | A target OG yields a grain bill via `solveGrist`; the round-trip residual FLAG is shown | suites + inspector |
