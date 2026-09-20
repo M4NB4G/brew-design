@@ -45,10 +45,11 @@ A row left unanswered is not built.
 
 1. **Scope table first.** Write the item as sentences — one per behaviour
    that must be true afterwards — plus its decisions. Tier A and B items
-   also get two fixed rows: the inspector's model (see Inspector — Model),
-   and the silent-property question, by name: what does this depend on that
-   nobody decided (durability, atomicity, idempotence, ordering, storage
-   disabled, schema migration, multi-tab)? Get the owner's reply.
+   also get three fixed rows: the builder's model, the inspector's model
+   (see Models), and the silent-property question, by name: what does this
+   depend on that nobody decided (durability, atomicity, idempotence,
+   ordering, storage disabled, schema migration, multi-tab)? Get the
+   owner's reply.
 2. **Test first, and it must fail.** Write the scenario from the sentences,
    named after them. Run it alone against the unchanged code. Record the
    failure (the assertion lines, trimmed). A scenario that passes before the
@@ -68,16 +69,25 @@ A row left unanswered is not built.
    scenario name, the recorded failure, the box (A/B), and any FAIL rounds
    with what changed after each.
 
+## Models
+
+Both the builder's and the inspector's model are decision rows in every
+Tier A/B scope table — proposed by whoever writes the table, agreed by the
+owner before building. They are never the same model. The box records the
+inspector's.
+
+- **Builder.** Recommend the strongest available model — Opus or Fable —
+  for Tier A and B, at high effort. Sonnet is acceptable for Tier C and D.
+- **Inspector.** Recommend a cross-family read when warranted — Tier A, or
+  any number whose rule is not a spreadsheet cell or an engine constant:
+  Fable when the builder is Opus or Sonnet, Opus when the builder is Fable.
+  Otherwise recommend Sonnet when the builder is Opus, and Opus when the
+  builder is Sonnet or Fable. Default effort; its value is in reading and
+  running, not reasoning depth.
+
 ## Inspector — standing rule, do not ask, just run it
 
-**Model.** Never the builder's model. The inspector's model is a decision
-row in the item's scope table — proposed by the builder, agreed by the owner
-before building — and the box records it. Recommend Fable when a
-cross-family read is warranted: Tier A, or any number whose rule is not a
-spreadsheet cell or an engine constant. Otherwise recommend Sonnet when the
-builder is Opus, and Opus when the builder is Sonnet or Fable. Default
-effort. Run it to completion before continuing
-(`run_in_background: false`).
+Run it to completion before continuing (`run_in_background: false`).
 
 **Prompt.** Contains only: the scope-table sentences, the decisions, the
 scenario name and recorded failure, the full `git diff --cached`, the
