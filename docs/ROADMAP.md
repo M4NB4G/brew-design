@@ -30,6 +30,7 @@ table is written when the item starts. Landed items are removed.
 | Netlify config | `netlify.toml`: build `npm test && npm run build`, publish `apps/recipe/dist`, Node 22, SPA redirect | build on Netlify |
 | Title + favicon | The browser tab reads "Brew Design" and shows an icon | build |
 | `npm audit fix` | Dev-tooling advisories cleared | suites |
+| Line endings | `.gitattributes` pins `* text=auto eol=lf` so working copies stay LF on Windows (autocrlf rewrote the docs to CRLF on a branch checkout, 2026-09-20) | none |
 | README | Describes the app as it is now, not "later phases" | none |
 | Coverage gaps | Close the small items in `docs/TEST_COVERAGE.md` | suites |
 | Notes / methodology page · print / batch sheet · JSON export | Later | — |

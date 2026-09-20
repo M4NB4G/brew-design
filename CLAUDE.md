@@ -49,14 +49,18 @@ A row left unanswered is not built.
    (see Models), and the silent-property question, by name: what does this
    depend on that nobody decided (durability, atomicity, idempotence,
    ordering, storage disabled, schema migration, multi-tab)? Get the
-   owner's reply.
+   owner's reply. Commit the agreed table as `docs/items/<item>.md` (Tier
+   D; first line of its status: agreed <date>, not started) and stop: the
+   session that writes the table does not build it. Give the owner the
+   kickoff prompt (see Handoff) for a new session.
 2. **Test first, and it must fail.** Write the scenario from the sentences,
    named after them. Run it alone against the unchanged code. Record the
    failure (the assertion lines, trimmed). A scenario that passes before the
    change does not test the change — rewrite it before touching code.
 3. **Smallest change** in the files the item names. No reformatting, no
    drive-bys. Anything else noticed becomes a `docs/ROADMAP.md` line with a
-   tier.
+   tier, in this same commit; such a line is in scope and the inspector is
+   told so.
 4. **Prove it.** The scenario passes; `npm test` (root) passes;
    `npm run build` passes. Tier B: check the far end — the running app in a
    browser, not the unit test's word for it.
@@ -67,7 +71,33 @@ A row left unanswered is not built.
    number-introducing changes. Nothing is committed until it returns PASS.
 7. **Commit.** Subject: the specification sentence. Body: `Tier: X`, the
    scenario name, the recorded failure, the box (A/B), and any FAIL rounds
-   with what changed after each.
+   with what changed after each. The item file's status line becomes
+   landed, naming the commit subject; its builder's notes are filled in.
+
+## Handoff — the session that writes the spec does not build it
+
+After the owner agrees the scope table, the writing session commits
+`docs/items/<item>.md` and stops. A new session builds from that file. The
+kickoff prompt, with `<item>` filled in:
+
+> You are the builder for one item in Brew Design
+> (C:/Users/micha/Documents/Code/Brew-Design). Read, in order: `CLAUDE.md`,
+> `SPEC.md`, `docs/items/<item>.md`. The item file holds the sentences, the
+> agreed decisions — including your model and the inspector's — the scenario
+> names, and notes from the session that wrote it. Do not re-open the
+> decisions; a row you think is wrong goes back to the owner as a question,
+> not a change.
+>
+> Then run `CLAUDE.md`'s procedure from step 2: branch `<item>` from `main`;
+> write the scenarios first and run them alone — they must fail, and you
+> record the failure; make the smallest change in the files the item names;
+> prove it (scenario, `npm test`, `npm run build`, and for Tier A/B the far
+> end in a browser); update the docs in the same change; stage; run the
+> inspector exactly as `CLAUDE.md` specifies, with the model the item file
+> names; commit once, with the box(es) in the body; push the branch and give
+> the owner the PR link. Never push `main`. Stop after this one item and
+> report: what landed, the verdict, any FAIL rounds, and anything deferred
+> to the roadmap.
 
 ## Models
 
@@ -89,10 +119,12 @@ inspector's.
 
 Run it to completion before continuing (`run_in_background: false`).
 
-**Prompt.** Contains only: the scope-table sentences, the decisions, the
-scenario name and recorded failure, the full `git diff --cached`, the
-builder's notes (choices the sentences did not make, as claims to verify),
-and the instruction below. No chat history.
+**Prompt.** Contains only: the item file's path, its sentences and decisions
+pasted verbatim, the scenario name and recorded failure, the builder's notes
+(choices the sentences did not make, as claims to verify), and the
+instruction below. No chat history. The diff is not pasted: the inspector
+runs `git diff --cached` itself. A pasted copy can drift from the staged
+bytes, and did once (Persistence, 2026-09-20).
 
 **On FAIL** nothing is committed. Fix what it names, re-prove, re-stage, and
 resume the *same* inspector (`SendMessage`) with only the delta. Its FAIL
@@ -113,9 +145,12 @@ commit body.
 >
 > Do, in order:
 > 1. Run the scenario alone, then `npm test`. Report the counts.
-> 2. Read `SPEC.md`. Read the diff line by line against the sentences and
->    against `SPEC.md`. Note every file the diff touches outside those the
->    item names.
+> 2. Run `git diff --cached` from the repository root; that output is the
+>    change under inspection. Read `SPEC.md`. Read the diff line by line
+>    against the sentences and against `SPEC.md`. Note every file the diff
+>    touches outside those the item names. A `docs/ROADMAP.md` line that
+>    records something noticed while building (procedure step 3) is in
+>    scope.
 > 3. For every numeric literal or arithmetic the diff adds or changes that
 >    produces or changes a recipe value: name its rule (the spreadsheet cell,
 >    the engine constant, or the arithmetic) and the test that pins it, or
