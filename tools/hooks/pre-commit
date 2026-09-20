@@ -1,0 +1,43 @@
+#!/bin/sh
+# Brew Design pre-commit guard (CLAUDE.md — Hooks).
+# Mechanical layer only. It guards the path table; the "introduces a number"
+# catch-all is the builder's and inspector's job.
+#
+#   - Any staged Tier A/B file  -> run the full suite (root `npm test`) and
+#                                  the SPEC rule 7 grep (no brewing math in app).
+#   - Any staged component file -> SPEC rule 13 grep (no hex outside styles.js).
+# Refuses the commit on any failure. Merge commits pass through.
+
+GIT_DIR=$(git rev-parse --git-dir)
+[ -f "$GIT_DIR/MERGE_HEAD" ] && exit 0
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+AB='^(packages/engine/src/|apps/recipe/src/(state|selectors|display|reference-volume)\.js$)'
+COMP='^apps/recipe/src/components/'
+
+if echo "$STAGED" | grep -qE "$AB"; then
+  echo "pre-commit: Tier A/B file staged - running npm test"
+  npm test --silent || { echo "pre-commit: REFUSED - suite failed"; exit 1; }
+
+  # SPEC.md rule 7: engine formula signatures must never appear in the app.
+  # Constants: 46 PPG, Tinseth (0.000125, 1.65), ABV (76.08), Morey (1.49),
+  # mash 2.055 in arithmetic, L/gal, g/oz, g/lb.
+  # Comment lines (// or JSDoc *) are excluded: a formula in a comment is the
+  # inspector's to judge; a live one is on a code line.
+  RULE7='46 \* |Math\.pow\(|Math\.exp\(|0\.000125|1\.65 \* |76\.08|1\.49 \* |[*/] *2\.055|2\.055 *[*/]|3\.785411784|28\.3495|453\.592'
+  COMMENT='^[^:]+:[0-9]+:[[:space:]]*(//|\*|/\*)'
+  HITS=$(git grep --cached -nE "$RULE7" -- 'apps/recipe/src' | grep -vE "$COMMENT")
+  if [ -n "$HITS" ]; then
+    echo "$HITS"
+    echo "pre-commit: REFUSED - brewing formula in apps/recipe/src (SPEC.md rule 7)"; exit 1
+  fi
+fi
+
+if echo "$STAGED" | grep -qE "$COMP"; then
+  # SPEC.md rule 13: no hex literals outside shared/styles.js.
+  if git grep --cached -nE "['\"]#[0-9a-fA-F]{3,8}['\"]" -- 'apps/recipe/src/components' ':!apps/recipe/src/components/shared/styles.js' ; then
+    echo "pre-commit: REFUSED - hex literal outside shared/styles.js (SPEC.md rule 13)"; exit 1
+  fi
+fi
+
+exit 0

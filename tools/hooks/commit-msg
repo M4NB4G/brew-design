@@ -1,0 +1,23 @@
+#!/bin/sh
+# Brew Design commit-msg guard (CLAUDE.md — Hooks).
+#   - Every commit body must name its tier:      Tier: A|B|C|D
+#   - Every Tier A/B commit must carry a PASS box: Verdict: PASS
+# Merge commits pass through.
+
+MSG_FILE="$1"
+GIT_DIR=$(git rev-parse --git-dir)
+[ -f "$GIT_DIR/MERGE_HEAD" ] && exit 0
+
+if ! grep -qE '^Tier: [ABCD]\b' "$MSG_FILE"; then
+  echo "commit-msg: REFUSED - body must contain a line 'Tier: A|B|C|D' (CLAUDE.md)"; exit 1
+fi
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+AB='^(packages/engine/src/|apps/recipe/src/(state|selectors|display|reference-volume)\.js$)'
+if echo "$STAGED" | grep -qE "$AB"; then
+  if ! grep -qE '^- Verdict: PASS' "$MSG_FILE"; then
+    echo "commit-msg: REFUSED - Tier A/B change without an inspector box ('- Verdict: PASS') in the body (CLAUDE.md)"; exit 1
+  fi
+fi
+
+exit 0

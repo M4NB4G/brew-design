@@ -7,5 +7,9 @@
   "workspaces": [
     "packages/*",
     "apps/*"
-  ]
+  ],
+  "scripts": {
+    "test": "npm test --workspaces",
+    "build": "npm run build --workspace @brew/recipe"
+  }
 }

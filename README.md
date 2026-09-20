@@ -29,12 +29,20 @@ UI, persistence, and the water-chemistry port land in later phases.
 
 ```bash
 npm install                          # sets up the npm workspace
-npm test --workspace @brew/engine    # runs the Vitest golden-master suite
+npm test                             # both suites (engine + recipe app)
+git config core.hooksPath tools/hooks  # activates the pre-commit / commit-msg guards
 ```
 
 The engine is pinned to the spreadsheet's cached values by golden-master tests.
 Tolerances are intentionally tight (SG 1e-6; Plato/SRM/IBU 1e-4) and are not
 loosened to mask implementation error.
+
+## Working rules
+
+`CLAUDE.md` holds the change-control tiers and the builder/inspector protocol;
+`SPEC.md` is the specification every diff is checked against;
+`docs/TEST_COVERAGE.md` says what proves each rule; `docs/ROADMAP.md` is
+outstanding work by tier.
 
 ## Layout
 
