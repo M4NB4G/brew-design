@@ -29,11 +29,11 @@ doubt, it is Tier B.
 
 ## Roles
 
-- **Owner** (Michael) decides in sentences, merges, and deploys. He is never
-  asked to pick a number a rule should derive.
+- **Owner** (Michael) decides in sentences, reads the report, and says
+  "merge and push". He is never asked to pick a number a rule should derive.
 - **Builder** (the session) writes the scope table, the test, the change, and
   the docs; starts the inspector; never writes its own box; never commits on
-  FAIL.
+  FAIL; never merges or pushes `main` before the owner's "merge and push".
 - **Inspector** (a fresh subagent) runs the suite itself, reads the diff
   against the sentences, and returns the box. It changes no file.
 
@@ -73,6 +73,18 @@ A row left unanswered is not built.
    scenario name, the recorded failure, the box (A/B), and any FAIL rounds
    with what changed after each. The item file's status line becomes
    landed, naming the commit subject; its builder's notes are filled in.
+8. **Report and wait.** Push the branch; open the PR, or give the compare
+   link when no PR tooling is available. The report carries everything the
+   owner needs to decide without opening anything else: what landed, the
+   verdict and every box, any FAIL rounds, anything deferred to the
+   roadmap, the PR link, and the full diff (`git diff main...<branch>`).
+   Then stop. Nothing more happens until the owner replies.
+9. **Merge and push on the owner's word.** When the owner says "merge and
+   push", fast-forward `main` to the branch and push `main`; that push is
+   the deploy (see Deploy). If `main` has moved since the report, the
+   fast-forward fails: rebase, re-prove, re-report, and wait again — the
+   owner approved a diff, not a branch name. Without those words, `main`
+   is not touched.
 
 ## Handoff — the session that writes the spec does not build it
 
@@ -94,10 +106,12 @@ kickoff prompt, with `<item>` filled in:
 > prove it (scenario, `npm test`, `npm run build`, and for Tier A/B the far
 > end in a browser); update the docs in the same change; stage; run the
 > inspector exactly as `CLAUDE.md` specifies, with the model the item file
-> names; commit once, with the box(es) in the body; push the branch and give
-> the owner the PR link. Never push `main`. Stop after this one item and
-> report: what landed, the verdict, any FAIL rounds, and anything deferred
-> to the roadmap.
+> names; commit once, with the box(es) in the body; push the branch, open
+> the PR (or give the compare link), and report: what landed, the verdict
+> and the box(es), any FAIL rounds, anything deferred to the roadmap, the
+> PR link, and the full diff. Then stop and wait. `main` is merged and
+> pushed only when the owner replies "merge and push" — that push deploys —
+> and never on your own initiative. Stop after this one item.
 
 ## Models
 
@@ -198,9 +212,13 @@ Never bypass them (`--no-verify`).
 
 ## Deploy
 
-Netlify deploys `main`. The builder works on a branch and opens a PR; the
-owner merges, and the merge is the deploy. The session never pushes `main`
-and never triggers a deploy.
+Netlify deploys `main` (live since 2026-09-20): every push to `main` is a
+deploy. The builder works on a branch, opens the PR, and reports (procedure
+step 8). The owner reads the report and decides. On the owner's "merge and
+push" — in chat, per item, after the report — the session fast-forwards
+`main` to the branch and pushes it; that push is the deploy. The session
+never pushes `main` before those words, and never merges anything the owner
+has not seen in full.
 
 ## Verification
 

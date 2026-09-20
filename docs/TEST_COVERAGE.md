@@ -58,4 +58,6 @@ Total: engine 179, app 25.
 
 ## Re-tests owed
 
-None. Nothing is deployed.
+Netlify has deployed `main` since 2026-09-20; 277ad62 (Percent helpers) is
+the first live commit. Owed: look at the live site once — that item's far
+end ran on `vite preview` of the same build, not on Netlify's.
