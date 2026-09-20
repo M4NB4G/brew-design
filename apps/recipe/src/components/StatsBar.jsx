@@ -10,6 +10,8 @@ import {
   gravityUnitLabel,
   cellsFromCanonical,
   cellsUnit,
+  percentUnit,
+  fractionToPercent,
 } from '../display.js';
 import { num, gravity } from '../format.js';
 
@@ -79,7 +81,7 @@ export default function StatsBar({ derived, mode, proGravityUnit }) {
         valueStyle={STRIP_VAL}
       />
       <StatBox
-        value={`${num(grist.ABV * 100, 1)}%`}
+        value={`${num(fractionToPercent(grist.ABV), 1)}${percentUnit()}`}
         label="ABV"
         style={STRIP_BOX}
         valueStyle={STRIP_VAL}

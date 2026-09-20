@@ -16,7 +16,7 @@ in the same commit as any change to a proof (CLAUDE.md, procedure step 5).
 | 6 60 °F reference; mash water as entered | `smoke.test.js` postBoil 14.5, mashRv 1.7931034 — `toReferenceVolume` is a no-op, so routing is not yet distinguishable | partial |
 | 7 No brewing math in the app | hook grep (formula signatures) + inspector | proven (hook) |
 | 8 One canonical state | `smoke.test.js` drives canonical state through `computeRecipe`; `persistence.test.js` asserts the stored document holds canonical field names and units | partial |
-| 9 Convert only at the edges | `smoke.test.js` round-trips: volume 16 gal Home/Pro, SG→Plato, cells 570→0.57 T | partial — hop weight, dry-hop rate, and percent (FGDB/efficiency/attenuation/alpha) unproven |
+| 9 Convert only at the edges | `smoke.test.js` round-trips: volume 16 gal Home/Pro, SG→Plato, cells 570→0.57 T; `percent.test.js` pins fraction↔percent (0.8↔80, 0.147↔14.7, every reference fraction within 1e-12) and reads every component for leftover `* 100` / `/ 100` | partial — hop weight and dry-hop rate unproven |
 | 10 Only `selectors.js` calls engine compute | none | gap |
 | 11 `toReferenceVolume` routing | none (no-op) | gap |
 | 12 Smoke test passes unchanged | hook runs it on A/B commits; no CI | partial |
@@ -40,14 +40,14 @@ in the same commit as any change to a proof (CLAUDE.md, procedure step 5).
 | reference batches parity | `packages/engine/test/water/reference-batches/parity.test.js` | 18 |
 | parity through the UI selector (computeRecipe) · unit-conversion boundary round-trips | `apps/recipe/test/smoke.test.js` | 13 |
 | persistence: saved recipe restored (canonical, one versioned key) · cleared field round-trips as NaN · display settings restored · reset removes the saved copy · nothing saved → defaults · unreadable data → defaults · unavailable storage is a no-op | `apps/recipe/test/persistence.test.js` | 7 |
+| percent: a fraction shows as a percent · a percent entered parses to the fraction · every reference-recipe fraction round-trips within 1e-12 · ABV 0.0748883 shows as 7.49% · no fraction↔percent arithmetic remains in components | `apps/recipe/test/percent.test.js` | 5 |
 
-Total: engine 179, app 20.
+Total: engine 179, app 25.
 
 ## Gaps and the cost of closing each
 
 | Gap | Cost | Tier when closed |
 |---|---|---|
-| Percent display helpers (rule 9) live in components with no round-trip test | small: two helpers in `display.js` + 2 assertions | B |
 | Hop weight and dry-hop rate round-trips (rule 9) | small: 2 assertions | D |
 | `toReferenceVolume` routing (rule 11) | small: spy the module; assert 3 calls, none for mash water | D |
 | Only `selectors.js` imports engine compute functions (rule 10) | small: hook grep | D |

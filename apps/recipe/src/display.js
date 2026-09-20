@@ -90,6 +90,23 @@ export function dryHopRateFromCanonical(ozPerGal, mode) {
   return mode === 'pro' ? (ozPerGal * GALLONS_PER_BBL) / OZ_PER_LB : ozPerGal;
 }
 
+// --- Percent: FGDB, efficiency, attenuation, alpha acid, ABV -----------------
+// State holds the fraction (SPEC rule 8, unit table); the user enters and sees
+// percent, the same in both modes. Percent is fraction x 100 by definition, so
+// the pair are inverses to within floating-point round-off. No rounding here:
+// precision stays the caller's (roundForInput, num).
+export function percentUnit() {
+  return '%';
+}
+
+export function fractionToPercent(fraction) {
+  return fraction * 100;
+}
+
+export function percentToFraction(percent) {
+  return percent / 100;
+}
+
 // --- Quantities identical in both modes (label only) ------------------------
 export function tempUnit() {
   return '°F'; // degC is a later Options item

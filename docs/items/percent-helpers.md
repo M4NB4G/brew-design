@@ -1,9 +1,11 @@
 # Percent helpers — Tier B
 
-Status: agreed 2026-09-20 ("agree to all"), not started. Written by the
-spec session; to be built by a new session from CLAUDE.md's kickoff prompt.
-R1 (a Models-rule amendment) was applied to CLAUDE.md in the same commit as
-this file, so it is not a builder file.
+Status: landed 2026-09-20, in the commit whose subject is S4 ("No
+fraction↔percent arithmetic remains in any component"); the inspector's box
+is in that commit's body. Agreed 2026-09-20 ("agree to all"); written by the
+spec session, built by a new session from CLAUDE.md's kickoff prompt. R1 (a
+Models-rule amendment) was applied to CLAUDE.md in the same commit as this
+file, so it is not a builder file.
 
 ## Why
 
@@ -55,10 +57,52 @@ Expected failure before the change: 1–4 fail on import (`Cannot find module` o
 
 On the built app (`vite preview`), default recipe: FGDB shows 80, efficiency 75, attenuation 77, alpha 12 and 6; ABV shows the same value as on `main` before the change (record the `main` value first). Edit alpha to 14.7 → the stored document's `alphaAcidFraction` is 0.147 (read `localStorage['brew-design.recipe']`).
 
+Result, 2026-09-20, built app (`vite preview`, bundle `index-DgrrMrtC.js`),
+default recipe, Home: FGDB 80 and 80, efficiency 75, attenuation 77, alpha
+12 and 6, ABV 5.7% — every number input and every `%` label byte-identical
+to the `main` snapshot taken first (`main` ABV: 5.7%). Alpha (Magnum) edited
+to 14.7 → stored `alphaAcidFraction` 0.147, kettle 56 IBU, both as on
+`main`. Extra: efficiency edited to 72 → stored 0.72 (the `InputRow` /
+`parseFloat` path).
+
 ## Recorded failure (filled in by the builder)
 
-_pending_
+Run alone against the unchanged code (`main` at b466b98), `npx vitest run
+test/percent.test.js` from `apps/recipe`: 5 tests, 5 failed.
+
+- 1–4: `TypeError: (0 , fractionToPercent) is not a function` (scenario 2:
+  `percentToFraction`). The missing export surfaced per test, not on import:
+  vite-node resolves an absent named export to `undefined`, so P4's "fails
+  cleanly on import" became "fails cleanly on first call", and scenario 5
+  ran in the same pass.
+- 5: `AssertionError: expected [ …(9) ] to deeply equal []`, naming
+  `GristTable.jsx:85, 89, 152, 153, 161, 162`, `HopsSection.jsx:204, 208`,
+  `StatsBar.jsx:82` — the nine call sites listed above.
+
+After the change: 5/5 alone; `npm test` engine 179/179, app 25/25
+(`smoke.test.js` 13, unchanged); `npm run build` green.
 
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
 
-_pending_
+- **Display precision stayed where it was.** Efficiency and attenuation keep
+  their `Number((…).toFixed(4))` wrapper, now around `fractionToPercent`;
+  FGDB and alpha go through `NumberField`'s `roundForInput` as before; ABV
+  keeps `num(…, 1)`. The helpers are the same two expressions the components
+  inlined (`fraction * 100`, `percent / 100`), so every shown value and every
+  stored fraction is bit-identical to before (S6); the far end confirmed it
+  against a `main` snapshot taken first.
+- **Five `%` labels use `percentUnit()`** (P3): the FGDB and Alpha column
+  headers, the two `InputRow` `unit` props, and the ABV suffix. It is pinned
+  inside scenario 4 ("shows as 7.49%") rather than as a sixth scenario; the
+  item lists five.
+- **Scenario 5 reads `components/**` recursively** (so `shared/` is
+  included): S4 says "any component". A whole-line comment (`//`, `*`, `/*`,
+  JSX `{/*`) is excluded, as in the pre-commit hook's rule-7 grep; a trailing
+  `// … 100` on a code line would be a visible false positive, never a silent
+  miss. `max="100"` / `max={100}` have no operator and do not match.
+- **Round-off did not appear.** All six reference fractions round-trip with
+  drift exactly 0, and `0.147 * 100` is `14.7` in JS (P5's example
+  `14.700000000000001` does not occur); the 1e-12 pin stands and no
+  compensation was added (P5).
+- **Nothing for the roadmap.** No drive-bys noticed; `.claude/` (untracked
+  launch config) stays out of the change.

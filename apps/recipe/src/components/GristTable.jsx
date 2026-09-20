@@ -7,7 +7,7 @@ import NumberField from './NumberField.jsx';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
 import { colors, tokens, radii } from './shared/styles.js';
-import { maltWeightUnit } from '../display.js';
+import { maltWeightUnit, percentUnit, fractionToPercent, percentToFraction } from '../display.js';
 import { num } from '../format.js';
 
 const EMPTY_MALT = { name: 'New malt', weightLb: 1, fgdb: 0.8, colorL: 2 };
@@ -47,7 +47,7 @@ export default function GristTable({
             <tr>
               <th style={{ ...TH, minWidth: '120px' }}>Malt</th>
               <th style={{ ...TH, width: '95px' }}>Weight ({maltWeightUnit()})</th>
-              <th style={{ ...TH, width: '80px' }}>FGDB (%)</th>
+              <th style={{ ...TH, width: '80px' }}>FGDB ({percentUnit()})</th>
               <th style={{ ...TH, width: '80px' }}>Color (°L)</th>
               <th style={{ ...TH, width: '80px', textAlign: 'right' }}>Points</th>
               <th style={{ ...TH, width: '36px' }} />
@@ -82,11 +82,11 @@ export default function GristTable({
                 </td>
                 <td style={TD_NUM}>
                   <NumberField
-                    value={m.fgdb * 100}
+                    value={fractionToPercent(m.fgdb)}
                     step="1"
                     min="0"
                     max="100"
-                    onChange={(v) => setRow('malts', i, 'fgdb', v / 100)}
+                    onChange={(v) => setRow('malts', i, 'fgdb', percentToFraction(v))}
                   />
                 </td>
                 <td style={TD_NUM}>
@@ -148,18 +148,18 @@ export default function GristTable({
       <div>
         <InputRow
           label="Brewhouse efficiency"
-          unit="%"
-          value={Number((efficiency * 100).toFixed(4))}
-          onChange={(e) => setField('efficiency', parseFloat(e.target.value) / 100)}
+          unit={percentUnit()}
+          value={Number(fractionToPercent(efficiency).toFixed(4))}
+          onChange={(e) => setField('efficiency', percentToFraction(parseFloat(e.target.value)))}
           step={1}
           min={0}
           max={100}
         />
         <InputRow
           label="Yeast Apparent Attenuation"
-          unit="%"
-          value={Number((apparentAttenuation * 100).toFixed(4))}
-          onChange={(e) => setField('apparentAttenuation', parseFloat(e.target.value) / 100)}
+          unit={percentUnit()}
+          value={Number(fractionToPercent(apparentAttenuation).toFixed(4))}
+          onChange={(e) => setField('apparentAttenuation', percentToFraction(parseFloat(e.target.value)))}
           step={1}
           min={0}
           max={100}

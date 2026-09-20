@@ -13,6 +13,9 @@ import {
   dryHopRateFromCanonical,
   dryHopRateUnit,
   tempUnit,
+  percentUnit,
+  fractionToPercent,
+  percentToFraction,
 } from '../display.js';
 import { num } from '../format.js';
 
@@ -152,7 +155,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
               <th style={{ ...TH, width: '72px' }}>Time (min)</th>
               <th style={{ ...TH, width: '88px' }}>Temp ({tempUnit()})</th>
               <th style={{ ...TH, width: '90px' }}>Wt ({wUnit})</th>
-              <th style={{ ...TH, width: '76px' }}>Alpha (%)</th>
+              <th style={{ ...TH, width: '76px' }}>Alpha ({percentUnit()})</th>
               <th style={{ ...TH, width: '68px', textAlign: 'right' }}>IBU</th>
               <th style={{ ...TH, width: '36px' }} />
             </tr>
@@ -201,11 +204,11 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
                 </td>
                 <td style={TD_NUM}>
                   <NumberField
-                    value={a.alphaAcidFraction * 100}
+                    value={fractionToPercent(a.alphaAcidFraction)}
                     step="0.1"
                     min="0"
                     max="100"
-                    onChange={(v) => setRow('kettleAdditions', i, 'alphaAcidFraction', v / 100)}
+                    onChange={(v) => setRow('kettleAdditions', i, 'alphaAcidFraction', percentToFraction(v))}
                   />
                 </td>
                 <td style={{ ...TD, textAlign: 'right' }}>
