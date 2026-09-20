@@ -50,7 +50,7 @@ function PillToggle({ value, onChange, options }) {
   );
 }
 
-export default function Header({ mode, onMode, proGravityUnit, onProGravityUnit }) {
+export default function Header({ mode, onMode, proGravityUnit, onProGravityUnit, onReset }) {
   return (
     <header style={{ background: colors.cardBg, boxShadow: shadows.header }}>
 
@@ -108,6 +108,24 @@ export default function Header({ mode, onMode, proGravityUnit, onProGravityUnit 
       {/* Toggle row — right-aligned, Pro/Home first then gravity (Pro only) */}
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0.55rem 1.25rem 0.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.6rem', alignItems: 'center' }}>
+          <button
+            type="button"
+            onClick={onReset}
+            style={{
+              padding: '0.35rem 0.8rem',
+              background: 'transparent',
+              border: `1px solid ${colors.inputBorder}`,
+              borderRadius: radii.pill,
+              color: colors.textSecondary,
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              letterSpacing: '0.05em',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            Reset to defaults
+          </button>
           {mode === 'pro' && (
             <PillToggle
               value={proGravityUnit}

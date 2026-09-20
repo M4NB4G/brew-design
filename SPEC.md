@@ -39,6 +39,10 @@ pinned by the golden-master tests.
 12. The smoke test (`apps/recipe/test/smoke.test.js`) pins the reference
     recipe through the UI's own selectors. It must pass unchanged; its
     tolerances are the engine's.
+13. Persisted state is the canonical state, under one key, in one JSON
+    document carrying a schema version. Unreadable data, a different version,
+    or unavailable storage yields the defaults and never throws. A cleared
+    field (NaN) round-trips as NaN, never as 0 or null.
 
 ### Display units
 
@@ -58,10 +62,10 @@ pinned by the golden-master tests.
 
 ## 3. Design
 
-13. `apps/recipe/src/components/shared/styles.js` is the only styling source.
+14. `apps/recipe/src/components/shared/styles.js` is the only styling source.
     No hex or rgb literals outside it, except data-driven colors (the SRM
     swatch). The visual language matches Brew Water Chem.
-14. Read-only computed values render as plain text, never as an input box.
+15. Read-only computed values render as plain text, never as an input box.
 
 ## 4. Verification
 

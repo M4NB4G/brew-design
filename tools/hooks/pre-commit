@@ -5,14 +5,14 @@
 #
 #   - Any staged Tier A/B file  -> run the full suite (root `npm test`) and
 #                                  the SPEC rule 7 grep (no brewing math in app).
-#   - Any staged component file -> SPEC rule 13 grep (no hex outside styles.js).
+#   - Any staged component file -> SPEC rule 14 grep (no hex outside styles.js).
 # Refuses the commit on any failure. Merge commits pass through.
 
 GIT_DIR=$(git rev-parse --git-dir)
 [ -f "$GIT_DIR/MERGE_HEAD" ] && exit 0
 
 STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
-AB='^(packages/engine/src/|apps/recipe/src/(state|selectors|display|reference-volume)\.js$)'
+AB='^(packages/engine/src/|apps/recipe/src/(state|selectors|display|reference-volume|persistence)\.js$|apps/recipe/src/App\.jsx$)'
 COMP='^apps/recipe/src/components/'
 
 if echo "$STAGED" | grep -qE "$AB"; then
@@ -34,9 +34,9 @@ if echo "$STAGED" | grep -qE "$AB"; then
 fi
 
 if echo "$STAGED" | grep -qE "$COMP"; then
-  # SPEC.md rule 13: no hex literals outside shared/styles.js.
+  # SPEC.md rule 14: no hex literals outside shared/styles.js.
   if git grep --cached -nE "['\"]#[0-9a-fA-F]{3,8}['\"]" -- 'apps/recipe/src/components' ':!apps/recipe/src/components/shared/styles.js' ; then
-    echo "pre-commit: REFUSED - hex literal outside shared/styles.js (SPEC.md rule 13)"; exit 1
+    echo "pre-commit: REFUSED - hex literal outside shared/styles.js (SPEC.md rule 14)"; exit 1
   fi
 fi
 

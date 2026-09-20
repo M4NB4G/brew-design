@@ -13,7 +13,7 @@ inspector); where this file is silent, that document governs.
 | Tier | Paths | Gate | Re-test |
 |---|---|---|---|
 | A | `packages/engine/src/**` | Inspector | both suites |
-| B | `apps/recipe/src/{state,selectors,display,reference-volume}.js` | Inspector | both suites + far end |
+| B | `apps/recipe/src/{state,selectors,display,reference-volume,persistence}.js`, `apps/recipe/src/App.jsx` | Inspector | both suites + far end |
 | C | `apps/recipe/src/components/**`, `index.css` | suites pass | look at it |
 | D | config, docs, tooling, tests | suites pass | build |
 
@@ -150,7 +150,7 @@ commit body.
 ## Hooks
 
 `tools/hooks/pre-commit` runs `npm test` and the SPEC greps (rules 7 and
-13) when a Tier A/B or component file is staged. `tools/hooks/commit-msg`
+14) when a Tier A/B or component file is staged. `tools/hooks/commit-msg`
 refuses any commit whose body names no `Tier:`, and any A/B commit whose
 body has no `Verdict: PASS`. Activate once per clone:
 

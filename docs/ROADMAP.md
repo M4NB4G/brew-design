@@ -8,7 +8,6 @@ table is written when the item starts. Landed items are removed.
 
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
-| Persistence | A recipe survives a page reload; "Reset" restores the defaults | suites + inspector + reload the built app |
 | Percent helpers | FGDB, efficiency, attenuation, and alpha convert fraction↔percent in `display.js`, round-tripped in the smoke test | suites + inspector |
 | Options page | Pre-boil, post-boil, and ferment volumes are corrected to 60 °F from their measurement temperatures via `correctVolumeToRef`; mash water is not; °C display toggle | suites + inspector + far end |
 | Empty-field handling | Clearing a field explains why downstream stats are blank and never writes NaN into state | suites + inspector |
