@@ -4,11 +4,18 @@ Sorted by consequence, not convenience (CLAUDE.md, change control). Each line
 names its tier and the re-test it costs. Sentences are drafts; the real scope
 table is written when the item starts. Landed items are removed.
 
+## Tier A — engine
+
+| Item | Sentence (draft) | Re-test |
+|---|---|---|
+| `correctVolumeToRef` identity | Its doc says the factor is exactly 1 at the reference temperature, but `(v · d) / d` differs from `v` by one ulp for v = 7 or 5 (exact for 16, 14.5, 12, 5.5); compute `v · (d / d)` or short-circuit `tempF === refTempF`; golden values unaffected (noticed writing the Options page table, 2026-09-21) | suites + cross-family inspector |
+
 ## Tier B — touches state, selectors, display, or reference-volume
 
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
-| Options page | Pre-boil, post-boil, and ferment volumes are corrected to 60 °F from their measurement temperatures via `correctVolumeToRef`; mash water is not; °C display toggle | suites + inspector + far end |
+| Options page | An Options tab holds the three volume-measurement temperatures (°F, default 60 — the reference); pre-boil, post-boil, and ferment volumes are corrected through `toReferenceVolume` by the engine's `correctVolumeToRef`; mash water is not; saved recipes are upgraded to schema v2; the Recipe tab gets a Volumes card first. Scope table agreed: `docs/items/options-page.md` | suites + inspector + far end |
+| °C display toggle | Every temperature shown (the measurement temperatures, the hop wort temperature) switches °F/°C from a header toggle that persists with the display settings; needs `cToF` in the engine, so Tier A + B (split from Options page, 2026-09-21) | suites + cross-family inspector + far end |
 | Empty-field handling | Clearing a field explains why downstream stats are blank and never writes NaN into state | suites + inspector |
 | Inverse solver UI | A target OG yields a grain bill via `solveGrist`; the round-trip residual FLAG is shown | suites + inspector |
 | Water tab | The water-chemistry solver is reachable from the app | suites + inspector |

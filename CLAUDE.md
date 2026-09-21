@@ -31,6 +31,11 @@ doubt, it is Tier B.
 
 - **Owner** (Michael) decides in sentences, reads the report, and says
   "merge and push". He is never asked to pick a number a rule should derive.
+  He is an engineer, not a programmer: everything put to him — scope
+  tables, questions, reports — is written in engineering language, what the
+  brewer sees and what happens to the numbers, never code identifiers. File
+  names, signatures, and implementation choices go in the item file, for
+  the builder.
 - **Builder** (the session) writes the scope table, the test, the change, and
   the docs; starts the inspector; never writes its own box; never commits on
   FAIL; never merges or pushes `main` before the owner's "merge and push".
@@ -38,8 +43,8 @@ doubt, it is Tier B.
   against the sentences, and returns the box. It changes no file.
 
 Open questions go to the owner as a decision table: id, the question, the
-recommended answer, the rule behind it. "Agree to all" is a complete reply.
-A row left unanswered is not built.
+recommended answer, the rule behind it — in engineering language (Roles).
+"Agree to all" is a complete reply. A row left unanswered is not built.
 
 ## Procedure — one item, one commit
 
