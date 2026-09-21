@@ -58,6 +58,8 @@ Total: engine 179, app 25.
 
 ## Re-tests owed
 
-Netlify has deployed `main` since 2026-09-20; 277ad62 (Percent helpers) is
-the first live commit. Owed: look at the live site once — that item's far
-end ran on `vite preview` of the same build, not on Netlify's.
+None. Netlify deploys `main` at https://brew-design.netlify.app (live since
+2026-09-20; 277ad62 the first live commit). Percent helpers re-tested there
+2026-09-21: Netlify's bundle is `index-DgrrMrtC.js`, the same content hash
+as the builder's local build; FGDB 80/80, efficiency 75, attenuation 77,
+alpha 12/6, ABV 5.7%; alpha 14.7 → stored `alphaAcidFraction` 0.147, 56 IBU.
