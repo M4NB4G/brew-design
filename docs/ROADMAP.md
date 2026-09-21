@@ -33,7 +33,7 @@ table is written when the item starts. Landed items are removed.
 
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
-| Netlify config | `netlify.toml`: build `npm test && npm run build`, publish `apps/recipe/dist`, Node 22, SPA redirect | build on Netlify |
+| Netlify config | `apps/recipe/netlify.toml` (the package directory): build `npm test && npm run build`, publish `apps/recipe/dist`, Node 24 pinned; no redirect (no URL routes). A failing suite then blocks the deploy. Scope table agreed: `docs/items/netlify-config.md` | build on Netlify (the deploy log) |
 | Title + favicon | The browser tab reads "Brew Design" and shows an icon | build |
 | `npm audit fix` | Dev-tooling advisories cleared | suites |
 | Line endings | `.gitattributes` pins `* text=auto eol=lf` so working copies stay LF on Windows (autocrlf rewrote the docs to CRLF on a branch checkout, 2026-09-20) | none |
