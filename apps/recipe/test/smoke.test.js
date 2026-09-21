@@ -47,6 +47,7 @@ const referenceState = {
   ],
   fermentVolGal: 12,
   yeast: { type: 'ale', density: 'mod' },
+  measurementTempF: { preBoil: 60, postBoil: 60, ferment: 60 },
 };
 
 describe('parity through the UI selector (computeRecipe)', () => {

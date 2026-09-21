@@ -1,19 +1,22 @@
 // App.jsx
 // Owns the single canonical recipe-state object plus the display settings
-// (mode, Pro-mode gravity unit). Derives all stats once via computeRecipe and
-// passes plain props down to cleanly separated section components. No brewing
-// math and no unit conversion live here — those are in selectors.js and
-// display.js respectively.
+// (mode, Pro-mode gravity unit) and the active tab (Recipe · Options; not
+// persisted). Derives all stats once via computeRecipe and passes plain props
+// down to cleanly separated section components. No brewing math and no unit
+// conversion live here — those are in selectors.js and display.js
+// respectively.
 import { useEffect, useMemo, useState } from 'react';
 import { defaultRecipeState } from './state.js';
 import { computeRecipe } from './selectors.js';
 import { loadPersisted, savePersisted, clearPersisted } from './persistence.js';
 import Header from './components/Header.jsx';
+import TabBar from './components/TabBar.jsx';
 import StatsBar from './components/StatsBar.jsx';
 import GristTable from './components/GristTable.jsx';
-import MashSection from './components/MashSection.jsx';
+import VolumesSection from './components/VolumesSection.jsx';
 import HopsSection from './components/HopsSection.jsx';
 import YeastSection from './components/YeastSection.jsx';
+import OptionsSection from './components/OptionsSection.jsx';
 import { colors } from './components/shared/styles.js';
 
 // Display-setting defaults; the recipe defaults live in state.js.
@@ -39,6 +42,7 @@ export default function App() {
   const [recipe, setRecipe] = useState(initial.recipe);
   const [mode, setMode] = useState(initial.mode); // 'home' | 'pro'
   const [proGravityUnit, setProGravityUnit] = useState(initial.proGravityUnit); // Pro: 'plato' | 'sg'
+  const [tab, setTab] = useState('recipe'); // 'recipe' | 'options'; every load opens on Recipe
 
   const derived = useMemo(() => computeRecipe(recipe), [recipe]);
 
@@ -72,6 +76,10 @@ export default function App() {
   const setYeast = (key, value) =>
     setRecipe((r) => ({ ...r, yeast: { ...r.yeast, [key]: value } }));
 
+  // Measurement temperature (degF, as typed) for one corrected volume kind.
+  const setMeasurementTemp = (kind, tempF) =>
+    setRecipe((r) => ({ ...r, measurementTempF: { ...r.measurementTempF, [kind]: tempF } }));
+
   return (
     <div style={{ minHeight: '100vh', paddingBottom: '4rem' }}>
 
@@ -84,7 +92,10 @@ export default function App() {
         onReset={resetToDefaults}
       />
 
-      {/* Persistent stats bar — sticky so it remains visible while editing */}
+      {/* Recipe · Options tabs (Brew Water Chem's row, in its position) */}
+      <TabBar tab={tab} onTab={setTab} />
+
+      {/* Persistent stats bar — sticky so it remains visible while editing, on both tabs */}
       <div
         style={{
           position: 'sticky',
@@ -100,43 +111,54 @@ export default function App() {
       </div>
 
       <main style={{ maxWidth: '900px', margin: '0 auto', padding: '1rem 1.25rem 4rem' }}>
-        <GristTable
-          malts={recipe.malts}
-          efficiency={recipe.efficiency}
-          apparentAttenuation={recipe.apparentAttenuation}
-          grist={derived.grist}
-          setRow={setRow}
-          addRow={addRow}
-          removeRow={removeRow}
-          setField={setField}
-        />
+        {tab === 'recipe' && (
+          <>
+            <VolumesSection
+              recipe={recipe}
+              grist={derived.grist}
+              postBoilVolGal={derived.postBoilVolGal}
+              mode={mode}
+              setField={setField}
+            />
 
-        <MashSection
-          recipe={recipe}
-          grist={derived.grist}
-          postBoilVolGal={derived.postBoilVolGal}
-          mode={mode}
-          setField={setField}
-        />
+            <GristTable
+              malts={recipe.malts}
+              efficiency={recipe.efficiency}
+              apparentAttenuation={recipe.apparentAttenuation}
+              grist={derived.grist}
+              setRow={setRow}
+              addRow={addRow}
+              removeRow={removeRow}
+              setField={setField}
+            />
 
-        <HopsSection
-          kettleAdditions={recipe.kettleAdditions}
-          dryHops={recipe.dryHops}
-          hops={derived.hops}
-          mode={mode}
-          setRow={setRow}
-          addRow={addRow}
-          removeRow={removeRow}
-        />
+            <HopsSection
+              kettleAdditions={recipe.kettleAdditions}
+              dryHops={recipe.dryHops}
+              hops={derived.hops}
+              mode={mode}
+              setRow={setRow}
+              addRow={addRow}
+              removeRow={removeRow}
+            />
 
-        <YeastSection
-          yeast={recipe.yeast}
-          fermentVolGal={recipe.fermentVolGal}
-          derived={derived}
-          mode={mode}
-          setField={setField}
-          setYeast={setYeast}
-        />
+            <YeastSection
+              yeast={recipe.yeast}
+              derived={derived}
+              mode={mode}
+              setYeast={setYeast}
+            />
+          </>
+        )}
+
+        {tab === 'options' && (
+          <OptionsSection
+            measurementTempF={recipe.measurementTempF}
+            refVolumesGal={derived.refVolumesGal}
+            mode={mode}
+            setMeasurementTemp={setMeasurementTemp}
+          />
+        )}
       </main>
 
     </div>

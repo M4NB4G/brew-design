@@ -11,9 +11,16 @@
 // JSON has no NaN. A cleared field is NaN in state and would be written as
 // null; on load, null in the recipe is restored to NaN so a number never
 // silently becomes 0 (null * x === 0).
+//
+// Schema history. Version 1: the recipe without measurement temperatures.
+// Version 2 (Options page, 2026-09-21): the recipe gains measurementTempF
+// { preBoil, postBoil, ferment } in degF. A version-1 document is read with
+// the three at the engine's 60 degF reference — the identity in numbers —
+// and the autosave rewrites it as version 2.
 
 export const STORAGE_KEY = 'brew-design.recipe';
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
+const READABLE_VERSIONS = [1, SCHEMA_VERSION];
 
 const MODES = ['home', 'pro'];
 const GRAVITY_UNITS = ['plato', 'sg'];
@@ -49,7 +56,8 @@ function hasShapeOf(candidate, template) {
 
 /**
  * Read the persisted document. Returns { recipe, mode, proGravityUnit } when
- * storage holds a readable document at SCHEMA_VERSION; otherwise `defaults`.
+ * storage holds a readable document at SCHEMA_VERSION, or at version 1 (read
+ * with the default measurement temperatures); otherwise `defaults`.
  * Never throws.
  */
 export function loadPersisted(storage, defaults) {
@@ -57,8 +65,12 @@ export function loadPersisted(storage, defaults) {
     const raw = storage.getItem(STORAGE_KEY);
     if (raw === null || raw === undefined) return defaults;
     const doc = JSON.parse(raw);
-    if (!doc || typeof doc !== 'object' || doc.version !== SCHEMA_VERSION) return defaults;
-    const recipe = reviveNaN(doc.recipe);
+    if (!doc || typeof doc !== 'object' || !READABLE_VERSIONS.includes(doc.version)) return defaults;
+    let recipe = reviveNaN(doc.recipe);
+    if (doc.version === 1) {
+      // Version-1 code never wrote measurementTempF; the defaults supply it.
+      recipe = { ...recipe, measurementTempF: { ...defaults.recipe.measurementTempF } };
+    }
     if (!hasShapeOf(recipe, defaults.recipe)) return defaults;
     if (!MODES.includes(doc.mode) || !GRAVITY_UNITS.includes(doc.proGravityUnit)) return defaults;
     return { recipe, mode: doc.mode, proGravityUnit: doc.proGravityUnit };

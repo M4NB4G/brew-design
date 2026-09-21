@@ -14,7 +14,6 @@ table is written when the item starts. Landed items are removed.
 
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
-| Options page | An Options tab holds the three volume-measurement temperatures (°F, default 60 — the reference); pre-boil, post-boil, and ferment volumes are corrected through `toReferenceVolume` by the engine's `correctVolumeToRef`; mash water is not; saved recipes are upgraded to schema v2; the Recipe tab gets a Volumes card first. Scope table agreed: `docs/items/options-page.md` | suites + inspector + far end |
 | °C display toggle | Every temperature shown (the measurement temperatures, the hop wort temperature) switches °F/°C from a header toggle that persists with the display settings; needs `cToF` in the engine, so Tier A + B (split from Options page, 2026-09-21) | suites + cross-family inspector + far end |
 | Empty-field handling | Clearing a field explains why downstream stats are blank and never writes NaN into state | suites + inspector |
 | Inverse solver UI | A target OG yields a grain bill via `solveGrist`; the round-trip residual FLAG is shown | suites + inspector |
@@ -27,7 +26,8 @@ table is written when the item starts. Landed items are removed.
 |---|---|---|
 | Footer | Persyn attribution, parity with Brew Water Chem | look at it |
 | Phone width | Stats bar and tables degrade without horizontal page scroll | look at it |
-| Dead code | `UnitToggle.jsx` removed; unused imports in `MashSection.jsx` removed | suites |
+| Dead code | `UnitToggle.jsx` removed; unused imports in `VolumesSection.jsx` and `YeastSection.jsx` removed, with the unused `vUnit` the fermentation row left behind in `YeastSection.jsx` (Options page, 2026-09-21) | suites |
+| IBU shows "NaN" when blank | The stats bar and the Kettle readout render the raw IBU integer, so a blank input (a cleared malt weight; an uncorrectable pre-boil temperature) shows "NaN" where every other stat shows "—"; route it through `num(…, 0)` (noticed at the Options page far end, 2026-09-21) | look at it |
 
 ## Tier D — config, docs, tooling, tests
 

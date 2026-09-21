@@ -1,11 +1,15 @@
 # Options page — Tier B
 
-Status: agreed 2026-09-21 ("agree to all", after the owner amended P9 — an
-Options tab, the Volumes card first with the fermentation volume in it — and
-the table was restated in engineering language), not started. Written by
-the spec session; to be built by a new session from CLAUDE.md's kickoff
-prompt. R1 (a Roles-rule amendment: plain language to the owner) was applied
-to CLAUDE.md in the same commit as this file, so it is not a builder file.
+Status: landed 2026-09-21 on branch `options-page` — commit "Pre-boil,
+post-boil, and fermentation volumes reach the engine corrected to 60 °F at
+their own measurement temperatures" (builder Opus, inspector Sonnet);
+awaiting the owner's "merge and push". Agreed 2026-09-21 ("agree to all",
+after the owner amended P9 — an Options tab, the Volumes card first with the
+fermentation volume in it — and the table was restated in engineering
+language). Written by the spec session; built by a new session from
+CLAUDE.md's kickoff prompt. R1 (a Roles-rule amendment: plain language to
+the owner) was applied to CLAUDE.md in the same commit as this file, so it
+is not a builder file.
 
 ## Why
 
@@ -102,4 +106,108 @@ Then, on the new build:
 
 ## Recorded failure (filled in by the builder)
 
+Run alone against the unchanged code (branch `options-page` at 89d26d1 =
+`main`), `npx vitest run test/options.test.js` from `apps/recipe`: 9 tests,
+9 failed — each for the mechanism predicted above.
+
+- 1: `AssertionError: expected undefined to deeply equal { preBoil: 60,
+  postBoil: 60, …(1) }` — no `measurementTempF` on the default state.
+- 2: `expected 1.062031 to be close to 1.0640986073205463, received
+  difference is 0.0020676073205463386` — the no-op slot passed 16 gal, not
+  15.48.
+- 3: `expected 14.5 to be close to 13.90996951399231, received difference
+  is 0.5900304860076897`.
+- 4: `TypeError: Cannot read properties of undefined (reading 'ferment')` —
+  `refVolumesGal` undefined.
+- 5: `expected 16 to be close to 15.483893355696411, received difference is
+  0.5161066443035889`.
+- 6: `expected 1.062031 to be NaN`.
+- 7: `expected 1 to be 2 // Object.is equality` — the document's version.
+- 8: `expected undefined to deeply equal { preBoil: 60, postBoil: 60,
+  …(1) }`.
+- 9: `expected { Object (malts, efficiency, ...) } to deeply equal { Object
+  (malts, efficiency, ...) }` — the version-2 document loaded as the
+  defaults (which lacked `measurementTempF`).
+
+After the change: 9/9 alone; `npm test` engine 179/179, app 34/34
+(`smoke.test.js` 13, assertions and tolerances untouched); `npm run build`
+green (bundle `index-D6fkUgun.js`).
+
+Far end, built app via `vite preview`, 2026-09-21, against a `main`
+snapshot taken first (bundle `index-DgrrMrtC.js`, the live site's hash):
+
+1. Tab bar Recipe · Options under the toggle row, above the sticky stats;
+   Recipe reads Volumes (Mash · Boil · Ferment), Grist, Hops, Yeast &
+   Starter; the fermentation volume is in Volumes and gone from Yeast; the
+   stats bar shows on both tabs; a reload opens on Recipe.
+2. Default recipe: Options 60 / 60 / 60, "at 60 °F" 7.000 / 5.500 / 5.500;
+   every stat (1.055 / 1.013 / 5.7% / 4.7 / 47 / 210), every input, and
+   every read-only value (Mash Rv 1.818, Mash R 3.736, post-boil 5.5,
+   kettle 47 IBU, dry hops 0.36 oz/gal) identical to the `main` snapshot.
+3. Pre-boil measured at 170 → "at 60 °F" 6.824; the Grist points rise
+   39.43 / 3.94 → 40.45 / 4.04 (extract over the smaller reference
+   volume); stored `version: 2`, `measurementTempF.preBoil: 170`; reload
+   holds and opens on Recipe. **OG does not visibly rise:** the engine
+   gives 1.0552095 at 60 °F and 1.0551551 at 170 °F — the pre-boil
+   correction concentrates the pre-boil wort (pre-boil SG 1.0434 → 1.0445)
+   and the engine's boil-concentration step divides by the same volume
+   ratio, so OG moves by −5 × 10⁻⁵, invisible at three decimals. The
+   far-end list's "OG rises" was an expectation, not the engine's rule; the
+   engine's number is the number.
+4. 250 → "—" for the pre-boil reference volume, OG, FG, ABV, cells; SRM
+   stays 4.7 (it depends on the post-boil volume only); no crash, no
+   console error; 170 again → recovers. IBU shows "NaN" rather than "—":
+   pre-existing (the stats bar and the Kettle readout render the raw
+   integer; a cleared malt weight does the same on `main`), outside this
+   item's files → Tier C roadmap line.
+5. Fermentation volume 6 in Volumes → cells 230 (Yeast card and stats bar),
+   dry hops 0.33 oz/gal — the engine's values for 6 gal at reference, as
+   on `main`; stored `fermentVolGal: 6`.
+6. The version-1 document `main` wrote (pre-boil 8) → the new build shows
+   pre-boil 8 with every stat as `main` showed it (1.047 / 1.011 / 4.8% /
+   4.2 / 42 / 180); storage rewritten as `version: 2` with 60 / 60 / 60.
+7. Reset: cancel path (confirm → false) leaves 170 / 60 / 60 and ferment 6;
+   accept path (confirm → true) → 60 / 60 / 60, 7.000 / 5.500 / 5.500,
+   ferment 5.5, storage the version-2 defaults.
+8. Pro → "at 60 °F (bbl)" 0.226 / 0.177 / 0.177.
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+- **The "at 60 °F" value goes through `num(…, 3)`, not
+  `Number((…).toFixed(3))`.** P9's expression would render `7` and `NaN`;
+  the far-end checks agreed in this table read 7.000 / 5.500 / 5.500 (check
+  2) and "—" for an uncorrectable temperature (check 4), and S3 says the
+  dependent numbers show "—". `num(x, 3)` is the app's dash formatter at
+  the same three-decimal precision (P9's intent, "the post-boil row's
+  precision"), so it honours the sentence and the far end; the post-boil
+  row on the Volumes card keeps its own expression, untouched.
+- **The slot uses optional chaining** (`measurementTempF?.[kind]`): a
+  missing map or kind reaches the engine as `undefined` → `fToC` → NaN →
+  `RangeError` → NaN, exactly P5's path; no separate guard.
+- **The version-1 read copies the defaults' temperatures** (`{ ...defaults
+  .recipe.measurementTempF }`) rather than aliasing the object; equal in
+  value, and the loaded recipe shares nothing with the discarded defaults.
+  Readable versions are the list `[1, SCHEMA_VERSION]`; anything else is
+  "a different version" as before.
+- **The tab row carries `cursor: 'pointer'` inline**, which BWC gets from a
+  global `button { cursor: pointer }` rule this app does not have (it sets
+  the cursor inline on every button, as `Header.jsx` does). Same look, this
+  app's convention; existing tokens only.
+- **The "Ferment" sub-label has `marginTop: '0.85rem'`** so it does not sit
+  on the post-boil row's divider; the Mash and Boil sub-labels head their
+  columns and need none. A layout value, excluded from the catch-all.
+- **The fermentation row is the verbatim JSX from `YeastSection.jsx`** with
+  `recipe.fermentVolGal` for the removed prop; `volRow('fermentVolGal')`
+  would be identical in behaviour, but the decision said verbatim.
+  `YeastSection.jsx` keeps its now-unused `vUnit` and imports (P9: not a
+  drive-by) — named in the roadmap's Dead code row.
+- **Post-boil label:** "Post-boil volume at 60 °F (gal)" — P9's wording
+  plus the unit in parentheses like every other row, the "°F" from
+  `tempUnit()`.
+- **Round-off:** scenario 1 pins the default recipe within 1e-12; the
+  observed drift is the one ulp on 7 gal (`refVolumesGal.preBoil` is
+  7.000000000000001) that P12 predicted — invisible at display precision,
+  no compensation added; the engine's identity claim stays a Tier A
+  roadmap line.
+- **Nothing else for the roadmap** beyond the IBU "NaN" line above.
+  `.claude/` (untracked launch config) stays out of the change.

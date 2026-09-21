@@ -35,5 +35,11 @@ export function defaultRecipeState() {
 
     // Yeast: type 'ale' | 'lager'; density 'high' | 'mod' | 'low'.
     yeast: { type: 'ale', density: 'mod' },
+
+    // Temperature (degF) each volume was measured at, keyed by the kind
+    // reference-volume.js corrects (mash water is used as entered). 60 is the
+    // engine's reference (correctVolumeToRef's refTempF): the factor is 1, so
+    // a new recipe's numbers are the uncorrected ones.
+    measurementTempF: { preBoil: 60, postBoil: 60, ferment: 60 },
   };
 }

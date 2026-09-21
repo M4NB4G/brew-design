@@ -33,16 +33,25 @@ pinned by the golden-master tests.
    No new conversion constants anywhere in the app.
 10. `selectors.js` is the only place the app calls engine compute functions.
     The UI renders from `computeRecipe(state)`; tests assert through it.
-11. `toReferenceVolume(measuredGal, kind)` is the volume-correction slot.
-    Pre-boil, post-boil, and ferment volumes route through it; mash water does
-    not. It is a no-op until the Options page supplies measurement temps.
+11. `toReferenceVolume(measuredGal, kind, measurementTempF)` is the
+    volume-correction slot. Pre-boil, post-boil, and ferment volumes route
+    through it and reach the engine corrected to 60 °F by
+    `correctVolumeToRef` at the measurement temperature of their kind
+    (`measurementTempF[kind]`, °F, held in the recipe state, 60 by default);
+    mash water does not. A temperature the engine cannot correct — cleared
+    (NaN) or outside its density table (0–100 °C) — yields a NaN volume;
+    nothing throws, and no clamping or fallback to the measured volume.
 12. The smoke test (`apps/recipe/test/smoke.test.js`) pins the reference
-    recipe through the UI's own selectors. It must pass unchanged; its
-    tolerances are the engine's.
+    recipe through the UI's own selectors. Its assertions and tolerances
+    never change; its reference state is a canonical state and gains a field
+    only when the canonical state does, at the value that leaves every pinned
+    number the same.
 13. Persisted state is the canonical state, under one key, in one JSON
-    document carrying a schema version. Unreadable data, a different version,
-    or unavailable storage yields the defaults and never throws. A cleared
-    field (NaN) round-trips as NaN, never as 0 or null.
+    document carrying a schema version (2). A version-1 document — saved
+    before the measurement temperatures existed — loads as the same recipe
+    with the three at 60 °F and is saved back as version 2. Unreadable data,
+    any other version, or unavailable storage yields the defaults and never
+    throws. A cleared field (NaN) round-trips as NaN, never as 0 or null.
 
 ### Display units
 

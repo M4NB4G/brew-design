@@ -1,8 +1,8 @@
 // YeastSection.jsx
-// Yeast type/density selection and the fermentation volume, plus the read-only
-// pitch rate, cells needed, and starter options from the engine. Fermentation
-// volume is entered in the current display unit and feeds both the dry-hop rate
-// (Hops) and the cell count (here) via shared canonical state.
+// Yeast type/density selection, plus the read-only pitch rate, cells needed,
+// and starter options from the engine. The fermentation volume is entered on
+// the Volumes card and feeds both the dry-hop rate (Hops) and the cell count
+// (here) via shared canonical state.
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
 import StatBox from './shared/StatBox.jsx';
@@ -49,7 +49,7 @@ const TH = {
 };
 const TD = { padding: '0.45rem 0.6rem', borderBottom: `1px solid ${colors.rowDivider}`, fontSize: '0.92rem' };
 
-export default function YeastSection({ yeast, fermentVolGal, derived, mode, setField, setYeast }) {
+export default function YeastSection({ yeast, derived, mode, setYeast }) {
   const { pitchRate, cells, starter } = derived;
   const vUnit = volumeUnit(mode);
 
@@ -57,7 +57,7 @@ export default function YeastSection({ yeast, fermentVolGal, derived, mode, setF
     <Card>
       <span style={tokens.cardLabel}>Yeast &amp; Starter</span>
 
-      {/* Selectors + fermentation volume */}
+      {/* Selectors */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
         <Select label="Type" value={yeast.type} onChange={(v) => setYeast('type', v)}>
           <option value="ale">Ale</option>
@@ -69,17 +69,6 @@ export default function YeastSection({ yeast, fermentVolGal, derived, mode, setF
           <option value="low">Low</option>
         </Select>
       </div>
-
-      <InputRow
-        label={`Fermentation volume (${vUnit})`}
-        value={Number(volumeFromCanonical(fermentVolGal, mode).toFixed(6))}
-        onChange={(e) => {
-          const v = parseFloat(e.target.value);
-          if (Number.isFinite(v)) setField('fermentVolGal', volumeToCanonical(v, mode));
-        }}
-        step={0.1}
-        min={0}
-      />
 
       {/* Pitch rate + cells stat tiles */}
       <div style={{ ...tokens.statGrid, marginTop: '0.85rem', marginBottom: '0.85rem' }}>
