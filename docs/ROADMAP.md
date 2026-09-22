@@ -8,6 +8,7 @@ table is written when the item starts. Landed items are removed.
 
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
+| Starter 400B band | The 400B band serves 800–1000 billion cells inclusive from the pack alone and above 1000 with an extra 200B pack, closing the gap at exactly 900 that returned no option (the owner, 2026-09-21; supersedes Rev 3's strict 900). Scope table agreed: `docs/items/starter-400b-band.md` | both suites + inspector (Opus; no Fable for this item) |
 | `correctVolumeToRef` identity | Its doc says the factor is exactly 1 at the reference temperature, but `(v · d) / d` differs from `v` by one ulp for v = 7 or 5 (exact for 16, 14.5, 12, 5.5); compute `v · (d / d)` or short-circuit `tempF === refTempF`; golden values unaffected (noticed writing the Options page table, 2026-09-21) | suites + cross-family inspector |
 
 ## Tier B — touches state, selectors, display, or reference-volume
