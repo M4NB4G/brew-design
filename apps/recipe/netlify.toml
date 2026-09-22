@@ -1,0 +1,9 @@
+# Netlify build recipe for the recipe app (Brew Design). The base directory is
+# the repository root, so the command runs there: both test suites first, then
+# the app build; a failing suite fails the build and nothing deploys.
+[build]
+  command = "npm test && npm run build"
+  publish = "apps/recipe/dist"
+
+[build.environment]
+  NODE_VERSION = "24"

@@ -218,7 +218,8 @@ Never bypass them (`--no-verify`).
 ## Deploy
 
 Netlify deploys `main` (live since 2026-09-20): every push to `main` is a
-deploy. The builder works on a branch, opens the PR, and reports (procedure
+deploy. The build runs `npm test` first, so a failing suite does not deploy.
+The builder works on a branch, opens the PR, and reports (procedure
 step 8). The owner reads the report and decides. On the owner's "merge and
 push" — in chat, per item, after the report — the session fast-forwards
 `main` to the branch and pushes it; that push is the deploy. The session

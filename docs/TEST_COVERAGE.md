@@ -19,7 +19,7 @@ in the same commit as any change to a proof (CLAUDE.md, procedure step 5).
 | 9 Convert only at the edges | `smoke.test.js` round-trips: volume 16 gal Home/Pro, SG→Plato, cells 570→0.57 T; `percent.test.js` pins fraction↔percent (0.8↔80, 0.147↔14.7, every reference fraction within 1e-12) and reads every component for leftover `* 100` / `/ 100` | partial — hop weight and dry-hop rate unproven |
 | 10 Only `selectors.js` calls engine compute | none | gap |
 | 11 `toReferenceVolume` routing and correction | `options.test.js` scenarios 2–6: each kind corrected at its own temperature through `computeRecipe` (`refVolumesGal` carries the three); direct: 16 gal at 190 °F equals `correctVolumeToRef(16, 190)`, and NaN, 31, 213, Infinity, a missing map, a missing kind → NaN; an uncorrectable temperature blanks the dependent stats and nothing throws | proven |
-| 12 Smoke test passes unchanged | hook runs it on A/B commits; no CI | partial |
+| 12 Smoke test passes unchanged | hook runs it on A/B commits; Netlify runs both suites before every build (`apps/recipe/netlify.toml`) | proven |
 | 13 Persisted state canonical, one versioned key (2), version 1 read as 60 °F, unreadable → defaults, NaN round-trips | `apps/recipe/test/persistence.test.js` (7); `options.test.js` scenarios 7–9: the document carries version 2 and the temperatures, a cleared one round-trips as NaN; a version-1 document loads as the same recipe at 60/60/60 and is saved back as version 2; version 2 loads, 0 / 3 / `"1"` / `"2"` → defaults. Far end 2026-09-20 on the built app: edit → reload holds; Pro → reload holds; Reset cancel unchanged, accept → reload defaults. Far end 2026-09-21: the version-1 document `main` wrote (pre-boil 8) loads as pre-boil 8 with every stat as on `main` and is rewritten as version 2 | proven |
 | 14 No hex outside `styles.js` | hook grep | proven (hook) |
 | 15 Read-only values are plain text | none; visual | by design (look at it) |
@@ -53,7 +53,6 @@ Total: engine 179, app 34.
 | Only `selectors.js` imports engine compute functions (rule 10) | small: hook grep | D |
 | App imports only the `@brew/engine` root (rule 5) | small: hook grep | D |
 | Engine has no I/O imports (rule 1) | small: hook grep for `fs`, `fetch`, `document`, `window` | D |
-| No CI (rule 12) | small: `npm test` in the Netlify build command | D |
 | Component input→state round trip at the UI (rules 8/9) | medium: jsdom + testing-library | D |
 
 ## Re-tests owed

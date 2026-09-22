@@ -1,8 +1,10 @@
 # Netlify config — Tier D
 
 Status: agreed 2026-09-21 ("agree to all"; D1's facts read off the Netlify
-dashboard in the owner's browser the same day), not started. Written by the
-spec session; to be built by a new session from CLAUDE.md's kickoff prompt.
+dashboard in the owner's browser the same day). Phase 1 (the build recipe
+and the docs it touches) built on branch `netlify-config` and pushed,
+awaiting the owner's "merge and push". D3's deploy-log proof (phase 2)
+follows that push and is not yet recorded.
 
 ## Why
 
@@ -89,4 +91,20 @@ lines here and closes the "Re-tests owed" entry in `docs/TEST_COVERAGE.md`.
 
 ## Recorded proof (filled in by the builder)
 
+Phase 1, before the merge, on `main` at 1ce3ac2: `npm test` — engine
+179/179, app 34/34 (both unchanged from the pre-branch baseline); `npm run
+build` green, local bundle `index-D6fkUgun.js`. This is the Tier D gate
+(D4); no far end, no inspector. D3's deploy-log proof is recorded here
+after the owner's "merge and push".
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+- **The file is byte-for-byte the reference block** in this item (S1, S3,
+  D5): no deviation.
+- **Root `npm test` runs both workspaces and `npm run build` runs only the
+  recipe app's build** (root `package.json`), confirming the base-directory
+  command in S1 does what its sentence says before it is ever handed to
+  Netlify.
+- **No inspector** (D4): Tier D, nothing here is a recipe number.
+- **Nothing for the roadmap.** No drive-bys noticed; `.claude/` (untracked
+  launch config) stays out of the change.
