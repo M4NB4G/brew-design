@@ -62,3 +62,9 @@ None. Netlify deploys `main` at https://brew-design.netlify.app (live since
 2026-09-21: Netlify's bundle is `index-DgrrMrtC.js`, the same content hash
 as the builder's local build; FGDB 80/80, efficiency 75, attenuation 77,
 alpha 12/6, ABV 5.7%; alpha 14.7 → stored `alphaAcidFraction` 0.147, 56 IBU.
+Netlify config re-tested there 2026-09-21 (`main@965d3eb`): the deploy log
+shows `npm test` running both suites (engine 179/179, app 34/34) and
+passing before `vite build`; the deployed bundle `index-D6fkUgun.js` carries
+the same content hash as the local build; the live site loaded and computed
+a recipe normally straight after. Rule 12's gap is closed (see the rule
+table above); see `docs/items/netlify-config.md` for the full log excerpt.

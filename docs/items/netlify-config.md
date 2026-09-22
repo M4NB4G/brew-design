@@ -1,10 +1,9 @@
 # Netlify config — Tier D
 
-Status: agreed 2026-09-21 ("agree to all"; D1's facts read off the Netlify
-dashboard in the owner's browser the same day). Phase 1 (the build recipe
-and the docs it touches) built on branch `netlify-config` and pushed,
-awaiting the owner's "merge and push". D3's deploy-log proof (phase 2)
-follows that push and is not yet recorded.
+Status: landed 2026-09-21, in the commit whose subject is S1 ("The build
+recipe lives in the repository as `apps/recipe/netlify.toml`..."); D3's
+deploy-log proof (phase 2) is recorded below, from the deploy that commit's
+merge produced.
 
 ## Why
 
@@ -96,6 +95,24 @@ Phase 1, before the merge, on `main` at 1ce3ac2: `npm test` — engine
 build` green, local bundle `index-D6fkUgun.js`. This is the Tier D gate
 (D4); no far end, no inspector. D3's deploy-log proof is recorded here
 after the owner's "merge and push".
+
+Phase 2, after the owner's "merge and push" (`main` fast-forwarded to
+965d3eb and pushed 2026-09-21): production deploy
+`https://app.netlify.com/projects/brew-design/deploys/6ab207f2e9dcd10007d44306`,
+`main@965d3eb`, published 9:45 PM, build time 13s. The log's config-file
+line reads `/opt/build/repo/apps/recipe/netlify.toml` — Netlify found the
+file where D5 puts it. `build.command from netlify.toml` ran `npm test &&
+npm run build`: engine `Tests 179 passed (179)`, app `Tests 34 passed
+(34)`, both complete before `vite build` started (S2). The build then
+produced `dist/assets/index-D6fkUgun.js` — the same content hash as the
+phase-1 local build above, so the deployed app is byte-for-byte what was
+already proven (S4); the deploy summary's own note, "all files already
+uploaded by a previous deploy with the same commits" (Netlify's CDN
+recognizing identical output and skipping re-upload), says the same thing
+independently. No secrets detected; deploy published. The live site
+(`https://brew-design.netlify.app`) loaded and computed a recipe normally
+straight after (OG 1.053, FG 1.015, ABV 5.1%, SRM 3.2, IBU 21, 440 cells) —
+nothing broke. Read in the owner's Chrome, 2026-09-21.
 
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
 
