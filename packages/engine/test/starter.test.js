@@ -50,12 +50,44 @@ describe('solveStarter band selection', () => {
     expect(options[0].neededMultiple).toBeCloseTo(850 / 400, 6);
   });
 
-  it('950B -> 400B band with an extra 200B pack (N = cells-200)', () => {
+  it('900B -> the 400B band alone, N = 900', () => {
+    // The owner's rule (2026-09-21): the 400B band serves 800-1000 billion
+    // cells inclusive from the pack alone. 900 used to fall in a boundary
+    // gap (FLAG, now removed).
+    const options = solveStarter(900);
+    expect(options).toHaveLength(1);
+    expect(options[0].band).toBe('400B');
+    expect(options[0].neededMultiple).toBeCloseTo(2.25, 6);
+    expect(options[0].volumeL).toBeCloseTo(2.47, 2);
+    expect(options[0].packNote).toBe('');
+  });
+
+  it('950B -> the 400B band alone, no extra pack', () => {
     const options = solveStarter(950);
     expect(options).toHaveLength(1);
     expect(options[0].band).toBe('400B');
-    expect(options[0].neededMultiple).toBeCloseTo((950 - 200) / 400, 6);
-    expect(options[0].packNote).toBe('400B starter plus one extra 200B pack');
+    expect(options[0].neededMultiple).toBeCloseTo(950 / 400, 6);
+    expect(options[0].packNote).toBe('');
+  });
+
+  it('1000B -> the 400B band alone; 1010B -> with an extra 200B pack, N = 810', () => {
+    const at1000 = solveStarter(1000);
+    expect(at1000).toHaveLength(1);
+    expect(at1000[0].band).toBe('400B');
+    expect(at1000[0].neededMultiple).toBeCloseTo(2.5, 6);
+    expect(at1000[0].packNote).toBe('');
+
+    const at1010 = solveStarter(1010);
+    expect(at1010).toHaveLength(1);
+    expect(at1010[0].band).toBe('400B');
+    expect(at1010[0].neededMultiple).toBeCloseTo(810 / 400, 6);
+    expect(at1010[0].packNote).toBe('400B starter plus one extra 200B pack');
+  });
+
+  it('every count from 250 to 1700 in steps of 10 has at least one option', () => {
+    for (let cells = 250; cells <= 1700; cells += 10) {
+      expect(solveStarter(cells).length, `cells=${cells}`).toBeGreaterThan(0);
+    }
   });
 
   it('below all ranges (200B) -> no options', () => {
@@ -63,14 +95,14 @@ describe('solveStarter band selection', () => {
   });
 
   it('very large pitch (2000B) -> 400B quadratic has no real root -> no options', () => {
-    // The 400B band rule accepts cells>900, but neededMultiple 4.5 drives the
+    // The 400B band rule accepts cells>1000, but neededMultiple 4.5 drives the
     // discriminant negative, so there is no in-model volume.
     expect(solveStarter(2000)).toEqual([]);
   });
 });
 
 describe('intentional boundary gaps (strict inequalities, transcribed as-is)', () => {
-  // The spreadsheet rules leave exact-boundary gaps at 500, 800, and 900.
+  // The spreadsheet rules leave exact-boundary gaps at 500 and 800.
   it('exactly 500B matches no band branch -> no options', () => {
     // 500 is >500 false and <500 false for 100B; <400 false / <700 yes for 200B?
     // 200B: 400<=500<700 -> usable. So 500 IS usable by 200B, only the 100B
@@ -84,13 +116,8 @@ describe('intentional boundary gaps (strict inequalities, transcribed as-is)', (
   it('exactly 800B falls in the 200B and 400B gaps', () => {
     const options = solveStarter(800);
     const bands = options.map((o) => o.band);
-    // 200B: cells>800 false, <800 false -> gap. 400B: 800<=800<900 -> usable.
+    // 200B: cells>800 false, <800 false -> gap. 400B: 800<=800<=1000 -> usable.
     expect(bands).not.toContain('200B'); // 200B boundary gap at 800
     expect(bands).toContain('400B');
-  });
-
-  it('exactly 900B falls in the 400B gap -> no options', () => {
-    // 400B: 800<=900<900 false; 900>900 false -> gap. No other band covers 900.
-    expect(solveStarter(900)).toEqual([]);
   });
 });

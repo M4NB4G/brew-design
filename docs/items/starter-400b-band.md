@@ -1,8 +1,8 @@
 # Starter solver, 400B band — Tier A
 
-Status: agreed 2026-09-21 ("agree", after the owner set the models for this
-item: no Fable; Sonnet builds, Opus inspects), not started. Written by the
-spec session; to be built by a new session from CLAUDE.md's kickoff prompt.
+Status: landed 2026-09-21, "Starter 400B band: the pack alone serves 800-1000
+billion cells inclusive, closing the gap at exactly 900". Written by the spec
+session; built by a new session from CLAUDE.md's kickoff prompt.
 
 ## Why
 
@@ -85,4 +85,32 @@ look: none needed — the app renders whatever the engine returns.
 
 ## Recorded failure (filled in by the builder)
 
+Run alone against unchanged `main` (`npx vitest run packages/engine/test/starter.test.js`), 4 failed / 8 passed:
+
+1. *900B → the 400B band alone, N = 900* — `expected [] to have a length of 1 but got +0` (the count had no option at all, matching the "no option" bug the owner found)
+2. *950B → the 400B band alone, no extra pack* — `expected 1.875 to be close to 2.375, received difference is 0.5` (today's code still applies the extra-pack subtraction a hundred billion cells early)
+3. *1000B → the 400B band alone; 1010B → with an extra 200B pack* — `expected 2 to be close to 2.5, received difference is 0.5` (fails at the 1000 count, before reaching 1010)
+4. *every count 250-1700 has an option* — `cells=900: expected 0 to be greater than 0`
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+- The 900B scenario replaces the old "falls in the 400B gap" test and moves
+  from the boundary-gaps group into the band-selection group (it is no
+  longer a gap); the two remaining boundary-gap tests (500, 800) are
+  untouched except the describe block's header comment, which now names only
+  500 and 800.
+- The module-level `FLAG` docblock above `BANDS` also named 900 as a
+  boundary gap; it now lists only 500 and 800 and points to the 400B band's
+  own comment for the 900 boundary, so a future reader is not told a gap
+  exists where the code no longer has one.
+- The 400B band's `effectiveCells` comment states the owner's rule inline
+  (800-1000 pack alone, above 1000 with a pack) and names the date and that
+  it supersedes Rev 3, matching sentence S5's wording for where the rule's
+  source lives.
+- `SPEC.md` rule 2's new line names the file and repeats the same "owner,
+  2026-09-21, superseding Rev 3's 900" wording used in the code comment, so
+  the two stay consistent if either is read alone.
+- The "every count 250-1700" scenario loops in steps of 10 (matching
+  `computeCellsNeeded`'s rounding) and attaches the failing count to the
+  assertion message so a future regression names the count, not just "some
+  count failed".

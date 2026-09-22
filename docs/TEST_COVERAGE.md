@@ -9,7 +9,7 @@ in the same commit as any change to a proof (CLAUDE.md, procedure step 5).
 | Rule | Proof | Status |
 |---|---|---|
 | 1 Engine pure, no I/O | none mechanical; inspector on Tier A | gap |
-| 2 Constants exact | `golden-master.test.js` (19), `starter.test.js` (10), `solver.test.js` (4), `units.test.js` (11), `water/**` (135) — a wrong constant fails a pinned value | proven |
+| 2 Constants exact | `golden-master.test.js` (19), `starter.test.js` (12), `solver.test.js` (4), `units.test.js` (11), `water/**` (135) — a wrong constant fails a pinned value; the 400B band's 800-1000 boundary is a recorded deviation, not a spreadsheet constant (rule 2, 2026-09-21) | proven |
 | 3 `// FLAG:` never silent-fix | inspector; box names the FLAG | by design |
 | 4 Tolerances never loosened | inspector reads test diffs | gap |
 | 5 Public surface is `index.js` only | none; app imports `@brew/engine` root only | gap |
@@ -29,7 +29,7 @@ in the same commit as any change to a proof (CLAUDE.md, procedure step 5).
 | Scenario | File | Count |
 |---|---|---|
 | grist golden master · hops golden master · yeast golden master · starter golden master (cellsNeeded 570) | `packages/engine/test/golden-master.test.js` | 19 |
-| solveStarter band selection · intentional boundary gaps (strict inequalities, transcribed as-is) | `packages/engine/test/starter.test.js` | 10 |
+| solveStarter band selection (900B/950B/1000B/1010B the 400B band's 800-1000 rule; every count 250-1700 has an option) · intentional boundary gaps (strict inequalities, transcribed as-is) | `packages/engine/test/starter.test.js` | 12 |
 | solveGrist round-trip (pinned residual, see solver.js FLAG) | `packages/engine/test/solver.test.js` | 4 |
 | basic conversions · water density table · correctVolumeToRef | `packages/engine/test/units.test.js` | 11 |
 | unit constants · volumeToGallons · volumeUnit · acidMaltUnits | `packages/engine/test/water/units.test.js` | 21 |
@@ -43,7 +43,7 @@ in the same commit as any change to a proof (CLAUDE.md, procedure step 5).
 | percent: a fraction shows as a percent · a percent entered parses to the fraction · every reference-recipe fraction round-trips within 1e-12 · ABV 0.0748883 shows as 7.49% · no fraction↔percent arithmetic remains in components | `apps/recipe/test/percent.test.js` | 5 |
 | options page: the default temperatures are 60 °F and leave every derived number the engine's for the uncorrected volumes, within 1e-12 · a pre-boil temperature corrects only the pre-boil volume · a post-boil temperature corrects the post-boil volume · a fermentation temperature corrects the fermentation volume · `toReferenceVolume` corrects at the temperature of its kind and returns NaN for one the engine cannot correct · an uncorrectable temperature blanks the dependent stats and nothing throws · the saved document carries version 2 and the temperatures; a cleared one round-trips as NaN · a version-1 document loads as the same recipe with the reference temperatures and is saved back as version 2 · a version-2 document loads; any other version yields the defaults | `apps/recipe/test/options.test.js` | 9 |
 
-Total: engine 179, app 34.
+Total: engine 181, app 34.
 
 ## Gaps and the cost of closing each
 

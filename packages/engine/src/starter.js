@@ -15,10 +15,12 @@ const DME_GRAMS_PER_LITER = 115;
  * usable for the given cells-needed value.
  *
  * FLAG: The spreadsheet's validity rules use strict inequalities that leave
- * exact-boundary gaps at 500, 800, and 900 billion -- a value landing exactly
- * on one of those boundaries matches no branch and yields no option from the
+ * exact-boundary gaps at 500 and 800 billion -- a value landing exactly on
+ * one of those boundaries matches no branch and yields no option from the
  * affected band(s). This is transcribed as-is per the spec (faithfulness over
- * "fixing" it). See each band's effectiveCells() below.
+ * "fixing" it). See each band's effectiveCells() below. The 400B band's own
+ * boundary at 900 is not one of these gaps -- see its effectiveCells() for
+ * the owner's rule.
  */
 const BANDS = [
   {
@@ -69,16 +71,15 @@ const BANDS = [
     c: 1.738,
     effectiveCells(cells) {
       // cells<800 -> not usable
-      // 800<=cells<900 -> N=cells
-      // cells>900 -> N=cells-200 (400B starter + one extra 200B pack)
-      // else not usable
-      // FLAG: cells===900 falls through every branch (boundary gap at 900).
+      // 800<=cells<=1000 -> N=cells (400B starter alone)
+      // cells>1000 -> N=cells-200 (400B starter + one extra 200B pack)
+      // Owner's rule (2026-09-21), superseding Rev 3's strict 900 boundary:
+      // the 400B band serves 800-1000 billion cells inclusive from the pack
+      // alone, and above 1000 with one extra 200B pack. SPEC.md rule 2 notes
+      // the deviation.
       if (cells < 800) return null;
-      if (cells < 900) return { N: cells, packNote: '' };
-      if (cells > 900) {
-        return { N: cells - 200, packNote: '400B starter plus one extra 200B pack' };
-      }
-      return null;
+      if (cells <= 1000) return { N: cells, packNote: '' };
+      return { N: cells - 200, packNote: '400B starter plus one extra 200B pack' };
     },
   },
 ];

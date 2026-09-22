@@ -10,6 +10,10 @@ pinned by the golden-master tests.
 1. Pure functions only. No DOM, no network, no I/O, no global state.
 2. Every constant is reproduced exactly from the spreadsheet / Phase 1 Port
    Spec. Do not round, simplify, or "improve" a constant.
+   Deviation (2026-09-21, the owner, as the spreadsheet's author): the 400B
+   starter band serves 800-1000 billion cells inclusive from the pack alone,
+   and above 1000 with one extra 200B pack, superseding Rev 3's strict
+   boundary at 900 (`packages/engine/src/starter.js`).
 3. When faithful transcription produces a result that looks wrong, keep it and
    add a `// FLAG:` comment saying what and why. Never silently fix.
 4. Golden-master tolerances are fixed and never loosened:
