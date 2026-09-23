@@ -1,7 +1,7 @@
 # Grain-bill percentage per malt — Tier A
 
-Status: agreed 2026-09-22 ("A is good. Agree to all." — decision P7). Model
-rows M1/M2 proposed by this session and not yet agreed. Not started. Written by
+Status: agreed 2026-09-22 ("A is good. Agree to all." — decision P7); model
+rows agreed 2026-09-23 (Opus builds, Opus inspects). Not started. Written by
 the spec session; to be built by a new session from CLAUDE.md's kickoff prompt.
 
 ## Why
@@ -32,8 +32,8 @@ the Tier A gate sits tightly around the one new number.
 
 | id | Question | Decision | Rule |
 |---|---|---|---|
-| M1 | Builder model | Opus, high effort | Tier A; the Models rule recommends the strongest available model. **Proposed, not yet agreed** |
-| M2 | Inspector model | Fable, default effort | The Models rule recommends a cross-family read for Tier A, and Fable when the builder is Opus. The owner declined Fable for the 400B band item on 2026-09-21; if that is a standing preference rather than a one-item choice, Sonnet instead. **Proposed, not yet agreed** |
+| M1 | Builder model | Opus, high effort | The Models rule's default, every tier (the owner, 2026-09-23) |
+| M2 | Inspector model | Opus, default effort, a fresh session | The Models rule's default (the owner, 2026-09-23). The share's rule is arithmetic (G3), so the rule requires a hand-calculated pin: a two-malt bill of 10 lb and 1 lb has shares 10/11 and 1/11, worked out by hand and written beside the assertion in scenario 1 — never a value copied from the code's output |
 | G1 | Fraction or percent | A fraction (0.91), not a percent (91) | The app holds efficiency, attenuation and hop alpha as fractions and shows percent only at the display edge (SPEC display-units table, rule 9) |
 | G2 | Where it lives | In the existing per-malt list the grain calculation returns, beside the other per-malt values | Smallest change; the sheet and any future screen read one list |
 | G3 | The number's rule | Each malt's weight divided by the total of all malt weights. Definitional arithmetic — no spreadsheet cell and no fitted constant is involved | SPEC rule 2 governs transcribed constants; this introduces none |

@@ -1,7 +1,8 @@
 # Recipe file — export and import — Tier B
 
-Status: agreed 2026-09-22 ("A is good. Agree to all."), not started. Written by
-the spec session; to be built by a new session from CLAUDE.md's kickoff prompt.
+Status: agreed 2026-09-22 ("A is good. Agree to all."); model rows agreed
+2026-09-23 (Opus builds, Opus inspects). Not started. Written by the spec
+session; to be built by a new session from CLAUDE.md's kickoff prompt.
 Depends on `docs/items/recipe-identity.md` landing first — the file name comes
 from the recipe name.
 
@@ -31,8 +32,8 @@ tests.
 
 | id | Question | Decision | Rule |
 |---|---|---|---|
-| M1 | Builder model | Opus, high effort | Tier B; the Models rule recommends the strongest available model for A and B |
-| M2 | Inspector model | Sonnet, default effort | Never the builder's model; the item introduces no recipe number — it moves an existing document in and out |
+| M1 | Builder model | Opus, high effort | The Models rule's default, every tier (the owner, 2026-09-23) |
+| M2 | Inspector model | Opus, default effort, a fresh session | The Models rule's default (the owner, 2026-09-23). No recipe number is introduced — the item moves an existing document in and out — so no hand-calculated pin is owed |
 | E1 | What is in the file | Exactly the document the app already saves: the whole recipe plus the Home/Pro mode and the Pro gravity unit, carrying the schema version | One format and one reader; a second format would be a second thing to keep true (SPEC rule 13) |
 | E2 | File name | The recipe name, cleaned of characters a file system rejects, plus today's date — "Hazy IPA 2026-09-22.json". No name → "Brew Design recipe 2026-09-22.json" | A folder of these has to be readable at a glance |
 | E3 | Where the controls live | Beside "Reset to defaults" in the header: Export and Import | That row is already the recipe-level actions row |

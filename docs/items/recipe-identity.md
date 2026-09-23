@@ -1,7 +1,8 @@
 # Recipe identity — name, style, notes — Tier B
 
-Status: agreed 2026-09-22 ("A is good. Agree to all."), not started. Written by
-the spec session; to be built by a new session from CLAUDE.md's kickoff prompt.
+Status: agreed 2026-09-22 ("A is good. Agree to all."); model rows agreed
+2026-09-23 (Opus builds, Opus inspects). Not started. Written by the spec
+session; to be built by a new session from CLAUDE.md's kickoff prompt.
 
 ## Why
 
@@ -29,8 +30,8 @@ sheet build on it.
 
 | id | Question | Decision | Rule |
 |---|---|---|---|
-| M1 | Builder model | Opus, high effort | Tier B; the Models rule recommends the strongest available model for A and B |
-| M2 | Inspector model | Sonnet, default effort | Never the builder's model; no number whose rule needs a cross-family read is introduced (the three fields are text and reach no calculation) |
+| M1 | Builder model | Opus, high effort | The Models rule's default, every tier (the owner, 2026-09-23) |
+| M2 | Inspector model | Opus, default effort, a fresh session | The Models rule's default (the owner, 2026-09-23). No recipe number is introduced — the three fields are text and reach no calculation — so no hand-calculated pin is owed; the schema tag 3 is a version, not a recipe value |
 | I1 | Which fields | Name, style, notes (N1, N2) | Both the file name and the sheet title need a name; style prints beside it on the sheet; notes carry what the app does not model |
 | I2 | A stored "brewed on" date | No. The printed sheet carries a blank "Date brewed: ____" to fill in by hand (N3) | The app is a designer, not a brew log; a stored date goes stale the second the recipe is brewed twice |
 | I3 | Empty or a default name | Empty. The app never invents "My Recipe" | An invented name is indistinguishable from one the owner chose, and would be exported as if he had named it |

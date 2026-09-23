@@ -9,7 +9,7 @@ table is written when the item starts. Landed items are removed.
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
 | Grain-bill percentage per malt | The grain calculation returns each malt's share of the total grain weight as a fraction, so the printed sheet can show a percentage column without doing arithmetic in the app (SPEC rule 7). Scope table agreed: `docs/items/grist-percent.md` | both suites + inspector |
-| `correctVolumeToRef` identity — **shelved** | Its doc says the factor is exactly 1 at the reference temperature, but `(v · d) / d` differs from `v` by one ulp for v = 7 or 5 (exact for 16, 14.5, 12, 5.5); compute `v · (d / d)` or short-circuit `tempF === refTempF`; golden values unaffected (noticed writing the Options page table, 2026-09-21). Shelved 2026-09-22 on the owner's call: a floating-point artifact ~15 digits down, below every displayed precision and every test tolerance; only a test asserting exact bit-equality would see it. Kept so it is not rediscovered as a mystery | suites + cross-family inspector |
+| `correctVolumeToRef` identity — **shelved** | Its doc says the factor is exactly 1 at the reference temperature, but `(v · d) / d` differs from `v` by one ulp for v = 7 or 5 (exact for 16, 14.5, 12, 5.5); compute `v · (d / d)` or short-circuit `tempF === refTempF`; golden values unaffected (noticed writing the Options page table, 2026-09-21). Shelved 2026-09-22 on the owner's call: a floating-point artifact ~15 digits down, below every displayed precision and every test tolerance; only a test asserting exact bit-equality would see it. Kept so it is not rediscovered as a mystery | suites + inspector |
 
 ## Tier B — touches state, selectors, display, or reference-volume
 
@@ -17,7 +17,7 @@ table is written when the item starts. Landed items are removed.
 |---|---|---|
 | Recipe identity | The recipe carries a name, a style and free-text notes, all empty on a new recipe, all saved with it at schema version 3, none of them reaching a calculation. Prerequisite for both the recipe file and the printed sheet. Scope table agreed: `docs/items/recipe-identity.md` | suites + inspector + far end |
 | Recipe file — export and import | Export writes the saved document to a file named from the recipe name and date; import asks, then replaces what is on screen and becomes the working copy; a foreign, damaged or newer-version file is refused with the current recipe untouched. Scope table agreed: `docs/items/recipe-file-export-import.md` | suites + inspector + far end |
-| °C display toggle | Every temperature shown (the measurement temperatures, the hop wort temperature) switches °F/°C from a header toggle that persists with the display settings; needs `cToF` in the engine, so Tier A + B (split from Options page, 2026-09-21) | suites + cross-family inspector + far end |
+| °C display toggle | Every temperature shown (the measurement temperatures, the hop wort temperature) switches °F/°C from a header toggle that persists with the display settings; needs `cToF` in the engine, so Tier A + B (split from Options page, 2026-09-21) | suites + inspector + far end |
 | Empty-field handling | Clearing a field explains why downstream stats are blank and never writes NaN into state | suites + inspector |
 | Inverse solver UI | A target OG yields a grain bill via `solveGrist`; the round-trip residual FLAG is shown | suites + inspector |
 | Water tab | The water-chemistry solver is reachable from the app | suites + inspector |

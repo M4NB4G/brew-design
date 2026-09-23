@@ -122,18 +122,29 @@ kickoff prompt, with `<item>` filled in:
 
 Both the builder's and the inspector's model are decision rows in every
 Tier A/B scope table — proposed by whoever writes the table, agreed by the
-owner before building. They are never the same model. The box records the
-inspector's.
+owner before building. The box records the inspector's.
 
-- **Builder.** Recommend the strongest available model — Opus or Fable —
-  for Tier A and B, at high effort. Sonnet is acceptable for Tier C and D.
-- **Inspector.** Recommend a cross-family read when warranted — Tier A, or
-  any number whose rule is not a spreadsheet cell, an engine constant, or a
-  definitional unit factor (100 for percent, 1000 for trillion): Fable when
-  the builder is Opus or Sonnet, Opus when the builder is Fable.
-  Otherwise recommend Sonnet when the builder is Opus, and Opus when the
-  builder is Sonnet or Fable. Default effort; its value is in reading and
-  running, not reasoning depth.
+- **Default: Opus builds, Opus inspects, every tier** (the owner's decision,
+  2026-09-23). Builder at high effort; inspector at default effort — its
+  value is in reading and running, not reasoning depth.
+- **Independence comes from the session, not the model.** The inspector is
+  always a separate, fresh subagent — never the builder checking its own
+  work — and receives only the prompt below: no chat history, no builder
+  reasoning, no pasted diff. Its checks are grounded: it runs the suite,
+  reads the staged bytes itself, confirms the recorded failure, and ties
+  every number to a rule and a pin.
+- **The residual risk is a shared misreading** — the same model resolving an
+  ambiguous sentence the same way twice. It bites hardest on a number with
+  nothing outside the model to check it against. So a number whose rule is
+  not a spreadsheet cell, an engine constant, or a definitional unit factor
+  (100 for percent, 1000 for trillion) needs a hand-calculated pin: a value
+  worked out independently of the code, with the working written beside it
+  in the test, so the check is a fact rather than a reading.
+- **Fable and Sonnet** are not recommended by default. The owner can still
+  choose either for an item; the choice is recorded in its model rows.
+
+This departs from METHOD.md's cross-model inspection, on the owner's
+decision; where the two differ, this section governs.
 
 ## Inspector — standing rule, do not ask, just run it
 
@@ -174,7 +185,10 @@ commit body.
 > 3. For every numeric literal or arithmetic the diff adds or changes that
 >    produces or changes a recipe value: name its rule (the spreadsheet cell,
 >    the engine constant, or the arithmetic) and the test that pins it, or
->    write UNPINNED.
+>    write UNPINNED. Where the rule is arithmetic rather than a spreadsheet
+>    cell, an engine constant, or a definitional unit factor, the pin must be
+>    a value worked out by hand with the working shown in the test; a value
+>    copied from the code's own output does not pin it — write UNPINNED.
 > 4. Return PASS only if: the scenario encodes the sentences and not the
 >    implementation; it failed before (recorded) and passes now (run by
 >    you); nothing outside the sentences changed; every number has a rule

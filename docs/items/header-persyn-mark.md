@@ -30,7 +30,7 @@ lockup — which carries the company name in the artwork — would print it twic
 
 | id | Question | Decision | Rule |
 |---|---|---|---|
-| M1 | Builder model | Sonnet, default effort | Tier C; the Models rule accepts Sonnet for C and D, and this is an asset swap in one component |
+| M1 | Builder model | Opus, default effort | The Models rule's default, every tier (the owner, 2026-09-23); an asset swap in one component needs no more than default effort |
 | M2 | Inspector | Not required. Tier C's gate is "suites pass"; the far end is looking at it | CLAUDE.md change-control table |
 | H1 | Which artwork in the header | The medallion alone — the circular monogram without the PERSYN text or the descriptor line (option A) | The kicker already names the company; the full lockup would print it twice |
 | H2 | The full lockup | Not used here. It goes on the printed sheet (`docs/items/recipe-print-sheet.md`) and in the footer when that roadmap item runs | Each surface gets the form that fits it |
