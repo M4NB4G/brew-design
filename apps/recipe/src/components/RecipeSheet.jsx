@@ -12,7 +12,7 @@
 
 import { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
-import logoSrc from '../assets/persyn-logo.jpg';
+import logoSrc from '../assets/persyn-logo.png';
 import { printColors as C } from './shared/styles.js';
 import { recipeSheet } from './recipe-sheet-data.js';
 

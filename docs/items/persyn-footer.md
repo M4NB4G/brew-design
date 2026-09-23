@@ -1,7 +1,8 @@
 # Footer — Persyn attribution below the page, as in Brew Water Chem — Tier B
 
-Status: agreed 2026-09-23, not started. Written by the spec session; to be
-built by a new session from CLAUDE.md's kickoff prompt.
+Status: agreed 2026-09-23; landed 2026-09-23 as "Below the page, on both
+tabs, a footer shows the see-through Persyn logo beside the company name, as
+in Brew Water Chem; the printed sheet uses the same logo".
 
 ## Why
 
@@ -129,4 +130,61 @@ the printed sheet at 140 px, about six times. No larger original is needed.
 
 ## Recorded failure (filled in by the builder)
 
+`npx vitest run test/footer.test.js` in `apps/recipe`, on the unchanged code
+(branch `persyn-footer` at `99d9d1c`), 3 failed of 3:
+
+```
+× the footer names Persyn Chemical Engineering and Consulting beside the logo
+  → Cannot find module '../src/components/Footer.jsx' imported from '…/apps/recipe/test/footer.test.js'
+× screen readers skip the footer logo
+  → Cannot find module '../src/components/Footer.jsx' imported from '…/apps/recipe/test/footer.test.js'
+× the white-background logo file is gone and nothing refers to it
+  → expected true to be false // Object.is equality            (persyn-logo.jpg exists)
+  → expected [ Array(1) ] to deeply equal []
+    + [ "…\\apps\\recipe\\src\\components\\RecipeSheet.jsx" ]  (the sheet names it)
+```
+
+The file-exists check was made `expect.soft` after the first run, so that a
+single run records both of scenario 3's failures; the run above is the second
+one, still on unchanged code.
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+- **Where the footer sits:** a new `Footer.jsx` rendered in `App.jsx` straight
+  after `<main>`, inside the outer wrapper and so inside `#root` — one footer
+  for both tabs, hidden in print by the existing `#root { display: none }`
+  rule. No CSS added (F4).
+- **Layout values:** copied from `brew-water-chem/src/App.jsx`'s `<footer>`
+  and checked against it line by line — footer `maxWidth 900px`, centred,
+  padding `1.5rem 1.25rem`; row `flex`, `alignItems flex-start`, gap
+  `1.25rem`; logo `maxWidth 120px, width 100%, objectFit contain,
+  flexShrink 0`; text `0.72rem`, line height 1.6, margin 0. The water app's
+  `<main>` padding is `1rem 1.25rem`; this app's now is too (D4).
+- **Text element:** a `<p>` holding the company name only, as the water
+  app's first line (D1 drops its second).
+- **Colour token:** `colors.textFooter` = `#9faec0`, in the Text group of
+  `styles.js`. The same value already exists as `printColors.gray`; kept as a
+  separate screen token rather than reaching into the print palette, per D2
+  ("added as a new token").
+- **Decorative logo:** `alt=""` and `aria-hidden="true"`, as the header mark
+  (F3).
+- **Test rendering:** `react-dom/server`'s `renderToStaticMarkup`. React 19's
+  server renderer puts an image-preload `<link>` ahead of the markup; the test
+  takes the `<footer>…</footer>` element itself before asserting. Scenario 1
+  checks the footer's only text is the company name and that it holds one
+  image; scenario 3 scans every file under `apps/recipe/src` (as bytes, so
+  images are included) for the JPG's name.
+- **Far end, 2026-09-23** (built bundle `index-CQcNJ7jR.js`, served by
+  `vite preview` on port 4174 because another session held 4173): the footer
+  is below the last section on Recipe and on Options; logo 120 px wide
+  (850×447 natural), text `rgb(159,174,192)`; the logo's corner pixel is fully
+  clear and 86 % of its pixels are fully clear, and no box shows on the tint;
+  the gap from the last card to the footer is 32 px (the card's own margin
+  plus `<main>`'s 1rem) and the logo then sits 1.5rem lower, as in the water
+  app; at 375 px the page is no wider than the window and the company name
+  wraps to two lines beside the logo. Headless Chrome print to PDF (Letter):
+  one page, the sheet alone, no app footer, the sheet's logo from the new
+  PNG, its disclaimer footer unchanged.
+- **The JPG** is deleted with `git rm`; `grep -r persyn-logo.jpg` now finds it
+  only in `docs/items/` (this file, `header-persyn-mark.md`,
+  `recipe-print-sheet.md`) — history, left as written.

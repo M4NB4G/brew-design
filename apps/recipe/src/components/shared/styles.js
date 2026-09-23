@@ -21,6 +21,7 @@ export const colors = {
   textMuted: '#7c8fa6',
   textNotice: '#3a5680',
   textWarn: '#a04835',
+  textFooter: '#9faec0', // the page footer's company line (Brew Water Chem's footer grey)
 
   // Borders
   border: '#dde6ef',

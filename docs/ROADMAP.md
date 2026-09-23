@@ -23,7 +23,6 @@ table is written when the item starts. Landed items are removed.
 | Inverse solver UI | A target OG yields a grain bill via `solveGrist`; the round-trip residual FLAG is shown | suites + inspector |
 | Water tab | The water-chemistry solver is reachable from the app | suites + inspector |
 | Economics | Cost per batch and per unit via `rollupCost` / `costPerUnit` | suites + inspector |
-| Footer | Below the page, the full Persyn logo (see-through) and the company name, as in Brew Water Chem; the printed sheet switches to the same see-through logo. Tier B because the footer is placed in `App.jsx`. Scope table agreed: `docs/items/persyn-footer.md` | suites + inspector + far end |
 
 ## Tier C — components, styling
 

@@ -27,6 +27,7 @@ import HopsSection from './components/HopsSection.jsx';
 import YeastSection from './components/YeastSection.jsx';
 import OptionsSection from './components/OptionsSection.jsx';
 import RecipeSheet from './components/RecipeSheet.jsx';
+import Footer from './components/Footer.jsx';
 import { colors } from './components/shared/styles.js';
 
 // Display-setting defaults; the recipe defaults live in state.js.
@@ -170,7 +171,7 @@ export default function App() {
         </div>
       </div>
 
-      <main style={{ maxWidth: '900px', margin: '0 auto', padding: '1rem 1.25rem 4rem' }}>
+      <main style={{ maxWidth: '900px', margin: '0 auto', padding: '1rem 1.25rem' }}>
         {tab === 'recipe' && (
           <>
             <IdentitySection name={recipe.name} style={recipe.style} setField={setField} />
@@ -224,6 +225,9 @@ export default function App() {
           />
         )}
       </main>
+
+      {/* Persyn attribution (Brew Water Chem's footer); on screen only, inside #root */}
+      <Footer />
 
       {/* The print-only recipe sheet, from the same derived values; portaled
           beside the app root so the print rules can hide the root alone. */}
