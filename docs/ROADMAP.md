@@ -23,12 +23,12 @@ table is written when the item starts. Landed items are removed.
 | Inverse solver UI | A target OG yields a grain bill via `solveGrist`; the round-trip residual FLAG is shown | suites + inspector |
 | Water tab | The water-chemistry solver is reachable from the app | suites + inspector |
 | Economics | Cost per batch and per unit via `rollupCost` / `costPerUnit` | suites + inspector |
+| Footer | Below the page, the full Persyn logo (see-through) and the company name, as in Brew Water Chem; the printed sheet switches to the same see-through logo. Tier B because the footer is placed in `App.jsx`. Scope table agreed: `docs/items/persyn-footer.md` | suites + inspector + far end |
 
 ## Tier C — components, styling
 
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
-| Footer | Persyn attribution, parity with Brew Water Chem — uses the full Persyn lockup the header-mark item specifies; note a white-background image would show a rectangle against the page gradient, so it needs the transparent artwork | look at it |
 | Phone width | Stats bar and tables degrade without horizontal page scroll | look at it |
 | Dead code | `UnitToggle.jsx` removed; unused imports in `VolumesSection.jsx` and `YeastSection.jsx` removed, with the unused `vUnit` the fermentation row left behind in `YeastSection.jsx` (Options page, 2026-09-21) | suites |
 | IBU shows "NaN" when blank | The stats bar and the Kettle readout render the raw IBU integer, so a blank input (a cleared malt weight; an uncorrectable pre-boil temperature) shows "NaN" where every other stat shows "—"; route it through `num(…, 0)` (noticed at the Options page far end, 2026-09-21) | look at it |
