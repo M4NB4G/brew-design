@@ -31,6 +31,7 @@ in the same commit as any change to a proof (CLAUDE.md, procedure step 5).
 | grist golden master · hops golden master · yeast golden master · starter golden master (cellsNeeded 570) | `packages/engine/test/golden-master.test.js` | 19 |
 | solveStarter band selection (900B/950B/1000B/1010B the 400B band's 800-1000 rule; every count 250-1700 has an option) · intentional boundary gaps (strict inequalities, transcribed as-is) | `packages/engine/test/starter.test.js` | 12 |
 | solveGrist round-trip (pinned residual, see solver.js FLAG) | `packages/engine/test/solver.test.js` | 4 |
+| grain-bill share per malt: each malt's share is its weight over the bill total, for the reference recipe (10/11 and 1/11, worked by hand) · the shares sum to 1 for a bill with a positive total weight · a zero-weight malt is listed with a share of 0 · an empty bill and a cleared weight yield shares that are not numbers, and nothing throws | `packages/engine/test/grist.test.js` | 4 |
 | basic conversions · water density table · correctVolumeToRef | `packages/engine/test/units.test.js` | 11 |
 | unit constants · volumeToGallons · volumeUnit · acidMaltUnits | `packages/engine/test/water/units.test.js` | 21 |
 | saltContribution · first-principles hand-calculations | `packages/engine/test/water/salts.test.js` | 20 |
@@ -44,7 +45,7 @@ in the same commit as any change to a proof (CLAUDE.md, procedure step 5).
 | options page: the default temperatures are 60 °F and leave every derived number the engine's for the uncorrected volumes, within 1e-12 · a pre-boil temperature corrects only the pre-boil volume · a post-boil temperature corrects the post-boil volume · a fermentation temperature corrects the fermentation volume · `toReferenceVolume` corrects at the temperature of its kind and returns NaN for one the engine cannot correct · an uncorrectable temperature blanks the dependent stats and nothing throws · the saved document carries version 3 and the temperatures; a cleared one round-trips as NaN · a version-1 document loads as the same recipe with the reference temperatures and an empty name, style and notes, and is saved back as version 3 · a version-2 document loads with an empty name, style and notes; a version-3 document loads; any other version yields the defaults | `apps/recipe/test/options.test.js` | 9 |
 | recipe identity: a new recipe has an empty name, style and notes · the three fields reach no calculation: every derived number is identical with them empty and filled · name, style and notes round-trip through save and load at version 3 | `apps/recipe/test/identity.test.js` | 3 |
 
-Total: engine 181, app 37.
+Total: engine 185, app 37.
 
 ## Gaps and the cost of closing each
 

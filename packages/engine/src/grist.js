@@ -42,13 +42,25 @@ export function computeGrist(input) {
     apparentAttenuation = 0.77,
   } = input;
 
-  // Per-malt extract points contributed at the pre-boil volume.
+  const sumWeightLb = malts.reduce((s, m) => s + m.weightLb, 0);
+
+  // Per-malt extract points contributed at the pre-boil volume, and each
+  // malt's share of the total grain weight (a fraction; not a number when the
+  // total is zero or not a number).
   const perMalt = malts.map((m) => {
     const perMaltMaxPpg = 46 * m.fgdb; // 46 PPG = sucrose extract potential
     const perMaltBhPpg = perMaltMaxPpg * efficiency;
     const perMaltPoints = perMaltBhPpg * (m.weightLb / preBoilVolGal);
     const perMaltMcu = (m.colorL * m.weightLb) / postBoilVolGal;
-    return { name: m.name, perMaltMaxPpg, perMaltBhPpg, perMaltPoints, perMaltMcu };
+    const perMaltWeightFraction = m.weightLb / sumWeightLb;
+    return {
+      name: m.name,
+      perMaltMaxPpg,
+      perMaltBhPpg,
+      perMaltPoints,
+      perMaltMcu,
+      perMaltWeightFraction,
+    };
   });
 
   const sumPoints = perMalt.reduce((s, m) => s + m.perMaltPoints, 0);
@@ -67,7 +79,6 @@ export function computeGrist(input) {
   const sumMcu = perMalt.reduce((s, m) => s + m.perMaltMcu, 0);
   const SRM = 1.49 * Math.pow(sumMcu, 0.69);
 
-  const sumWeightLb = malts.reduce((s, m) => s + m.weightLb, 0);
   const mashRv = (mashWaterGal * 4) / sumWeightLb; // qt / lb
   const mashR = mashRv * 2.055; // lb / lb (2.055 qt->lb water constant)
 

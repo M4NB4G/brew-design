@@ -8,7 +8,6 @@ table is written when the item starts. Landed items are removed.
 
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
-| Grain-bill percentage per malt | The grain calculation returns each malt's share of the total grain weight as a fraction, so the printed sheet can show a percentage column without doing arithmetic in the app (SPEC rule 7). Scope table agreed: `docs/items/grist-percent.md` | both suites + inspector |
 | `correctVolumeToRef` identity — **shelved** | Its doc says the factor is exactly 1 at the reference temperature, but `(v · d) / d` differs from `v` by one ulp for v = 7 or 5 (exact for 16, 14.5, 12, 5.5); compute `v · (d / d)` or short-circuit `tempF === refTempF`; golden values unaffected (noticed writing the Options page table, 2026-09-21). Shelved 2026-09-22 on the owner's call: a floating-point artifact ~15 digits down, below every displayed precision and every test tolerance; only a test asserting exact bit-equality would see it. Kept so it is not rediscovered as a mystery | suites + inspector |
 
 ## Tier B — touches state, selectors, display, or reference-volume

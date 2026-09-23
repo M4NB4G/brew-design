@@ -1,8 +1,10 @@
 # Grain-bill percentage per malt — Tier A
 
 Status: agreed 2026-09-22 ("A is good. Agree to all." — decision P7); model
-rows agreed 2026-09-23 (Opus builds, Opus inspects). Not started. Written by
-the spec session; to be built by a new session from CLAUDE.md's kickoff prompt.
+rows agreed 2026-09-23 (Opus builds, Opus inspects). Landed 2026-09-23 on
+branch `grist-percent` as "The grain calculation returns each malt's share of
+the total grain weight, as a fraction, in the per-malt list"; awaiting the
+owner's "merge and push".
 
 ## Why
 
@@ -59,4 +61,46 @@ tier table — no screen shows the number until the printed sheet item lands.
 
 ## Recorded failure (filled in by the builder)
 
+Run alone against the unchanged code, 2026-09-23
+(`npx vitest run test/grist.test.js` in `packages/engine`): 4 failed.
+
+1. *each malt's share is its weight over the bill total, for the reference recipe* —
+   `expect(Math.abs(perMalt[0].perMaltWeightFraction - 0.909090909090909)).toBeLessThan(1e-12)` → expected NaN to be less than 1e-12
+2. *the shares sum to 1 for a bill with a positive total weight* —
+   `expect(Math.abs(sum - 1)).toBeLessThan(1e-12)` → expected NaN to be less than 1e-12
+3. *a zero-weight malt is listed with a share of 0* —
+   `expect(perMalt[1].perMaltWeightFraction).toBe(0)` → expected undefined to be +0
+4. *an empty bill and a cleared weight yield shares that are not numbers, and nothing throws* —
+   `expect(m.perMaltWeightFraction).toBeNaN()` → expected undefined to be NaN
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+1. **The value's name.** `perMaltWeightFraction`, beside `perMaltMaxPpg`,
+   `perMaltBhPpg`, `perMaltPoints` and `perMaltMcu` in each entry of
+   `computeGrist(...).perMalt` — the list's own naming, and "fraction" per G1.
+2. **One total, not two.** The total grain weight was already summed for
+   mash thickness. That line moved up, above the per-malt list, and both the
+   share and mash Rv read it; the sum itself is unchanged, so mash Rv and
+   mash R are unchanged (golden master 1.7931034 and 3.6848276 still pass).
+   No new sum was added.
+3. **"The reference recipe" in scenario 1.** The golden-master reference bill
+   is 27 lb + 2 lb; the item's parenthesis and M2 name the app's two-malt
+   default, 10 lb + 1 lb (`apps/recipe/src/state.js`), so scenario 1 uses
+   that bill, at the app's default volumes (pre-boil 7 gal, post-boil
+   7 − 1.5 × 60/60 = 5.5 gal, mash water 5 gal; the volumes do not enter the
+   share). The golden-master bill is one of the bills in scenario 2.
+4. **The hand pin.** 10/11 and 1/11 are written as 15-place decimals with the
+   long-division working beside them (0.909090909090909…, 0.090909090909091),
+   compared within 1e-12 — the same tolerance `percent.test.js` uses for its
+   fraction round-trips. No golden-master tolerance is touched (SPEC rule 4).
+5. **"Sum to 1" within 1e-12, not exactly.** Binary floating point cannot
+   promise an exact 1 for arbitrary weights; S2 is asserted within 1e-12 for
+   four bills: 10 + 1 lb, 27 + 2 lb, three malts at 8.3 / 1.7 / 0.45 lb, and a
+   single 12 lb malt.
+6. **"An empty bill" in S4.** Read as malt rows present at zero weight: the
+   total is 0 and each share is 0 / 0, not a number. A bill with no rows at
+   all has no share to be not-a-number; scenario 4 also checks that it
+   computes without throwing and lists nothing.
+7. **Zero-weight malt exactly 0.** 0 / 11 is exactly 0 in floating point, so
+   scenario 3 asserts identity with 0, not a tolerance.
+8. **Negative weights** are not guarded against (G6); no test covers them.
