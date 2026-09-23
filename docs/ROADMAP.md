@@ -17,6 +17,7 @@ table is written when the item starts. Landed items are removed.
 |---|---|---|
 | Recipe identity | The recipe carries a name, a style and free-text notes, all empty on a new recipe, all saved with it at schema version 3, none of them reaching a calculation. Prerequisite for both the recipe file and the printed sheet. Scope table agreed: `docs/items/recipe-identity.md` | suites + inspector + far end |
 | Recipe file — export and import | Export writes the saved document to a file named from the recipe name and date; import asks, then replaces what is on screen and becomes the working copy; a foreign, damaged or newer-version file is refused with the current recipe untouched. Scope table agreed: `docs/items/recipe-file-export-import.md` | suites + inspector + far end |
+| Printed recipe sheet | A print control opens the browser's print dialog on a print-only recipe sheet — header band, name/style/volume/date, the six headline numbers, grain bill with percentages, volumes, hop schedule, yeast and starter, notes, footer with blank brewer lines — in the screen's units, computing nothing, Letter portrait. Tier B because it is rendered from the app's top-level file (re-tiered from C, 2026-09-23). Scope table agreed: `docs/items/recipe-print-sheet.md` | suites + inspector + far end (print preview) |
 | °C display toggle | Every temperature shown (the measurement temperatures, the hop wort temperature) switches °F/°C from a header toggle that persists with the display settings; needs `cToF` in the engine, so Tier A + B (split from Options page, 2026-09-21) | suites + inspector + far end |
 | Empty-field handling | Clearing a field explains why downstream stats are blank and never writes NaN into state | suites + inspector |
 | Inverse solver UI | A target OG yields a grain bill via `solveGrist`; the round-trip residual FLAG is shown | suites + inspector |
@@ -27,7 +28,6 @@ table is written when the item starts. Landed items are removed.
 
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
-| Printed recipe sheet | A print control opens the browser's print dialog on a print-only recipe sheet — header band, name/style/volume/date, the six headline numbers, grain bill with percentages, volumes, hop schedule, yeast and starter, notes, footer with blank brewer lines — in the screen's units, computing nothing, Letter portrait. Scope table agreed: `docs/items/recipe-print-sheet.md` | suites + look at it in print preview |
 | Header mark | The Persyn medallion replaces the flask in the app header, wordmark and kicker unchanged; blocked on artwork the owner is producing. Scope table agreed: `docs/items/header-persyn-mark.md` | suites + look at it |
 | Footer | Persyn attribution, parity with Brew Water Chem — uses the full Persyn lockup the header-mark item specifies; note a white-background image would show a rectangle against the page gradient, so it needs the transparent artwork | look at it |
 | Phone width | Stats bar and tables degrade without horizontal page scroll | look at it |

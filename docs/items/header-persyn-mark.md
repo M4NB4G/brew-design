@@ -25,6 +25,7 @@ lockup — which carries the company name in the artwork — would print it twic
 - **S3** The medallion is decorative to assistive technology — the kicker line already names the company in text.
 - **S4** The flask artwork is removed from the app; nothing still refers to it.
 - **S5** Nothing else changes: no recipe value, no derived number, no layout beyond the mark itself.
+- **S6** `SPEC.md` rule 14 — "the visual language matches Brew Water Chem" — gains one line recording the header mark as the owner's departure from the water app's header, with its date, so a later parity change does not put the flask back.
 
 ## Decisions — agreed
 
@@ -37,7 +38,8 @@ lockup — which carries the company name in the artwork — would print it twic
 | H3 | Size and position | Unchanged from the flask: same slot, same height, square | A swap, not a redesign |
 | H4 | Color | As supplied. If the artwork arrives as vector, it can be recolored to the wordmark's navy later without new artwork; a flat image cannot | Recorded so the choice stays open |
 | H5 | Silent properties | Nothing persisted, computed or measured changes. The header is the only surface touched. If the artwork arrives as a flat image rather than vector, it will look soft on high-resolution screens at any size the source does not cover | Named so they are checked, not discovered |
-| H6 | Files and tier | Tier C. `apps/recipe/src/components/Header.jsx`, the new artwork in `apps/recipe/src/assets/`, deletion of `apps/recipe/src/assets/bwc-flask-header.svg`, `docs/ROADMAP.md` (this item's row removed), this file | Components and assets are Tier C paths |
+| H6 | Files and tier | Tier C. `apps/recipe/src/components/Header.jsx`, the new artwork in `apps/recipe/src/assets/`, deletion of `apps/recipe/src/assets/bwc-flask-header.svg`, `SPEC.md` (rule 14, one line — S6), `docs/ROADMAP.md` (this item's row removed), this file | Components and assets are Tier C paths; the SPEC line is the same kind of dated deviation record rule 2 carries for the 400B band |
+| H7 | Artwork colors and rule 14 | The artwork file carries its own colors, as the flask SVG does today. Rule 14's hook greps component code, not assets, and the flask set the precedent; no palette entry is owed for a logo | Named so the builder does not stall on it |
 
 ## Artwork owed by the owner — specification
 
@@ -67,6 +69,10 @@ page background, where a white rectangle would show):
 None in the suite: this is an artwork swap with no behaviour and no number.
 The existing suites must still pass, and the build must still succeed with the
 new asset bundled and the flask gone.
+
+**Before starting:** confirm the medallion artwork is in
+`apps/recipe/src/assets/`. If it is not there, stop and tell the owner — do
+not crop, trace or redraw the mark from the JPG; the artwork is his to supply.
 
 ## Far end — Tier C: look at it
 
