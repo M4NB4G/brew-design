@@ -1,7 +1,11 @@
 # Ingredient list in the app — Tier B
 
-Status: agreed 2026-09-23 ("agree to all"), not started. Written by the spec
-session; to be built by a new session from CLAUDE.md's kickoff prompt.
+Status: landed 2026-09-23 on branch `ingredient-list-in-app`, "The app carries
+a copy of the owner's ingredient list, every number exactly its workbook cell,
+and a test fails naming the row whenever the two disagree or the workbook is
+unusable"; awaiting the owner's "merge and push". Agreed 2026-09-23 ("agree to
+all"); written by the spec session, built by a new session from CLAUDE.md's
+kickoff prompt.
 
 ## Why
 
@@ -148,4 +152,91 @@ error. S4 is proved by the unchanged suites and the far end.
 
 ## Recorded failure (filled in by the builder)
 
+`npx vitest run test/ingredients.test.js` in `apps/recipe`, before the reader,
+the refresh tool and the copy existed (2026-09-23), trimmed:
+
+```
+ ❯ test/ingredients.test.js (4 tests | 4 failed)
+   × the app's ingredient list is exactly the workbook's: every row, every number, in the workbook's order
+     → Cannot find module '../scripts/ingredient-workbook.js' imported from '…/apps/recipe/test/ingredients.test.js'
+   × a row added, removed or renamed, or a number changed, in the workbook but not the copy fails the match and names the row
+     → Cannot find module '../scripts/ingredient-workbook.js' …
+   × an unusable workbook is refused, naming the sheet and row: duplicate name, blank or non-number required number, percentage outside 0–100%, negative colour, yeast neither Ale nor Lager, lab range inverted
+     → Cannot find module '../scripts/ingredient-workbook.js' …
+   × refreshing twice gives an identical copy
+     → Cannot find module '../scripts/ingredient-workbook.js' …
+      Tests  4 failed (4)
+```
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+Claims for the inspector to verify.
+
+1. **A blank lab range is `null` in the copy.** JSON has no NaN; the copy is
+   reference data, not recipe state, so SPEC rule 13's NaN round-trip does
+   not apply. Every yeast has both ends today, so no `null` is in the copy.
+2. **Ale / Lager** is accepted whatever its capitals and surrounding spaces,
+   and carried lower case (`'ale'`, `'lager'`), like `yeast.type` in state.
+   Anything else, including blank, is refused.
+3. **Names** are trimmed. Duplicates are compared trimmed and lower-cased,
+   **within one sheet**; a malt and a hop may share a name. The second row is
+   the one refused, naming the first.
+4. **A row with no name is skipped** even if it has numbers (L3: "every row
+   with a name"); it is not refused. S3's list does not name it.
+5. **Lab and product code** are text, trimmed, `""` when blank, and never
+   required. A number typed there would be carried as its text. Every
+   product code is a text cell today (checked).
+6. **Bounds.** A percentage is refused outside 0–1 as stored (0–100 %),
+   both ends allowed: Rice Hulls 0, Lactose and Blanc Soft Candi Sugar 1.
+   Colour: refused below 0, no upper bound. Lab temperatures: any number, no
+   plausibility bound; a range with only one end is refused (the spec
+   session's note), as is low above high. Low equal to high is allowed.
+7. **Not a number** includes text, an Excel error value (#DIV/0!), a date
+   and true/false. A formula is read by its stored result; a formula with
+   no stored result counts as blank.
+8. **A missing header or sheet** is refused, naming the sheet and the header;
+   every problem is gathered, not only the first.
+9. **Matching.** The comparison pairs rows by exact name, reports a row on one
+   side only, and each field that differs with both values. An order-only
+   difference is reported (with the row) once nothing else differs on that
+   sheet. A key the copy carries that the workbook row does not is reported.
+10. **Line endings.** The copy is written with LF and a final newline. This
+    machine has `core.autocrlf=true`, which can check the copy out as CRLF;
+    the test compares the committed LF bytes by normalising CRLF to LF when
+    reading the working file. No `.gitattributes` change (not a named file).
+11. **The refresh tool** takes an optional workbook path and copy path (the
+    far end used a scratch workbook); on a refused workbook it prints every
+    problem, writes nothing and exits with an error. `npm run
+    refresh-ingredients --workspace @brew/recipe` runs it on the defaults.
+12. **Extra pins in scenario 1,** read by hand from the workbook and this
+    file, not from the reader: 42 / 43 / 32 rows; Bravo 0.144; Rice Hulls 0
+    and 0 °L; the first malt and yeast rows in full; Hallertau Mittelfrüh and
+    WLP4061 Rhine Kölsch Ale spelled with their accents. A reader bug shared
+    by the refresh and the comparison would still fail these.
+13. **Hooks.** `pre-commit` runs the suite once when an ingredient file is
+    staged; if an A/B file is staged too, the existing A/B block runs it.
+    `commit-msg` reuses the A/B refusal text for the refresh tool and the
+    test (both are Tier B under L6).
+14. **Dependency.** `exceljs` 4.4.0, a devDependency of `apps/recipe`; the
+    lock file grows by its dependency tree. It brings one new moderate
+    advisory, `uuid` (GHSA-w5hq-g745-h8pq, a bounds check when a caller
+    passes its own buffer); npm's only offered fix is a downgrade to exceljs
+    3. Development only: the built app is byte-identical to `main`'s. The
+    existing roadmap line "`npm audit fix`" covers dev advisories.
+15. **Far end, done 2026-09-23.** (1–2) `main` built in a separate worktree
+    and the branch built here: all five files in `dist/` byte-identical
+    (SHA-256), bundle `index-CQcNJ7jR.js`, the name the live site serves.
+    A first worktree build differed in `index.html` alone, by line endings
+    only: the fresh worktree had checked `index.html` out as CRLF; rebuilt
+    from an LF checkout, identical. (3) The built app with storage cleared:
+    the default recipe and every card, no console errors; a saved recipe
+    (pre-boil 8, named) loaded after a reload with its values; storage then
+    restored. (4) Bravo alpha 0.144 → 0.147 in a scratch copy of the
+    workbook, refreshed: exactly one changed line in the copy; the test then
+    failed with "Hops row 5 (Bravo): alphaAcidFraction is 0.144 in the
+    workbook, 0.147 in the app's copy". Both discarded; the committed
+    workbook unchanged. (A first attempt edited the price column by mistake:
+    the copy did not change, as L4 intends.)
+16. **Noticed, to the roadmap (Tier D):** CLAUDE.md's Hooks paragraph does not
+    yet mention the ingredient files; `data/README.md` still says nothing in
+    the app reads the workbook and points to this item's removed roadmap row.

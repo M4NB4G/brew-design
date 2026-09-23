@@ -2,6 +2,9 @@
 # Brew Design commit-msg guard (CLAUDE.md — Hooks).
 #   - Every commit body must name its tier:      Tier: A|B|C|D
 #   - Every Tier A/B commit must carry a PASS box: Verdict: PASS
+#   - So must a commit staging the ingredient refresh tool or the ingredient
+#     test (CLAUDE.md, Ingredient data); the workbook and its copy alone need
+#     no box.
 # Merge commits pass through.
 
 MSG_FILE="$1"
@@ -14,7 +17,8 @@ fi
 
 STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
 AB='^(packages/engine/src/|apps/recipe/src/(state|selectors|display|reference-volume|persistence)\.js$|apps/recipe/src/App\.jsx$)'
-if echo "$STAGED" | grep -qE "$AB"; then
+ING_TOOL='^(apps/recipe/scripts/.*|apps/recipe/test/ingredients\.test\.js)$'
+if echo "$STAGED" | grep -qE "$AB|$ING_TOOL"; then
   if ! grep -qE '^- Verdict: PASS' "$MSG_FILE"; then
     echo "commit-msg: REFUSED - Tier A/B change without an inspector box ('- Verdict: PASS') in the body (CLAUDE.md)"; exit 1
   fi

@@ -58,6 +58,11 @@ pinned by the golden-master tests.
     empty; either is saved back as version 3. Unreadable data,
     any other version, or unavailable storage yields the defaults and never
     throws. A cleared field (NaN) round-trips as NaN, never as 0 or null.
+16. **The ingredient list is the owner's workbook.** `apps/recipe/src/ingredients.json`
+    is generated from `data/Brew Design Ingredients.xlsx` by the refresh tool
+    and never edited by hand; every name and number equals its workbook cell,
+    unrounded, and `apps/recipe/test/ingredients.test.js` fails otherwise. It is
+    reference data: never part of the recipe state, never saved with a recipe.
 
 ### Display units
 

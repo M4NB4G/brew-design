@@ -6,6 +6,9 @@
 #   - Any staged Tier A/B file  -> run the full suite (root `npm test`) and
 #                                  the SPEC rule 7 grep (no brewing math in app).
 #   - Any staged component file -> SPEC rule 14 grep (no hex outside styles.js).
+#   - The ingredient workbook, its copy, the refresh tool or the ingredient
+#     test staged -> run the full suite (SPEC rule 16; CLAUDE.md, Ingredient
+#     data).
 # Refuses the commit on any failure. Merge commits pass through.
 
 GIT_DIR=$(git rev-parse --git-dir)
@@ -14,6 +17,13 @@ GIT_DIR=$(git rev-parse --git-dir)
 STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
 AB='^(packages/engine/src/|apps/recipe/src/(state|selectors|display|reference-volume|persistence)\.js$|apps/recipe/src/App\.jsx$)'
 COMP='^apps/recipe/src/components/'
+ING='^(data/Brew Design Ingredients\.xlsx|apps/recipe/src/ingredients\.json|apps/recipe/scripts/.*|apps/recipe/test/ingredients\.test\.js)$'
+
+# An A/B file staged alongside runs the suite below; run it once.
+if echo "$STAGED" | grep -qE "$ING" && ! echo "$STAGED" | grep -qE "$AB"; then
+  echo "pre-commit: ingredient file staged - running npm test"
+  npm test --silent || { echo "pre-commit: REFUSED - suite failed"; exit 1; }
+fi
 
 if echo "$STAGED" | grep -qE "$AB"; then
   echo "pre-commit: Tier A/B file staged - running npm test"

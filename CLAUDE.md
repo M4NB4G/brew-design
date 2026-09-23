@@ -24,6 +24,15 @@ computation. Excluded: display precision (`toFixed`, `num(x, d)`), input
 attributes (`step`, `min`, `max`), layout values (px, rem, widths), and
 visualization encodings (the SRM swatch table).
 
+**Ingredient data.** An edit to `data/Brew Design Ingredients.xlsx`
+committed with its refreshed copy `apps/recipe/src/ingredients.json` — the
+refresh tool (`apps/recipe/scripts/`) and `apps/recipe/test/ingredients.test.js`
+unchanged, and the suite passing — is Tier D: no inspector. Each number's rule
+is the owner's workbook cell, and the test checks every one. The report
+carries the copy's diff, so every changed number is on its own line. Any
+change to the refresh tool, the ingredient test, or what the copy carries is
+Tier B.
+
 The hooks guard the path table. The catch-all is the builder's call; when in
 doubt, it is Tier B.
 
