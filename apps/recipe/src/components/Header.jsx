@@ -137,7 +137,7 @@ export default function Header({
       {/* Accent gradient strip */}
       <div style={{ height: '3px', background: colors.accent, marginTop: '1rem' }} />
 
-      {/* Toggle row — right-aligned: recipe actions, then gravity (Pro only), then Pro/Home */}
+      {/* Toggle row — right-aligned: recipe actions and Print, then gravity (Pro only), then Pro/Home */}
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0.55rem 1.25rem 0.5rem' }}>
         <div
           style={{
@@ -157,6 +157,10 @@ export default function Header({
           <input ref={fileInput} type="file" onChange={onFileChosen} style={{ display: 'none' }} />
           <button type="button" onClick={onReset} style={actionButton}>
             Reset to defaults
+          </button>
+          {/* The browser's print dialog, on the print-only recipe sheet (RecipeSheet.jsx) */}
+          <button type="button" onClick={() => window.print()} style={actionButton}>
+            Print recipe
           </button>
           {mode === 'pro' && (
             <PillToggle

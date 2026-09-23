@@ -8,12 +8,14 @@ table is written when the item starts. Landed items are removed.
 
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
+| Reference temperature as an engine constant | The engine exports its 60 °F volume reference, and the app's "at 60 °F" labels (Volumes, Options) and the printed sheet's temperature-note check read it instead of writing 60 themselves; today it exists only as `correctVolumeToRef`'s default argument (noticed building the print sheet, 2026-09-23) | suites + inspector |
 | `correctVolumeToRef` identity — **shelved** | Its doc says the factor is exactly 1 at the reference temperature, but `(v · d) / d` differs from `v` by one ulp for v = 7 or 5 (exact for 16, 14.5, 12, 5.5); compute `v · (d / d)` or short-circuit `tempF === refTempF`; golden values unaffected (noticed writing the Options page table, 2026-09-21). Shelved 2026-09-22 on the owner's call: a floating-point artifact ~15 digits down, below every displayed precision and every test tolerance; only a test asserting exact bit-equality would see it. Kept so it is not rediscovered as a mystery | suites + inspector |
 
 ## Tier B — touches state, selectors, display, or reference-volume
 
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
+| Post-boil volume as measured | The screen and the printed sheet show the post-boil volume only at the 60 °F reference, so a brewer who measures it hot (post-boil measurement temperature above 60 °F) compares a hot reading in the sheet's measured box against a cold prediction; the selector returns the post-boil volume at its measurement temperature as well, and both surfaces show it beside the 60 °F figure (noticed building the print sheet, 2026-09-23) | suites + inspector + far end |
 | Ingredient list in the app | The owner's ingredient workbook (`data/Brew Design Ingredients.xlsx`) reaches the app as a list of malts (FGDB, colour), hops (alpha acid) and yeasts (ale/lager, attenuation), and a test fails whenever the app's list and the workbook disagree; each number's rule is its workbook cell. Open for the scope table: how an edit in Excel reaches the app, what a routine row edit costs in review, and the rule for the owner's Review-tab decisions (2026-09-23) | suites + inspector |
 | Searchable ingredient boxes | The malt, hop and yeast name boxes search the ingredient list as the brewer types; picking one fills that ingredient's numbers, every number stays editable and the brewer's own figure wins, and a name not on the list can still be typed; the saved recipe keeps its current shape. Needs the ingredient list in the app (2026-09-23) | suites + inspector + far end |
 | °C display toggle | Every temperature shown (the measurement temperatures, the hop wort temperature) switches °F/°C from a header toggle that persists with the display settings; needs `cToF` in the engine, so Tier A + B (split from Options page, 2026-09-21) | suites + inspector + far end |
@@ -26,7 +28,6 @@ table is written when the item starts. Landed items are removed.
 
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
-| Printed recipe sheet | A print control opens the browser's print dialog on a print-only recipe sheet — header band, name/style/volume/date, the six headline numbers, grain bill with percentages, volumes, hop schedule, yeast and starter, notes, footer with blank brewer lines — in the screen's units, computing nothing, Letter portrait. Scope table agreed: `docs/items/recipe-print-sheet.md` | suites + look at it in print preview |
 | Header mark | The Persyn medallion replaces the flask in the app header, wordmark and kicker unchanged; blocked on artwork the owner is producing. Scope table agreed: `docs/items/header-persyn-mark.md` | suites + look at it |
 | Footer | Persyn attribution, parity with Brew Water Chem — uses the full Persyn lockup the header-mark item specifies; note a white-background image would show a rectangle against the page gradient, so it needs the transparent artwork | look at it |
 | Phone width | Stats bar and tables degrade without horizontal page scroll | look at it |

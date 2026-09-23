@@ -6,6 +6,7 @@
 // conversion live here — those are in selectors.js and display.js
 // respectively.
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { defaultRecipeState } from './state.js';
 import { computeRecipe } from './selectors.js';
 import {
@@ -25,6 +26,7 @@ import VolumesSection from './components/VolumesSection.jsx';
 import HopsSection from './components/HopsSection.jsx';
 import YeastSection from './components/YeastSection.jsx';
 import OptionsSection from './components/OptionsSection.jsx';
+import RecipeSheet from './components/RecipeSheet.jsx';
 import { colors } from './components/shared/styles.js';
 
 // Display-setting defaults; the recipe defaults live in state.js.
@@ -138,7 +140,7 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', paddingBottom: '4rem' }}>
 
-      {/* Header with the recipe actions (Export, Import, Reset) and the Pro/Home and Pro-gravity toggles */}
+      {/* Header with the recipe actions (Export, Import, Reset, Print) and the Pro/Home and Pro-gravity toggles */}
       <Header
         mode={mode}
         onMode={setMode}
@@ -222,6 +224,13 @@ export default function App() {
           />
         )}
       </main>
+
+      {/* The print-only recipe sheet, from the same derived values; portaled
+          beside the app root so the print rules can hide the root alone. */}
+      {createPortal(
+        <RecipeSheet recipe={recipe} derived={derived} mode={mode} proGravityUnit={proGravityUnit} />,
+        document.body,
+      )}
 
     </div>
   );

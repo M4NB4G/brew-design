@@ -37,6 +37,18 @@ export const colors = {
   toggleActiveText: '#ffffff',
 };
 
+// The printed recipe sheet's palette — Brew Water Chem's batch sheet, on white.
+export const printColors = {
+  navy: '#1f3147', // headings, values, product name
+  gray: '#9faec0', // labels, subtitle, disclaimer
+  border: '#c8d4e0', // table rules, measured-value boxes
+  headerBg: '#e4ecf5', // table header fill
+  rowAlt: '#f3f6fa', // alternating row tint
+  body: '#222222', // table body text
+  signature: '#333333', // brewer / date lines
+  page: '#ffffff',
+};
+
 export const radii = {
   card: '14px',
   statBox: '12px',
