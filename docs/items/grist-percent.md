@@ -50,7 +50,9 @@ the Tier A gate sits tightly around the one new number.
 4. *an empty bill and a cleared weight yield shares that are not numbers, and nothing throws* — S4
 
 Unchanged and must still pass: the whole golden-master suite and every
-existing grain-bill assertion.
+existing grain-bill assertion. Checked 2026-09-23: the golden master never
+reads the per-malt list and no test compares grain-bill output as a whole
+object, so a new field in the list cannot disturb a pinned value.
 
 ## Far end — Tier A: both suites
 

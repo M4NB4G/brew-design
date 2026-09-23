@@ -38,18 +38,36 @@ sheet build on it.
 | I4 | Length limit | None in the recipe. The printed sheet wraps a long name rather than truncating it | A limit is a number nobody decided; wrapping loses nothing |
 | I5 | Schema version | 2 → 3. Versions 1 and 2 both stay readable; a version-1 document still gets the reference measurement temperatures as it does today, and now also the three empty fields (N4) | SPEC rule 13; nothing the owner has saved may be lost |
 | I6 | Silent properties | Still one key, one document, last write wins across tabs — unchanged. The name is not a storage key, so two recipes with the same name do not collide in storage (there is only ever one working copy; files are the way to keep more than one). Autosave stays synchronous on every keystroke; a notes box does not change that. Nothing here is atomic or ordered differently than today | Named so they are checked, not discovered |
-| I7 | Files and tier | Tier B. `apps/recipe/src/state.js`, `apps/recipe/src/persistence.js`, `apps/recipe/src/App.jsx`, a new `apps/recipe/src/components/IdentitySection.jsx`, `apps/recipe/test/smoke.test.js` (reference state), `apps/recipe/test/persistence.test.js`, `SPEC.md` (rule 13, the version), `docs/TEST_COVERAGE.md`, `docs/ROADMAP.md` (this item's row removed), this file | Smallest change; state and persistence are Tier B paths |
+| I7 | Files and tier | Tier B. `apps/recipe/src/state.js`, `apps/recipe/src/persistence.js`, `apps/recipe/src/App.jsx`, a new `apps/recipe/src/components/IdentitySection.jsx`, a new `apps/recipe/test/identity.test.js`, `apps/recipe/test/options.test.js` (the three rewrites below), `apps/recipe/test/smoke.test.js` (reference state), `SPEC.md` (rule 13, the version), `docs/TEST_COVERAGE.md`, `docs/ROADMAP.md` (this item's row removed), this file | Smallest change; state, persistence and App are Tier B paths |
 
-## Scenarios — `apps/recipe/test/persistence.test.js` and a new `apps/recipe/test/identity.test.js`, written first, must fail before
+## Scenarios — written first, must fail before
+
+New, in `apps/recipe/test/identity.test.js`:
 
 1. *a new recipe has an empty name, style and notes* — S1
 2. *the three fields reach no calculation: every derived number is identical with them empty and filled* — S3
 3. *name, style and notes round-trip through save and load at version 3* — S4
-4. *a version-2 document loads as the same recipe with the three fields empty and is written back as version 3* — S5
-5. *a version-1 document loads with the reference temperatures and the three fields empty* — S5
 
-Unchanged and must still pass: every existing persistence scenario, and the
-whole smoke test with the reference state carrying the three empty fields.
+Rewrites of the three options-page scenarios in `apps/recipe/test/options.test.js`
+that pin version 2 as a literal — each is true today and false after this item,
+so each is rewritten, not left to fail:
+
+4. *the saved document carries version 2 and the temperatures; a cleared one round-trips as NaN* → *the saved document carries version 3 …*; only the version assertion changes — S4
+5. *a version-1 document loads as the same recipe with the reference temperatures and is saved back as version 2* → *… with the reference temperatures and an empty name, style and notes, and is saved back as version 3*. Its fixture must also delete the three new fields, since it is built from the default recipe and a real version-1 document never had them — S5
+6. *a version-2 document loads; any other version yields the defaults* → *a version-2 document loads with an empty name, style and notes; a version-3 document loads; any other version yields the defaults*. The version-2 fixture deletes the three fields for the same reason; the rejected set becomes 0, 4, "1", "2", "3" — S5
+
+Expected failure before the change: 1 and 3 — the fields do not exist; 2 —
+on today's code the fields do not exist, so "no number moves" would pass
+without testing anything: it must first assert the three are present on a
+new recipe, and that assertion is its failure; 4 — version 2 ≠ 3; 5 — the
+loaded recipe lacks the three fields and saves as 2; 6 — the version-3
+document yields the defaults. Record the assertion lines.
+
+Unchanged and must still pass: every scenario in
+`apps/recipe/test/persistence.test.js` (they read the schema version from the
+code's own constant, so they follow it to 3 — checked 2026-09-23), the other
+six options-page scenarios, and the whole smoke test with the reference state
+carrying the three empty fields.
 
 ## Far end — Tier B
 

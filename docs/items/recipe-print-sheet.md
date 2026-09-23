@@ -1,11 +1,13 @@
-# Printed recipe sheet — Tier C
+# Printed recipe sheet — Tier B
 
-Status: agreed 2026-09-22 ("A is good. Agree to all."), not started. Written by
-the spec session; to be built by a new session from CLAUDE.md's kickoff prompt.
-Depends on `docs/items/recipe-identity.md` (the name, style and notes it
-prints) and `docs/items/grist-percent.md` (the percentage column) landing
-first. The Persyn lockup artwork is owed by the owner — see
-`docs/items/header-persyn-mark.md` for the asset specification.
+Status: agreed 2026-09-22 ("A is good. Agree to all."); model rows agreed
+2026-09-23 (Opus builds, Opus inspects). Re-tiered C → B on 2026-09-23: the
+sheet is rendered from the app's top-level file, which the path table and the
+commit hook treat as Tier B. Not started. Written by the spec session; to be
+built by a new session from CLAUDE.md's kickoff prompt. Depends on
+`docs/items/recipe-identity.md` (the name, style and notes it prints) and
+`docs/items/grist-percent.md` (the percentage column) landing first. It does
+**not** wait on the owner's new artwork — see P14.
 
 ## Why
 
@@ -37,8 +39,8 @@ prints on paper as readily as to a file.
 
 | id | Question | Decision | Rule |
 |---|---|---|---|
-| M1 | Builder model | Opus, high effort | Not required by the tier table for Tier C, but the sheet is a large component with fiddly print layout |
-| M2 | Inspector | Not required. Tier C's gate is "suites pass", and the far end is looking at it in print preview | CLAUDE.md change-control table. The sheet introduces no recipe number — see P8 |
+| M1 | Builder model | Opus, high effort | The Models rule's default (the owner, 2026-09-23); high effort because the sheet is a large component with fiddly print layout |
+| M2 | Inspector model | Opus, default effort, a fresh session | Required: rendering the sheet changes the app's top-level file, a Tier B path, and the commit hook refuses a Tier B commit without a PASS box. The sheet introduces no recipe number (P8), so no hand-calculated pin is owed |
 | P1 | How it is produced | A control that opens the browser's print dialog; the owner chooses "Save as PDF" or a printer there | Same mechanism as the water app; no new dependency, and it prints on paper too |
 | P2 | What is on it | The list in S5 | Everything carried to the kettle, in the reference sheet's order |
 | P3 | Units | Whatever mode the screen is in | What you see is what you print; a third unit rule would be a third thing to keep true |
@@ -46,12 +48,13 @@ prints on paper as readily as to a file.
 | P5 | Length | One page if it fits; flow to a second rather than shrink below readable size | A sheet that cannot be read at the kettle is not a sheet |
 | P6 | Branding | The full Persyn lockup, top-left, as the water app's sheet does it | The owner's decision of 2026-09-22 |
 | P7 | The percentage column | Included; the number comes from the calculation engine (`docs/items/grist-percent.md`), never from the sheet | SPEC rule 7 — no brewing math in the app |
-| P8 | Numbers on the sheet | None introduced. Every value is an existing derived number put through the existing display boundary; the only literals the sheet adds are type sizes, spacing and column widths | The change-control catch-all excludes display precision and layout values, so the sheet stays Tier C |
+| P8 | Numbers on the sheet | None introduced. Every value is an existing derived number put through the existing display boundary; the only literals the sheet adds are type sizes, spacing and column widths | The change-control catch-all excludes display precision and layout values, so no number raises the tier; the tier comes from the files (P13) |
 | P9 | Print colors and SPEC rule 14 | The sheet's palette goes into the shared styling source with the rest of the app's colors, not into the sheet file. The water app's sheet defines its own constants at the top; copying that here would break rule 14 | SPEC rule 14: the shared styling source is the only styling source, and no hex lives outside it |
 | P10 | App version on the sheet | Omitted. The water app's sheet prints one; Brew Design has no meaningful version number today, and a wrong version is worse than none | A number nobody decided is not printed |
 | P11 | Measurement temperatures | Printed beside a volume only where that volume was measured at something other than the 60 °F reference; a sheet of three "60 °F" notes is noise | The Options page already exposes them; the sheet reports only what departs from the default |
 | P12 | Silent properties | Printing is a read: it touches no state, triggers no save, and leaves the working copy alone. The sheet re-renders from the same derived values the screen holds, so what prints is what is on screen at that moment. The browser's dialog — including whether "Save as PDF" is offered — is the operating system's, not the app's. No page-break control beyond letting content flow | Named so they are checked, not discovered |
-| P13 | Files and tier | Tier C. A new `apps/recipe/src/components/RecipeSheet.jsx`, `apps/recipe/src/components/Header.jsx` (the control), `apps/recipe/src/App.jsx` (rendering the sheet), `apps/recipe/src/index.css` (the print rules), `apps/recipe/src/components/shared/styles.js` (the print palette), `docs/TEST_COVERAGE.md`, `docs/ROADMAP.md` (this item's row removed), this file | Components and styling are Tier C paths |
+| P13 | Files and tier | Tier B. A new `apps/recipe/src/components/RecipeSheet.jsx` (its data shaping may sit in that file or a sibling module under `components/`, so the suite can test it without a DOM), a new `apps/recipe/test/print-sheet.test.js`, `apps/recipe/src/components/Header.jsx` (the control), `apps/recipe/src/App.jsx` (rendering the sheet), `apps/recipe/src/index.css` (the print rules), `apps/recipe/src/components/shared/styles.js` (the print palette), the lockup artwork in `apps/recipe/src/assets/` (P14), `docs/TEST_COVERAGE.md`, `docs/ROADMAP.md` (this item's row removed), this file | `App.jsx` is on the Tier B path list; everything else here is a Tier C path |
+| P14 | Artwork source | Use the owner's transparent full-lockup artwork if it has landed in `apps/recipe/src/assets/`. Otherwise copy `brew-water-chem/public/persyn-logo.jpg` into `apps/recipe/src/assets/` and import it from there. The sheet prints on white, so the JPG's opaque white background does not show. Never reference the other repository's path at build or run time | P6 — the same file the water app's sheet uses; and the sheet must not wait on artwork it does not need |
 
 ## The reference sheet's visual language
 
@@ -83,7 +86,27 @@ appearance:
 Appearance, page size and the print-only behaviour are the far end, not the
 suite.
 
-## Far end — Tier C: look at it
+## Notes from the spec session — traps checked 2026-09-23
+
+- **The engine already supplies everything the sheet prints.** Each kettle
+  addition's bitterness contribution and the dry-hop rate come back from the
+  hop calculation; mash ratios, gravities, color and ABV from the grain
+  calculation; pitch rate, cells and the starter from the yeast path. Only the
+  grain-bill share is missing, and that is `docs/items/grist-percent.md`. If
+  the sheet seems to need any other number, it is a question for the owner,
+  not arithmetic in the sheet (SPEC rule 7).
+- **Per-addition bitterness is unrounded; the total is the engine's rounded
+  integer.** Printed at whole numbers, the additions can visibly fail to sum
+  to the total (40 + 12 beside a total of 53). Pick a precision that
+  reconciles, or say on the sheet that the total is computed, not summed —
+  and record the choice in the builder's notes.
+- **Blank inputs.** The screen's bitterness readout shows "NaN" for a blank
+  input (a Tier C roadmap line). The sheet must not copy that: format every
+  number through the same dash-producing formatter the other stats use.
+- **No DOM in the suite.** The app's tests run in plain Node, so the sheet's
+  data shaping must be importable and callable without rendering.
+
+## Far end — Tier B
 
 `npm test` at the root; `npm run build`; then the running app in a browser:
 open print preview and confirm the sheet appears alone with no interface
