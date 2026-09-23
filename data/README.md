@@ -29,3 +29,18 @@ this file changes no number anywhere.
   lab temperature range is left blank to fill in.
 - The recipe workbooks were read, never changed. The file was checked in
   Excel: 91 formulas, no errors.
+
+## The owner's review (2026-09-23)
+
+Every Review-tab item was decided by the owner and applied to the sheets;
+the Review tab stays as the record. Numbers changed by those decisions:
+Aromatic Malt FGDB 70% → 79% (Briess); Midnight Wheat FGDB 0% → 75%
+(tertiary sources; Briess publishes no FGDB); Raw Wheat 3.3 → 2.0 °L;
+Bravo 14.2% → 14.4% alpha; Hallertau Mittelfrüh 4.2% → 2.9% alpha; Mount
+Hood $23 → $2 per 2 oz. White Wheat is renamed White Wheat Malt, and a
+duplicate Flaked Oats row (one workbook's lowercase spelling, same numbers)
+is merged. The owner named the strains the recipes had left unnamed, filled
+in every lab temperature range, and added seven strains (G01 Stefon,
+L13 Global, WLP066 London Fog, and Fermentis W-34/70, S-04, US-05, K-97).
+Rows the owner decided or sourced are Status "Confirmed". Checked in Excel:
+90 formulas, no errors.
