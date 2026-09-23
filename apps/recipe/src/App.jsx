@@ -8,7 +8,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { defaultRecipeState } from './state.js';
 import { computeRecipe } from './selectors.js';
-import { loadPersisted, savePersisted, clearPersisted } from './persistence.js';
+import {
+  loadPersisted,
+  savePersisted,
+  clearPersisted,
+  exportRecipeDocument,
+  recipeFileName,
+  importRecipeFile,
+} from './persistence.js';
 import Header from './components/Header.jsx';
 import TabBar from './components/TabBar.jsx';
 import IdentitySection, { NotesSection } from './components/IdentitySection.jsx';
@@ -44,6 +51,7 @@ export default function App() {
   const [mode, setMode] = useState(initial.mode); // 'home' | 'pro'
   const [proGravityUnit, setProGravityUnit] = useState(initial.proGravityUnit); // Pro: 'plato' | 'sg'
   const [tab, setTab] = useState('recipe'); // 'recipe' | 'options'; every load opens on Recipe
+  const [fileMessage, setFileMessage] = useState(''); // an import refusal, shown under the header controls
 
   const derived = useMemo(() => computeRecipe(recipe), [recipe]);
 
@@ -52,8 +60,54 @@ export default function App() {
     savePersisted(browserStorage(), { recipe, mode, proGravityUnit });
   }, [recipe, mode, proGravityUnit]);
 
+  // A refusal message lasts until the next action: an edit, or a header action below.
+  useEffect(() => {
+    setFileMessage('');
+  }, [recipe, mode, proGravityUnit]);
+
+  // Export (recipe file S1, S2, S7): the saved document, handed to the browser
+  // as a download named from the recipe name and today's date. Reads only.
+  const exportRecipe = () => {
+    setFileMessage('');
+    const blob = new Blob([exportRecipeDocument({ recipe, mode, proGravityUnit })], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = recipeFileName(recipe.name, new Date());
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url));
+  };
+
+  // Import (S3–S6): read the chosen file; a refusal is shown and nothing
+  // changes; a readable file is confirmed, then replaces recipe and display
+  // settings, and the autosave above makes it the working copy.
+  const importRecipe = async (file) => {
+    setFileMessage('');
+    let text;
+    try {
+      text = await file.text();
+    } catch {
+      text = ''; // an unreadable file is refused like any other non-recipe
+    }
+    const result = importRecipeFile(text, { recipe: defaultRecipeState(), ...DEFAULT_DISPLAY }, () =>
+      window.confirm(
+        `Replace the recipe and settings on screen with the recipe in "${file.name}"? The saved copy will be replaced.`,
+      ),
+    );
+    if (result.outcome === 'refused') setFileMessage(result.message);
+    if (result.outcome !== 'replaced') return;
+    setRecipe(result.state.recipe);
+    setMode(result.state.mode);
+    setProGravityUnit(result.state.proGravityUnit);
+  };
+
   // Reset to defaults (P9): confirm, remove the saved copy, restore defaults.
   const resetToDefaults = () => {
+    setFileMessage('');
     if (!window.confirm('Reset the recipe and settings to defaults? The saved copy will be removed.')) return;
     clearPersisted(browserStorage());
     setRecipe(defaultRecipeState());
@@ -84,13 +138,16 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', paddingBottom: '4rem' }}>
 
-      {/* Header with Pro/Home and Pro-gravity toggles */}
+      {/* Header with the recipe actions (Export, Import, Reset) and the Pro/Home and Pro-gravity toggles */}
       <Header
         mode={mode}
         onMode={setMode}
         proGravityUnit={proGravityUnit}
         onProGravityUnit={setProGravityUnit}
         onReset={resetToDefaults}
+        onExport={exportRecipe}
+        onImportFile={importRecipe}
+        fileMessage={fileMessage}
       />
 
       {/* Recipe · Options tabs (Brew Water Chem's row, in its position) */}

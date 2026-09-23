@@ -1,8 +1,12 @@
 # Recipe file — export and import — Tier B
 
 Status: agreed 2026-09-22 ("A is good. Agree to all."); model rows agreed
-2026-09-23 (Opus builds, Opus inspects). Not started. Written by the spec
-session; to be built by a new session from CLAUDE.md's kickoff prompt.
+2026-09-23 (Opus builds, Opus inspects). Landed 2026-09-23 on branch
+`recipe-file-export-import` as "A recipe exports to a file named from its
+name and today's date, and imports back after a confirm; a file that is not
+a recipe, is damaged, or is newer is refused and the recipe on screen is
+untouched". Written by the spec session; built by a new session from
+CLAUDE.md's kickoff prompt.
 Depends on `docs/items/recipe-identity.md` landing first — the file name comes
 from the recipe name.
 
@@ -66,4 +70,79 @@ refusal message with the recipe untouched.
 
 ## Recorded failure (filled in by the builder)
 
+Run alone against the unchanged code, 2026-09-23
+(`npx vitest run test/recipe-file.test.js` in `apps/recipe`): 7 failed, 0
+passed. The unchanged code has no export, file-name or import behaviour, so
+each scenario fails at its first use of one:
+
+1. *export produces the same document …* — `const file = exportRecipeDocument(state)` → TypeError: exportRecipeDocument is not a function
+2. *the file name is the recipe name plus today's date …* — `expect(recipeFileName('Hazy IPA', sept22))` → TypeError: recipeFileName is not a function
+3. *importing a valid file replaces …* — `const file = exportRecipeDocument(inFile())` → TypeError: exportRecipeDocument is not a function
+4. *importing a file that is not a Brew Design recipe …* — `importRecipeFile(text, defaults(), confirm)` → TypeError: importRecipeFile is not a function
+5. *importing a damaged file …* — `const good = exportRecipeDocument(inFile())` → TypeError: exportRecipeDocument is not a function
+6. *importing a file with a newer version …* — `JSON.parse(exportRecipeDocument(inFile()))` → TypeError: exportRecipeDocument is not a function
+7. *exporting changes no recipe value …* — `exportRecipeDocument(state)` → TypeError: exportRecipeDocument is not a function
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+1. **One document, one reader.** The storage reader was split into a shared
+   reader of document text and the storage wrapper around it; the autosave
+   and the export both write through one function, so the file and the
+   stored copy cannot drift (S1, E1). Storage behaviour is unchanged:
+   every earlier persistence, options and identity scenario passes as
+   before, and a newer-version document in storage still yields the
+   defaults silently.
+2. **Old files import.** A version-1 or version-2 file is a Brew Design
+   recipe and imports exactly as browser storage reads it (60 °F
+   temperatures for version 1; empty name, style and notes for both). Only
+   a version above 3 is "newer" (S6); version 0, a missing, fractional or
+   text version is "not a recipe or damaged" (S5).
+3. **One message for foreign and damaged.** A truncated recipe file and a
+   random text file are indistinguishable once the text will not parse, so
+   S5's two cases share one message: "Not imported: this file is not a Brew
+   Design recipe, or it is damaged. The recipe on screen is unchanged." The
+   newer-version message names the file's version and the highest this app
+   reads (S6). A newer file is reported as newer even when its recipe would
+   not read, since its shape is not this version's to judge.
+4. **Checked before asking.** The file is read and checked before the
+   confirm; a refused file is never offered for replacement. The confirm
+   names the file: "Replace the recipe and settings on screen with the
+   recipe in "<file>"? The saved copy will be replaced." — worded to match
+   Reset's.
+5. **File name.** The characters Windows rejects in a file name
+   (`< > : " / \ | ? *`) and control characters become spaces; runs of
+   spaces collapse; the ends are trimmed. Everything else is kept as typed
+   (apostrophes, dashes, dots, non-ASCII). A name with nothing left after
+   cleaning uses the fallback. The date is the brewer's local date. No
+   length cap: the browser shortens an over-long name itself.
+6. **The file.** Saved as `.json`, type `application/json`: the stored
+   document as-is, one line of readable text. A cleared field is written
+   as `null` and reads back as cleared, as in storage.
+7. **The picker is not filtered** to `.json`, so any file can be chosen and
+   a non-recipe is refused with the message (the far end's own check).
+8. **"Cleared on the next action"** (E7) is taken as: the next Export,
+   Import or Reset, or any edit to the recipe or the display settings.
+9. **Header.** Export and Import sit left of Reset in the same outlined
+   pill style (the one style is now shared by all three); the row wraps at
+   phone width instead of running off the side; the refusal shows as a
+   right-aligned line under the row in the existing warning colour.
+10. **SPEC.md unchanged.** Rule 13's storage behaviour is unchanged and E10
+    names no change to `SPEC.md`; the file's rule is recorded here and in
+    the scenarios, and a Tier D roadmap line proposes adding it to
+    `SPEC.md`.
+11. **Far end, 2026-09-23** (production build, `vite preview`). The named
+    working copy "Golden Hour 1.060" (pre-boil 8 gal) exported as
+    "Golden Hour 1.060 2026-09-23.json", `application/json`, readable text
+    byte-for-byte the saved copy; the saved copy and every stat unchanged by
+    the export. The download was captured in the page rather than written
+    to disk. Renamed "Edited", pre-boil 12 gal, Pro; importing the file and
+    declining left all of that and the saved copy as they were; importing
+    and accepting brought back the name, Home, pre-boil 8 and every stat
+    exactly as exported, and the saved copy became byte-for-byte the file.
+    A reload kept the imported recipe. A text file ("shopping.txt") was
+    refused with the message under the controls, nothing asked, recipe and
+    saved copy untouched; a version-4 file was refused naming both versions;
+    the message cleared on the next edit; the Import button opens the file
+    picker. No console errors from the app. At phone width the header row
+    wraps; the Volumes card's sideways overflow there is pre-existing and on
+    the roadmap ("Phone width").

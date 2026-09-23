@@ -4,10 +4,25 @@
 // The Pro/Home toggle and (Pro-only) gravity-unit toggle both live here,
 // matching the water app's convention of keeping unit controls in the header.
 
+import { useRef } from 'react';
 import flaskSrc from '../assets/bwc-flask-header.svg';
 import { colors, radii, shadows } from './shared/styles.js';
 
 const SS3 = "'Source Sans 3', system-ui, sans-serif";
+
+// Outlined pill for the recipe-level actions: Export, Import, Reset to defaults.
+const actionButton = {
+  padding: '0.35rem 0.8rem',
+  background: 'transparent',
+  border: `1px solid ${colors.inputBorder}`,
+  borderRadius: radii.pill,
+  color: colors.textSecondary,
+  fontSize: '0.8rem',
+  fontWeight: 600,
+  letterSpacing: '0.05em',
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+};
 
 // Small pill-button toggle shared by both the Pro/Home and gravity selectors.
 function PillToggle({ value, onChange, options }) {
@@ -50,7 +65,24 @@ function PillToggle({ value, onChange, options }) {
   );
 }
 
-export default function Header({ mode, onMode, proGravityUnit, onProGravityUnit, onReset }) {
+export default function Header({
+  mode,
+  onMode,
+  proGravityUnit,
+  onProGravityUnit,
+  onReset,
+  onExport,
+  onImportFile,
+  fileMessage,
+}) {
+  // The system file picker, opened by the Import button.
+  const fileInput = useRef(null);
+  const onFileChosen = (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = ''; // choosing the same file again still counts as a choice
+    if (file) onImportFile(file);
+  };
+
   return (
     <header style={{ background: colors.cardBg, boxShadow: shadows.header }}>
 
@@ -105,25 +137,25 @@ export default function Header({ mode, onMode, proGravityUnit, onProGravityUnit,
       {/* Accent gradient strip */}
       <div style={{ height: '3px', background: colors.accent, marginTop: '1rem' }} />
 
-      {/* Toggle row — right-aligned, Pro/Home first then gravity (Pro only) */}
+      {/* Toggle row — right-aligned: recipe actions, then gravity (Pro only), then Pro/Home */}
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0.55rem 1.25rem 0.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.6rem', alignItems: 'center' }}>
-          <button
-            type="button"
-            onClick={onReset}
-            style={{
-              padding: '0.35rem 0.8rem',
-              background: 'transparent',
-              border: `1px solid ${colors.inputBorder}`,
-              borderRadius: radii.pill,
-              color: colors.textSecondary,
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              letterSpacing: '0.05em',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
-          >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '0.6rem',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+          }}
+        >
+          <button type="button" onClick={onExport} style={actionButton}>
+            Export
+          </button>
+          <button type="button" onClick={() => fileInput.current.click()} style={actionButton}>
+            Import
+          </button>
+          <input ref={fileInput} type="file" onChange={onFileChosen} style={{ display: 'none' }} />
+          <button type="button" onClick={onReset} style={actionButton}>
             Reset to defaults
           </button>
           {mode === 'pro' && (
@@ -139,6 +171,22 @@ export default function Header({ mode, onMode, proGravityUnit, onProGravityUnit,
             options={[['pro', 'Pro'], ['home', 'Home']]}
           />
         </div>
+
+        {/* An import refusal, until the next action */}
+        {fileMessage && (
+          <div
+            role="alert"
+            style={{
+              textAlign: 'right',
+              color: colors.textWarn,
+              fontSize: '0.82rem',
+              marginTop: '0.45rem',
+              lineHeight: 1.4,
+            }}
+          >
+            {fileMessage}
+          </div>
+        )}
       </div>
 
     </header>
