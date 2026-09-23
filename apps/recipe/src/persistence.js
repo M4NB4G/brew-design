@@ -17,10 +17,13 @@
 // { preBoil, postBoil, ferment } in degF. A version-1 document is read with
 // the three at the engine's 60 degF reference — the identity in numbers —
 // and the autosave rewrites it as version 2.
+// Version 3 (Recipe identity, 2026-09-23): the recipe gains name, style and
+// notes, all text. A version-1 or version-2 document is read with the three
+// empty, and the autosave rewrites it as version 3.
 
 export const STORAGE_KEY = 'brew-design.recipe';
-export const SCHEMA_VERSION = 2;
-const READABLE_VERSIONS = [1, SCHEMA_VERSION];
+export const SCHEMA_VERSION = 3;
+const READABLE_VERSIONS = [1, 2, SCHEMA_VERSION];
 
 const MODES = ['home', 'pro'];
 const GRAVITY_UNITS = ['plato', 'sg'];
@@ -56,8 +59,9 @@ function hasShapeOf(candidate, template) {
 
 /**
  * Read the persisted document. Returns { recipe, mode, proGravityUnit } when
- * storage holds a readable document at SCHEMA_VERSION, or at version 1 (read
- * with the default measurement temperatures); otherwise `defaults`.
+ * storage holds a readable document at SCHEMA_VERSION, at version 2 (read
+ * with an empty name, style and notes), or at version 1 (read also with the
+ * default measurement temperatures); otherwise `defaults`.
  * Never throws.
  */
 export function loadPersisted(storage, defaults) {
@@ -70,6 +74,10 @@ export function loadPersisted(storage, defaults) {
     if (doc.version === 1) {
       // Version-1 code never wrote measurementTempF; the defaults supply it.
       recipe = { ...recipe, measurementTempF: { ...defaults.recipe.measurementTempF } };
+    }
+    if (doc.version === 1 || doc.version === 2) {
+      // Version-1 and version-2 code never wrote name, style or notes.
+      recipe = { ...recipe, name: '', style: '', notes: '' };
     }
     if (!hasShapeOf(recipe, defaults.recipe)) return defaults;
     if (!MODES.includes(doc.mode) || !GRAVITY_UNITS.includes(doc.proGravityUnit)) return defaults;

@@ -9,6 +9,12 @@
 
 export function defaultRecipeState() {
   return {
+    // Identity: free text, empty on a new recipe (the app never invents a
+    // name), and never read by any calculation.
+    name: '',
+    style: '',
+    notes: '',
+
     // Grist (malt weights in lb; fgdb fraction; color in degL).
     malts: [
       { name: 'Pale 2-Row', weightLb: 10, fgdb: 0.8, colorL: 2 },

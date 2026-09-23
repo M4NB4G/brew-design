@@ -51,9 +51,11 @@ pinned by the golden-master tests.
     only when the canonical state does, at the value that leaves every pinned
     number the same.
 13. Persisted state is the canonical state, under one key, in one JSON
-    document carrying a schema version (2). A version-1 document — saved
+    document carrying a schema version (3). A version-1 document — saved
     before the measurement temperatures existed — loads as the same recipe
-    with the three at 60 °F and is saved back as version 2. Unreadable data,
+    with the three at 60 °F; a version-1 or version-2 document — saved
+    before the recipe had a name, style and notes — loads with those three
+    empty; either is saved back as version 3. Unreadable data,
     any other version, or unavailable storage yields the defaults and never
     throws. A cleared field (NaN) round-trips as NaN, never as 0 or null.
 

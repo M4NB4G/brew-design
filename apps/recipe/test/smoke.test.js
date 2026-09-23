@@ -17,6 +17,9 @@ import { volumeToCanonical, gravityFromCanonical, cellsFromCanonical } from '../
 // preBoil 16 with boil-off 1.5 gal/hr for 60 min -> postBoil 14.5 gal.
 // Dry hops total 15 oz across nine entries.
 const referenceState = {
+  name: '',
+  style: '',
+  notes: '',
   malts: [
     { name: 'Golden Promise', weightLb: 27, fgdb: 0.8, colorL: 2.2 },
     { name: 'Carafoam', weightLb: 2, fgdb: 0.8, colorL: 2.0 },

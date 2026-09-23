@@ -11,6 +11,7 @@ import { computeRecipe } from './selectors.js';
 import { loadPersisted, savePersisted, clearPersisted } from './persistence.js';
 import Header from './components/Header.jsx';
 import TabBar from './components/TabBar.jsx';
+import IdentitySection, { NotesSection } from './components/IdentitySection.jsx';
 import StatsBar from './components/StatsBar.jsx';
 import GristTable from './components/GristTable.jsx';
 import VolumesSection from './components/VolumesSection.jsx';
@@ -113,6 +114,8 @@ export default function App() {
       <main style={{ maxWidth: '900px', margin: '0 auto', padding: '1rem 1.25rem 4rem' }}>
         {tab === 'recipe' && (
           <>
+            <IdentitySection name={recipe.name} style={recipe.style} setField={setField} />
+
             <VolumesSection
               recipe={recipe}
               grist={derived.grist}
@@ -148,6 +151,8 @@ export default function App() {
               mode={mode}
               setYeast={setYeast}
             />
+
+            <NotesSection notes={recipe.notes} setField={setField} />
           </>
         )}
 

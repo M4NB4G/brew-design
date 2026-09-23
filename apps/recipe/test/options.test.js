@@ -208,7 +208,7 @@ describe('options page', () => {
   });
 
   // S5
-  it('the saved document carries version 2 and the temperatures; a cleared one round-trips as NaN', () => {
+  it('the saved document carries version 3 and the temperatures; a cleared one round-trips as NaN', () => {
     const s = fakeStorage();
     const recipe = {
       ...defaultRecipeState(),
@@ -217,7 +217,7 @@ describe('options page', () => {
     savePersisted(s, { recipe, mode: 'home', proGravityUnit: 'plato' });
 
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(2);
+    expect(doc.version).toBe(3);
     expect(doc.recipe.measurementTempF.preBoil).toBe(170);
     expect(doc.recipe.measurementTempF.ferment).toBe(60);
     expect('postBoil' in doc.recipe.measurementTempF).toBe(true);
@@ -229,34 +229,54 @@ describe('options page', () => {
   });
 
   // S6
-  it('a version-1 document loads as the same recipe with the reference temperatures and is saved back as version 2', () => {
+  it('a version-1 document loads as the same recipe with the reference temperatures and an empty name, style and notes, and is saved back as version 3', () => {
     const s = fakeStorage();
-    // What the app saved before this change: no measurement temperatures.
+    // What the app saved before this change: no measurement temperatures, and
+    // no name, style or notes (Recipe identity, version 3).
     const v1Recipe = { ...defaultRecipeState(), preBoilVolGal: 16 };
     delete v1Recipe.measurementTempF;
+    delete v1Recipe.name;
+    delete v1Recipe.style;
+    delete v1Recipe.notes;
     s.setItem(STORAGE_KEY, JSON.stringify({ version: 1, recipe: v1Recipe, mode: 'pro', proGravityUnit: 'sg' }));
 
     const loaded = loadPersisted(s, defaults());
     expect(loaded.recipe.preBoilVolGal).toBe(16);
     expect(loaded.recipe.measurementTempF).toEqual(AT_REFERENCE);
-    expect(loaded.recipe).toEqual({ ...v1Recipe, measurementTempF: AT_REFERENCE });
+    expect(loaded.recipe).toEqual({
+      ...v1Recipe,
+      measurementTempF: AT_REFERENCE,
+      name: '',
+      style: '',
+      notes: '',
+    });
     expect(loaded.mode).toBe('pro');
     expect(loaded.proGravityUnit).toBe('sg');
 
     savePersisted(s, loaded);
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(2);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(3);
   });
 
   // S6
-  it('a version-2 document loads; any other version yields the defaults', () => {
+  it('a version-2 document loads with an empty name, style and notes; a version-3 document loads; any other version yields the defaults', () => {
     const recipe = { ...defaultRecipeState(), measurementTempF: { preBoil: 170, postBoil: 60, ferment: 60 } };
-    const docFor = (version) => JSON.stringify({ version, recipe, mode: 'home', proGravityUnit: 'plato' });
+    const docFor = (version, r = recipe) => JSON.stringify({ version, recipe: r, mode: 'home', proGravityUnit: 'plato' });
 
+    // What the app saved before Recipe identity: no name, style or notes.
+    const v2Recipe = { ...recipe };
+    delete v2Recipe.name;
+    delete v2Recipe.style;
+    delete v2Recipe.notes;
     const s = fakeStorage();
-    s.setItem(STORAGE_KEY, docFor(2));
-    expect(loadPersisted(s, defaults()).recipe).toEqual(recipe);
+    s.setItem(STORAGE_KEY, docFor(2, v2Recipe));
+    expect(loadPersisted(s, defaults()).recipe).toEqual({ ...v2Recipe, name: '', style: '', notes: '' });
 
-    for (const version of [0, 3, '1', '2']) {
+    const v3Recipe = { ...recipe, name: 'Big IPA', style: '21A American IPA', notes: 'Mash 152 °F.' };
+    const t3 = fakeStorage();
+    t3.setItem(STORAGE_KEY, docFor(3, v3Recipe));
+    expect(loadPersisted(t3, defaults()).recipe).toEqual(v3Recipe);
+
+    for (const version of [0, 4, '1', '2', '3']) {
       const t = fakeStorage();
       t.setItem(STORAGE_KEY, docFor(version));
       expect(loadPersisted(t, defaults()), `version ${JSON.stringify(version)}`).toEqual(defaults());
