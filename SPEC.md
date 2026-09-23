@@ -63,6 +63,8 @@ pinned by the golden-master tests.
     and never edited by hand; every name and number equals its workbook cell,
     unrounded, and `apps/recipe/test/ingredients.test.js` fails otherwise. It is
     reference data: never part of the recipe state, never saved with a recipe.
+    Picking an ingredient copies its numbers into the recipe; the recipe never
+    refers back to the list.
 
 ### Display units
 

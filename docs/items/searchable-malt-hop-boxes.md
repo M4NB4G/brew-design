@@ -1,6 +1,6 @@
 # Searchable malt and hop boxes — Tier B
 
-Status: agreed 2026-09-23 ("agree to all else"), not started. Written by the
+Status: agreed 2026-09-23 ("agree to all else"); landed 2026-09-23 as "Malt, boil-hop and dry-hop name boxes search the owner's ingredient list; a pick copies its numbers into the recipe, and typing alone changes none". Written by the
 spec session; to be built by a new session from CLAUDE.md's kickoff prompt.
 The first of two items split from the roadmap's "Searchable ingredient boxes"
 (decision X1); the second is `docs/items/yeast-card.md`, built after this one.
@@ -79,4 +79,69 @@ Expected failure before the change: all eight fail at import (the module does no
 
 ## Recorded failure (filled in by the builder)
 
+`npx vitest run test/ingredient-search.test.js` against unchanged `main` (71b4f77),
+all eight scenarios, at import:
+
+```
+FAIL test/ingredient-search.test.js [ test/ingredient-search.test.js ]
+Error: Cannot find module '../src/ingredient-search.js' imported from '…/apps/recipe/test/ingredient-search.test.js'
+Test Files  1 failed (1)
+     Tests  no tests
+```
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+Claims for the inspector to verify.
+
+1. **`App.jsx` untouched.** A pick goes through the existing one-key row
+   setter, once per key the pick changes (name + FGDB + colour; name + alpha;
+   name). Typing goes through the same path with only the name. B12's file
+   list stands as agreed.
+2. **Typing is a tested function.** `ingredient-search.js` has
+   `typeName(row, text)` (the name alone changes) beside `pickIngredient`;
+   the name box applies whichever row either returns, so scenario 6 tests
+   what the box does.
+3. **Starting rows moved, not changed (B5).** The three new-row objects moved
+   from `GristTable.jsx` and `HopsSection.jsx` into `ingredient-search.js`
+   (`newRow`), so scenario 8 can reach them without a DOM. Numbers identical
+   to `main` (1 lb, 80 %, 2 °L; 10 min, 212 °F, 1 oz, 10 %; 1 oz); only the
+   names became `''`. Rule: B5, "today's starting numbers"; pin: scenario 8.
+4. **No new number reaches the recipe.** A pick writes the list's own values
+   (`item.fgdb`, `item.colorL`, `item.alphaAcidFraction`), never a value
+   re-parsed from the suggestion text. Scenario 5 checks `Object.is` on 0.77
+   and 0.144.
+5. **Suggestion text precision.** Percent via `fractionToPercent`, rounded
+   with `roundForInput` (6 decimals) — the rounding the number boxes
+   themselves use — so a suggestion reads exactly what the box will show
+   ("14.4 %", "2.9 %", "77 %"). Colour likewise; label "°L". Dry-hop
+   suggestions show the name only.
+6. **Matching details (B4).** Accents folded with NFD + strip combining
+   marks, lower-cased; the typed text is also trimmed. Blank or
+   spaces-only text suggests nothing. No cap on the number of suggestions;
+   the list scrolls (at most 280 px tall).
+7. **When the list shows.** Opens on typing (and on ArrowDown), not on
+   focus alone; closes on pick, Escape, or leaving the box. Pressing the list
+   keeps focus in the box; a pick happens on click/tap, so a touch drag that
+   scrolls the list picks nothing.
+8. **Placement (B9).** Fixed-positioned from the box's on-screen rectangle,
+   re-placed on any scroll or resize: at least the box's width or 260 px,
+   kept 8 px inside the window, opening above the box when less than 160 px
+   is free below and more is free above. Not portaled: it stays inside the
+   app root, so the print rule hides it. Stacked above the sticky stats bar
+   (20 over 10). All layout values.
+9. **`styles.js` untouched.** The list uses existing tokens (card
+   background, border, notice background for the highlighted row, card
+   shadow, input radius).
+10. **Accessibility.** The box is a combobox with a listbox of options
+    (`aria-expanded`, `aria-activedescendant`), the highlighted row kept
+    in view while arrowing.
+11. **Bundle.** 241,114 → 247,579 bytes (+6.5 KB; the item estimated
+    about 9 KB): the malts and hops of the list plus the search code; the
+    yeasts are not bundled yet (nothing reads them).
+12. **Far end, 2026-09-23, built app (`vite preview`, bundle
+    `index-BdEoVTPP.js`)** — all seven steps held; the detail is in
+    `docs/TEST_COVERAGE.md`'s scenario row. Step 7 used a recipe saved by
+    the live site (`index-CQcNJ7jR.js`; name, pre-boil 7.3, Munich 1.35 lb
+    at 9.5 °L, Magnum 13.7 %, Pro mode): on this build the saved document,
+    every box, the stats bar and the printed sheet's text (1,176 characters,
+    same checksum) were identical to the live site's.

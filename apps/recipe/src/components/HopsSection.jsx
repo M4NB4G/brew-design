@@ -1,9 +1,10 @@
 // HopsSection.jsx
 // Kettle additions (with per-addition IBU shown read-only) and the dry-hop
-// list. Hop weight is oz in Home and lb in Pro, converted at the boundary;
+// list; each name box searches the owner's ingredient list (IngredientSearch). Hop weight is oz in Home and lb in Pro, converted at the boundary;
 // time (min), wort temp (degF), and alpha acid (fraction) are fixed-unit.
 // Total IBU and the dry-hop rate come from the engine.
 import NumberField from './NumberField.jsx';
+import IngredientSearch from './IngredientSearch.jsx';
 import Card from './shared/Card.jsx';
 import { colors, tokens, radii } from './shared/styles.js';
 import {
@@ -18,15 +19,7 @@ import {
   percentToFraction,
 } from '../display.js';
 import { num } from '../format.js';
-
-const EMPTY_KETTLE = {
-  name: 'New hop',
-  timeMin: 10,
-  wortTempF: 212,
-  weightOz: 1,
-  alphaAcidFraction: 0.1,
-};
-const EMPTY_DRYHOP = { name: 'New dry hop', weightOz: 1 };
+import { newRow } from '../ingredient-search.js';
 
 const TH = {
   padding: '0.45rem 0.6rem',
@@ -164,20 +157,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
             {kettleAdditions.map((a, i) => (
               <tr key={i} style={{ background: i % 2 === 1 ? colors.noticeBg : 'transparent' }}>
                 <td style={TD}>
-                  <input
-                    value={a.name}
-                    onChange={(e) => setRow('kettleAdditions', i, 'name', e.target.value)}
-                    style={{
-                      width: '100%',
-                      border: `1px solid ${colors.inputBorder}`,
-                      borderRadius: radii.input,
-                      padding: '0.4rem 0.55rem',
-                      fontSize: '0.92rem',
-                      fontFamily: 'inherit',
-                      color: colors.textPrimary,
-                      background: colors.inputBg,
-                    }}
-                  />
+                  <IngredientSearch field="kettleAdditions" row={a} index={i} setRow={setRow} />
                 </td>
                 <td style={TD_NUM}>
                   <NumberField
@@ -223,7 +203,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
         </table>
       </div>
 
-      <AddBtn onClick={() => addRow('kettleAdditions', { ...EMPTY_KETTLE })}>
+      <AddBtn onClick={() => addRow('kettleAdditions', newRow('kettleAdditions'))}>
         + Add kettle hop
       </AddBtn>
 
@@ -275,20 +255,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
             {dryHops.map((d, i) => (
               <tr key={i} style={{ background: i % 2 === 1 ? colors.noticeBg : 'transparent' }}>
                 <td style={TD}>
-                  <input
-                    value={d.name}
-                    onChange={(e) => setRow('dryHops', i, 'name', e.target.value)}
-                    style={{
-                      width: '100%',
-                      border: `1px solid ${colors.inputBorder}`,
-                      borderRadius: radii.input,
-                      padding: '0.4rem 0.55rem',
-                      fontSize: '0.92rem',
-                      fontFamily: 'inherit',
-                      color: colors.textPrimary,
-                      background: colors.inputBg,
-                    }}
-                  />
+                  <IngredientSearch field="dryHops" row={d} index={i} setRow={setRow} />
                 </td>
                 <td style={TD_NUM}>
                   <NumberField
@@ -307,7 +274,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
         </table>
       </div>
 
-      <AddBtn onClick={() => addRow('dryHops', { ...EMPTY_DRYHOP })}>
+      <AddBtn onClick={() => addRow('dryHops', newRow('dryHops'))}>
         + Add dry hop
       </AddBtn>
     </Card>

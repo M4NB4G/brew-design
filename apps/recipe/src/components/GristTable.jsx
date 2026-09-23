@@ -1,16 +1,17 @@
 // GristTable.jsx
-// Editable malt bill (add/remove rows) plus the two grist-level parameters
+// Editable malt bill (add/remove rows; the name box searches the owner's
+// ingredient list, IngredientSearch) plus the two grist-level parameters
 // (efficiency, apparent attenuation). Malt weight is lb in both modes; fgdb,
 // color (degL), efficiency, and attenuation are unitless/fixed. Per-malt
 // extract points shown read-only from the engine.
 import NumberField from './NumberField.jsx';
+import IngredientSearch from './IngredientSearch.jsx';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
 import { colors, tokens, radii } from './shared/styles.js';
 import { maltWeightUnit, percentUnit, fractionToPercent, percentToFraction } from '../display.js';
 import { num } from '../format.js';
-
-const EMPTY_MALT = { name: 'New malt', weightLb: 1, fgdb: 0.8, colorL: 2 };
+import { newRow } from '../ingredient-search.js';
 
 const TH = {
   padding: '0.45rem 0.6rem',
@@ -57,20 +58,7 @@ export default function GristTable({
             {malts.map((m, i) => (
               <tr key={i} style={{ background: i % 2 === 1 ? colors.noticeBg : 'transparent' }}>
                 <td style={TD}>
-                  <input
-                    value={m.name}
-                    onChange={(e) => setRow('malts', i, 'name', e.target.value)}
-                    style={{
-                      width: '100%',
-                      border: `1px solid ${colors.inputBorder}`,
-                      borderRadius: radii.input,
-                      padding: '0.4rem 0.55rem',
-                      fontSize: '0.92rem',
-                      fontFamily: 'inherit',
-                      color: colors.textPrimary,
-                      background: colors.inputBg,
-                    }}
-                  />
+                  <IngredientSearch field="malts" row={m} index={i} setRow={setRow} />
                 </td>
                 <td style={TD_NUM}>
                   <NumberField
@@ -127,7 +115,7 @@ export default function GristTable({
 
       <button
         type="button"
-        onClick={() => addRow('malts', { ...EMPTY_MALT })}
+        onClick={() => addRow('malts', newRow('malts'))}
         style={{
           padding: '0.38rem 0.9rem',
           background: 'transparent',
