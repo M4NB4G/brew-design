@@ -5,7 +5,7 @@
 // matching the water app's convention of keeping unit controls in the header.
 
 import { useRef } from 'react';
-import flaskSrc from '../assets/bwc-flask-header.svg';
+import markSrc from '../assets/persyn-header-mark.png';
 import { colors, radii, shadows } from './shared/styles.js';
 
 const SS3 = "'Source Sans 3', system-ui, sans-serif";
@@ -90,9 +90,9 @@ export default function Header({
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0.85rem 1.25rem 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
 
-          {/* Flask icon */}
+          {/* Persyn medallion — decorative; the kicker names the company in text */}
           <img
-            src={flaskSrc}
+            src={markSrc}
             alt=""
             aria-hidden="true"
             style={{ height: 'clamp(40px, 5vw, 48px)', width: 'auto', flexShrink: 0 }}

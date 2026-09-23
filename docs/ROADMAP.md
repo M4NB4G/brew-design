@@ -28,7 +28,6 @@ table is written when the item starts. Landed items are removed.
 
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
-| Header mark | The Persyn medallion replaces the flask in the app header, wordmark and kicker unchanged; blocked on artwork the owner is producing. Scope table agreed: `docs/items/header-persyn-mark.md` | suites + look at it |
 | Footer | Persyn attribution, parity with Brew Water Chem — uses the full Persyn lockup the header-mark item specifies; note a white-background image would show a rectangle against the page gradient, so it needs the transparent artwork | look at it |
 | Phone width | Stats bar and tables degrade without horizontal page scroll | look at it |
 | Dead code | `UnitToggle.jsx` removed; unused imports in `VolumesSection.jsx` and `YeastSection.jsx` removed, with the unused `vUnit` the fermentation row left behind in `YeastSection.jsx` (Options page, 2026-09-21) | suites |

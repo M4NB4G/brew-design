@@ -1,8 +1,8 @@
 # Header mark — Persyn medallion replaces the flask — Tier C
 
-Status: agreed 2026-09-22 (the owner chose option A), **blocked on artwork the
-owner is producing**. Not started. Written by the spec session; to be built by
-a new session from CLAUDE.md's kickoff prompt once the asset lands.
+Status: agreed 2026-09-22 (the owner chose option A); landed 2026-09-23 as
+"The app header shows the Persyn medallion where the flask was; the wordmark
+and kicker are unchanged".
 
 ## Why
 
@@ -77,4 +77,27 @@ header still reads correctly at phone width.
 
 ## Recorded failure (filled in by the builder)
 
+None: no suite scenario (see Scenarios). Before the change the header drew
+`bwc-flask-header.svg`; after it, `persyn-header-mark.png`.
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+- **Artwork as supplied:** `persyn-header-mark.png`, 320×320, the medallion
+  alone. Used unmodified — not cropped, recoloured or traced.
+- **Its background is opaque white, not transparent** as the artwork spec
+  asked (every pixel has full alpha). In the header this is invisible: the
+  header background is pure white (`colors.cardBg` = `#ffffff`) and the app
+  has no dark theme. It would show as a white square on any tinted surface,
+  so it is not reusable as-is for the footer item.
+- **Resolution:** the slot is 40–48 CSS px tall, so 320 px covers up to about
+  6.7× device pixel ratio; checked crisp at 1.25× (desktop, 48 px) and 2×
+  (phone, 40 px).
+- **Size and position:** the `<img>` style is untouched. The flask was also
+  square, so the mark fills the same 48×48 (40×40 at phone width) box and the
+  wordmark starts at the same offset.
+- **Decorative:** `alt=""` and `aria-hidden="true"` were already on the
+  element and are kept (S3).
+- **Flask removed:** `bwc-flask-header.svg` deleted; `git grep -i flask`
+  finds it only in this item file.
+- **File name:** the owner supplied `persyn-header-mark.png`, not the
+  suggested `persyn-mark.svg`; kept as supplied.
