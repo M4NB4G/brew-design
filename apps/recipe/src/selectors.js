@@ -16,6 +16,7 @@ import {
   computeCellsNeeded,
   solveStarter,
   mashRatioWarnings,
+  REFERENCE_TEMP_F,
 } from '@brew/engine';
 import { toReferenceVolume } from './reference-volume.js';
 
@@ -58,8 +59,21 @@ export function computeRecipe(state) {
   });
   const starter = solveStarter(cells);
 
+  // The post-boil volume as it reads at its measurement temperature (the
+  // measured pre-boil volume less the boil-off, before correction), shown
+  // beside the 60 degF figure only when the post-boil temperature is a number
+  // other than the reference that the correction can use: not when the
+  // corrected figure is blank while the measured one is not.
+  const postBoilTempF = temps?.postBoil;
+  const postBoilMeasuredShown =
+    Number.isFinite(postBoilTempF) &&
+    postBoilTempF !== REFERENCE_TEMP_F &&
+    !(Number.isNaN(postBoilRefGal) && !Number.isNaN(postBoilRawGal));
+
   return {
     postBoilVolGal: postBoilRefGal,
+    postBoilMeasuredGal: postBoilRawGal,
+    postBoilMeasuredShown,
     // The three volumes as the engine received them (the Options page shows
     // each beside its measurement temperature).
     refVolumesGal: { preBoil: preBoilRefGal, postBoil: postBoilRefGal, ferment: fermentRefGal },

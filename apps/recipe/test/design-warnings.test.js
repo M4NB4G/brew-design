@@ -26,10 +26,8 @@ const NONE = { mashRv: false, mashR: false, postBoilBelowFerment: false };
 // goes through the engine's own correction at 60 F, as the app routes it.
 function engineNumbers(s) {
   const preBoilVolGal = correctVolumeToRef(s.preBoilVolGal, 60);
-  const postBoilVolGal = correctVolumeToRef(
-    computePostBoilVol(s.preBoilVolGal, s.boilOffRateGalPerHr, s.boilTimeMin),
-    60,
-  );
+  const postBoilMeasuredGal = computePostBoilVol(s.preBoilVolGal, s.boilOffRateGalPerHr, s.boilTimeMin);
+  const postBoilVolGal = correctVolumeToRef(postBoilMeasuredGal, 60);
   const fermentVolGal = correctVolumeToRef(s.fermentVolGal, 60);
   const grist = computeGrist({
     malts: s.malts,
@@ -50,6 +48,10 @@ function engineNumbers(s) {
   const cells = computeCellsNeeded({ pitchRate, postBoilPlato: grist.postBoilPlato, fermentVolGal });
   return {
     postBoilVolGal,
+    // Measured at 60 F: the as-measured post-boil volume is not shown beside
+    // the 60 F figure (post-boil volume as measured, 2026-09-23).
+    postBoilMeasuredGal,
+    postBoilMeasuredShown: false,
     refVolumesGal: { preBoil: preBoilVolGal, postBoil: postBoilVolGal, ferment: fermentVolGal },
     grist,
     hops,

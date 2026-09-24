@@ -212,6 +212,8 @@ export default function App() {
               recipe={recipe}
               grist={derived.grist}
               postBoilVolGal={derived.postBoilVolGal}
+              postBoilMeasuredGal={derived.postBoilMeasuredGal}
+              postBoilMeasuredShown={derived.postBoilMeasuredShown}
               warnings={derived.warnings}
               mode={mode}
               setField={setField}

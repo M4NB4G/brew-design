@@ -1,6 +1,9 @@
 # Post-boil volume as measured — Tier B
 
-Status: agreed 2026-09-23 ("agree to all"), not started. Written by the S1
+Status: agreed 2026-09-23 ("agree to all"); landed 2026-09-23 on branch S2
+as "When the post-boil volume is measured at a temperature other than
+60 °F, the Volumes card and the printed sheet show it as it will read
+there, beside its 60 °F figure". Written by the S1
 session; built in batch S2 (docs/ROADMAP.md, Sessions), third of its four
 items, after "The 60 °F reference held in one place", whose figure it reads.
 
@@ -54,4 +57,19 @@ as-measured post-boil volume, and the sheet's row has one figure.
 
 ## Recorded failure (filled in by the builder)
 
+Run alone against the code after the second S2 item (a3b5458), 2026-09-23:
+
+- Scenario 1: `at 60: expected undefined to be close to 14.5, received difference is NaN, but expected 5e-13` — the recipe's figures carry no as-measured post-boil volume.
+- Scenario 2: `expected 'Post-boil volume at 60 °F' to be 'Post-boil volume' // Object.is equality` — the sheet's row has one figure.
+- Scenario 3: `expected undefined to be 14.5 // Object.is equality` — at 60 °F the as-measured figure does not exist to equal the 60 °F one.
+- Scenario 4 (the guard) passed before, as expected.
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+- **The figures:** `computeRecipe` returns `postBoilMeasuredGal` — the `postBoilRawGal` it already computed (the engine's post-boil volume from the pre-boil volume as measured), so no new calculation (P-S3) — and `postBoilMeasuredShown`, true when the post-boil temperature is a number other than the engine's reference and the correction can use it. "Can use" is read from the recipe's own figures, as the empty-field item does: not when the 60 °F figure is blank while the as-measured one is not. No range is written in the app.
+- **Blank or out of range** (the spec session's reading, not re-opened): today's single row, its 60 °F figure blank. A blank pre-boil volume at 180 °F shows the pair with two dashes: the temperature is usable, the volume is not.
+- **The card:** a read-only row "Post-boil volume at 180 °F (gal)" above today's "Post-boil volume at 60 °F (gal)", same precision (three decimals). The temperature prints as typed: whole degrees whole, otherwise one decimal, as the sheet does.
+- **The sheet (P1, "as fits the table"):** the table already has a Predicted column headed with the unit and puts every other row's temperature in a "measured at …" note; the post-boil row follows suit — label "Post-boil volume", note "measured at 180 °F", Predicted "14.50 (14.08 at 60 °F)", the measured box beside it. It reads as P1's "Post-boil volume 14.50 gal at 180 °F (14.08 gal at 60 °F)" with the unit in the column head; `print-sheet.test.js`'s existing assertions are untouched, at 60 °F and at 200 °F.
+- **Files outside the list:** `App.jsx` passes the card its two new figures (two props; the card has no other way to receive them). `design-warnings.test.js` compares the whole of `computeRecipe`'s result with the engine called directly, so its expected figures gained the two new ones (as-measured = the engine's post-boil volume; shown = false at 60 °F); no assertion was loosened.
+- **SPEC:** no invariant changes: the engine still receives the 60 °F figures; the as-measured one is displayed only.
+- **Far end** (built app, 2026-09-23): at 180 °F the card shows 14.5 gal at 180 °F above 14.085 gal at 60 °F (Pro 0.468 / 0.454 bbl) and the sheet reads "Post-boil volume, measured at 180 °F: 14.50 (14.08 at 60 °F)"; with those two differences removed, a recipe the live site saved hashes identical on both tabs, every box, the sheet and the saved document; at 60 °F everything is identical to the live site.

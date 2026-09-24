@@ -99,19 +99,29 @@ export function recipeSheet({ recipe, derived, mode, proGravityUnit, today }) {
     },
 
     // Each volume as the screen shows it: mash water, pre-boil and
-    // fermentation as entered, post-boil at the 60 °F reference.
+    // fermentation as entered, post-boil at the 60 °F reference — or, when
+    // the post-boil volume is measured at another temperature, as it will
+    // read there, then its 60 °F figure (P1).
     volumes: {
       unit: vUnit,
       rows: [
         { key: 'mashWater', label: 'Mash water', value: vol(recipe.mashWaterGal), tempNote: null, measuredBox: true },
         { key: 'preBoil', label: 'Pre-boil volume', value: vol(recipe.preBoilVolGal), tempNote: tempNote(temps?.preBoil), measuredBox: true },
-        {
-          key: 'postBoil',
-          label: `Post-boil volume at ${REFERENCE_TEMP_F} ${tempUnit()}`,
-          value: vol(derived.postBoilVolGal),
-          tempNote: tempNote(temps?.postBoil),
-          measuredBox: true,
-        },
+        derived.postBoilMeasuredShown
+          ? {
+              key: 'postBoil',
+              label: 'Post-boil volume',
+              value: `${vol(derived.postBoilMeasuredGal)} (${vol(derived.postBoilVolGal)} at ${REFERENCE_TEMP_F} ${tempUnit()})`,
+              tempNote: tempNote(temps?.postBoil),
+              measuredBox: true,
+            }
+          : {
+              key: 'postBoil',
+              label: `Post-boil volume at ${REFERENCE_TEMP_F} ${tempUnit()}`,
+              value: vol(derived.postBoilVolGal),
+              tempNote: tempNote(temps?.postBoil),
+              measuredBox: true,
+            },
         { key: 'ferment', label: 'Fermentation volume', value: vol(recipe.fermentVolGal), tempNote: tempNote(temps?.ferment), measuredBox: true },
       ],
       boilTime: num(recipe.boilTimeMin, 0),

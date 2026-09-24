@@ -5,6 +5,9 @@
 // the engine wants as entered; it is still entered in display units here and
 // converted for storage. Boil time is in minutes. Post-boil volume (already at
 // the 60 degF reference), mash Rv, and mash R are read-only from the engine.
+// When the post-boil volume is measured at another temperature, the volume as
+// it will read there shows above its 60 degF figure (computeRecipe's
+// postBoilMeasuredGal and postBoilMeasuredShown).
 // Design warnings (computeRecipe's `warnings`) show as an amber line under
 // the value they are about: a mash ratio outside the owner's recommended
 // range (text from the engine's range constants), and less wort after the
@@ -22,6 +25,7 @@ import {
   mashRUnit,
   tempUnit,
 } from '../display.js';
+import { num } from '../format.js';
 
 // "Should be 1.25–2 qt/lb": a recommended range, as the owner's cell reads it.
 function shouldBe({ low, high }, unit) {
@@ -36,7 +40,19 @@ function Warning({ children }) {
   );
 }
 
-export default function VolumesSection({ recipe, grist, postBoilVolGal, warnings, mode, setField }) {
+// A temperature as typed: whole degrees as whole, otherwise one decimal.
+const temperature = (tempF) => num(tempF, Number.isInteger(tempF) ? 0 : 1);
+
+export default function VolumesSection({
+  recipe,
+  grist,
+  postBoilVolGal,
+  postBoilMeasuredGal,
+  postBoilMeasuredShown,
+  warnings,
+  mode,
+  setField,
+}) {
   const phone = usePhone();
   const vUnit = volumeUnit(mode);
 
@@ -91,6 +107,14 @@ export default function VolumesSection({ recipe, grist, postBoilVolGal, warnings
             step={1}
             min={0}
           />
+          {postBoilMeasuredShown && (
+            <InputRow
+              label={`Post-boil volume at ${temperature(recipe.measurementTempF.postBoil)} ${tempUnit()} (${vUnit})`}
+              value={Number(volumeFromCanonical(postBoilMeasuredGal, mode).toFixed(3))}
+              onChange={() => {}}
+              readOnly
+            />
+          )}
           <InputRow
             label={`Post-boil volume at ${REFERENCE_TEMP_F} ${tempUnit()} (${vUnit})`}
             value={Number(volumeFromCanonical(postBoilVolGal, mode).toFixed(3))}
