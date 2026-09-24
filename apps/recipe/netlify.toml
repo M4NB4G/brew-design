@@ -4,6 +4,9 @@
 [build]
   command = "npm test && npm run build"
   publish = "apps/recipe/dist"
+  # Cancel the build when a push changes nothing the site is built from
+  # (tools/netlify/skip-unchanged.mjs): no deploy, no credits spent.
+  ignore = "node tools/netlify/skip-unchanged.mjs"
 
 [build.environment]
   NODE_VERSION = "24"

@@ -240,8 +240,11 @@ Never bypass them (`--no-verify`).
 
 ## Deploy
 
-Netlify deploys `main` (live since 2026-09-20): every push to `main` is a
-deploy. The build runs `npm test` first, so a failing suite does not deploy.
+Netlify deploys `main` (live since 2026-09-20): every push to `main` that
+changes the app, the engine or the package files is a deploy; a push that
+changes only documents, the workbook, tooling or tests is canceled before it
+builds and costs no credits (`tools/netlify/skip-unchanged.mjs`). The build
+runs `npm test` first, so a failing suite does not deploy.
 The builder works on a branch, opens the PR, and reports (procedure
 step 8). The owner reads the report and decides. On the owner's "merge and
 push" — in chat, per item, after the report — the session fast-forwards
