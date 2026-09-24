@@ -203,7 +203,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
             fontVariantNumeric: 'tabular-nums',
           }}
         >
-          {hops.totalIBU} IBU
+          {num(hops.totalIBU, 0)} IBU
         </span>
       </div>
 

@@ -134,7 +134,7 @@ export default function StatsBar({ derived, mode, proGravityUnit }) {
         labelStyle={label}
       />
       <StatBox
-        value={hops.totalIBU}
+        value={num(hops.totalIBU, 0)}
         label="IBU"
         style={box}
         valueStyle={val}

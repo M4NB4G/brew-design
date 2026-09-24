@@ -55,7 +55,6 @@ Shelved: the `correctVolumeToRef` identity.
 
 | Item | Sentence (draft) | Re-test | Session |
 |---|---|---|---|
-| IBU shows "NaN" when blank | The stats bar and the Kettle readout render the raw IBU integer, so a blank input (a cleared malt weight; an uncorrectable pre-boil temperature) shows "NaN" where every other stat shows "—"; route it through `num(…, 0)` (noticed at the Options page far end, 2026-09-21) | look at it | S1 |
 | Blank brewery figures name the built-in one | A blank box in My brewery (Options tab) says nothing about what a new recipe will get; show the built-in figure greyed inside the empty box (a `placeholder` on the shared input row, read from `defaultRecipeState()` through `display.js`), as the Home/Pro and gravity-unit choices already do with "Built-in (Home)" and "Built-in (°P)" (noticed building brewery defaults, 2026-09-23) | look at it | S6 |
 | Measurement temperatures beside their volumes | The recipe's three measurement temperatures, and each volume at 60 °F, move from the Options tab onto the Volumes card beside the volume each one corrects, so the Options tab holds only the brewery's figures; the phone layout and the printed sheet follow. Deferred on the owner's call (2026-09-23, T3) when the two temperature groups on Options were relabelled "This recipe" and "New recipes start from" instead | look at it | S6 |
 
