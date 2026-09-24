@@ -1,9 +1,22 @@
-# Brew Recipe Designer
+# Brew Design
 
-Monorepo for the Brew Recipe Designer (Persyn Chemical Engineering and Consulting).
-Source of truth for the math: `Experiments_Are_Fun_Recipe_Designer_Rev_3.xlsm`.
+Monorepo for Brew Design, the recipe designer of Persyn Chemical Engineering
+and Consulting, live at https://brew-design.netlify.app (deployed from
+`main`). Source of truth for the math:
+`Experiments_Are_Fun_Recipe_Designer_Rev_3.xlsm`.
 
-## Phase 1: calculation engine
+## The app
+
+`apps/recipe` (`@brew/recipe`) is a React app with no server. It designs one
+recipe at a time — grist, volumes, hops, yeast, pitch and starter — in Home
+(gal, oz) or Pro (bbl, lb, °P) units, with the stats computed by the engine
+and nothing computed in the app (SPEC.md rule 7). It keeps the recipe and
+the brewery's own figures in the browser, exports and imports a recipe file,
+prints a brew-day sheet, and offers the owner's ingredient list
+(`data/`) in searchable boxes. The water-chemistry screens are next on the
+roadmap; their engine functions are already ported and tested.
+
+## The calculation engine
 
 `packages/engine` (`@brew/engine`) is a pure, framework-agnostic JavaScript
 calculation engine — no DOM, no network, no I/O, no global state. Every function
@@ -22,8 +35,7 @@ Modules:
 | `starter.js` | Analytic quadratic starter solver (replaces an Excel GoalSeek) |
 | `solver.js` | Inverse grist solver (closed-form, gravity-only, OG target) |
 | `economics.js` | Cost rollup |
-
-UI, persistence, and the water-chemistry port land in later phases.
+| `water/` | Water chemistry: salt and acid additions, residual alkalinity, the salt solver, style targets (from Brew Water Chem) |
 
 ## Getting started
 
@@ -42,12 +54,17 @@ loosened to mask implementation error.
 `CLAUDE.md` holds the change-control tiers and the builder/inspector protocol;
 `SPEC.md` is the specification every diff is checked against;
 `docs/TEST_COVERAGE.md` says what proves each rule; `docs/ROADMAP.md` is
-outstanding work by tier.
+outstanding work, by tier and by the session that builds it; `docs/items/`
+holds each item's agreed scope table.
 
 ## Layout
 
 ```
 packages/
   engine/            @brew/engine — the pure calculation engine
-apps/                deployable apps (later phases)
+apps/
+  recipe/            @brew/recipe — the recipe designer (Vite + React)
+data/                the owner's ingredient workbook
+docs/                test coverage, roadmap, item scope tables
+tools/               git hooks, Netlify build-skip rule
 ```

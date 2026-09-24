@@ -60,13 +60,22 @@ pinned by the golden-master tests.
     blank fermentation temperature; each is saved back as version 4. Unreadable data,
     any other version, or unavailable storage yields a new recipe (rule 17) and never
     throws. A cleared field (NaN) round-trips as NaN, never as 0 or null.
+    The recipe file is the same document: an export is byte-for-byte what
+    storage holds, and an import reads it with the same reader, versions
+    and upgrades included. They differ only in failure: a file that is not
+    a recipe, is damaged, or carries a newer version is refused with a
+    message, nothing is asked, and the recipe on screen is untouched,
+    where storage falls back silently.
 16. **The ingredient list is the owner's workbook.** `apps/recipe/src/ingredients.json`
     is generated from `data/Brew Design Ingredients.xlsx` by the refresh tool
     and never edited by hand; every name and number equals its workbook cell,
     unrounded, and `apps/recipe/test/ingredients.test.js` fails otherwise. It is
     reference data: never part of the recipe state, never saved with a recipe.
     Picking an ingredient copies its numbers into the recipe; the recipe never
-    refers back to the list.
+    refers back to the list. One display reads it again: the Yeast card's
+    information line and fermentation-temperature warning look the strain
+    up by name each time they are drawn and show the list's current
+    figures; they are never stored and never feed a number.
 17. **The brewery's figures are not a recipe.** The brewery's batch
     (fermentation) volume, pre-boil volume, boil-off rate, boil time, three
     measurement temperatures, brewhouse efficiency, Home/Pro and Pro gravity

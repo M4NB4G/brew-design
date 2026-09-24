@@ -1,15 +1,30 @@
 # Ingredient master list
 
 `Brew Design Ingredients.xlsx` is the owner's master list of malts, hops and
-yeast strains: the list the app's type-to-search ingredient boxes will offer,
+yeast strains: the list the app's type-to-search ingredient boxes offer,
 and the numbers picking one fills in (malts: FGDB and colour; hops: alpha
-acid; yeasts: ale/lager and attenuation). The owner edits it in Excel. Its
-Read Me tab explains the columns, units and legend.
+acid; yeasts: ale/lager, with the lab range and attenuation shown on the
+Yeast card). The owner edits it in Excel. Its Read Me tab explains the
+columns, units and legend.
 
-**Nothing in the app reads it yet.** How it reaches the app, and the test
-that fails when the app's list and this workbook disagree, are the scope of
-the roadmap's "Ingredient list in the app" item. Until that lands, editing
-this file changes no number anywhere.
+## How it reaches the app
+
+The app never opens the workbook. It reads a copy,
+`apps/recipe/src/ingredients.json`, which the refresh tool writes from it:
+
+```
+npm run refresh-ingredients --workspace @brew/recipe
+```
+
+The refresh refuses an unusable workbook (a duplicate name, a blank or
+non-number required figure, a percentage outside 0–100 %, and so on),
+naming the sheet and row, and then writes nothing.
+`apps/recipe/test/ingredients.test.js` fails, naming the row, whenever the
+copy and the workbook disagree, so an edited workbook committed without
+its refreshed copy cannot pass the suite. A workbook edit committed with
+its refreshed copy is Tier D (CLAUDE.md, Ingredient data; SPEC.md rule 16).
+Picking an ingredient copies its numbers into the recipe, so editing the
+workbook never changes a recipe already made.
 
 ## Where the seed came from (2026-09-23)
 

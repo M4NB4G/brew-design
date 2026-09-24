@@ -273,9 +273,12 @@ commit body.
 ## Hooks
 
 `tools/hooks/pre-commit` runs `npm test` and the SPEC greps (rules 7 and
-14) when a Tier A/B or component file is staged. `tools/hooks/commit-msg`
-refuses any commit whose body names no `Tier:`, and any A/B commit whose
-body has no `Verdict: PASS`. Activate once per clone:
+14) when a Tier A/B or component file is staged, and runs `npm test` when
+any ingredient file is staged — the workbook, its copy, the refresh tool or
+the ingredient test (Change control, Ingredient data).
+`tools/hooks/commit-msg` refuses any commit whose body names no `Tier:`,
+and any commit whose body has no `Verdict: PASS` when it stages a Tier A/B
+file, the refresh tool or the ingredient test. Activate once per clone:
 
 ```
 git config core.hooksPath tools/hooks
