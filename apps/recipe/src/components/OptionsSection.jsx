@@ -119,7 +119,7 @@ export default function OptionsSection({
   return (
     <>
     <Card>
-      <span style={tokens.cardLabel}>Measurement temperatures</span>
+      <span style={tokens.cardLabel}>This recipe — measurement temperatures</span>
       <p style={{ ...tokens.notice, marginTop: 0, marginBottom: '0.5rem' }}>
         Volumes are corrected to the 60 {tUnit} reference from the temperature they were
         measured at; mash water is used as entered.
@@ -153,9 +153,11 @@ export default function OptionsSection({
       <span style={tokens.cardLabel}>My brewery</span>
       <p style={{ ...tokens.notice, marginTop: 0, marginBottom: '0.5rem' }}>
         Your brewery's figures, kept in this browser. A new recipe — Reset to defaults, or a
-        first visit — starts from them; a blank one uses the built-in figure. Changing them
-        never changes the recipe on screen, a saved recipe or a recipe file.
+        first visit — starts from them; a blank one uses the built-in figure. Changing these
+        does not change the recipe above, a saved recipe or a recipe file.
       </p>
+
+      <span style={{ ...tokens.cardLabel, marginBottom: '0.3rem', fontSize: '0.65rem' }}>New recipes start from</span>
 
       <FigureRow
         label={`Batch (fermentation) volume (${vUnit})`}
