@@ -127,6 +127,51 @@ kickoff prompt, with `<item>` filled in:
 > pushed only when the owner replies "merge and push" — that push deploys —
 > and never on your own initiative. Stop after this one item.
 
+## Batches — several items in one session
+
+The owner's decision (2026-09-23): the roadmap's Sessions table groups the
+work into batches, and a session builds one batch. Nothing per item
+changes: each item runs the procedure from step 2 as its own item — its
+own scenario and recorded failure (a Tier C or D item with nothing a test
+can see says so, as phone width did), its own commit, and for Tier A/B its
+own fresh inspector and box. What the batch shares is one branch, one PR,
+one report (every item, every box, one combined diff) and one "merge and
+push" — one deploy. Items are built in the table's order; an item that
+cannot pass is not committed, is named in the report, and returns to the
+roadmap, and the rest land. A Tier C or D item needs no scope table beyond
+its roadmap line unless building it raises a question for the owner.
+
+After its report, while the owner reads it, the session writes the scope
+tables for the next batch (procedure step 1) and puts their questions to
+the owner. The agreed tables go on their own branch, `<next batch>-tables`,
+with their own PR — the owner approved the batch's diff, which must not
+change under him. The session that writes a table still does not build it:
+the next session does. The batch kickoff prompt, with `<batch>` and
+`<next batch>` filled in:
+
+> You are the builder for batch `<batch>` in Brew Design
+> (C:/Users/micha/Documents/Code/Brew-Design). Read, in order: `CLAUDE.md`,
+> `SPEC.md`, `docs/ROADMAP.md` (its Sessions table names this batch's
+> items, in order), and each item's file in `docs/items/` where there is
+> one. Do not re-open agreed decisions; a row you think is wrong goes back
+> to the owner as a question, not a change.
+>
+> Branch `<batch>` from `main`. Build the items in order, each by
+> `CLAUDE.md`'s procedure from step 2: the scenario first, run alone — it
+> must fail, and you record the failure; the smallest change in the files
+> the item names; prove it (scenario, `npm test`, `npm run build`, and for
+> Tier A/B the far end in a browser); docs in the same change; stage; for
+> Tier A/B run the inspector exactly as `CLAUDE.md` specifies, with the
+> model the item file names; commit once per item, with its box in the
+> body. An item that cannot pass is not committed. Then push the branch,
+> open one PR, and report: for each item what landed, the verdict and its
+> box, any FAIL rounds, anything deferred to the roadmap; the PR link; and
+> the full diff. Then write the scope tables for batch `<next batch>`, put
+> their questions to the owner, and commit the agreed tables on branch
+> `<next batch>-tables` with its own PR. Stop and wait. `main` is merged
+> and pushed only when the owner replies "merge and push" — that push
+> deploys — and never on your own initiative.
+
 ## Models
 
 Both the builder's and the inspector's model are decision rows in every
