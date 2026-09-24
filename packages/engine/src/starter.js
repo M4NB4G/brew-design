@@ -4,7 +4,9 @@
 // cells needed, and a fitted growth curve P(Q) = aQ^2 + bQ + c (Q in liters).
 //
 // Pure functions. Every constant and inequality reproduced exactly from the
-// spreadsheet. Do not alter the boundary logic.
+// spreadsheet, with one exception: the 400B band's 800-1000 boundary is the
+// owner's own rule, a recorded deviation from Rev 3 (SPEC.md rule 2,
+// 2026-09-21), not a transcription. Do not alter the boundary logic.
 
 // DME loading: 115 g per liter of starter.
 const DME_GRAMS_PER_LITER = 115;
