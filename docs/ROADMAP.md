@@ -66,6 +66,6 @@ Shelved: the `correctVolumeToRef` identity.
 | Item | Sentence (draft) | Re-test | Session |
 |---|---|---|---|
 | Title + favicon | The browser tab reads "Brew Design" and shows an icon | build | S1 |
-| `npm audit fix` | Dev-tooling advisories cleared | suites | S1 |
+| Dev-tooling major upgrades | Five advisories remain after `npm audit fix` (S1, 2026-09-23), each needing a major version: the test runner (vitest 3 → 5; a mock path-traversal advisory), esbuild under Vite 7 (reads files through the dev server on Windows), and the workbook reader's uuid (exceljs; the fix is a breaking downgrade). None reaches the built app a visitor loads — the bundle is byte-identical — so each waits for a planned upgrade with both suites re-run | suites | unassigned |
 | Coverage gaps | Close the small items in `docs/TEST_COVERAGE.md` | suites | S1 |
 | Notes / methodology page | Later. The print sheet and the recipe file left this row on 2026-09-22 as items of their own | — | S7 |
