@@ -54,6 +54,7 @@ export {
   acidAlkalinityReduction,
   acidContribution,
   applyAcids,
+  equivalentAcidDose,
 } from './water/acids.js';
 
 export {
@@ -62,6 +63,12 @@ export {
   ratioCharacter,
 } from './water/ra.js';
 
-export { solveAdditions, predictFinalProfile } from './water/solver.js';
+export {
+  solveAdditions,
+  predictFinalProfile,
+  saltTotals,
+  targetMatch,
+  residualAlkalinityMatch,
+} from './water/solver.js';
 
-export { STYLE_FAMILIES } from './water/styles.js';
+export { STYLE_FAMILIES, findStyle } from './water/styles.js';

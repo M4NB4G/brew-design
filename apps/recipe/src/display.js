@@ -10,6 +10,8 @@
 import {
   GALLONS_PER_BBL,
   OZ_PER_LB,
+  G_PER_OZ,
+  G_PER_LB,
   sgToPlato,
   platoToSg,
   volumeToGallons,
@@ -105,6 +107,30 @@ export function fractionToPercent(fraction) {
 
 export function percentToFraction(percent) {
   return percent / 100;
+}
+
+// --- Water: salts g and liquid acid mL in both modes -------------------------
+// Acidulated malt is canonical grams (the engine doses it by the gram): Home
+// shows oz, Pro lb, by the engine's G_PER_OZ and G_PER_LB.
+export function saltUnit() {
+  return 'g';
+}
+
+export function liquidAcidUnit() {
+  return 'mL';
+}
+
+export function acidMaltUnit(mode) {
+  return mode === 'pro' ? 'lb' : 'oz';
+}
+
+export function acidMaltFromCanonical(g, mode) {
+  return mode === 'pro' ? g / G_PER_LB : g / G_PER_OZ;
+}
+
+export function acidMaltToCanonical(displayValue, mode) {
+  // -> g
+  return mode === 'pro' ? displayValue * G_PER_LB : displayValue * G_PER_OZ;
 }
 
 // --- Quantities identical in both modes (label only) ------------------------

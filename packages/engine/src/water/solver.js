@@ -385,3 +385,45 @@ export function predictFinalProfile({ source, additions, acids, volumeGallons })
 
   return result;
 }
+
+/**
+ * The solver's additions as one amount per salt: a salt added in two steps
+ * (calcium chloride's two passes, the calcium minimum) is their sum. Brew
+ * Water Chem summed them on its screen (App.jsx, `recommendedSalts`).
+ *
+ * @param {Array<{ salt, grams }>} additions - solveAdditions().additions
+ * @returns {{ [saltKey]: grams }} in the order each salt first appears
+ */
+export function saltTotals(additions) {
+  const out = {};
+  for (const a of additions ?? []) out[a.salt] = (out[a.salt] || 0) + a.grams;
+  return out;
+}
+
+/**
+ * How near a predicted figure is to its target, as Brew Water Chem colours it
+ * (RecipeTab.jsx, `statColor`): the distance off target as a percent of the
+ * target — under 20 % 'near', under 50 % 'off', else 'far'.
+ * FLAG: a target of 0 grades 'near' whatever the figure — the water app's
+ * rule (it takes the percent off a zero target as 0). No style has a zero
+ * target for a graded figure today.
+ *
+ * @returns {'near' | 'off' | 'far'}
+ */
+export function targetMatch(value, target) {
+  const off = Math.abs(value - target);
+  const pct = target !== 0 ? (off / Math.abs(target)) * 100 : 0;
+  return pct < 20 ? 'near' : pct < 50 ? 'off' : 'far';
+}
+
+/**
+ * How near the predicted residual alkalinity is to its target, as Brew Water
+ * Chem colours it (RecipeTab.jsx, `raColor`): by mg/L as CaCO3 off the target —
+ * under 20 'near', under 40 'off', else 'far'.
+ *
+ * @returns {'near' | 'off' | 'far'}
+ */
+export function residualAlkalinityMatch(ra, targetRa) {
+  const off = Math.abs(ra - targetRa);
+  return off < 20 ? 'near' : off < 40 ? 'off' : 'far';
+}

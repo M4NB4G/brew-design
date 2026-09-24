@@ -122,3 +122,21 @@ export function applyAcids(acidMix, gallons) {
   const ppm_alk_reduced = (total_meq / liters) * 50.04;
   return { total_meq, ppm_alk_reduced };
 }
+
+/**
+ * A dose expressed as an equal-strength dose of another acid: the same total
+ * mEq H+, in the other acid's unit (mL liquid, g acidulated malt). Brew Water
+ * Chem worked this out on its screen (App.jsx, `recommendedMeq /
+ * acidCapacity(primary)`) to show the solver's lactic dose as the acid picked.
+ *
+ * @param {object} acidMix - { [acidKey]: amount }, mL (liquid) or g (solid)
+ * @param {string} acidKey - the acid to express it in
+ * @returns {number} amount of acidKey carrying the same mEq; 0 when the mix carries none
+ */
+export function equivalentAcidDose(acidMix, acidKey) {
+  let total_meq = 0;
+  for (const [key, amount] of Object.entries(acidMix ?? {})) {
+    total_meq += acidContribution(key, amount);
+  }
+  return total_meq > 0 ? total_meq / acidCapacity(acidKey) : 0;
+}

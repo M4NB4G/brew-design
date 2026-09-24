@@ -36,12 +36,19 @@ pinned by the golden-master tests.
    printed sheet, names every empty number box that feeds a figure, and
    any measurement temperature the correction cannot use — read from the
    recipe's own figures, not from a range written in the app.
+   The Water tab's entries are a second object beside it, never inside it
+   or its saved document: the test results in mg/L (pH in SU), the volume
+   in US gal, salts and acidulated malt in g, liquid acid in mL; a blank
+   test result is NaN. They are not saved yet (Water tab, W6).
 9. **Convert only at the edges.** `display.js` is the only place that converts
    between canonical and display units, using engine constants and functions
    (`GALLONS_PER_BBL`, `OZ_PER_LB`, `G_PER_OZ`, `sgToPlato`, `platoToSg`, …).
    No new conversion constants anywhere in the app.
 10. `selectors.js` is the only place the app calls engine compute functions.
     The UI renders from `computeRecipe(state)`; tests assert through it.
+    The Water tab renders from `computeWater(water)` beside it: every water
+    figure, including the solver's dose as the acid picked and how near each
+    predicted figure is to its target, comes from the engine through it.
 11. `toReferenceVolume(measuredGal, kind, measurementTempF)` is the
     volume-correction slot. Pre-boil, post-boil, and ferment volumes route
     through it and reach the engine corrected to the engine's reference
@@ -120,6 +127,11 @@ pinned by the golden-master tests.
 | Starter volume | L | L |
 | Dry-hop rate | oz/gal | lb/bbl |
 | Temperature | °F | °F |
+| Water volume | gal | bbl |
+| Water test results | mg/L (ppm); pH in SU | same |
+| Salts | g | g |
+| Liquid acid | mL | mL |
+| Acidulated malt | oz | lb (state holds g) |
 | FGDB, efficiency, attenuation, hop alpha | shown as %; state holds the fraction | same |
 
 ## 3. Design

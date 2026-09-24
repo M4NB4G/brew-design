@@ -1,6 +1,10 @@
 # Water tab — Tier A + B (two items)
 
-Status: agreed 2026-09-23 ("agree to all"), not started. Written by the S2
+Status: agreed 2026-09-23 ("agree to all"). Item 1 landed 2026-09-24 as
+"Every water figure is worked out by the engine and reaches the screen
+through the app's one front door, equal to Brew Water Chem's for the same
+entries; a blank test result blanks the figures that need it"; item 2 not
+started. Written by the S2
 session; built in batch S3 (docs/ROADMAP.md, Sessions) as two items, in this
 order: **Water figures through the front door** (Tier A + B), then **Water
 tab screens** (Tier B). Water program step 3 (`docs/items/water-program.md`,
@@ -81,4 +85,70 @@ Expected failure before: no water selector, no dose step in the engine, no Water
 
 ## Recorded failure (filled in by the builder)
 
+Item 1, run alone against the unchanged code (2026-09-24), trimmed:
+
+```
+packages/engine  test/water/water-figures.test.js
+ × the recommended dose is expressed as an equal-strength dose of the acid picked
+ × a salt the recommendation adds in two steps is one amount
+ × a predicted figure is graded against its target by the water app's bands
+TypeError: (0 , equivalentAcidDose) is not a function
+TypeError: (0 , saltTotals) is not a function
+TypeError: (0 , targetMatch) is not a function
+      Tests  3 failed (3)
+apps/recipe  test/water-figures.test.js
+ × every water figure equals Brew Water Chem's for the same entries
+ × a blank test result blanks the figures that need it, and names the missing results
+ × the water units follow Home/Pro at the display edge
+ × only the front door calls the water chemistry
+ × the recipe's figures, saved document and printed sheet are unchanged by any water entry
+Error: Cannot find module '../src/water-state.js' (scenarios 2, 3 and 6)
+TypeError: display.saltUnit is not a function
+AssertionError: equivalentAcidDose: expected 'undefined' to be 'function'
+      Tests  5 failed (5)
+```
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+Item 1 (claims for the inspector to verify):
+
+- **Four engine functions, not one.** Besides W9's equal-strength dose
+  (`equivalentAcidDose`), the water app did three more steps on its screens
+  that W-S3 and SPEC rule 7 put in the engine: the solver's additions summed
+  per salt (`saltTotals`, its App.jsx `recommendedSalts`), and the colour
+  bands of the predicted profile (`targetMatch`: under 20 % of the target
+  near, under 50 % off, else far — RecipeTab.jsx `statColor`;
+  `residualAlkalinityMatch`: under 20 mg/L near, under 40 off, else far —
+  `raColor`). The thresholds are the water app's, pinned by hand at each
+  edge. A zero target grades near, as in the water app: a `// FLAG:`
+  comment says so (no style has one). `findStyle` (already in the engine)
+  is now exported, so the selector looks the style up the water app's way.
+- **The dose sums in `applyAcids`'s order**, through `acidContribution`,
+  so it is the water app's `recommendedMeq / acidCapacity(primary)` to the
+  last bit (scenario 2 compares with `toEqual`, not a tolerance).
+- **What a blank blanks (W5).** The solver reads several ions at each step
+  (the sodium cap, the calcium and magnesium in the alkalinity step), so the
+  recommendation needs all six ions; a blank one blanks every recommended
+  amount, the acid dose and the predicted profile. The source water's
+  residual alkalinity needs calcium, magnesium and alkalinity; its ratio
+  needs sulfate and chloride (sulfate blank with chloride 0 is blank, not
+  the water app's endless ratio). pH is shown only and blanks nothing else.
+- **No positive volume, no recommendation** — as the water app, which shows
+  no addition cards then.
+- **The water entries** live in a new `apps/recipe/src/water-state.js`
+  beside `state.js` (the recipe state is untouched): the seven results
+  (NaN blank), style, volume in gal (5, W4), alkalinity-raising salt, salts
+  on hand, the brewer's own salt amounts (sparse) and acid amounts (null =
+  follow the recommendation — item 2 uses it in place of the water app's
+  re-sync effect), the acid picked, and the several-acids switch. Its
+  "Load example" and "RO water" figures are the water app's
+  (WaterInTab.jsx), pinned in scenario 2. SPEC rule 8 gains a sentence
+  saying the entries are a second object, never in the recipe or its saved
+  document; rule 10 names `computeWater`; the units table gains the water
+  rows.
+- **"Customized"** (whether Reset to recommended shows) compares acid
+  amounts within 1e-6, the water app's tolerance; it decides a button, not a
+  figure.
+- **Scenario 6** (the recipe unchanged) fails before only because the water
+  modules do not exist; with nothing on screen in item 1 it is a guard.
+  Item 2's storage scenario is the stronger check.
