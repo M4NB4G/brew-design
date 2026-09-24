@@ -1,6 +1,9 @@
 # Design warnings — mash ratios and post-boil volume — Tier A + B
 
-Status: agreed 2026-09-23 ("agree to all"), not started. Written by the spec
+Status: agreed 2026-09-23 ("agree to all"); landed 2026-09-23 as "Mash Rv
+and mash R outside the owner's recommended ranges, and less wort after the
+boil than the fermenter volume, warn on the Volumes card; a warning changes no
+number". Written by the spec
 session; to be built by a new session from CLAUDE.md's kickoff prompt,
 **after** `docs/items/yeast-card.md` has landed (W8): it reuses that item's
 warning style.
@@ -79,4 +82,84 @@ Expected failure before the change: the constants, the check and the warnings do
 
 ## Recorded failure (filled in by the builder)
 
+Each file run alone against unchanged `yeast-card` (ba3651f), trimmed.
+
+`packages/engine`: `npx vitest run test/design-warnings.test.js`, 3 of 3:
+
+```
+× the mash ranges are the owner's cells: Rv 1.25–2 qt/lb, R 2.5–4 lb/lb
+    AssertionError: expected undefined to deeply equal { low: 1.25, high: 2 }
+× Mash Rv warns outside 1.25–2 and not at either end
+    TypeError: (0 , mashRatioWarnings) is not a function
+× Mash R warns outside 2.5–4 and not at either end, each range on its own
+    TypeError: (0 , mashRatioWarnings) is not a function
+Tests  3 failed (3)
+```
+
+`apps/recipe`: `npx vitest run test/design-warnings.test.js`, 4 of 4:
+
+```
+× the default recipe shows no warning: Rv 20/11 ≈ 1.818, R ≈ 3.736, post-boil 5.5 equals fermentation 5.5
+    AssertionError: expected undefined to deeply equal { mashRv: false, mashR: false, …(1) }
+× a fermentation volume above the post-boil volume warns; equal or below does not
+    AssertionError: expected undefined to deeply equal { mashRv: false, mashR: false, …(1) }
+× the volume check compares both volumes at the 60 °F reference
+    TypeError: Cannot read properties of undefined (reading 'postBoilBelowFerment')
+× a warning changes no number, and a blank value gives none
+    AssertionError: expected undefined to deeply equal { mashRv: true, mashR: true, …(1) }
+Tests  4 failed (4)
+```
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+Claims for the inspector to verify.
+
+1. **Engine (W3).** `grist.js` exports `MASH_RV_RANGE_QT_PER_LB = { low:
+   1.25, high: 2 }` and `MASH_R_RANGE_LB_PER_LB = { low: 2.5, high: 4 }`
+   (cells F3, F4) and `mashRatioWarnings({ mashRv, mashR })` → `{ mashRv,
+   mashR }`, true = outside, both ends inside (W1), a NaN compares false
+   (V4). `computeGrist` is untouched, so no golden master moves. All three
+   exported through `index.js`.
+2. **W2's FLAG** sits beside the constants: R 2.5–4 is Rv 2.5/2.055 =
+   1.2165 to 4/2.055 = 1.9465; an Rv from 1.2165 to 1.25 warns on Rv alone,
+   above 1.9465 up to 2 on R alone.
+3. **Volume check in `selectors.js`, not the engine** (the builder's call
+   the notes left open): `postBoilRefGal < fermentRefGal`, the two volumes
+   the engine already received at 60 °F (W4). A less-than between two engine
+   outputs, no arithmetic; equal gives no warning; a NaN volume compares
+   false. The rule 7 hook grep is clean.
+4. **Result shape.** `computeRecipe` gains `warnings: { mashRv, mashR,
+   postBoilBelowFerment }`, booleans; every other field is unchanged
+   (scenario 7 compares them with the engine called directly).
+5. **Warning text.** V1/V2 are built from the engine's constants and the
+   display unit labels: "Should be 1.25–2 qt/lb", "Should be 2.5–4 lb/lb",
+   so no range number is written in the app. For that, `VolumesSection.jsx`
+   imports the two range constants from `@brew/engine` (constants only, no
+   compute function: SPEC rule 10 holds; the root import satisfies rule 5).
+   V3 reads exactly "Less wort after the boil than the fermenter volume".
+6. **Placement (W7).** Each warning is an amber line directly under its
+   value: Mash Rv, Mash R, and — for V3 — under the fermentation volume, the
+   figure the brewer would change. `role="status"`.
+7. **Look (W7, W10).** The Yeast card left no warning token — its look is
+   inline in `YeastCard.jsx` — so, as W10 allows, `styles.js` gains
+   `tokens.warning` with exactly the Yeast card's values. `YeastCard.jsx` is
+   outside this item's files and still carries its inline copy; a Tier C
+   roadmap line ("One warning style") points it at the token.
+8. **One file outside W10: `apps/recipe/src/App.jsx`**, one added line
+   passing `warnings={derived.warnings}` to the Volumes card. The card is
+   handed only the grist and the post-boil volume today, so without this
+   line it cannot see the warnings; the alternatives (calling the engine
+   from the card, or tucking the warnings into the engine's grist result)
+   would break SPEC rule 10 or blur engine output. Flagged in the report to
+   the owner.
+9. **Printed sheet (W6).** Untouched; it reads no warning.
+10. **Scenario 6's pin.** 5.52 gal at 100 °F → 5.52 × 993.024 / 999.001
+    (the engine's water density at 100 °F and 60 °F) = 5.4870 gal, worked in
+    the test's comment and asserted to 3 decimals, plus exact agreement with
+    `correctVolumeToRef`.
+11. **Scenario 7's comparison** takes each volume through
+    `correctVolumeToRef(·, 60)` as the app does, since that factor can differ
+    from 1 by one floating-point step (the roadmap's shelved identity row).
+12. **Far end, 2026-09-23, built app (`vite preview`, bundle
+    `index-DG-dspNs.js`)** — all four steps held; detail in
+    `docs/TEST_COVERAGE.md`'s scenario row.

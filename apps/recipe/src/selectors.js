@@ -15,6 +15,7 @@ import {
   selectPitchRate,
   computeCellsNeeded,
   solveStarter,
+  mashRatioWarnings,
 } from '@brew/engine';
 import { toReferenceVolume } from './reference-volume.js';
 
@@ -67,5 +68,13 @@ export function computeRecipe(state) {
     pitchRate,
     cells,
     starter,
+    // Design warnings (true = warn), shown on the Volumes card; they change no
+    // number. The mash ratios against the engine's recommended ranges; the
+    // post-boil volume against the fermentation volume, both at the 60 degF
+    // reference. A blank (NaN) volume compares false: no warning.
+    warnings: {
+      ...mashRatioWarnings(grist),
+      postBoilBelowFerment: postBoilRefGal < fermentRefGal,
+    },
   };
 }

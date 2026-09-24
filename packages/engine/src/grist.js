@@ -4,6 +4,28 @@
 
 import { sgToPlato, platoToSg } from './units.js';
 
+// Recommended mash ranges, the owner's Recipe Designer Rev 3, "Grist and Pitch
+// Calc's": F3 "Rv Should be 1.25-2" (beside E3, Estimated Mash Rv, qt/lb) and
+// F4 "R should be 2.5-4" (beside E4, Estimated Mash R, lb/lb). Both ends are
+// inside the range.
+// FLAG: the two cells do not agree. R = Rv x 2.055, so R 2.5-4 lb/lb is Rv
+// 2.5/2.055 = 1.2165 to 4/2.055 = 1.9465 qt/lb. An Rv from 1.2165 up to 1.25
+// warns on Rv alone, and one above 1.9465 up to 2 warns on R alone. Kept as
+// the owner's cells, each checked against its own (docs/items/design-warnings.md
+// W2); changed only if the owner gives new figures.
+export const MASH_RV_RANGE_QT_PER_LB = { low: 1.25, high: 2 };
+export const MASH_R_RANGE_LB_PER_LB = { low: 2.5, high: 4 };
+
+/**
+ * Which mash ratios lie outside their recommended range.
+ * mashRatioWarnings({ mashRv, mashR }) -> { mashRv: boolean, mashR: boolean }
+ * true = outside. A value that is not a number (a cleared input) gives false.
+ */
+export function mashRatioWarnings({ mashRv, mashR }) {
+  const outside = (v, { low, high }) => v < low || v > high; // NaN compares false
+  return { mashRv: outside(mashRv, MASH_RV_RANGE_QT_PER_LB), mashR: outside(mashR, MASH_R_RANGE_LB_PER_LB) };
+}
+
 /**
  * Post-boil volume from a pre-boil volume and a boil-off rate.
  * postBoilVolGal = preBoilVolGal - boilOffRateGalPerHr * (boilTimeMin / 60)

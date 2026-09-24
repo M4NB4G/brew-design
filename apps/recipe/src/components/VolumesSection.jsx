@@ -5,6 +5,11 @@
 // the engine wants as entered; it is still entered in display units here and
 // converted for storage. Boil time is in minutes. Post-boil volume (already at
 // the 60 degF reference), mash Rv, and mash R are read-only from the engine.
+// Design warnings (computeRecipe's `warnings`) show as an amber line under
+// the value they are about: a mash ratio outside the owner's recommended
+// range (text from the engine's range constants), and less wort after the
+// boil than the fermenter volume. They change no number and block nothing.
+import { MASH_RV_RANGE_QT_PER_LB, MASH_R_RANGE_LB_PER_LB } from '@brew/engine';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
 import StatBox from './shared/StatBox.jsx';
@@ -19,7 +24,20 @@ import {
 } from '../display.js';
 import { num } from '../format.js';
 
-export default function VolumesSection({ recipe, grist, postBoilVolGal, mode, setField }) {
+// "Should be 1.25–2 qt/lb": a recommended range, as the owner's cell reads it.
+function shouldBe({ low, high }, unit) {
+  return `Should be ${low}–${high} ${unit}`;
+}
+
+function Warning({ children }) {
+  return (
+    <p role="status" style={tokens.warning}>
+      {children}
+    </p>
+  );
+}
+
+export default function VolumesSection({ recipe, grist, postBoilVolGal, warnings, mode, setField }) {
   const vUnit = volumeUnit(mode);
 
   // Convert a canonical-gal state field through the display boundary for InputRow.
@@ -46,12 +64,14 @@ export default function VolumesSection({ recipe, grist, postBoilVolGal, mode, se
             onChange={() => {}}
             readOnly
           />
+          {warnings.mashRv && <Warning>{shouldBe(MASH_RV_RANGE_QT_PER_LB, mashRvUnit())}</Warning>}
           <InputRow
             label={`Mash R (${mashRUnit()})`}
             value={Number(grist.mashR.toFixed(3))}
             onChange={() => {}}
             readOnly
           />
+          {warnings.mashR && <Warning>{shouldBe(MASH_R_RANGE_LB_PER_LB, mashRUnit())}</Warning>}
         </div>
 
         <div>
@@ -88,6 +108,7 @@ export default function VolumesSection({ recipe, grist, postBoilVolGal, mode, se
             step={0.1}
             min={0}
           />
+          {warnings.postBoilBelowFerment && <Warning>Less wort after the boil than the fermenter volume</Warning>}
         </div>
       </div>
     </Card>

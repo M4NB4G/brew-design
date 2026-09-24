@@ -131,6 +131,18 @@ export const tokens = {
     background: colors.inputBg,
     fontFamily: 'inherit',
   },
+  // Design warning: an amber line under the value it is about. The Yeast
+  // card's temperature warning set this look (YeastCard.jsx, inline).
+  warning: {
+    margin: '0.1rem 0 0.4rem',
+    padding: '0.35rem 0.6rem',
+    background: colors.inputBgOverride,
+    borderLeft: `3px solid ${colors.accentAmber}`,
+    borderRadius: radii.input,
+    color: colors.textWarn,
+    fontSize: '0.82rem',
+    fontWeight: 600,
+  },
   // Stat-tile grid (used inside cards that show a 2-column tile grid)
   statGrid: {
     display: 'grid',

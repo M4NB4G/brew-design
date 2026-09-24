@@ -22,7 +22,13 @@ export {
   acidMaltUnits,
 } from './units.js';
 
-export { computeGrist, computePostBoilVol } from './grist.js';
+export {
+  computeGrist,
+  computePostBoilVol,
+  MASH_RV_RANGE_QT_PER_LB,
+  MASH_R_RANGE_LB_PER_LB,
+  mashRatioWarnings,
+} from './grist.js';
 
 export { computeHops } from './hops.js';
 
