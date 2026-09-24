@@ -1,6 +1,10 @@
 # Saved rows checked inside — Tier B
 
-Status: agreed 2026-09-23 ("agree to all"), not started. Written by the S1
+Status: agreed 2026-09-23 ("agree to all"); landed 2026-09-23 on branch S2
+as "A saved recipe or recipe file is readable only if every malt, hop and
+dry-hop row and the yeast has all its fields, each of the right kind; a
+damaged file is refused, and a damaged saved copy starts a new recipe and
+is kept aside as it was". Written by the S1
 session; built in batch S2 (docs/ROADMAP.md, Sessions), second of its four
 items.
 
@@ -57,4 +61,20 @@ and is named as the guard.
 
 ## Recorded failure (filled in by the builder)
 
+Run alone against the code after the first S2 item (5b7de67), 2026-09-23:
+
+- Scenario 1: `malts row without name: expected true to be false // Object.is equality` — a malt with no name loads.
+- Scenario 2: `yeast without type: expected true to be false // Object.is equality`.
+- Scenario 3: `expected 'replaced' to be 'refused' // Object.is equality` — the damaged file is imported.
+- Scenario 4: `expected { recipe: { …(15) }, …(2) } to deeply equal { recipe: { name: '', …(14) }, …(2) }` — the damaged saved copy loads instead of a new recipe.
+- Scenario 5 (the guard) passed before, as the table expected.
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+- **Where:** `persistence.js` only. `readDocument` runs a new row check after the existing top-level check, so every path that reads a document — storage, a recipe file — checks rows. Version 1–3 yeasts gain their strain and temperature before the check, as before.
+- **The templates** are the built-in recipe's own first malt, first kettle hop, dry hop and yeast (`defaultRecipeState()`), passed in as today's `defaults.recipe`: each field must be present with the template's kind (`typeof`). A blank number is NaN after revival, so it is a number. Every row is checked, not only the first.
+- **Choices:** ale/lager and the yeast character are checked against the engine's pitch-rate table (`PITCH_RATES`, a constant: its types, and that type's characters), so the reader accepts exactly what the pitch-rate calculation accepts. The table is ale/lager × high/mod/low.
+- **Extra fields (V2)** are ignored in the sense of not refused: like an unknown top-level field today, they are carried along untouched, not stripped. Nothing reads them.
+- **V3:** `loadPersisted` (the storage path, which `loadStartingState` uses) writes the raw text to `brew-design.recipe.unreadable` whenever there is a saved copy it cannot read — not JSON, damaged rows, a newer or unknown version — overwriting any copy kept before, then returns the new recipe as today. Writing it is inside its own try: a storage that refuses it changes nothing else. A file import never writes it.
+- **Measurement temperatures** are not checked inside (not in V-S1); noticed that text there loads — a roadmap line, "Measurement temperatures checked inside" (Tier B, unassigned).
+- **Far end** (built app, 2026-09-23): a file with the first malt's name removed is refused with the damaged message, nothing asked, recipe and saved copy unchanged, nothing kept aside; the same document in storage reloads as the built-in recipe with the damaged text kept aside byte for byte, still there after two further loads; a version-4 recipe the live site saved with six blank boxes (a malt weight, a hop alpha, a hop time, a dry-hop weight, efficiency, the fermentation temperature) loads with both tabs, every box, the printed sheet and the saved document hashing identical to the live site's. No console errors.

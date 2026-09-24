@@ -62,7 +62,15 @@ pinned by the golden-master tests.
     strain and a fermentation temperature — loads with an empty strain and a
     blank fermentation temperature; each is saved back as version 4. Unreadable data,
     any other version, or unavailable storage yields a new recipe (rule 17) and never
-    throws. A cleared field (NaN) round-trips as NaN, never as 0 or null.
+    throws. A document is readable only if, after its upgrade, every malt,
+    kettle-hop and dry-hop row and the yeast carry every field of the
+    built-in recipe's, each of its kind — text as text, a number as a
+    number or blank — with ale/lager and the yeast character among the
+    engine's pitch-rate choices; extra fields are ignored. A saved copy in
+    storage that cannot be read is kept aside, as found, under its own key
+    (`brew-design.recipe.unreadable`), replacing any copy kept before;
+    nothing reads it back, and failing to keep it never stops a load.
+    A cleared field (NaN) round-trips as NaN, never as 0 or null.
     The recipe file is the same document: an export is byte-for-byte what
     storage holds, and an import reads it with the same reader, versions
     and upgrades included. They differ only in failure: a file that is not

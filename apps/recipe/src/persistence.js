@@ -37,10 +37,21 @@
 // first visit with nothing saved starts from them. Upgrading an old recipe
 // and checking its shape always use the built-in recipe, never the
 // brewery's figures, so a recipe loads as it was saved whatever they are.
+//
+// Saved rows checked inside (2026-09-23): a document is readable only if its
+// every malt, kettle-hop and dry-hop row, and its yeast, carry every field of
+// the built-in recipe's rows, each of the same kind (a blank number is a
+// number). A saved copy in storage that cannot be read is kept aside, as
+// found, under its own key before a new recipe replaces it; a refused file
+// is not (it is still on the brewer's disk).
 
+import { PITCH_RATES } from '@brew/engine';
 import { defaultRecipeState, DEFAULT_DISPLAY, emptyBreweryFigures, newRecipe } from './state.js';
 
 export const STORAGE_KEY = 'brew-design.recipe';
+// The latest saved copy that could not be read, kept as found (V3); nothing
+// reads it back.
+export const UNREADABLE_KEY = 'brew-design.recipe.unreadable';
 export const SCHEMA_VERSION = 4;
 const READABLE_VERSIONS = [1, 2, 3, SCHEMA_VERSION];
 
@@ -61,7 +72,7 @@ function reviveNaN(value) {
 
 // The recipe must carry every top-level key of the default recipe, with the
 // same kind of value (array where an array is expected, otherwise the same
-// typeof). Element shapes inside arrays are not checked.
+// typeof). Element shapes inside arrays are checked by hasRowsOf.
 function hasShapeOf(candidate, template) {
   if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) return false;
   for (const key of Object.keys(template)) {
@@ -74,6 +85,32 @@ function hasShapeOf(candidate, template) {
     }
   }
   return true;
+}
+
+const isRecord = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
+
+// One row (or the yeast) has every field of its template row, each of the
+// template's kind: text is a string; a number is a number, a blank (NaN,
+// revived from null) included. Extra fields are ignored.
+function hasFieldsOf(row, template) {
+  if (!isRecord(row)) return false;
+  return Object.keys(template).every((k) => k in row && typeof row[k] === typeof template[k]);
+}
+
+// Saved rows checked inside (2026-09-23): every malt, kettle-hop and dry-hop
+// row, and the yeast, has all its fields, each of the right kind; ale/lager
+// and the yeast character are among the engine's pitch-rate choices. The
+// templates are the built-in recipe's own rows.
+function hasRowsOf(recipe, template) {
+  for (const field of ['malts', 'kettleAdditions', 'dryHops']) {
+    if (!recipe[field].every((row) => hasFieldsOf(row, template[field][0]))) return false;
+  }
+  const { yeast } = recipe;
+  return (
+    hasFieldsOf(yeast, template.yeast) &&
+    Object.keys(PITCH_RATES).includes(yeast.type) &&
+    Object.keys(PITCH_RATES[yeast.type]).includes(yeast.density)
+  );
 }
 
 // Read one document's text. Returns { state } when it is a readable document
@@ -102,7 +139,7 @@ function readDocument(raw, defaults) {
     // Code before version 4 never wrote a strain or a fermentation temperature.
     recipe = { ...recipe, yeast: { ...yeast, name: '', fermTempF: NaN } };
   }
-  if (!hasShapeOf(recipe, defaults.recipe)) return {};
+  if (!hasShapeOf(recipe, defaults.recipe) || !hasRowsOf(recipe, defaults.recipe)) return {};
   if (!MODES.includes(doc.mode) || !GRAVITY_UNITS.includes(doc.proGravityUnit)) return {};
   return { state: { recipe, mode: doc.mode, proGravityUnit: doc.proGravityUnit } };
 }
@@ -111,17 +148,32 @@ function readDocument(raw, defaults) {
  * Read the persisted document. Returns { recipe, mode, proGravityUnit } when
  * storage holds a readable document at SCHEMA_VERSION or at version 3, 2 or 1
  * (read as readDocument describes, against `defaults`); otherwise
- * `fallback`, which is `defaults` unless given.
+ * `fallback`, which is `defaults` unless given. A saved copy that cannot be
+ * read is first kept aside, as found, under UNREADABLE_KEY, replacing any
+ * copy kept before; keeping it is best-effort.
  * Never throws.
  */
 export function loadPersisted(storage, defaults, fallback = defaults) {
+  let raw;
   try {
-    const raw = storage.getItem(STORAGE_KEY);
-    if (raw === null || raw === undefined) return fallback;
-    return readDocument(raw, defaults).state ?? fallback;
+    raw = storage.getItem(STORAGE_KEY);
   } catch {
     return fallback;
   }
+  if (raw === null || raw === undefined) return fallback;
+  let state;
+  try {
+    state = readDocument(raw, defaults).state;
+  } catch {
+    state = undefined; // not JSON
+  }
+  if (state) return state;
+  try {
+    storage.setItem(UNREADABLE_KEY, raw);
+  } catch {
+    // Storage unavailable: the copy cannot be kept; loading goes on.
+  }
+  return fallback;
 }
 
 /**
