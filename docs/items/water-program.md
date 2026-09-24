@@ -48,6 +48,7 @@ Each step is its own item, commit and deploy; each needs the one before.
 | WP7 | Water style target | Chosen on its own from the water app's 13 style families | The recipe's style is free text; the families are defined targets |
 | WP8 | Mash pH model | Troester/Kaiser, with published constants cited in the engine and each pinned by hand-worked values; the ingredient workbook gains a malt-type column (base, crystal, roast, acid malt) and optional lab-measured distilled-water pH and buffering columns that override the model | Every constant needs a rule and a pin |
 | WP9 | Checking the model | Against the owner's logged mash pH: his batch logs note it, always on a cooled sample (the basis of the published malt figures too) | A model with nothing outside it to check against is the shared-misreading risk |
+| WP11 | Grain absorption default | 0.5 qt of water per pound of grain (Palmer), changeable per brewery | The owner, 2026-09-23; a published figure, cited and hand-pinned in step 4 |
 | WP10 | Defaults now or growing | Growing: step 2 holds WP3's figures; step 4 adds the setup its calculation needs — number of vessels (one, two or three), sparge method (none/full-volume, batch, fly), the usual treatment choice, the HLT's treated volume and top-up level, grain absorption, and the water kept in the mash tun — to the brewery defaults and the recipe together | Each figure arrives with the calculation that uses it |
 
 ## Brewery figures, as the owner describes his system (for step 4)
@@ -57,12 +58,17 @@ Each step is its own item, commit and deploy; each needs the one before.
 - **Water kept in the mash tun:** about 2 gal, deliberately left above the
   grain bed to keep the flow through it until the kettle is full — not a
   loss in his words; name it as he does.
-- **Grain absorption:** never calculated; a brewer's entry, blank until set,
-  no invented default. His logs can give it: total water in minus pre-boil
-  collected, over two batches of different grain weight, splits into a
-  per-pound part and a fixed part.
-- **Open (asked 2026-09-23):** "18 gal total for a 16 gal full kettle" with
-  2 gal kept in the tun leaves nothing for grain absorption (typically about
-  0.1 gal per lb, so about 3 gal on 29 lb). Resolve before step 4's table.
+- **Grain absorption (WP11):** the owner, 2026-09-23: "Palmer mentions 0.5
+  qt of water per pound of grain for absorption. lets use that." The default
+  is 0.5 qt/lb (Palmer, *How to Brew*), 0.125 gal/lb by the definitional
+  4 qt/gal, a brewery figure the brewer can change. It is a published
+  figure, so it needs its citation beside it and a hand-worked pin (step 4).
+  His logs can refine it: total water in minus pre-boil collected, over two
+  batches of different grain weight, splits into a per-pound part and a
+  fixed part.
+- **Noted for step 4:** his "about 18 gal total for a 16 gal full kettle"
+  with 2 gal kept in the tun leaves nothing for grain absorption; at 0.5
+  qt/lb a 29 lb bill absorbs about 3.6 gal, so the app would give about
+  21.6 gal. His logs will show which; the step 4 table puts it to him.
 - Sparge method, number of vessels and evaporation rate raised by the owner
   (evaporation rate = the boil-off rate, already in WP3).
