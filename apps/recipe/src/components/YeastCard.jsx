@@ -11,6 +11,7 @@ import IngredientSearch from './IngredientSearch.jsx';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
 import { colors, tokens, radii } from './shared/styles.js';
+import usePhone from './shared/usePhone.js';
 import { percentUnit, fractionToPercent, percentToFraction, tempUnit } from '../display.js';
 import { strainInfo, fermTempWarning } from '../ingredient-search.js';
 
@@ -35,6 +36,7 @@ const WARNING = {
 };
 
 export default function YeastCard({ yeast, apparentAttenuation, setYeast, setField }) {
+  const phone = usePhone();
   const info = strainInfo(yeast.name);
   const named = String(yeast.name ?? '').trim() !== '';
   const warning = fermTempWarning(yeast.name, yeast.fermTempF);
@@ -43,7 +45,8 @@ export default function YeastCard({ yeast, apparentAttenuation, setYeast, setFie
     <Card>
       <span style={tokens.cardLabel}>Yeast</span>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.75rem', marginBottom: '0.4rem' }}>
+      {/* Phone: the strain, then ale/lager under it */}
+      <div style={{ display: 'grid', gridTemplateColumns: phone ? '1fr' : '2fr 1fr', gap: '0.75rem', marginBottom: '0.4rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', minWidth: 0 }}>
           <span style={LABEL}>Strain</span>
           {/* The yeast is the search box's row: its name is the strain. */}

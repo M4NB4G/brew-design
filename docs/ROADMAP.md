@@ -33,7 +33,6 @@ table is written when the item starts. Landed items are removed.
 
 | Item | Sentence (draft) | Re-test |
 |---|---|---|
-| Phone width | On a phone the page never scrolls sideways, cards stack in one column, the stats bar is two rows of three, ingredient rows become blocks, and desktop and print are unchanged. Before the water port. Scope table agreed: `docs/items/phone-width.md` | look at it |
 | Dead code | `UnitToggle.jsx` removed; unused imports in `VolumesSection.jsx` and `YeastSection.jsx` removed, with the unused `vUnit` the fermentation row left behind in `YeastSection.jsx` (Options page, 2026-09-21) | suites |
 | One warning style | The Volumes card's warnings read the shared warning style in `styles.js` (`tokens.warning`); the Yeast card's temperature warning still carries the same values inline (`YeastCard.jsx`, `WARNING`), because the design-warnings item could not touch that file. Point it at the shared style so the two cannot drift (noticed building the design warnings, 2026-09-23) | look at it |
 | IBU shows "NaN" when blank | The stats bar and the Kettle readout render the raw IBU integer, so a blank input (a cleared malt weight; an uncorrectable pre-boil temperature) shows "NaN" where every other stat shows "—"; route it through `num(…, 0)` (noticed at the Options page far end, 2026-09-21) | look at it |

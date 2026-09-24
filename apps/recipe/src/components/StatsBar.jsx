@@ -2,8 +2,10 @@
 // Persistent live summary of the derived beer stats, rendered as a horizontal
 // row of compact StatBoxes. Every value is formatted from canonical units at
 // the display boundary; nothing here is computed. The SRM box carries a small
-// color swatch derived only from the SRM number.
+// color swatch derived only from the SRM number. On a phone the six tiles sit
+// in two rows of three.
 import StatBox from './shared/StatBox.jsx';
+import usePhone from './shared/usePhone.js';
 import {
   resolveGravityUnit,
   gravityFromCanonical,
@@ -54,7 +56,25 @@ function srmToColor(srm) {
 const STRIP_BOX = { flex: '1 1 0', minWidth: 0, padding: '0.45rem 0.35rem' };
 const STRIP_VAL = { fontSize: '1.35rem', letterSpacing: '-0.01em' };
 
+// Phone: smaller tiles, two rows of three; the gravity unit beside its label,
+// the starter note under the cells figure's label. The negative margin takes
+// back part of the pinned bar's 0.65rem padding (App.jsx), leaving 0.3rem.
+const PHONE_GRID = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+  gap: '0.3rem',
+  margin: '-0.35rem 0',
+};
+const PHONE_BOX = { minWidth: 0, padding: '0.25rem' };
+const PHONE_VAL = { fontSize: '1.1rem', letterSpacing: '-0.01em' };
+const PHONE_LABEL = { fontSize: '0.7rem', marginTop: '0.15rem', lineHeight: 1.1 };
+
 export default function StatsBar({ derived, mode, proGravityUnit }) {
+  const phone = usePhone();
+  const box = phone ? PHONE_BOX : STRIP_BOX;
+  const val = phone ? PHONE_VAL : STRIP_VAL;
+  const label = phone ? PHONE_LABEL : undefined;
+
   const { grist, hops, cells, starter } = derived;
   const gu = resolveGravityUnit(mode, proGravityUnit);
   const gLabel = gravityUnitLabel(gu);
@@ -65,26 +85,31 @@ export default function StatsBar({ derived, mode, proGravityUnit }) {
     : 'No starter band';
 
   return (
-    <div style={{ display: 'flex', gap: '0.4rem', overflow: 'hidden' }}>
+    <div style={phone ? PHONE_GRID : { display: 'flex', gap: '0.4rem', overflow: 'hidden' }}>
       <StatBox
         value={gravity(gravityFromCanonical(grist.OG, gu), gu)}
         label="OG"
         sublabel={gLabel}
-        style={STRIP_BOX}
-        valueStyle={STRIP_VAL}
+        sublabelInline={phone}
+        style={box}
+        valueStyle={val}
+        labelStyle={label}
       />
       <StatBox
         value={gravity(gravityFromCanonical(grist.FG, gu), gu)}
         label="FG"
         sublabel={gLabel}
-        style={STRIP_BOX}
-        valueStyle={STRIP_VAL}
+        sublabelInline={phone}
+        style={box}
+        valueStyle={val}
+        labelStyle={label}
       />
       <StatBox
         value={`${num(fractionToPercent(grist.ABV), 1)}${percentUnit()}`}
         label="ABV"
-        style={STRIP_BOX}
-        valueStyle={STRIP_VAL}
+        style={box}
+        valueStyle={val}
+        labelStyle={label}
       />
       <StatBox
         value={
@@ -104,21 +129,24 @@ export default function StatsBar({ derived, mode, proGravityUnit }) {
           </div>
         }
         label="SRM"
-        style={STRIP_BOX}
-        valueStyle={STRIP_VAL}
+        style={box}
+        valueStyle={val}
+        labelStyle={label}
       />
       <StatBox
         value={hops.totalIBU}
         label="IBU"
-        style={STRIP_BOX}
-        valueStyle={STRIP_VAL}
+        style={box}
+        valueStyle={val}
+        labelStyle={label}
       />
       <StatBox
         value={num(cellsFromCanonical(cells, mode), mode === 'pro' ? 2 : 0)}
         label={`Cells / ${cellsUnit(mode)}`}
         sublabel={starterNote}
-        style={STRIP_BOX}
-        valueStyle={{ ...STRIP_VAL, fontSize: '1.15rem' }}
+        style={box}
+        valueStyle={phone ? val : { ...STRIP_VAL, fontSize: '1.15rem' }}
+        labelStyle={label}
       />
     </div>
   );

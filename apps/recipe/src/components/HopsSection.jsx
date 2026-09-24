@@ -2,10 +2,13 @@
 // Kettle additions (with per-addition IBU shown read-only) and the dry-hop
 // list; each name box searches the owner's ingredient list (IngredientSearch). Hop weight is oz in Home and lb in Pro, converted at the boundary;
 // time (min), wort temp (degF), and alpha acid (fraction) are fixed-unit.
-// Total IBU and the dry-hop rate come from the engine.
+// Total IBU and the dry-hop rate come from the engine. On a phone each hop is
+// a block (IngredientBlock) holding the same boxes instead of a table row.
 import NumberField from './NumberField.jsx';
 import IngredientSearch from './IngredientSearch.jsx';
 import Card from './shared/Card.jsx';
+import IngredientBlock from './shared/IngredientBlock.jsx';
+import usePhone from './shared/usePhone.js';
 import { colors, tokens, radii } from './shared/styles.js';
 import {
   hopWeightToCanonical,
@@ -102,7 +105,71 @@ function IbuBadge({ ibu }) {
 }
 
 export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setRow, addRow, removeRow }) {
+  const phone = usePhone();
   const wUnit = hopWeightUnit(mode);
+
+  // A kettle hop's number boxes, shared by the table's cells and the phone's blocks.
+  const kettleInputs = (a, i) => [
+    {
+      label: 'Time (min)',
+      input: (
+        <NumberField
+          value={a.timeMin}
+          step="1"
+          min="0"
+          onChange={(v) => setRow('kettleAdditions', i, 'timeMin', v)}
+        />
+      ),
+    },
+    {
+      label: `Temp (${tempUnit()})`,
+      input: (
+        <NumberField
+          value={a.wortTempF}
+          step="1"
+          onChange={(v) => setRow('kettleAdditions', i, 'wortTempF', v)}
+        />
+      ),
+    },
+    {
+      label: `Wt (${wUnit})`,
+      input: (
+        <NumberField
+          value={hopWeightFromCanonical(a.weightOz, mode)}
+          step="0.1"
+          min="0"
+          onChange={(v) => setRow('kettleAdditions', i, 'weightOz', hopWeightToCanonical(v, mode))}
+        />
+      ),
+    },
+    {
+      label: `Alpha (${percentUnit()})`,
+      input: (
+        <NumberField
+          value={fractionToPercent(a.alphaAcidFraction)}
+          step="0.1"
+          min="0"
+          max="100"
+          onChange={(v) => setRow('kettleAdditions', i, 'alphaAcidFraction', percentToFraction(v))}
+        />
+      ),
+    },
+  ];
+
+  // A dry hop's one box, likewise shared.
+  const dryInputs = (d, i) => [
+    {
+      label: `Wt (${wUnit})`,
+      input: (
+        <NumberField
+          value={hopWeightFromCanonical(d.weightOz, mode)}
+          step="0.1"
+          min="0"
+          onChange={(v) => setRow('dryHops', i, 'weightOz', hopWeightToCanonical(v, mode))}
+        />
+      ),
+    },
+  ];
 
   return (
     <Card>
@@ -140,6 +207,21 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
         </span>
       </div>
 
+      {phone ? (
+        <div style={{ marginBottom: '0.75rem' }}>
+          {kettleAdditions.map((a, i) => (
+            <IngredientBlock
+              key={i}
+              striped={i % 2 === 1}
+              name={<IngredientSearch field="kettleAdditions" row={a} index={i} setRow={setRow} />}
+              fields={kettleInputs(a, i)}
+              resultLabel="IBU"
+              result={<IbuBadge ibu={hops.additions[i]?.ibu} />}
+              remove={<RemoveBtn onClick={() => removeRow('kettleAdditions', i)} />}
+            />
+          ))}
+        </div>
+      ) : (
       <div style={{ overflowX: 'auto', marginBottom: '0.75rem' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '560px' }}>
           <thead>
@@ -159,38 +241,11 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
                 <td style={TD}>
                   <IngredientSearch field="kettleAdditions" row={a} index={i} setRow={setRow} />
                 </td>
-                <td style={TD_NUM}>
-                  <NumberField
-                    value={a.timeMin}
-                    step="1"
-                    min="0"
-                    onChange={(v) => setRow('kettleAdditions', i, 'timeMin', v)}
-                  />
-                </td>
-                <td style={TD_NUM}>
-                  <NumberField
-                    value={a.wortTempF}
-                    step="1"
-                    onChange={(v) => setRow('kettleAdditions', i, 'wortTempF', v)}
-                  />
-                </td>
-                <td style={TD_NUM}>
-                  <NumberField
-                    value={hopWeightFromCanonical(a.weightOz, mode)}
-                    step="0.1"
-                    min="0"
-                    onChange={(v) => setRow('kettleAdditions', i, 'weightOz', hopWeightToCanonical(v, mode))}
-                  />
-                </td>
-                <td style={TD_NUM}>
-                  <NumberField
-                    value={fractionToPercent(a.alphaAcidFraction)}
-                    step="0.1"
-                    min="0"
-                    max="100"
-                    onChange={(v) => setRow('kettleAdditions', i, 'alphaAcidFraction', percentToFraction(v))}
-                  />
-                </td>
+                {kettleInputs(a, i).map(({ label, input }) => (
+                  <td key={label} style={TD_NUM}>
+                    {input}
+                  </td>
+                ))}
                 <td style={{ ...TD, textAlign: 'right' }}>
                   <IbuBadge ibu={hops.additions[i]?.ibu} />
                 </td>
@@ -202,6 +257,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
           </tbody>
         </table>
       </div>
+      )}
 
       <AddBtn onClick={() => addRow('kettleAdditions', newRow('kettleAdditions'))}>
         + Add kettle hop
@@ -242,6 +298,19 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
         </span>
       </div>
 
+      {phone ? (
+        <div style={{ marginBottom: '0.75rem' }}>
+          {dryHops.map((d, i) => (
+            <IngredientBlock
+              key={i}
+              striped={i % 2 === 1}
+              name={<IngredientSearch field="dryHops" row={d} index={i} setRow={setRow} />}
+              fields={dryInputs(d, i)}
+              remove={<RemoveBtn onClick={() => removeRow('dryHops', i)} />}
+            />
+          ))}
+        </div>
+      ) : (
       <div style={{ overflowX: 'auto', marginBottom: '0.75rem' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '280px' }}>
           <thead>
@@ -257,14 +326,11 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
                 <td style={TD}>
                   <IngredientSearch field="dryHops" row={d} index={i} setRow={setRow} />
                 </td>
-                <td style={TD_NUM}>
-                  <NumberField
-                    value={hopWeightFromCanonical(d.weightOz, mode)}
-                    step="0.1"
-                    min="0"
-                    onChange={(v) => setRow('dryHops', i, 'weightOz', hopWeightToCanonical(v, mode))}
-                  />
-                </td>
+                {dryInputs(d, i).map(({ label, input }) => (
+                  <td key={label} style={TD_NUM}>
+                    {input}
+                  </td>
+                ))}
                 <td style={{ ...TD, textAlign: 'center' }}>
                   <RemoveBtn onClick={() => removeRow('dryHops', i)} />
                 </td>
@@ -273,6 +339,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
           </tbody>
         </table>
       </div>
+      )}
 
       <AddBtn onClick={() => addRow('dryHops', newRow('dryHops'))}>
         + Add dry hop

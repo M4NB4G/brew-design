@@ -7,6 +7,7 @@
 import { useRef } from 'react';
 import markSrc from '../assets/persyn-header-mark.png';
 import { colors, radii, shadows } from './shared/styles.js';
+import usePhone from './shared/usePhone.js';
 
 const SS3 = "'Source Sans 3', system-ui, sans-serif";
 
@@ -24,8 +25,12 @@ const actionButton = {
   fontFamily: 'inherit',
 };
 
+// On a phone the four actions fill two rows of two equal buttons.
+const phoneActionButton = { ...actionButton, width: '100%', padding: '0.5rem 0.6rem' };
+
 // Small pill-button toggle shared by both the Pro/Home and gravity selectors.
-function PillToggle({ value, onChange, options }) {
+// Compact (phone): narrower buttons, so Home/Pro fits beside the brand.
+function PillToggle({ value, onChange, options, compact = false }) {
   return (
     <div
       style={{
@@ -44,7 +49,7 @@ function PillToggle({ value, onChange, options }) {
             type="button"
             onClick={() => onChange(id)}
             style={{
-              padding: '0.35rem 0.95rem',
+              padding: compact ? '0.35rem 0.7rem' : '0.35rem 0.95rem',
               borderRadius: radii.pill,
               border: 'none',
               background: active ? colors.toggleActiveBg : 'transparent',
@@ -75,6 +80,8 @@ export default function Header({
   onImportFile,
   fileMessage,
 }) {
+  const phone = usePhone();
+
   // The system file picker, opened by the Import button.
   const fileInput = useRef(null);
   const onFileChosen = (e) => {
@@ -88,7 +95,7 @@ export default function Header({
 
       {/* Brand row */}
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0.85rem 1.25rem 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: phone ? '0.6rem' : '0.8rem' }}>
 
           {/* Persyn medallion — decorative; the kicker names the company in text */}
           <img
@@ -124,12 +131,42 @@ export default function Header({
                 textTransform: 'uppercase',
                 color: colors.textMuted,
                 marginTop: '0.3rem',
-                whiteSpace: 'nowrap',
+                // Phone: may wrap under the wordmark, leaving room for Home/Pro.
+                whiteSpace: phone ? 'normal' : 'nowrap',
               }}
             >
               Persyn Chemical Engineering
             </div>
           </div>
+
+          {/* Phone: Home/Pro on the brand row, and Pro's gravity unit under it */}
+          {phone && (
+            <div
+              style={{
+                marginLeft: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+                gap: '0.35rem',
+                flexShrink: 0,
+              }}
+            >
+              <PillToggle
+                value={mode}
+                onChange={onMode}
+                options={[['pro', 'Pro'], ['home', 'Home']]}
+                compact
+              />
+              {mode === 'pro' && (
+                <PillToggle
+                  value={proGravityUnit}
+                  onChange={onProGravityUnit}
+                  options={[['plato', '°P'], ['sg', 'SG']]}
+                  compact
+                />
+              )}
+            </div>
+          )}
 
         </div>
       </div>
@@ -137,8 +174,26 @@ export default function Header({
       {/* Accent gradient strip */}
       <div style={{ height: '3px', background: colors.accent, marginTop: '1rem' }} />
 
-      {/* Toggle row — right-aligned: recipe actions and Print, then gravity (Pro only), then Pro/Home */}
+      {/* Toggle row — right-aligned: recipe actions and Print, then gravity (Pro only), then Pro/Home.
+          Phone: the four actions alone, two by two. */}
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0.55rem 1.25rem 0.5rem' }}>
+        {phone ? (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+            <button type="button" onClick={onExport} style={phoneActionButton}>
+              Export
+            </button>
+            <button type="button" onClick={() => fileInput.current.click()} style={phoneActionButton}>
+              Import
+            </button>
+            <input ref={fileInput} type="file" onChange={onFileChosen} style={{ display: 'none' }} />
+            <button type="button" onClick={() => window.print()} style={phoneActionButton}>
+              Print recipe
+            </button>
+            <button type="button" onClick={onReset} style={phoneActionButton}>
+              Reset to defaults
+            </button>
+          </div>
+        ) : (
         <div
           style={{
             display: 'flex',
@@ -175,6 +230,7 @@ export default function Header({
             options={[['pro', 'Pro'], ['home', 'Home']]}
           />
         </div>
+        )}
 
         {/* An import refusal, until the next action */}
         {fileMessage && (

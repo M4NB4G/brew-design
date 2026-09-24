@@ -1,10 +1,10 @@
 // Centered stat tile — matches the prototype's `statBox`/`statValue`/`statLabel`
 // layout: large value on top, smaller label beneath, optional sublabel
-// (e.g. "tgt 100") below the label.
+// (e.g. "tgt 100") below the label, or beside it when `sublabelInline`.
 
 import { colors, radii } from './styles.js';
 
-export default function StatBox({ value, label, sublabel, valueStyle, style }) {
+export default function StatBox({ value, label, sublabel, sublabelInline = false, valueStyle, labelStyle, style }) {
   const base = {
     background: colors.statBoxBg,
     borderRadius: radii.statBox,
@@ -21,11 +21,11 @@ export default function StatBox({ value, label, sublabel, valueStyle, style }) {
   return (
     <div style={{ ...base, ...style }}>
       <div style={{ ...baseValue, ...valueStyle }}>{value}</div>
-      <div style={{ fontSize: '0.78rem', color: colors.textSecondary, marginTop: '0.4rem', fontWeight: 500 }}>
+      <div style={{ fontSize: '0.78rem', color: colors.textSecondary, marginTop: '0.4rem', fontWeight: 500, ...labelStyle }}>
         {label}
         {sublabel && (
           <>
-            <br />
+            {sublabelInline ? ' ' : <br />}
             <span style={{ fontSize: '0.7rem', color: colors.textMuted }}>{sublabel}</span>
           </>
         )}

@@ -14,6 +14,7 @@ import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
 import StatBox from './shared/StatBox.jsx';
 import { colors, tokens } from './shared/styles.js';
+import usePhone from './shared/usePhone.js';
 import {
   volumeToCanonical,
   volumeFromCanonical,
@@ -38,6 +39,7 @@ function Warning({ children }) {
 }
 
 export default function VolumesSection({ recipe, grist, postBoilVolGal, warnings, mode, setField }) {
+  const phone = usePhone();
   const vUnit = volumeUnit(mode);
 
   // Convert a canonical-gal state field through the display boundary for InputRow.
@@ -54,7 +56,8 @@ export default function VolumesSection({ recipe, grist, postBoilVolGal, warnings
     <Card>
       <span style={tokens.cardLabel}>Volumes</span>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1.5rem' }}>
+      {/* Phone: one column, Mash then Boil then Ferment */}
+      <div style={{ display: 'grid', gridTemplateColumns: phone ? '1fr' : '1fr 1fr', gap: '0 1.5rem' }}>
         <div>
           <span style={{ ...tokens.cardLabel, marginBottom: '0.3rem', fontSize: '0.65rem' }}>Mash</span>
           <InputRow label={`Mash water (${vUnit})`} step={0.1} min={0} {...volRow('mashWaterGal')} />
@@ -75,7 +78,7 @@ export default function VolumesSection({ recipe, grist, postBoilVolGal, warnings
         </div>
 
         <div>
-          <span style={{ ...tokens.cardLabel, marginBottom: '0.3rem', fontSize: '0.65rem' }}>Boil</span>
+          <span style={{ ...tokens.cardLabel, ...(phone && { marginTop: '0.85rem' }), marginBottom: '0.3rem', fontSize: '0.65rem' }}>Boil</span>
           <InputRow label={`Pre-boil volume (${vUnit})`} step={0.1} min={0} {...volRow('preBoilVolGal')} />
           <InputRow
             label={`Boil-off rate (${vUnit}/hr)`}
