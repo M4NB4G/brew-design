@@ -10,7 +10,7 @@
 import IngredientSearch from './IngredientSearch.jsx';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
-import { colors, tokens, radii } from './shared/styles.js';
+import { colors, tokens } from './shared/styles.js';
 import usePhone from './shared/usePhone.js';
 import { percentUnit, fractionToPercent, percentToFraction, tempUnit } from '../display.js';
 import { strainInfo, fermTempWarning } from '../ingredient-search.js';
@@ -21,18 +21,6 @@ const LABEL = {
   fontWeight: 600,
   letterSpacing: '0.06em',
   textTransform: 'uppercase',
-};
-
-// One look for every design warning: an amber line under the value.
-const WARNING = {
-  margin: '0.1rem 0 0.4rem',
-  padding: '0.35rem 0.6rem',
-  background: colors.inputBgOverride,
-  borderLeft: `3px solid ${colors.accentAmber}`,
-  borderRadius: radii.input,
-  color: colors.textWarn,
-  fontSize: '0.82rem',
-  fontWeight: 600,
 };
 
 export default function YeastCard({ yeast, apparentAttenuation, setYeast, setField }) {
@@ -99,7 +87,7 @@ export default function YeastCard({ yeast, apparentAttenuation, setYeast, setFie
           step={1}
         />
         {warning && (
-          <p role="status" style={WARNING}>
+          <p role="status" style={tokens.warning}>
             {warning}
           </p>
         )}

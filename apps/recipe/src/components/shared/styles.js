@@ -131,8 +131,8 @@ export const tokens = {
     background: colors.inputBg,
     fontFamily: 'inherit',
   },
-  // Design warning: an amber line under the value it is about. The Yeast
-  // card's temperature warning set this look (YeastCard.jsx, inline).
+  // Design warning: an amber line under the value it is about. Every
+  // warning reads it: the Volumes card's and the Yeast card's.
   warning: {
     margin: '0.1rem 0 0.4rem',
     padding: '0.35rem 0.6rem',

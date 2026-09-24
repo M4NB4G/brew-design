@@ -7,12 +7,9 @@
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
 import StatBox from './shared/StatBox.jsx';
-import { colors, tokens, radii } from './shared/styles.js';
+import { colors, tokens } from './shared/styles.js';
 import usePhone from './shared/usePhone.js';
 import {
-  volumeToCanonical,
-  volumeFromCanonical,
-  volumeUnit,
   pitchRateUnit,
   cellsFromCanonical,
   cellsUnit,
@@ -57,7 +54,6 @@ export default function YeastSection({ yeast, derived, mode, setYeast }) {
   const th = phone ? { ...TH, padding: '0.45rem 0.35rem', letterSpacing: '0.04em' } : TH;
   const td = phone ? { ...TD, padding: '0.45rem 0.35rem' } : TD;
   const { pitchRate, cells, starter } = derived;
-  const vUnit = volumeUnit(mode);
 
   return (
     <Card>

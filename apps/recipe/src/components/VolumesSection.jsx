@@ -12,8 +12,7 @@
 import { MASH_RV_RANGE_QT_PER_LB, MASH_R_RANGE_LB_PER_LB } from '@brew/engine';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
-import StatBox from './shared/StatBox.jsx';
-import { colors, tokens } from './shared/styles.js';
+import { tokens } from './shared/styles.js';
 import usePhone from './shared/usePhone.js';
 import {
   volumeToCanonical,
@@ -23,7 +22,6 @@ import {
   mashRUnit,
   tempUnit,
 } from '../display.js';
-import { num } from '../format.js';
 
 // "Should be 1.25–2 qt/lb": a recommended range, as the owner's cell reads it.
 function shouldBe({ low, high }, unit) {
