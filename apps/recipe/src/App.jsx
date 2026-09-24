@@ -7,15 +7,25 @@
 // respectively.
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { defaultRecipeState } from './state.js';
+import {
+  defaultRecipeState,
+  DEFAULT_DISPLAY,
+  emptyBreweryFigures,
+  hasBreweryFigures,
+  breweryFiguresFromRecipe,
+  newRecipe,
+} from './state.js';
 import { computeRecipe } from './selectors.js';
 import {
-  loadPersisted,
+  loadStartingState,
   savePersisted,
   clearPersisted,
   exportRecipeDocument,
   recipeFileName,
   importRecipeFile,
+  loadBrewery,
+  saveBrewery,
+  clearBrewery,
 } from './persistence.js';
 import Header from './components/Header.jsx';
 import TabBar from './components/TabBar.jsx';
@@ -31,9 +41,6 @@ import RecipeSheet from './components/RecipeSheet.jsx';
 import Footer from './components/Footer.jsx';
 import { colors } from './components/shared/styles.js';
 
-// Display-setting defaults; the recipe defaults live in state.js.
-const DEFAULT_DISPLAY = { mode: 'home', proGravityUnit: 'plato' };
-
 // window.localStorage itself can throw when storage is blocked; treat that as
 // no storage. persistence.js handles a null storage as a no-op.
 function browserStorage() {
@@ -44,8 +51,9 @@ function browserStorage() {
   }
 }
 
+// The saved recipe; with none, a new recipe from the brewery's figures.
 function loadInitialState() {
-  return loadPersisted(browserStorage(), { recipe: defaultRecipeState(), ...DEFAULT_DISPLAY });
+  return loadStartingState(browserStorage());
 }
 
 export default function App() {
@@ -56,6 +64,9 @@ export default function App() {
   const [proGravityUnit, setProGravityUnit] = useState(initial.proGravityUnit); // Pro: 'plato' | 'sg'
   const [tab, setTab] = useState('recipe'); // 'recipe' | 'options'; every load opens on Recipe
   const [fileMessage, setFileMessage] = useState(''); // an import refusal, shown under the header controls
+  // The brewery's figures (Options tab, My brewery): kept apart from the
+  // recipe, and read only when a new recipe is made.
+  const [brewery, setBrewery] = useState(() => loadBrewery(browserStorage()));
 
   const derived = useMemo(() => computeRecipe(recipe), [recipe]);
 
@@ -109,14 +120,34 @@ export default function App() {
     setProGravityUnit(result.state.proGravityUnit);
   };
 
-  // Reset to defaults (P9): confirm, remove the saved copy, restore defaults.
+  // Reset to defaults (P9): confirm, remove the saved copy, start a new
+  // recipe from the brewery's figures where they are set; the confirm names
+  // them once any are (brewery defaults K4).
   const resetToDefaults = () => {
     setFileMessage('');
-    if (!window.confirm('Reset the recipe and settings to defaults? The saved copy will be removed.')) return;
+    const to = hasBreweryFigures(brewery) ? "your brewery's figures" : 'defaults';
+    if (!window.confirm(`Reset the recipe and settings to ${to}? The saved copy will be removed.`)) return;
     clearPersisted(browserStorage());
-    setRecipe(defaultRecipeState());
-    setMode(DEFAULT_DISPLAY.mode);
-    setProGravityUnit(DEFAULT_DISPLAY.proGravityUnit);
+    const fresh = newRecipe(brewery);
+    setRecipe(fresh.recipe);
+    setMode(fresh.mode);
+    setProGravityUnit(fresh.proGravityUnit);
+  };
+
+  // The brewery's figures: each change is saved at once, and never touches
+  // the recipe on screen or its saved copy (S4).
+  const changeBrewery = (next) => {
+    setBrewery(next);
+    saveBrewery(browserStorage(), next);
+  };
+  const setBreweryFigure = (key, value) => changeBrewery({ ...brewery, [key]: value });
+  const setBreweryTemp = (kind, tempF) =>
+    changeBrewery({ ...brewery, measurementTempF: { ...brewery.measurementTempF, [kind]: tempF } });
+  const useRecipeFigures = () => changeBrewery(breweryFiguresFromRecipe(recipe, mode, proGravityUnit));
+  const forgetBrewery = () => {
+    if (!window.confirm("Forget your brewery's figures? A new recipe will start from the built-in figures; the recipe on screen is unchanged.")) return;
+    clearBrewery(browserStorage());
+    setBrewery(emptyBreweryFigures());
   };
 
   // Top-level scalar field setter.
@@ -230,6 +261,11 @@ export default function App() {
             refVolumesGal={derived.refVolumesGal}
             mode={mode}
             setMeasurementTemp={setMeasurementTemp}
+            brewery={brewery}
+            setBreweryFigure={setBreweryFigure}
+            setBreweryTemp={setBreweryTemp}
+            onUseRecipeFigures={useRecipeFigures}
+            onForgetBrewery={forgetBrewery}
           />
         )}
       </main>

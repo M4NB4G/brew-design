@@ -30,6 +30,15 @@
 // browser storage. They differ only in failure: storage falls back to the
 // defaults silently, a file the brewer picked is refused with a message and
 // the recipe on screen is left as it is.
+//
+// Brewery figures (Brewery defaults, 2026-09-23): the brewery's own figures
+// (state.js) are a second document under their own key, with their own
+// version (1), apart from the recipe; the recipe's document is unchanged. A
+// first visit with nothing saved starts from them. Upgrading an old recipe
+// and checking its shape always use the built-in recipe, never the
+// brewery's figures, so a recipe loads as it was saved whatever they are.
+
+import { defaultRecipeState, DEFAULT_DISPLAY, emptyBreweryFigures, newRecipe } from './state.js';
 
 export const STORAGE_KEY = 'brew-design.recipe';
 export const SCHEMA_VERSION = 4;
@@ -101,17 +110,31 @@ function readDocument(raw, defaults) {
 /**
  * Read the persisted document. Returns { recipe, mode, proGravityUnit } when
  * storage holds a readable document at SCHEMA_VERSION or at version 3, 2 or 1
- * (read as readDocument describes); otherwise `defaults`.
+ * (read as readDocument describes, against `defaults`); otherwise
+ * `fallback`, which is `defaults` unless given.
  * Never throws.
  */
-export function loadPersisted(storage, defaults) {
+export function loadPersisted(storage, defaults, fallback = defaults) {
   try {
     const raw = storage.getItem(STORAGE_KEY);
-    if (raw === null || raw === undefined) return defaults;
-    return readDocument(raw, defaults).state ?? defaults;
+    if (raw === null || raw === undefined) return fallback;
+    return readDocument(raw, defaults).state ?? fallback;
   } catch {
-    return defaults;
+    return fallback;
   }
+}
+
+/**
+ * The state the app opens on: the saved recipe, read against the built-in
+ * recipe; or, with none readable, a new recipe from the brewery's figures.
+ * Never throws.
+ */
+export function loadStartingState(storage) {
+  return loadPersisted(
+    storage,
+    { recipe: defaultRecipeState(), ...DEFAULT_DISPLAY },
+    newRecipe(loadBrewery(storage)),
+  );
 }
 
 /**
@@ -139,6 +162,73 @@ export function savePersisted(storage, { recipe, mode, proGravityUnit }) {
 export function clearPersisted(storage) {
   try {
     storage.removeItem(STORAGE_KEY);
+  } catch {
+    // Storage unavailable: nothing to clear.
+  }
+}
+
+export const BREWERY_KEY = 'brew-design.brewery';
+export const BREWERY_VERSION = 1;
+
+// A saved figure: a finite number, or null (blank).
+const isFigure = (v) => v === null || Number.isFinite(v);
+
+// The brewery figures in a document, or null when one is missing or is not
+// a figure: every key of the blank figures, each blank or of its kind.
+function readBrewery(b) {
+  const isObject = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
+  if (!isObject(b) || !isObject(b.measurementTempF)) return null;
+  const out = emptyBreweryFigures();
+  for (const k of Object.keys(out)) {
+    if (k === 'measurementTempF') continue;
+    if (!(k in b)) return null;
+    out[k] = b[k];
+  }
+  for (const k of Object.keys(out.measurementTempF)) {
+    if (!isFigure(b.measurementTempF[k])) return null;
+    out.measurementTempF[k] = b.measurementTempF[k];
+  }
+  const { mode, proGravityUnit, measurementTempF, ...numbers } = out;
+  if (!Object.values(numbers).every(isFigure)) return null;
+  if (mode !== null && !MODES.includes(mode)) return null;
+  if (proGravityUnit !== null && !GRAVITY_UNITS.includes(proGravityUnit)) return null;
+  return out;
+}
+
+/**
+ * Read the brewery's figures. Nothing saved, unreadable data, any version
+ * but BREWERY_VERSION, or unavailable storage yields every figure blank (the
+ * built-in figures). Never throws.
+ */
+export function loadBrewery(storage) {
+  try {
+    const raw = storage.getItem(BREWERY_KEY);
+    if (raw === null || raw === undefined) return emptyBreweryFigures();
+    const doc = JSON.parse(raw);
+    if (!doc || typeof doc !== 'object' || doc.version !== BREWERY_VERSION) return emptyBreweryFigures();
+    return readBrewery(doc.brewery) ?? emptyBreweryFigures();
+  } catch {
+    return emptyBreweryFigures();
+  }
+}
+
+/**
+ * Write the brewery's figures as their own document under their own key; a
+ * blank figure is written as null. The recipe's document is not touched.
+ * Never throws.
+ */
+export function saveBrewery(storage, brewery) {
+  try {
+    storage.setItem(BREWERY_KEY, JSON.stringify({ version: BREWERY_VERSION, brewery }));
+  } catch {
+    // Storage unavailable: behave as if there is none.
+  }
+}
+
+/** "Forget my brewery figures": remove their document. Never throws. */
+export function clearBrewery(storage) {
+  try {
+    storage.removeItem(BREWERY_KEY);
   } catch {
     // Storage unavailable: nothing to clear.
   }

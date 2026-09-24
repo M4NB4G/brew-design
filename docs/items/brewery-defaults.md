@@ -1,6 +1,9 @@
 # Brewery defaults — Tier B
 
-Status: agreed 2026-09-23 ("agree to all else"), not started. Written by the
+Status: agreed 2026-09-23 ("agree to all else"); landed 2026-09-23 as "A new
+recipe starts from the brewery's figures, kept in this browser apart from any
+recipe and set on the Options tab; a blank one is the built-in figure, and
+changing them never changes a recipe". Written by the
 spec session; to be built by a new session from CLAUDE.md's kickoff prompt,
 **after** `docs/items/phone-width.md` has landed. Step 2 of the water program
 (`docs/items/water-program.md`, WP3, WP4, WP5, WP10).
@@ -98,4 +101,70 @@ that build a new recipe from it do not exist.
 
 ## Recorded failure (filled in by the builder)
 
+`npx vitest run test/brewery-defaults.test.js` on branch `brewery-defaults`
+at `main` 703df21, before any source change — 8 of 8 fail:
+
+```
+× with no brewery figures, a new recipe is today's built-in recipe
+    TypeError: (0 , emptyBreweryFigures) is not a function
+× brewery figures fill a new recipe's batch volume, … every other field is the built-in one
+    TypeError: (0 , newRecipe) is not a function
+× a brewery figure left blank gives the built-in figure
+    TypeError: (0 , newRecipe) is not a function
+× "use this recipe's figures" takes exactly those figures from the recipe on screen, and nothing else
+    TypeError: (0 , breweryFiguresFromRecipe) is not a function
+× the brewery figures round-trip through their own saved document at version 1; …
+    TypeError: (0 , saveBrewery) is not a function
+× saving brewery figures changes neither the saved recipe nor its document, …
+    TypeError: (0 , saveBrewery) is not a function
+× forgetting the brewery figures returns a new recipe to the built-in one
+    TypeError: (0 , saveBrewery) is not a function
+× a recipe from brewery figures gives the same stats as the same recipe typed by hand
+    TypeError: (0 , newRecipe) is not a function
+Tests  8 failed (8)
+```
+
+(Scenario 8's last line read `grist.og` in the first draft; the engine's
+field is `OG`. Corrected before any source change; the failure above is
+unchanged by it.)
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+- **Blank is `null`**, in memory and in the saved document. A new recipe
+  also treats NaN, or anything that is not a finite number, as blank, so no
+  blank can reach a recipe (K3). "Use this recipe's figures" turns a cleared
+  (NaN) recipe field into `null`.
+- **The brewery document is read strictly**: every figure must be present,
+  each `null` or a finite number (Home/Pro and gravity unit: `null` or one of
+  the two), or the whole document reads as every figure blank — never a
+  partial read.
+- **Old recipes keep loading at the built-in figures** (the trap in the
+  notes): `loadPersisted` gained an optional third argument, the fallback,
+  so upgrades and the shape check still read against the built-in recipe;
+  `loadStartingState` (persistence.js) is the one call the app opens with —
+  the saved recipe, else a new recipe from the brewery's figures. Import is
+  unchanged and still reads against the built-in recipe (K5).
+- **The display defaults (Home, °P) moved** from `App.jsx` to `state.js`,
+  unchanged, as `DEFAULT_DISPLAY`: a new recipe needs them.
+- **Saving**: each edit in My brewery writes the brewery document at once
+  (not an effect on load), so nothing is written until the brewer sets a
+  figure; Forget removes the key. Multi-tab: each tab writes its whole
+  in-memory figures; last write wins; another tab sees them on reload.
+- **Confirms**: Reset reads "Reset the recipe and settings to your brewery's
+  figures? The saved copy will be removed." once any figure is set, and is
+  unchanged otherwise (K4). Forget reads "Forget your brewery's figures? A
+  new recipe will start from the built-in figures; the recipe on screen is
+  unchanged."
+- **The section** is a second card, "My brewery", below the Measurement
+  temperatures card: the four boil/batch figures, the three temperatures,
+  efficiency (%), then Home/Pro and Pro gravity unit as drop-downs whose
+  blank choice reads "Built-in (Home)" / "Built-in (°P)", then the two
+  buttons. The gravity unit can be set while the recipe is in Home.
+- **Units**: volumes and the boil-off rate convert through `display.js`'s
+  volume pair, efficiency through the percent pair; shown to
+  `roundForInput`'s 6 places and percent to 4, as the Volumes card and Grist
+  do. No number is introduced. A figure typed in bbl stores the existing
+  conversion's gallons (0.6 bbl → 18.599999999999998 gal), exactly as the
+  Volumes card does today.
+- **Deferred**: blank boxes could show the built-in figure greyed — a Tier C
+  roadmap line.

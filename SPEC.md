@@ -58,7 +58,7 @@ pinned by the golden-master tests.
     empty; a version-1, 2 or 3 document — saved before the yeast had a
     strain and a fermentation temperature — loads with an empty strain and a
     blank fermentation temperature; each is saved back as version 4. Unreadable data,
-    any other version, or unavailable storage yields the defaults and never
+    any other version, or unavailable storage yields a new recipe (rule 17) and never
     throws. A cleared field (NaN) round-trips as NaN, never as 0 or null.
 16. **The ingredient list is the owner's workbook.** `apps/recipe/src/ingredients.json`
     is generated from `data/Brew Design Ingredients.xlsx` by the refresh tool
@@ -67,6 +67,19 @@ pinned by the golden-master tests.
     reference data: never part of the recipe state, never saved with a recipe.
     Picking an ingredient copies its numbers into the recipe; the recipe never
     refers back to the list.
+17. **The brewery's figures are not a recipe.** The brewery's batch
+    (fermentation) volume, pre-boil volume, boil-off rate, boil time, three
+    measurement temperatures, brewhouse efficiency, Home/Pro and Pro gravity
+    unit are kept in their own JSON document, under their own key, carrying
+    their own version (1), in the recipe's units; a blank figure is null.
+    Unreadable data, any other version, or unavailable storage yields every
+    figure blank and never throws. A new recipe — Reset, or a load with no
+    readable saved recipe — is the built-in recipe and display settings with
+    each figure that is set in place of the built-in one; a blank figure
+    never reaches a recipe. They are copied only when a recipe is created:
+    changing them never changes a recipe, its saved document or a recipe
+    file, and an older saved recipe is upgraded and checked against the
+    built-in recipe, never against them.
 
 ### Display units
 

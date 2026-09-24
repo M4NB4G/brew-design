@@ -52,3 +52,83 @@ export function defaultRecipeState() {
     measurementTempF: { preBoil: 60, postBoil: 60, ferment: 60 },
   };
 }
+
+// Display-setting defaults: Home, and °P as the Pro gravity unit.
+export const DEFAULT_DISPLAY = { mode: 'home', proGravityUnit: 'plato' };
+
+// --- The brewery's figures (Brewery defaults, 2026-09-23) --------------------
+// The brewery's own figures, kept apart from any recipe: a new recipe starts
+// from them. Held in the recipe's own units (gal, degF, fraction) plus the two
+// display settings. null is a blank figure: the new recipe takes the built-in
+// one. They are copied into a recipe only when it is created; a recipe never
+// refers back to them.
+const BREWERY_NUMBERS = ['fermentVolGal', 'preBoilVolGal', 'boilOffRateGalPerHr', 'boilTimeMin', 'efficiency'];
+const MEASUREMENT_KINDS = ['preBoil', 'postBoil', 'ferment'];
+const MODES = ['home', 'pro'];
+const GRAVITY_UNITS = ['plato', 'sg'];
+
+/** Every brewery figure blank. */
+export function emptyBreweryFigures() {
+  return {
+    fermentVolGal: null,
+    preBoilVolGal: null,
+    boilOffRateGalPerHr: null,
+    boilTimeMin: null,
+    measurementTempF: { preBoil: null, postBoil: null, ferment: null },
+    efficiency: null,
+    mode: null,
+    proGravityUnit: null,
+  };
+}
+
+/** True when any brewery figure is set. */
+export function hasBreweryFigures(brewery) {
+  const b = brewery ?? {};
+  return (
+    BREWERY_NUMBERS.some((k) => b[k] != null) ||
+    MEASUREMENT_KINDS.some((k) => b.measurementTempF?.[k] != null) ||
+    b.mode != null ||
+    b.proGravityUnit != null
+  );
+}
+
+// A number that can reach a recipe, or null (blank): NaN, null and anything
+// not a finite number are blank.
+const figure = (v) => (Number.isFinite(v) ? v : null);
+
+/**
+ * "Use this recipe's figures": the brewery's figures taken from the recipe
+ * and display settings on screen, and nothing else. A cleared field is taken
+ * as a blank figure.
+ */
+export function breweryFiguresFromRecipe(recipe, mode, proGravityUnit) {
+  const out = emptyBreweryFigures();
+  for (const k of BREWERY_NUMBERS) out[k] = figure(recipe[k]);
+  for (const k of MEASUREMENT_KINDS) out.measurementTempF[k] = figure(recipe.measurementTempF?.[k]);
+  out.mode = MODES.includes(mode) ? mode : null;
+  out.proGravityUnit = GRAVITY_UNITS.includes(proGravityUnit) ? proGravityUnit : null;
+  return out;
+}
+
+/**
+ * A new recipe, with its display settings: the built-in recipe and display
+ * settings, with every brewery figure that is set in place of the built-in
+ * one. A blank figure — null, NaN, or one that is not a figure at all — never
+ * reaches the recipe; the built-in one stays.
+ */
+export function newRecipe(brewery) {
+  const b = brewery ?? {};
+  const recipe = defaultRecipeState();
+  for (const k of BREWERY_NUMBERS) {
+    if (figure(b[k]) !== null) recipe[k] = b[k];
+  }
+  for (const k of MEASUREMENT_KINDS) {
+    const t = b.measurementTempF?.[k];
+    if (figure(t) !== null) recipe.measurementTempF[k] = t;
+  }
+  return {
+    recipe,
+    mode: MODES.includes(b.mode) ? b.mode : DEFAULT_DISPLAY.mode,
+    proGravityUnit: GRAVITY_UNITS.includes(b.proGravityUnit) ? b.proGravityUnit : DEFAULT_DISPLAY.proGravityUnit,
+  };
+}
