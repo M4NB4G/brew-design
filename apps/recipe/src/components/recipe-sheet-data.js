@@ -8,6 +8,7 @@
 // (format.js), which prints a blank as "—". The literals below are display
 // precision only.
 
+import { REFERENCE_TEMP_F } from '@brew/engine';
 import {
   resolveGravityUnit,
   gravityUnitLabel,
@@ -31,11 +32,6 @@ import {
 } from '../display.js';
 import { num, gravity } from '../format.js';
 
-// The engine's volume reference temperature (correctVolumeToRef's refTempF,
-// the screen's "at 60 °F"). A volume measured here needs no note (P11). A
-// comparison, not a recipe value.
-const REFERENCE_TEMP_F = 60;
-
 const YEAST_TYPE = { ale: 'Ale', lager: 'Lager' };
 const YEAST_CHARACTER = { high: 'High', mod: 'Moderate', low: 'Low' };
 
@@ -49,6 +45,7 @@ function temperature(tempF) {
   return num(tempF, Number.isInteger(tempF) ? 0 : 1);
 }
 
+// A volume measured at the engine's reference temperature needs no note (P11).
 function tempNote(tempF) {
   return tempF === REFERENCE_TEMP_F ? null : `measured at ${temperature(tempF)} ${tempUnit()}`;
 }
@@ -110,7 +107,7 @@ export function recipeSheet({ recipe, derived, mode, proGravityUnit, today }) {
         { key: 'preBoil', label: 'Pre-boil volume', value: vol(recipe.preBoilVolGal), tempNote: tempNote(temps?.preBoil), measuredBox: true },
         {
           key: 'postBoil',
-          label: `Post-boil volume at 60 ${tempUnit()}`,
+          label: `Post-boil volume at ${REFERENCE_TEMP_F} ${tempUnit()}`,
           value: vol(derived.postBoilVolGal),
           tempNote: tempNote(temps?.postBoil),
           measuredBox: true,

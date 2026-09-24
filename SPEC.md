@@ -20,8 +20,8 @@ pinned by the golden-master tests.
    SG abs 1e-6 · Plato / SRM / IBU / utilization / tempFactor 1e-4 ·
    integers exact · starter volume and DME 1e-2.
 5. The public surface is `src/index.js` only. Nothing imports engine internals.
-6. `computeGrist` / `computeHops` take volumes at the 60 °F reference; the
-   caller corrects first. `mashWaterGal` is used as entered — the 2.055 qt→lb
+6. `computeGrist` / `computeHops` take volumes at the 60 °F reference
+   (`REFERENCE_TEMP_F`, stated once in `units.js`); the caller corrects first. `mashWaterGal` is used as entered — the 2.055 qt→lb
    constant embeds its own density assumption.
 
 ## 2. App (`apps/recipe`)
@@ -39,10 +39,13 @@ pinned by the golden-master tests.
     The UI renders from `computeRecipe(state)`; tests assert through it.
 11. `toReferenceVolume(measuredGal, kind, measurementTempF)` is the
     volume-correction slot. Pre-boil, post-boil, and ferment volumes route
-    through it and reach the engine corrected to 60 °F by
-    `correctVolumeToRef` at the measurement temperature of their kind
-    (`measurementTempF[kind]`, °F, held in the recipe state, 60 by default);
-    mash water does not. A temperature the engine cannot correct — cleared
+    through it and reach the engine corrected to the engine's reference
+    (`REFERENCE_TEMP_F`, 60 °F) by `correctVolumeToRef` at the measurement
+    temperature of their kind (`measurementTempF[kind]`, °F, held in the
+    recipe state, the reference by default); mash water does not. Every
+    "at 60 °F" the app shows or prints, and the printed sheet's rule for
+    when to note a measurement temperature, read `REFERENCE_TEMP_F`; no app
+    file writes the figure itself. A temperature the engine cannot correct — cleared
     (NaN) or outside its density table (0–100 °C) — yields a NaN volume;
     nothing throws, and no clamping or fallback to the measured volume.
 12. The smoke test (`apps/recipe/test/smoke.test.js`) pins the reference

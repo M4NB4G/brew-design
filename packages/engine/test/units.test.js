@@ -10,6 +10,7 @@ import {
   waterDensityC,
   waterDensityF,
   correctVolumeToRef,
+  REFERENCE_TEMP_F,
 } from '../src/index.js';
 
 describe('basic conversions', () => {
@@ -63,5 +64,18 @@ describe('correctVolumeToRef', () => {
   it('~3.2% shrink from 190 F to 60 F', () => {
     // Spec tolerance is 2e-2.
     expect(Math.abs(correctVolumeToRef(16, 190) - 15.48)).toBeLessThan(2e-2);
+  });
+});
+
+// The 60 °F reference held in one place (docs/items/reference-temperature.md, R-S1).
+describe('the volume reference temperature', () => {
+  it('the engine states its volume reference temperature, 60 °F, and the volume correction defaults to it', () => {
+    // Rev 3's own "at 60 °F", the spreadsheet's reference (SPEC rule 2).
+    expect(REFERENCE_TEMP_F).toBe(60);
+    // No reference given and the stated reference given are the same
+    // arithmetic, so the two corrections are identical, not merely close.
+    for (const v of [16, 14.5, 12, 7, 5]) {
+      expect(correctVolumeToRef(v, 150)).toBe(correctVolumeToRef(v, 150, REFERENCE_TEMP_F));
+    }
   });
 });

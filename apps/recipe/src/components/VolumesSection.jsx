@@ -9,7 +9,7 @@
 // the value they are about: a mash ratio outside the owner's recommended
 // range (text from the engine's range constants), and less wort after the
 // boil than the fermenter volume. They change no number and block nothing.
-import { MASH_RV_RANGE_QT_PER_LB, MASH_R_RANGE_LB_PER_LB } from '@brew/engine';
+import { MASH_RV_RANGE_QT_PER_LB, MASH_R_RANGE_LB_PER_LB, REFERENCE_TEMP_F } from '@brew/engine';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
 import { tokens } from './shared/styles.js';
@@ -92,7 +92,7 @@ export default function VolumesSection({ recipe, grist, postBoilVolGal, warnings
             min={0}
           />
           <InputRow
-            label={`Post-boil volume at 60 ${tempUnit()} (${vUnit})`}
+            label={`Post-boil volume at ${REFERENCE_TEMP_F} ${tempUnit()} (${vUnit})`}
             value={Number(volumeFromCanonical(postBoilVolGal, mode).toFixed(3))}
             onChange={() => {}}
             readOnly

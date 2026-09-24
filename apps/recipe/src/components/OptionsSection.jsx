@@ -12,6 +12,7 @@
 // units (state.js) and shown in the current mode's units through display.js;
 // an emptied field is a blank figure (null), which a new recipe fills with
 // the built-in figure. Editing them never touches the recipe on screen.
+import { REFERENCE_TEMP_F } from '@brew/engine';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
 import { colors, radii, tokens } from './shared/styles.js';
@@ -121,7 +122,7 @@ export default function OptionsSection({
     <Card>
       <span style={tokens.cardLabel}>This recipe — measurement temperatures</span>
       <p style={{ ...tokens.notice, marginTop: 0, marginBottom: '0.5rem' }}>
-        Volumes are corrected to the 60 {tUnit} reference from the temperature they were
+        Volumes are corrected to the {REFERENCE_TEMP_F} {tUnit} reference from the temperature they were
         measured at; mash water is used as entered.
       </p>
 
@@ -139,7 +140,7 @@ export default function OptionsSection({
               step={1}
             />
             <InputRow
-              label={`at 60 ${tUnit} (${vUnit})`}
+              label={`at ${REFERENCE_TEMP_F} ${tUnit} (${vUnit})`}
               value={num(volumeFromCanonical(refVolumesGal[kind], mode), 3)}
               onChange={() => {}}
               readOnly

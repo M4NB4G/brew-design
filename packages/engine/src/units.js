@@ -107,12 +107,18 @@ export function waterDensityF(tempF) {
   return waterDensityC(fToC(tempF));
 }
 
+// The volume reference temperature (degF): the spreadsheet's "at 60 F". The
+// grist and hop calculations take volumes at it; the app's "at 60 F" labels
+// and a new recipe's measurement temperatures read it from here.
+export const REFERENCE_TEMP_F = 60;
+
 /**
  * Correct a measured volume to its equivalent at a reference temperature
- * (default 60 F) by the ratio of water densities. When tempF === refTempF
- * the factor is exactly 1, so the measured volume is returned unchanged.
+ * (default REFERENCE_TEMP_F) by the ratio of water densities. When
+ * tempF === refTempF the factor is exactly 1, so the measured volume is
+ * returned unchanged.
  */
-export function correctVolumeToRef(volMeasured, tempF, refTempF = 60) {
+export function correctVolumeToRef(volMeasured, tempF, refTempF = REFERENCE_TEMP_F) {
   return (volMeasured * waterDensityF(tempF)) / waterDensityF(refTempF);
 }
 

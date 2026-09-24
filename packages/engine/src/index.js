@@ -11,6 +11,7 @@ export {
   platoToSg,
   waterDensityC,
   waterDensityF,
+  REFERENCE_TEMP_F,
   correctVolumeToRef,
   GALLONS_PER_BBL,
   LITERS_PER_BBL,

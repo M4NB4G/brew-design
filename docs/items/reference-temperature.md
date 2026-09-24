@@ -1,6 +1,9 @@
 # The 60 °F reference held in one place — Tier A + B
 
-Status: agreed 2026-09-23 ("agree to all"), not started. Written by the S1
+Status: agreed 2026-09-23 ("agree to all"); landed 2026-09-23 on branch S2
+as "The engine states its 60 °F volume reference once, and every "at 60 °F"
+on screen and on the printed sheet, and a new recipe's measurement
+temperatures, read it". Written by the S1
 session; built in batch S2 (docs/ROADMAP.md, Sessions), first of its four
 items — "Post-boil volume as measured" reads the figure this item creates.
 
@@ -60,4 +63,18 @@ R-S4 and is named as the guard, not as the item's failing scenario.
 
 ## Recorded failure (filled in by the builder)
 
+Run alone against the unchanged code (main 611c643), 2026-09-23:
+
+- Engine, scenario 1: `expected undefined to be 60 // Object.is equality` — the engine exports no reference figure.
+- App, scenario 2: `expected 'Post-boil volume at 60 °F' to be 'Post-boil volume at undefined °F'`. Its source scan, run on its own against the same code, names the six copies: `OptionsSection.jsx` the note "corrected to the 60 {tUnit} reference" and the "at 60 ${tUnit}" rows; `recipe-sheet-data.js` `const REFERENCE_TEMP_F = 60` and the post-boil label; `VolumesSection.jsx` the post-boil label; `state.js` `measurementTempF: { preBoil: 60, postBoil: 60, ferment: 60 }`.
+- App, scenario 3: `expected { preBoil: 60, postBoil: 60, …(1) } to deeply equal { preBoil: undefined, …(2) }`.
+- App, scenario 4 (the guard) passed before, as the table expected.
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+- **Name and place:** `REFERENCE_TEMP_F = 60` in `packages/engine/src/units.js`, beside `correctVolumeToRef`, whose default argument now reads it; exported from `index.js`. No other engine line changes.
+- **The app reads it directly** (a constant, which rule 10 allows): `state.js` for the three new-recipe temperatures (a version-1 recipe is upgraded from the built-in recipe's, so it follows with no change to `persistence.js`); `OptionsSection.jsx` note and "at … °F" rows; `VolumesSection.jsx` and `recipe-sheet-data.js` post-boil labels. The sheet's own copy is deleted; its note rule compares against the engine's.
+- **The source scan** (scenario 2) strips comments, then looks for a label "60 °F" / "60 {tUnit}" / "60 ${tempUnit()}", a temperature name set or compared to 60, and a measurement kind defaulting to 60. Boil time and hop time (minutes) do not match. Comments that say "60 degF" are left alone: they write no figure the brewer sees.
+- **The engine scenario** compares the no-argument call with the explicit-argument call bit for bit (`toBe`) — the same arithmetic — and never against the measured volume, so the shelved one-ulp artifact cannot bite.
+- **SPEC:** rule 6 names the constant; rule 11 says every "at 60 °F" and the sheet's note rule read it, and no app file writes the figure itself.
+- **Far end** (built app, port 4175, 2026-09-23): all four checks as the table lists them. For check 4 a version-4 recipe (Pro, SG, 150/180/68 °F, a named strain at 66 °F) was saved by the live site; on the branch build both tabs' text, every box, the printed sheet and the rewritten saved document hash identical to the live site's.

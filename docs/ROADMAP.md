@@ -30,7 +30,6 @@ Shelved: the `correctVolumeToRef` identity.
 
 | Item | Sentence (draft) | Re-test | Session |
 |---|---|---|---|
-| Reference temperature as an engine constant | The engine exports its 60 °F volume reference, and the app's "at 60 °F" labels (Volumes, Options) and the printed sheet's temperature-note check read it instead of writing 60 themselves; today it exists only as `correctVolumeToRef`'s default argument (noticed building the print sheet, 2026-09-23). Scope table agreed: `docs/items/reference-temperature.md` | suites + inspector | S2 |
 | `correctVolumeToRef` identity — **shelved** | Its doc says the factor is exactly 1 at the reference temperature, but `(v · d) / d` differs from `v` by one ulp for v = 7 or 5 (exact for 16, 14.5, 12, 5.5); compute `v · (d / d)` or short-circuit `tempF === refTempF`; golden values unaffected (noticed writing the Options page table, 2026-09-21). Shelved 2026-09-22 on the owner's call: a floating-point artifact ~15 digits down, below every displayed precision and every test tolerance; only a test asserting exact bit-equality would see it. Kept so it is not rediscovered as a mystery | suites + inspector | shelved |
 
 ## Tier B — touches state, selectors, display, or reference-volume
