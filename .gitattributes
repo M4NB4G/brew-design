@@ -1,2 +1,6 @@
+# Every text file is LF in the repository and in the working copy, on every
+# platform, whatever core.autocrlf says; binaries are detected and left alone.
+* text=auto eol=lf
+
 # Shell hooks must stay LF on every platform, or sh rejects them.
 tools/hooks/* text eol=lf

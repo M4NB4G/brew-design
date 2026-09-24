@@ -67,6 +67,5 @@ Shelved: the `correctVolumeToRef` identity.
 |---|---|---|---|
 | Title + favicon | The browser tab reads "Brew Design" and shows an icon | build | S1 |
 | `npm audit fix` | Dev-tooling advisories cleared | suites | S1 |
-| Line endings | `.gitattributes` pins `* text=auto eol=lf` so working copies stay LF on Windows (autocrlf rewrote the docs to CRLF on a branch checkout, 2026-09-20) | none | S1 |
 | Coverage gaps | Close the small items in `docs/TEST_COVERAGE.md` | suites | S1 |
 | Notes / methodology page | Later. The print sheet and the recipe file left this row on 2026-09-22 as items of their own | — | S7 |
