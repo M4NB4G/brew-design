@@ -51,11 +51,13 @@ pinned by the golden-master tests.
     only when the canonical state does, at the value that leaves every pinned
     number the same.
 13. Persisted state is the canonical state, under one key, in one JSON
-    document carrying a schema version (3). A version-1 document — saved
+    document carrying a schema version (4). A version-1 document — saved
     before the measurement temperatures existed — loads as the same recipe
     with the three at 60 °F; a version-1 or version-2 document — saved
     before the recipe had a name, style and notes — loads with those three
-    empty; either is saved back as version 3. Unreadable data,
+    empty; a version-1, 2 or 3 document — saved before the yeast had a
+    strain and a fermentation temperature — loads with an empty strain and a
+    blank fermentation temperature; each is saved back as version 4. Unreadable data,
     any other version, or unavailable storage yields the defaults and never
     throws. A cleared field (NaN) round-trips as NaN, never as 0 or null.
 16. **The ingredient list is the owner's workbook.** `apps/recipe/src/ingredients.json`

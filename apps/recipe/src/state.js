@@ -39,8 +39,11 @@ export function defaultRecipeState() {
     // Fermentation volume (US gal) — feeds both the dry-hop rate and cell count.
     fermentVolGal: 5.5,
 
-    // Yeast: type 'ale' | 'lager'; density 'high' | 'mod' | 'low'.
-    yeast: { type: 'ale', density: 'mod' },
+    // Yeast: type 'ale' | 'lager'; density 'high' | 'mod' | 'low'; the strain's
+    // name as typed or picked (empty on a new recipe: the app never invents a
+    // strain); the brewer's fermentation temperature in degF (NaN = blank).
+    // Neither the name nor the temperature is read by any calculation.
+    yeast: { type: 'ale', density: 'mod', name: '', fermTempF: NaN },
 
     // Temperature (degF) each volume was measured at, keyed by the kind
     // reference-volume.js corrects (mash water is used as entered). 60 is the

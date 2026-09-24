@@ -1,8 +1,8 @@
 // GristTable.jsx
 // Editable malt bill (add/remove rows; the name box searches the owner's
-// ingredient list, IngredientSearch) plus the two grist-level parameters
-// (efficiency, apparent attenuation). Malt weight is lb in both modes; fgdb,
-// color (degL), efficiency, and attenuation are unitless/fixed. Per-malt
+// ingredient list, IngredientSearch) plus the brewhouse efficiency. Malt
+// weight is lb in both modes; fgdb, color (degL) and efficiency are
+// unitless/fixed. Apparent attenuation is entered on the Yeast card. Per-malt
 // extract points shown read-only from the engine.
 import NumberField from './NumberField.jsx';
 import IngredientSearch from './IngredientSearch.jsx';
@@ -31,7 +31,6 @@ const TD_NUM = { ...TD, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }
 export default function GristTable({
   malts,
   efficiency,
-  apparentAttenuation,
   grist,
   setRow,
   addRow,
@@ -132,22 +131,13 @@ export default function GristTable({
         + Add malt
       </button>
 
-      {/* Grist parameters */}
+      {/* Grist parameter */}
       <div>
         <InputRow
           label="Brewhouse efficiency"
           unit={percentUnit()}
           value={Number(fractionToPercent(efficiency).toFixed(4))}
           onChange={(e) => setField('efficiency', percentToFraction(parseFloat(e.target.value)))}
-          step={1}
-          min={0}
-          max={100}
-        />
-        <InputRow
-          label="Yeast Apparent Attenuation"
-          unit={percentUnit()}
-          value={Number(fractionToPercent(apparentAttenuation).toFixed(4))}
-          onChange={(e) => setField('apparentAttenuation', percentToFraction(parseFloat(e.target.value)))}
           step={1}
           min={0}
           max={100}

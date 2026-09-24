@@ -1,7 +1,10 @@
 # Yeast card — Tier B
 
-Status: agreed 2026-09-23 ("Q6 i like the warning … agree to all else"), not
-started. Written by the spec session; to be built by a new session from
+Status: agreed 2026-09-23 ("Q6 i like the warning … agree to all else");
+landed 2026-09-23 as "A Yeast card between Grist and Hops finds the strain on
+the owner's list and shows its lab figures as information; the brewer types
+their own attenuation and fermentation temperature, and a pick sets only ale
+or lager". Written by the spec session; to be built by a new session from
 CLAUDE.md's kickoff prompt, **after** `docs/items/searchable-malt-hop-boxes.md`
 has landed (Q8): it reuses that item's search box.
 
@@ -81,4 +84,99 @@ Expected failure before the change: the strain and temperature fields do not exi
 
 ## Recorded failure (filled in by the builder)
 
+`npx vitest run test/yeast-card.test.js` against unchanged `main` (5824cfd),
+9 of 9 failing, trimmed:
+
+```
+× picking a strain names it and sets ale or lager, and changes no other number
+    TypeError: PICKED_KEYS[field] is not iterable
+× the strain search finds a strain by name, lab or product code
+    TypeError: LIST[field] is not iterable
+× a strain on the list shows its lab, product code, ale/lager, lab range and attenuation as information; one not on the list shows none
+    TypeError: (0 , strainInfo) is not a function
+× a fermentation temperature outside the strain's lab range warns; inside, at either end, blank, or with a strain not on the list, it does not
+    TypeError: (0 , fermTempWarning) is not a function
+× moving the yeast changes no stat: the same attenuation and ale/lager give the same FG, ABV, pitch rate, cells and starter
+    TypeError: PICKED_KEYS[field] is not iterable
+× the saved document carries version 4 with the strain and the fermentation temperature; a blank temperature round-trips as blank
+    AssertionError: expected 3 to be 4
+× a version 1, 2 or 3 document loads with an empty strain and a blank fermentation temperature, every number as before, and is saved back as version 4
+    AssertionError: version 3: expected { name: 'Old lager', … } to deeply equal { name: 'Old lager', … }
+× the printed sheet shows the strain, ale/lager, attenuation and fermentation temperature; a blank prints a dash
+    AssertionError: expected undefined to be 'SafLager W-34/70'
+× a new recipe has an empty strain, a blank fermentation temperature and attenuation 77 %
+    AssertionError: expected undefined to be ''
+Tests  9 failed (9)
+```
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+Claims for the inspector to verify.
+
+1. **Field names: `yeast.name` and `yeast.fermTempF`.** The strain is the
+   yeast's `name` (not `strain`), so the recipe's yeast is a row the
+   searchable box already drives, exactly as a malt or hop row is:
+   `IngredientSearch.jsx` is reused unchanged (Q8), with the row setter
+   mapped to the existing one-key yeast setter. `apparentAttenuation` stays
+   top-level; only its box moved. The fermentation temperature is °F, `NaN`
+   blank.
+2. **Search (Y2).** `searchIngredients('yeasts', …)` matches the typed text
+   against name, lab and product code, capitals and accents ignored; a strain
+   where any of the three starts with the text comes first, each group in
+   list order. The malt and hop search is the same code with the name alone;
+   its eight scenarios pass unchanged.
+3. **What a pick writes (Q2, Y4).** `pickIngredient('yeasts', …)` copies the
+   name and ale/lager only; attenuation, lab range and the temperature are
+   never written. Typing writes the name only (`typeName`, as B2), so a typed
+   list name shows the information but does not set ale/lager.
+4. **"On the list" (notes).** The name equals a list name with capitals and
+   surrounding spaces ignored (not accents: "on the list" is exact apart from
+   those two). A product code alone ("A07") is not a strain name, so it shows
+   nothing.
+5. **Information (Y3, Q5).** `strainInfo(name)` returns text looked up from
+   the list each time the card is drawn: lab, product code, Ale/Lager, the
+   lab range "60–72 °F" (null for a blank pair) and attenuation "80 %" (the
+   same percent-and-rounding as the malt suggestions). Shown as one plain
+   line under the box; a named strain not on the list reads "Not on your
+   list: no lab figures to show." A blank strain shows nothing.
+6. **Suggestion text.** A strain suggestion shows its lab and what a pick
+   sets: "Fermentis, Lager".
+7. **Warning (Y8).** `fermTempWarning(name, °F)`: "Outside this strain's lab
+   range, 54–64 °F" when the temperature is below the low end or above the
+   high end; both ends inside; blank, not on the list, or no lab range → none.
+   A comparison with the list's cells, beside the search (notes), not in
+   `selectors.js`. Shown as an amber-edged line under the temperature
+   (`role="status"`), built from existing tokens only — pale amber fill
+   (`inputBgOverride`), amber edge (`accentAmber`), warning text
+   (`textWarn`) — so `styles.js` is untouched. This is the style W7 of
+   `docs/items/design-warnings.md` reuses.
+8. **Schema (Q9).** Version 4; versions 1–3 get `name: ''`,
+   `fermTempF: NaN` added inside the yeast, only when the saved yeast is an
+   object (a damaged one still fails the shape check and is refused). The
+   literal 3 in `doc.version <= 3` is a schema version, not a recipe value.
+   A newer file on `main` is refused as newer (far end 5).
+9. **Card layout (Y1, Q3).** Yeast card: strain box and ale/lager side by
+   side, the information line, then attenuation and fermentation temperature
+   rows. Pitch & Starter keeps "desired yeast character" alone in the left
+   half of its two-column row (the ale/lager box left it); pitch rate, cells
+   and starter unchanged. Nothing else in the file was tidied (the Tier C
+   "Dead code" row still stands).
+10. **Printed sheet (Y6).** The grain caption keeps brewhouse efficiency
+    only. "Yeast & Starter" opens with a table of strain, type, apparent
+    attenuation (%) and fermentation temperature (°F); a second table holds
+    character, pitch rate and cells; then the starter. A blank strain or
+    temperature prints "—"; a temperature prints whole degrees as whole,
+    otherwise one decimal, as the sheet's other temperatures.
+11. **Existing tests changed.** Only the version pins (3 → 4, 4 → 5 as the
+    first unread version) in `options`, `identity` and `recipe-file`; one
+    added check that a version-4 document loads (`options`); and the smoke
+    test's reference state gains the two fields at `''` and `NaN` (SPEC rule
+    12; nothing reads them, every pin unchanged). `persistence` and
+    `print-sheet` needed no change.
+12. **Roadmap lines added (step 3):** "Saved rows checked inside" (Tier B)
+    and "Rule 16 and the Yeast card" (Tier D).
+13. **Far end, 2026-09-23, built app (`vite preview`, bundle
+    `index-DdKv3BEv.js`)** — all six steps held; detail in
+    `docs/TEST_COVERAGE.md` (rule 13 row and the yeast card scenario row).
+    Step 5 used a document the live site (`index-BdEoVTPP.js`) wrote through
+    its own boxes.

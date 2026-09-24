@@ -49,7 +49,7 @@ const referenceState = {
     { name: 'DH9', weightOz: 1 },
   ],
   fermentVolGal: 12,
-  yeast: { type: 'ale', density: 'mod' },
+  yeast: { type: 'ale', density: 'mod', name: '', fermTempF: NaN },
   measurementTempF: { preBoil: 60, postBoil: 60, ferment: 60 },
 };
 

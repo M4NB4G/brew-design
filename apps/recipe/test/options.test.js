@@ -208,7 +208,7 @@ describe('options page', () => {
   });
 
   // S5
-  it('the saved document carries version 3 and the temperatures; a cleared one round-trips as NaN', () => {
+  it('the saved document carries version 4 and the temperatures; a cleared one round-trips as NaN', () => {
     const s = fakeStorage();
     const recipe = {
       ...defaultRecipeState(),
@@ -217,7 +217,7 @@ describe('options page', () => {
     savePersisted(s, { recipe, mode: 'home', proGravityUnit: 'plato' });
 
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(3);
+    expect(doc.version).toBe(4);
     expect(doc.recipe.measurementTempF.preBoil).toBe(170);
     expect(doc.recipe.measurementTempF.ferment).toBe(60);
     expect('postBoil' in doc.recipe.measurementTempF).toBe(true);
@@ -229,7 +229,7 @@ describe('options page', () => {
   });
 
   // S6
-  it('a version-1 document loads as the same recipe with the reference temperatures and an empty name, style and notes, and is saved back as version 3', () => {
+  it('a version-1 document loads as the same recipe with the reference temperatures and an empty name, style and notes, and is saved back as version 4', () => {
     const s = fakeStorage();
     // What the app saved before this change: no measurement temperatures, and
     // no name, style or notes (Recipe identity, version 3).
@@ -254,11 +254,11 @@ describe('options page', () => {
     expect(loaded.proGravityUnit).toBe('sg');
 
     savePersisted(s, loaded);
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(3);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(4);
   });
 
   // S6
-  it('a version-2 document loads with an empty name, style and notes; a version-3 document loads; any other version yields the defaults', () => {
+  it('a version-2 document loads with an empty name, style and notes; version-3 and version-4 documents load; any other version yields the defaults', () => {
     const recipe = { ...defaultRecipeState(), measurementTempF: { preBoil: 170, postBoil: 60, ferment: 60 } };
     const docFor = (version, r = recipe) => JSON.stringify({ version, recipe: r, mode: 'home', proGravityUnit: 'plato' });
 
@@ -276,7 +276,12 @@ describe('options page', () => {
     t3.setItem(STORAGE_KEY, docFor(3, v3Recipe));
     expect(loadPersisted(t3, defaults()).recipe).toEqual(v3Recipe);
 
-    for (const version of [0, 4, '1', '2', '3']) {
+    const v4Recipe = { ...v3Recipe, yeast: { type: 'ale', density: 'mod', name: 'SafAle US-05', fermTempF: 66 } };
+    const t4 = fakeStorage();
+    t4.setItem(STORAGE_KEY, docFor(4, v4Recipe));
+    expect(loadPersisted(t4, defaults()).recipe).toEqual(v4Recipe);
+
+    for (const version of [0, 5, '1', '2', '3', '4']) {
       const t = fakeStorage();
       t.setItem(STORAGE_KEY, docFor(version));
       expect(loadPersisted(t, defaults()), `version ${JSON.stringify(version)}`).toEqual(defaults());

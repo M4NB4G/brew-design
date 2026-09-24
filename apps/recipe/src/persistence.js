@@ -20,6 +20,10 @@
 // Version 3 (Recipe identity, 2026-09-23): the recipe gains name, style and
 // notes, all text. A version-1 or version-2 document is read with the three
 // empty, and the autosave rewrites it as version 3.
+// Version 4 (Yeast card, 2026-09-23): the yeast gains its strain's name (text)
+// and the fermentation temperature (degF). A version-1, 2 or 3 document is
+// read with an empty strain and a blank (NaN) temperature, and the autosave
+// rewrites it as version 4.
 //
 // Recipe file (2026-09-23): export hands the browser the same document the
 // autosave writes, as a file; import reads a file with the same reader as
@@ -28,8 +32,8 @@
 // the recipe on screen is left as it is.
 
 export const STORAGE_KEY = 'brew-design.recipe';
-export const SCHEMA_VERSION = 3;
-const READABLE_VERSIONS = [1, 2, SCHEMA_VERSION];
+export const SCHEMA_VERSION = 4;
+const READABLE_VERSIONS = [1, 2, 3, SCHEMA_VERSION];
 
 const MODES = ['home', 'pro'];
 const GRAVITY_UNITS = ['plato', 'sg'];
@@ -64,8 +68,10 @@ function hasShapeOf(candidate, template) {
 }
 
 // Read one document's text. Returns { state } when it is a readable document
-// at SCHEMA_VERSION, at version 2 (read with an empty name, style and notes),
-// or at version 1 (read also with the default measurement temperatures);
+// at SCHEMA_VERSION, at version 3 (read with an empty strain and a blank
+// fermentation temperature), at version 2 (read also with an empty name,
+// style and notes), or at version 1 (read also with the default measurement
+// temperatures);
 // { newer: version } when it carries a version later than SCHEMA_VERSION;
 // otherwise {}. Throws on text that is not JSON.
 function readDocument(raw, defaults) {
@@ -82,6 +88,11 @@ function readDocument(raw, defaults) {
     // Version-1 and version-2 code never wrote name, style or notes.
     recipe = { ...recipe, name: '', style: '', notes: '' };
   }
+  const yeast = recipe?.yeast;
+  if (doc.version <= 3 && yeast && typeof yeast === 'object' && !Array.isArray(yeast)) {
+    // Code before version 4 never wrote a strain or a fermentation temperature.
+    recipe = { ...recipe, yeast: { ...yeast, name: '', fermTempF: NaN } };
+  }
   if (!hasShapeOf(recipe, defaults.recipe)) return {};
   if (!MODES.includes(doc.mode) || !GRAVITY_UNITS.includes(doc.proGravityUnit)) return {};
   return { state: { recipe, mode: doc.mode, proGravityUnit: doc.proGravityUnit } };
@@ -89,9 +100,8 @@ function readDocument(raw, defaults) {
 
 /**
  * Read the persisted document. Returns { recipe, mode, proGravityUnit } when
- * storage holds a readable document at SCHEMA_VERSION, at version 2 (read
- * with an empty name, style and notes), or at version 1 (read also with the
- * default measurement temperatures); otherwise `defaults`.
+ * storage holds a readable document at SCHEMA_VERSION or at version 3, 2 or 1
+ * (read as readDocument describes); otherwise `defaults`.
  * Never throws.
  */
 export function loadPersisted(storage, defaults) {

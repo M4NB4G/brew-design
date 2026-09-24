@@ -99,7 +99,6 @@ export function recipeSheet({ recipe, derived, mode, proGravityUnit, today }) {
         color: num(m.colorL, 1),
       })),
       efficiency: pct(recipe.efficiency),
-      attenuation: pct(recipe.apparentAttenuation),
     },
 
     // Each volume as the screen shows it: mash water, pre-boil and
@@ -145,8 +144,14 @@ export function recipeSheet({ recipe, derived, mode, proGravityUnit, today }) {
       dryRateUnit: dryHopRateUnit(mode),
     },
 
+    // The Yeast card's four (strain, ale/lager, attenuation, fermentation
+    // temperature), then the Pitch & Starter card's figures. A blank prints "—".
     yeast: {
+      strain: text(recipe.yeast.name) ?? '—',
       type: YEAST_TYPE[recipe.yeast.type] ?? recipe.yeast.type,
+      attenuation: pct(recipe.apparentAttenuation),
+      fermTemp: temperature(recipe.yeast.fermTempF),
+      tempUnit: tempUnit(),
       character: YEAST_CHARACTER[recipe.yeast.density] ?? recipe.yeast.density,
       pitchRate: num(pitchRate, 2),
       pitchRateUnit: pitchRateUnit(),

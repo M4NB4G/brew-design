@@ -24,6 +24,7 @@ import StatsBar from './components/StatsBar.jsx';
 import GristTable from './components/GristTable.jsx';
 import VolumesSection from './components/VolumesSection.jsx';
 import HopsSection from './components/HopsSection.jsx';
+import YeastCard from './components/YeastCard.jsx';
 import YeastSection from './components/YeastSection.jsx';
 import OptionsSection from './components/OptionsSection.jsx';
 import RecipeSheet from './components/RecipeSheet.jsx';
@@ -187,11 +188,17 @@ export default function App() {
             <GristTable
               malts={recipe.malts}
               efficiency={recipe.efficiency}
-              apparentAttenuation={recipe.apparentAttenuation}
               grist={derived.grist}
               setRow={setRow}
               addRow={addRow}
               removeRow={removeRow}
+              setField={setField}
+            />
+
+            <YeastCard
+              yeast={recipe.yeast}
+              apparentAttenuation={recipe.apparentAttenuation}
+              setYeast={setYeast}
               setField={setField}
             />
 

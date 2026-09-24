@@ -114,7 +114,7 @@ export default function RecipeSheet({ recipe, derived, mode, proGravityUnit }) {
         </tbody>
       </table>
       <Caption>
-        Brewhouse efficiency {s.grain.efficiency}% · Apparent attenuation {s.grain.attenuation}%
+        Brewhouse efficiency {s.grain.efficiency}%
       </Caption>
 
       {/* Water and volumes */}
@@ -207,7 +207,24 @@ export default function RecipeSheet({ recipe, derived, mode, proGravityUnit }) {
       <table style={{ ...tbl, marginBottom: '5px' }}>
         <thead>
           <tr style={{ background: C.headerBg }}>
+            <th style={{ ...th, textAlign: 'left', width: '44%' }}>Strain</th>
             <th style={th}>Type</th>
+            <th style={th}>Apparent attenuation (%)</th>
+            <th style={th}>Fermentation temp ({s.yeast.tempUnit})</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style={{ ...td, textAlign: 'left' }}>{s.yeast.strain}</td>
+            <td style={td}>{s.yeast.type}</td>
+            <td style={td}>{s.yeast.attenuation}</td>
+            <td style={td}>{s.yeast.fermTemp}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table style={{ ...tbl, marginBottom: '5px' }}>
+        <thead>
+          <tr style={{ background: C.headerBg }}>
             <th style={th}>Yeast character</th>
             <th style={th}>Pitch rate ({s.yeast.pitchRateUnit})</th>
             <th style={th}>Cells needed ({s.yeast.cellsUnit})</th>
@@ -215,7 +232,6 @@ export default function RecipeSheet({ recipe, derived, mode, proGravityUnit }) {
         </thead>
         <tbody>
           <tr>
-            <td style={td}>{s.yeast.type}</td>
             <td style={td}>{s.yeast.character}</td>
             <td style={td}>{s.yeast.pitchRate}</td>
             <td style={td}>{s.yeast.cells}</td>

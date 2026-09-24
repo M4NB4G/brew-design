@@ -1,6 +1,7 @@
 // YeastSection.jsx
-// Yeast type/density selection, plus the read-only pitch rate, cells needed,
-// and starter options from the engine. The fermentation volume is entered on
+// The Pitch & Starter card: the desired yeast character, plus the read-only
+// pitch rate, cells needed, and starter options from the engine. Ale/lager is
+// chosen on the Yeast card (YeastCard.jsx) and selects the pitch rate here. The fermentation volume is entered on
 // the Volumes card and feeds both the dry-hop rate (Hops) and the cell count
 // (here) via shared canonical state.
 import Card from './shared/Card.jsx';
@@ -55,14 +56,10 @@ export default function YeastSection({ yeast, derived, mode, setYeast }) {
 
   return (
     <Card>
-      <span style={tokens.cardLabel}>Yeast &amp; Starter</span>
+      <span style={tokens.cardLabel}>Pitch &amp; Starter</span>
 
       {/* Selectors */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
-        <Select label="Type" value={yeast.type} onChange={(v) => setYeast('type', v)}>
-          <option value="ale">Ale</option>
-          <option value="lager">Lager</option>
-        </Select>
         <Select label="Desired Yeast Character" value={yeast.density} onChange={(v) => setYeast('density', v)}>
           <option value="high">High</option>
           <option value="mod">Moderate</option>
