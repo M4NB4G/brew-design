@@ -16,7 +16,6 @@ carries its session.
 
 | Session | Builds, in order | Writes the scope tables for |
 |---|---|---|
-| S2 · Numbers you can trust | Reference temperature as an engine constant · Saved rows checked inside · Post-boil volume as measured · Empty-field handling | S3 |
 | S3 · Water tab | Water tab (water step 3) | S4 |
 | S4 · Water in the recipe | Water linked to the recipe (step 4) · Water on the printed sheet (step 6) | S5 |
 | S5 · Mash pH | Mash pH from the grain bill (step 5) · Sparge acidification | S6 |
@@ -40,7 +39,7 @@ Shelved: the `correctVolumeToRef` identity.
 | My ingredients | A brewer saves an ingredient that is not on the list — from a searchable box, typed name plus numbers — and it is offered again next time, in that browser only (the site has no server); open for its scope table: a name clash with the master list, whether a brewer may change or delete master entries (inclination: only their own), whether saved ingredients travel in the recipe file or export as rows for the owner's workbook, and its own saved-format version. For the owner himself, a workbook row plus a session covers it. Needs the searchable ingredient boxes (the owner, 2026-09-23) | suites + inspector + far end | S8 |
 | °C display toggle | Every temperature shown (the measurement temperatures, the hop wort temperature) switches °F/°C from a header toggle that persists with the display settings; needs `cToF` in the engine, so Tier A + B (split from Options page, 2026-09-21) | suites + inspector + far end | S6 |
 | Inverse solver UI | A target OG yields a grain bill via `solveGrist`; the round-trip residual FLAG is shown | suites + inspector | S7 |
-| Water tab | The water app's screens as a tab beside Recipe and Options, one typed volume, not yet saved with the recipe; every number from the engine's water chemistry, already ported and tested. Water program step 3 | suites + inspector + far end | S3 |
+| Water tab | The water app's screens as a tab beside Recipe and Options, one typed volume, not yet saved with the recipe; every number from the engine's water chemistry, already ported and tested. Water program step 3. Scope table agreed: `docs/items/water-tab.md` (two items: the water figures through the front door, then the screens) | suites + inspector + far end | S3 |
 | Water linked to the recipe | The treatment choice (mash only; mash and kettle; hot-liquor tank) and the brewery setup (vessels, sparge method, treated volume and top-up, grain absorption, water kept in the mash tun), in the brewery defaults and the recipe; the mash water profile, the additions, and for the tank the sparge liquor's treated share; no predicted kettle minerals; saved format version 5. Water program step 4 | suites + inspector + far end | S4 |
 | Mash pH from the grain bill (A + B) | A Troester/Kaiser mash pH model in the engine from each malt's type and colour, the mash water and the acid; a malt-type column in the ingredient workbook; checked against the owner's logged mash pH (cooled samples). Water program step 5 | suites + inspector + far end | S5 |
 | Water on the printed sheet | The salt and acid additions, and where they go, on the brew-day sheet. Water program step 6 | suites + inspector | S4 |
