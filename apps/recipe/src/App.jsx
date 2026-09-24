@@ -16,6 +16,7 @@ import {
   newRecipe,
 } from './state.js';
 import { computeRecipe } from './selectors.js';
+import { emptyFields, emptyFieldsLine } from './empty-fields.js';
 import {
   loadStartingState,
   savePersisted,
@@ -31,6 +32,7 @@ import Header from './components/Header.jsx';
 import TabBar from './components/TabBar.jsx';
 import IdentitySection, { NotesSection } from './components/IdentitySection.jsx';
 import StatsBar from './components/StatsBar.jsx';
+import EmptyFieldsLine from './components/EmptyFieldsLine.jsx';
 import GristTable from './components/GristTable.jsx';
 import VolumesSection from './components/VolumesSection.jsx';
 import HopsSection from './components/HopsSection.jsx';
@@ -69,6 +71,8 @@ export default function App() {
   const [brewery, setBrewery] = useState(() => loadBrewery(browserStorage()));
 
   const derived = useMemo(() => computeRecipe(recipe), [recipe]);
+  // The empty number boxes, named under the stats bar (null when none).
+  const emptyLine = useMemo(() => emptyFieldsLine(emptyFields(recipe, derived)), [recipe, derived]);
 
   // Autosave on every change (scope table P6: synchronous, no debounce).
   useEffect(() => {
@@ -200,6 +204,7 @@ export default function App() {
       >
         <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0.65rem 1.25rem' }}>
           <StatsBar derived={derived} mode={mode} proGravityUnit={proGravityUnit} />
+          <EmptyFieldsLine text={emptyLine} />
         </div>
       </div>
 

@@ -3,9 +3,10 @@
 // editable field per corrected kind, each followed by the volume at the
 // engine's 60 degF reference as the engine receives it (read-only, from
 // computeRecipe's refVolumesGal — nothing is computed here). A temperature is
-// stored in degF as typed: canonical and display unit are the same. A
-// non-finite entry is not written to state; a non-finite state value shows as
-// an empty field, and its reference volume as "—", like any cleared field.
+// stored in degF as typed: canonical and display unit are the same. An
+// emptied field is a blank temperature (NaN), never the old one; a blank
+// shows as an empty field, and its reference volume as "—", like any cleared
+// field.
 //
 // Below them, My brewery (Brewery defaults, 2026-09-23): the brewery's own
 // figures, which a new recipe starts from. They are held in the recipe's
@@ -36,6 +37,11 @@ const KINDS = [
 ];
 
 const MODE_LABELS = { home: 'Home', pro: 'Pro' };
+
+// A measurement temperature box's change: degF as typed; an emptied box is a
+// blank temperature (NaN).
+export const temperatureChange = (setMeasurementTemp, kind) => (e) =>
+  setMeasurementTemp(kind, parseFloat(e.target.value));
 
 // Outlined button, as "+ Add malt".
 const button = {
@@ -133,10 +139,7 @@ export default function OptionsSection({
             <InputRow
               label={`${label} (${tUnit})`}
               value={Number.isFinite(tempF) ? tempF : ''}
-              onChange={(e) => {
-                const v = parseFloat(e.target.value);
-                if (Number.isFinite(v)) setMeasurementTemp(kind, v);
-              }}
+              onChange={temperatureChange(setMeasurementTemp, kind)}
               step={1}
             />
             <InputRow

@@ -40,6 +40,15 @@ function Warning({ children }) {
   );
 }
 
+// A volume box's change: the entry in the display unit, converted to
+// canonical gal. An emptied box is a blank figure (NaN), never the old number.
+export const volumeChange = (setField, field, mode) => (e) =>
+  setField(field, volumeToCanonical(parseFloat(e.target.value), mode));
+
+// A canonical-gal figure as a volume box shows it: blank shows empty.
+const volumeShown = (gal, mode) =>
+  Number.isFinite(gal) ? Number(volumeFromCanonical(gal, mode).toFixed(6)) : '';
+
 // A temperature as typed: whole degrees as whole, otherwise one decimal.
 const temperature = (tempF) => num(tempF, Number.isInteger(tempF) ? 0 : 1);
 
@@ -59,11 +68,8 @@ export default function VolumesSection({
   // Convert a canonical-gal state field through the display boundary for InputRow.
   // InputRow passes the native event; we parse and convert the value back.
   const volRow = (field) => ({
-    value: Number(volumeFromCanonical(recipe[field], mode).toFixed(6)),
-    onChange: (e) => {
-      const v = parseFloat(e.target.value);
-      if (Number.isFinite(v)) setField(field, volumeToCanonical(v, mode));
-    },
+    value: volumeShown(recipe[field], mode),
+    onChange: volumeChange(setField, field, mode),
   });
 
   return (
@@ -123,16 +129,7 @@ export default function VolumesSection({
           />
 
           <span style={{ ...tokens.cardLabel, marginTop: '0.85rem', marginBottom: '0.3rem', fontSize: '0.65rem' }}>Ferment</span>
-          <InputRow
-            label={`Fermentation volume (${vUnit})`}
-            value={Number(volumeFromCanonical(recipe.fermentVolGal, mode).toFixed(6))}
-            onChange={(e) => {
-              const v = parseFloat(e.target.value);
-              if (Number.isFinite(v)) setField('fermentVolGal', volumeToCanonical(v, mode));
-            }}
-            step={0.1}
-            min={0}
-          />
+          <InputRow label={`Fermentation volume (${vUnit})`} step={0.1} min={0} {...volRow('fermentVolGal')} />
           {warnings.postBoilBelowFerment && <Warning>Less wort after the boil than the fermenter volume</Warning>}
         </div>
       </div>

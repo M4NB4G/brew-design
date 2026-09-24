@@ -30,7 +30,12 @@ pinned by the golden-master tests.
    `@brew/engine`. A formula like `46 * fgdb`, a Tinseth term, or an ABV
    expression anywhere in `apps/` is a defect.
 8. **One canonical state object** in engine units: US gal, lb, oz, °F, SG,
-   billion cells, L. State never holds display units.
+   billion cells, L. State never holds display units. An emptied number
+   box is a blank figure (NaN), never replaced by a number the brewer did
+   not enter. A line under the stats bar, on both tabs and never on the
+   printed sheet, names every empty number box that feeds a figure, and
+   any measurement temperature the correction cannot use — read from the
+   recipe's own figures, not from a range written in the app.
 9. **Convert only at the edges.** `display.js` is the only place that converts
    between canonical and display units, using engine constants and functions
    (`GALLONS_PER_BBL`, `OZ_PER_LB`, `G_PER_OZ`, `sgToPlato`, `platoToSg`, …).

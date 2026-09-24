@@ -1,6 +1,8 @@
 # Empty-field handling — Tier B
 
-Status: agreed 2026-09-23 ("agree to all"), not started. Written by the S1
+Status: agreed 2026-09-23 ("agree to all"); landed 2026-09-23 on branch S2
+as "Every number box can be emptied, and an empty box is a blank figure,
+saved as blank; a line under the stats bar names the empty boxes". Written by the S1
 session; built in batch S2 (docs/ROADMAP.md, Sessions), last of its four
 items.
 
@@ -62,4 +64,20 @@ volume and temperature boxes cannot be emptied.
 
 ## Recorded failure (filled in by the builder)
 
+Run alone against the code after the third S2 item (424918f), 2026-09-23:
+
+- Scenarios 1 and 2: `Cannot find module '../src/empty-fields.js'` — nothing names empty boxes.
+- Scenarios 3 and 4: `(0 , volumeChange) is not a function` — the volume and temperature boxes had no handler that could write a blank: their inline handlers dropped an empty entry (`if (Number.isFinite(v)) setField(…)`), so the box snapped back to its old number.
+- Scenario 5 (the guard) passed before, as expected.
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+- **The naming** is `apps/recipe/src/empty-fields.js`: `emptyFields(recipe, derived)` lists the empty boxes, `emptyFieldsLine(names)` makes the line ("…depend on it show —" for one, "…on them…" for more; nothing when none). It calls no engine function and holds no number but counts (0, and a row's place + 1), which scenario 2 checks.
+- **Names:** the box's label ("Mash water", "Boil-off rate", "Brewhouse efficiency", "Apparent attenuation"); a row by its name and column ("Pale 2-Row FGDB", "Magnum temperature"), or by its place when unnamed or blank ("Malt 2 weight", "Kettle hop 2 alpha", "Dry hop 2 weight"); a named dry hop says so ("Citra dry-hop weight"), as the same hop may be in the kettle; the Options temperatures as "Pre-boil measurement temperature" and so on, with " (outside the correction's range)" when the correction cannot use them.
+- **Screen order:** the Recipe tab top to bottom (Volumes card: Mash, Boil, Ferment; Grist rows then efficiency; the Yeast card's attenuation; kettle hops; dry hops), then the Options tab's three temperatures. The item's example sentence lists "Pale 2-Row weight, Boil time"; on screen the Volumes card is above the Grist table, so boil time comes first — the scenario's "in screen order" governs.
+- **Out of range** is read as the item says: a temperature that is a number, whose volume at 60 °F is blank while the measured volume is a number (for post-boil, the as-measured figure from the previous S2 item). With the volume itself blank, only the volume is named.
+- **Excluded:** the fermentation temperature (feeds no figure; blank on every new recipe), text boxes, My brewery's boxes (E4).
+- **The boxes:** the Volumes card's four volume boxes and the Options tab's three temperatures now write the parsed entry — NaN when emptied — through two small exported handlers (`volumeChange` in `VolumesSection.jsx`, `temperatureChange` in `OptionsSection.jsx`), which the scenarios call with the event an emptied box sends. A blank volume shows as an empty box. Every other number box already wrote NaN.
+- **The line** is `components/EmptyFieldsLine.jsx`, in the shared warning style, under the stats bar inside the pinned block in `App.jsx`, so both tabs show it and the printed sheet (outside the app root) never does.
+- **SPEC:** rule 8 now says an emptied box is a blank figure, never replaced, and that the line names the empty boxes and an unusable measurement temperature, read from the recipe's own figures.
+- **Far end** (built app, 2026-09-23): all six checks as the table lists them — see `docs/TEST_COVERAGE.md`'s scenario row. The live-site comparison needs the pane at desktop width: in a narrow pane the app takes its phone layout, whose text order differs, on both builds.
