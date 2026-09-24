@@ -1,5 +1,5 @@
 // TabBar.jsx
-// The Recipe · Options tab row, a copy of Brew Water Chem's "Tabs" block
+// The Recipe · Water · Options tab row, a copy of Brew Water Chem's "Tabs" block
 // (src/App.jsx there): text buttons, the active one bold with a 2 px underline
 // in the primary text color, the row closed by a 1 px border. Sits under the
 // header and above the sticky stats bar, as in the water app. Navigation only:
@@ -8,6 +8,7 @@ import { colors } from './shared/styles.js';
 
 const TABS = [
   ['recipe', 'Recipe'],
+  ['water', 'Water'],
   ['options', 'Options'],
 ];
 

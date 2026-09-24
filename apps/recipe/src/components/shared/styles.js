@@ -36,6 +36,12 @@ export const colors = {
   togglePillBg: '#e8eef6',
   toggleActiveBg: '#1f3147',
   toggleActiveText: '#ffffff',
+
+  // Water tab, Predicted Final Profile: how near each figure is to its
+  // target (Brew Water Chem's RecipeTab.jsx colours; the bands are the engine's)
+  matchNear: '#3a8055',
+  matchOff: '#a07835',
+  matchFar: '#a04835',
 };
 
 // The printed recipe sheet's palette — Brew Water Chem's batch sheet, on white.

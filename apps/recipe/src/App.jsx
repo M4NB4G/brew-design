@@ -1,7 +1,8 @@
 // App.jsx
 // Owns the single canonical recipe-state object plus the display settings
-// (mode, Pro-mode gravity unit) and the active tab (Recipe · Options; not
-// persisted). Derives all stats once via computeRecipe and passes plain props
+// (mode, Pro-mode gravity unit) and the active tab (Recipe · Water · Options;
+// not persisted). Beside the recipe it holds the Water tab's entries
+// (water-state.js), never inside the recipe and never saved (Water tab, W6). Derives all stats once via computeRecipe and passes plain props
 // down to cleanly separated section components. No brewing math and no unit
 // conversion live here — those are in selectors.js and display.js
 // respectively.
@@ -15,7 +16,8 @@ import {
   breweryFiguresFromRecipe,
   newRecipe,
 } from './state.js';
-import { computeRecipe } from './selectors.js';
+import { computeRecipe, computeWater } from './selectors.js';
+import { defaultWaterState } from './water-state.js';
 import { emptyFields, emptyFieldsLine } from './empty-fields.js';
 import {
   loadStartingState,
@@ -39,6 +41,7 @@ import HopsSection from './components/HopsSection.jsx';
 import YeastCard from './components/YeastCard.jsx';
 import YeastSection from './components/YeastSection.jsx';
 import OptionsSection from './components/OptionsSection.jsx';
+import WaterTab from './components/water/WaterTab.jsx';
 import RecipeSheet from './components/RecipeSheet.jsx';
 import Footer from './components/Footer.jsx';
 import { colors } from './components/shared/styles.js';
@@ -64,15 +67,20 @@ export default function App() {
   const [recipe, setRecipe] = useState(initial.recipe);
   const [mode, setMode] = useState(initial.mode); // 'home' | 'pro'
   const [proGravityUnit, setProGravityUnit] = useState(initial.proGravityUnit); // Pro: 'plato' | 'sg'
-  const [tab, setTab] = useState('recipe'); // 'recipe' | 'options'; every load opens on Recipe
+  const [tab, setTab] = useState('recipe'); // 'recipe' | 'water' | 'options'; every load opens on Recipe
   const [fileMessage, setFileMessage] = useState(''); // an import refusal, shown under the header controls
   // The brewery's figures (Options tab, My brewery): kept apart from the
   // recipe, and read only when a new recipe is made.
   const [brewery, setBrewery] = useState(() => loadBrewery(browserStorage()));
+  // The Water tab's entries and its open screen: kept while the page is open,
+  // saved nowhere (W6), and changed only through water-state.js's steps.
+  const [water, setWater] = useState(defaultWaterState);
+  const [waterScreen, setWaterScreen] = useState('water'); // 'water' | 'style' | 'salts' | 'notes'
 
   const derived = useMemo(() => computeRecipe(recipe), [recipe]);
   // The empty number boxes, named under the stats bar (null when none).
   const emptyLine = useMemo(() => emptyFieldsLine(emptyFields(recipe, derived)), [recipe, derived]);
+  const waterFigures = useMemo(() => computeWater(water), [water]);
 
   // Autosave on every change (scope table P6: synchronous, no debounce).
   useEffect(() => {
@@ -189,7 +197,7 @@ export default function App() {
         fileMessage={fileMessage}
       />
 
-      {/* Recipe · Options tabs (Brew Water Chem's row, in its position) */}
+      {/* Recipe · Water · Options tabs (Brew Water Chem's row, in its position) */}
       <TabBar tab={tab} onTab={setTab} />
 
       {/* Persistent stats bar — sticky so it remains visible while editing, on both tabs */}
@@ -260,6 +268,17 @@ export default function App() {
 
             <NotesSection notes={recipe.notes} setField={setField} />
           </>
+        )}
+
+        {tab === 'water' && (
+          <WaterTab
+            water={water}
+            figures={waterFigures}
+            mode={mode}
+            screen={waterScreen}
+            onScreen={setWaterScreen}
+            setWater={setWater}
+          />
         )}
 
         {tab === 'options' && (

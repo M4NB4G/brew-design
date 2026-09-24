@@ -3,8 +3,10 @@
 Status: agreed 2026-09-23 ("agree to all"). Item 1 landed 2026-09-24 as
 "Every water figure is worked out by the engine and reaches the screen
 through the app's one front door, equal to Brew Water Chem's for the same
-entries; a blank test result blanks the figures that need it"; item 2 not
-started. Written by the S2
+entries; a blank test result blanks the figures that need it"; item 2
+landed 2026-09-24 as "A Water tab beside Recipe and Options carries Brew
+Water Chem's four screens in its order and wording; its entries are kept
+while the page is open, not saved, and it says so". Written by the S2
 session; built in batch S3 (docs/ROADMAP.md, Sessions) as two items, in this
 order: **Water figures through the front door** (Tier A + B), then **Water
 tab screens** (Tier B). Water program step 3 (`docs/items/water-program.md`,
@@ -108,6 +110,21 @@ AssertionError: equivalentAcidDose: expected 'undefined' to be 'function'
       Tests  5 failed (5)
 ```
 
+Item 2, run alone against item 1's commit (2026-09-24), trimmed:
+
+```
+apps/recipe  test/water-tab.test.js
+ × the Water tab carries the four screens in the water app's order and wording
+ × the Water tab says the entries are not saved, and nothing is saved
+ × changing the volume, style or salts on hand returns the salt and acid amounts to the recommendation
+ × a blank test result shows "—" and the tab names the missing results
+ × the water volume and acidulated malt show in the Home/Pro unit
+AssertionError: expected [ 'Recipe', 'Options' ] to deeply equal [ 'Recipe', 'Water', 'Options' ]
+Error: Cannot find module '../src/components/water/WaterTab.jsx' (scenarios 2, 4, 5)
+TypeError: s.setWaterVolume is not a function
+      Tests  5 failed (5)
+```
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
 
 Item 1 (claims for the inspector to verify):
@@ -152,3 +169,73 @@ Item 1 (claims for the inspector to verify):
 - **Scenario 6** (the recipe unchanged) fails before only because the water
   modules do not exist; with nothing on screen in item 1 it is a guard.
   Item 2's storage scenario is the stronger check.
+
+Item 2 (claims for the inspector to verify):
+
+- **Two scenarios beyond the three named**: *a blank test result shows "—"
+  and the tab names the missing results* (W-S7, W5 on screen) and *the water
+  volume and acidulated malt show in the Home/Pro unit* (W-S4, W3 on
+  screen). Item 1 proved both as figures; these prove the screens show them.
+- **The top row reads Recipe · Water · Options.** W2 puts the Water tab
+  beside both; it sits between them, the Options tab staying last as the
+  settings. One line in the tab bar to move it.
+- **Inside the tab:** the water app's tab row one size smaller (wrapping on a
+  phone), then "Not saved yet: the water entries last until the page is
+  reloaded." on every screen (W6), then — only while a result is blank — a
+  line in the warning style, "Blank test results: …", naming them by the
+  water app's own row labels (W5). The stats bar and its "Empty:" line stay
+  as they are. The screen open inside the tab is kept while the page is open.
+- **The water app's handlers are steps in `water-state.js`**, each a pure
+  function: the volume, style, salts on hand and alkalinity-raising salt
+  return the brewer's own salts and acid to the recommendation (K); a new
+  test result returns the acid and keeps the salts (the water app re-synced
+  its acid whenever the recommendation changed, and did not clear its salt
+  overrides); one acid: picking another re-expresses the dose; several acids:
+  picking only renames the primary; back to one acid keeps the primary's
+  amount. "Acid amounts = none" follows the recommendation, in place of the
+  water app's re-sync effect. Home/Pro is not a step: it clears nothing,
+  because the volume no longer changes with it (W3; the water app cleared
+  the brewer's amounts only because it reset the volume).
+- **Salt and acid boxes** are the water app's draft boxes: a box emptied
+  and left reads 0, shown as 0, as in the water app (W5 covers test
+  results). While the recommendation is blank the boxes show empty and stay
+  empty when left untouched. Boxes are keyed by Home/Pro so acidulated malt
+  and gram precision re-show in the new unit.
+- **Display only, as the water app:** grams whole in Pro and to 0.1 g at
+  Home; liquid acid whole mL; acidulated malt 0.01 oz or lb; mEq 0.1. The
+  ratio with no chloride shows "∞" on both screens (the water app showed
+  "∞" on Water In and "Infinity" on its Recipe tab). With no positive volume
+  the addition cards are not shown, as in the water app.
+- **Notes (W8):** every reference, assumption, the validation note and the
+  disclaimers word for word; the version talk replaced ("Scope &
+  Limitations"; "Mash pH is not predicted yet … planned … water program
+  step 5"; "What the Water tab does do"; the solver's own acid "not yet
+  planned"; the v1.1 paragraph as "all here … Brew Water Chem's, unchanged");
+  "the Recipe tab" reads "the Salts & Acid screen" (W2's rename). The
+  disclaimers still call the tool "Brew Water Chem": kept word for word, and
+  a roadmap line (Tier C) asks the owner.
+- **Colours:** the three band colours are the water app's, added to
+  `styles.js` (SPEC 14); the checkboxes keep the water app's accent.
+- **No number that produces a recipe value** is introduced in item 2: the
+  default volume and example figures landed in item 1; the rest is display
+  precision and layout.
+
+Far end, item 2 (2026-09-24, the built app at localhost:4173 against the live
+Brew Water Chem site, brew-water-chem.netlify.app, driven by the same script
+in both): the example water (American Pale Ale), RO water (Stout) and a
+hand-typed report (Ca 45, Mg 12, Na 18, SO4 30, Cl 25, alkalinity 180, pH
+7.8; West Coast IPA), each Home 5 gal and Pro 10 bbl: the source status,
+every salt row and reason, every box, the dose in each of the five acids and
+the predicted profile identical in all six cases (e.g. Pro, the hand-typed
+report: 281 mL 88 % lactic, 3085 mL 10 % phosphoric, 32.95 lb acidulated
+malt, "Neutralize 142 mg/L alkalinity (3318.6 mEq total)"), and the
+near/off/far colours identical. Home ↔ Pro: 5 gal ↔ 0.16129 bbl ↔ 5.
+Chloride blank: ratio and character "—", "Blank test results: Chloride
+Ion", every addition figure "—", the stats bar's "Empty:" line absent.
+Reload: entries gone, volume 5 gal, the saved copy byte-identical to the one
+saved while water entries were on screen, one storage key. Print: the app
+root (the Water tab with it) is hidden, only the recipe sheet prints. 375 px:
+no sideways scroll on any water screen, Home or Pro, one or several acids.
+No console messages. A recipe saved by the live Brew Design site (Pro, SG,
+150/60/68 °F) loads with every box and every stats figure the same and is
+saved back byte-identical.
