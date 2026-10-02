@@ -16,7 +16,7 @@ carries its session.
 
 | Session | Builds, in order | Writes the scope tables for |
 |---|---|---|
-| S4 · Water in the recipe | Water treatment choice (step 4) · Water saved with the recipe (step 4) · Water on the printed sheet (step 6) | S5 |
+| S4b · Water as brewed | Sparge water typed, the mash tun's water worked out · Kettle water and kettle salts at the recipe's brewhouse efficiency · "HLT" wording · My brewery banner · Brewery file | — (built by the S4 session, on the owner's word, 2026-10-02) |
 | S5 · Mash pH | Mash pH from the grain bill (step 5) · Sparge acidification | S6 |
 | S6 · Polish | Measurement temperatures beside their volumes · °C display toggle · Pro unit choices · Blank brewery figures name the built-in one | S7 and S8 |
 | S7 · Design tools | Inverse solver UI (target OG → grain bill) · Economics · Notes / methodology page | — |
@@ -40,9 +40,9 @@ Shelved: the `correctVolumeToRef` identity.
 | °C display toggle | Every temperature shown (the measurement temperatures, the hop wort temperature) switches °F/°C from a header toggle that persists with the display settings; needs `cToF` in the engine, so Tier A + B (split from Options page, 2026-09-21) | suites + inspector + far end | S6 |
 | Pro unit choices (A + B) | In Pro, two more choices beside the gravity unit, kept with the display settings: liquid volumes in barrels or gallons, and malt weights in pounds or 55 lb sacks. The 55 lb sack is a new unit factor, so it goes in the engine (SPEC 9: no conversion constant in the app). Decided by the owner, 2026-10-02: gallons covers every Pro volume except the dry-hop rate, which stays lb/bbl; a part sack shows as sacks and pounds (e.g. 3 sacks + 12 lb); hops stay in pounds; the brewery figures carry both choices, so a brewery works in its own units without converting on brew day; the printed sheet prints in the brewery's set units (where the brewery has set none, the screen's), departing from the print sheet's P3 for these two choices. Asked for by the owner, 2026-10-02 | suites + inspector + far end | S6 |
 | Inverse solver UI | A target OG yields a grain bill via `solveGrist`; the round-trip residual FLAG is shown | suites + inspector | S7 |
-| Mash pH from the grain bill (A + B) | A Troester/Kaiser mash pH model in the engine from each malt's type and colour, the mash water and the acid; a malt-type column in the ingredient workbook; checked against the owner's logged mash pH (cooled samples). Water program step 5 | suites + inspector + far end | S5 |
+| Mash pH from the grain bill (A + B) | A Troester/Kaiser mash pH model in the engine from each malt's type and colour, the mash water and the acid; a malt-type column in the ingredient workbook; checked against the owner's logged mash pH (cooled samples). Water program step 5. Scope table agreed: `docs/items/mash-ph.md` | suites + inspector + far end | S5 |
 | Water back | An option, off unless turned on, for adding hot-liquor-tank water to the fermenter after knock-out — a professional brewery's practice: knock out 400 gal, add 78 gal of tank water to the end of the run, 478 gal in the fermenter at pitch. The water-back volume is a recipe figure; the volume at pitch then feeds what depends on it (pitch gravity, cells needed, dry-hop rate), with the knock-out figures beside them. Open for its scope table: whether the added water is treated and what it adds in minerals; its temperature and the 60 °F correction; whether bitterness is diluted with it; which gravity the stats bar shows (knock-out or at pitch); whether the brewery figures carry it. Asked for by the owner, 2026-10-02; not in S4 | suites + inspector + far end | unassigned |
-| Sparge acidification | Acid for the sparge liquor. Left out of the water program (WP6c) | suites + inspector | S5 |
+| Sparge acidification | Acid for the sparge liquor. Left out of the water program (WP6c). Scope table agreed: `docs/items/sparge-acid.md` | suites + inspector | S5 |
 | Economics | Cost per batch and per unit via `rollupCost` / `costPerUnit` | suites + inspector | S7 |
 
 ## Tier C — components, styling
