@@ -2,8 +2,9 @@
 // "Where the Water Goes" (docs/items/water-treatment.md, Q10): on the Salts &
 // Acid screen in place of S3's Mash Volume card. The brewery setup the sums
 // need — vessels, sparge, the tank's treated volume and top-up level, grain
-// absorption, water kept in the mash tun — the treatment choice and the
-// kettle switch, then the water volumes from the recipe and, for the tank,
+// absorption, and the sparge water (typed; S4b) — the treatment choice and the
+// kettle switch, then the water volumes from the recipe (the water left in
+// the mash tun worked out) and, for the tank,
 // what the mash draws, what the sparge carries and what is left, not used.
 // Every figure comes from computeWater as `figures`; the entries change only
 // through water-state.js's setWaterSetup. Nothing here is computed.
@@ -32,7 +33,7 @@ export const SETUP_LABELS = {
   preBoilGal: 'Pre-boil volume',
   malts: 'Malt weights',
   absorptionQtPerLb: 'Grain absorption',
-  keptInTunGal: 'Water kept in the mash tun',
+  spargeGal: 'Sparge water',
   tankTreatedGal: 'Treated volume',
   tankTopUpGal: 'Top-up level',
 };
@@ -87,7 +88,7 @@ export default function WaterGoesCard({ water, figures, mode, setWater }) {
   const { setup, volumes, tank, warnings } = figures;
   const unit = volumeUnit(mode);
   const set = (key, value) => setWater((w) => setWaterSetup(w, key, value));
-  const volumeRow = (key, label) => (
+  const volumeRow = (key, label, hint) => (
     <InputRow
       label={label}
       unit={unit}
@@ -95,6 +96,7 @@ export default function WaterGoesCard({ water, figures, mode, setWater }) {
       onChange={(e) => set(key, volumeToCanonical(parseFloat(e.target.value), mode))}
       step={0.1}
       min={0}
+      hint={hint}
     />
   );
   const v = (gal) => volumeText(gal, mode);
@@ -173,22 +175,17 @@ export default function WaterGoesCard({ water, figures, mode, setWater }) {
         step={0.01}
         min={0}
       />
-      {volumeRow('keptInTunGal', 'Water kept in the mash tun')}
+      {setup.spargeMethod !== 'none' && volumeRow('spargeGal', 'Sparge water', tankTreated ? 'from the tank' : 'untreated')}
 
       <ReadRow label="Mash water (from the recipe)" unit={unit} value={v(volumes.mashWaterGal)} />
       <ReadRow label="Water absorbed by the grain" unit={unit} value={v(volumes.absorptionGal)} />
-      <ReadRow
-        label="Sparge water"
-        unit={unit}
-        value={v(volumes.spargeGal)}
-        note={tankTreated ? 'from the tank' : 'untreated'}
-      />
+      <ReadRow label="Water left in the mash tun" unit={unit} value={v(volumes.mashTunLeftGal)} />
       <ReadRow label="Total water" unit={unit} value={v(volumes.totalGal)} />
 
-      {warnings.mashDiffersFromNeeded && (
+      {warnings.kettleShortGal > 0 && (
         <Warning>
-          No sparge: the mash water ({v(volumes.mashWaterGal)} {unit}) differs from the {v(volumes.neededGal)} {unit} the
-          kettle needs (the pre-boil volume, the water absorbed by the grain and the water kept in the mash tun)
+          The kettle will be short by {v(warnings.kettleShortGal)} {unit}: the mash and sparge water, less what the grain
+          absorbs, is less than the pre-boil volume
         </Warning>
       )}
 

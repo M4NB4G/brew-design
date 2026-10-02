@@ -194,7 +194,7 @@ describe('yeast card', () => {
   });
 
   // Y5, Q9
-  it('the saved document carries version 5 with the strain and the fermentation temperature; a blank temperature round-trips as blank', () => {
+  it('the saved document carries version 6 with the strain and the fermentation temperature; a blank temperature round-trips as blank', () => {
     const s = fakeStorage();
     const recipe = {
       ...defaultRecipeState(),
@@ -204,8 +204,8 @@ describe('yeast card', () => {
     savePersisted(s, state);
 
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(SCHEMA_VERSION).toBe(5);
-    expect(doc.version).toBe(5);
+    expect(SCHEMA_VERSION).toBe(6);
+    expect(doc.version).toBe(6);
     expect(doc.recipe.yeast).toEqual({ type: 'lager', density: 'high', name: 'Hausstamm Kölner ÄLE', fermTempF: 52.5 });
     expect(loadPersisted(s, defaults())).toEqual(state);
     // The recipe file is the same document, and imports as the same recipe.
@@ -224,7 +224,7 @@ describe('yeast card', () => {
   });
 
   // Y5
-  it('a version 1, 2 or 3 document loads with an empty strain and a blank fermentation temperature, every number as before, and is saved back as version 5 with the built-in water', () => {
+  it('a version 1, 2 or 3 document loads with an empty strain and a blank fermentation temperature, every number as before, and is saved back as version 6 with the built-in water', () => {
     // What version-3 code saved: the yeast without a strain or a temperature.
     const v3Recipe = {
       ...referenceState(),
@@ -269,7 +269,7 @@ describe('yeast card', () => {
       expect(importRecipeFile(text, defaults(), () => true).state.recipe, `version ${version}`).toEqual(expected);
 
       savePersisted(s, loaded);
-      expect(JSON.parse(s._map.get(STORAGE_KEY)).version, `version ${version}`).toBe(5);
+      expect(JSON.parse(s._map.get(STORAGE_KEY)).version, `version ${version}`).toBe(6);
     }
   });
 

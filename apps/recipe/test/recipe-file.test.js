@@ -105,7 +105,7 @@ describe('recipe file', () => {
       expect(file).toBe(s._map.get(STORAGE_KEY));
       const doc = JSON.parse(file);
       expect(doc.version).toBe(SCHEMA_VERSION);
-      expect(doc.version).toBe(5);
+      expect(doc.version).toBe(6);
       expect(doc.mode).toBe(state.mode);
       expect(doc.proGravityUnit).toBe(state.proGravityUnit);
       expect(doc.recipe.name).toBe(state.recipe.name);
@@ -221,8 +221,8 @@ describe('recipe file', () => {
     const doc = JSON.parse(exportRecipeDocument(inFile()));
     const newer = { ...doc, version: SCHEMA_VERSION + 1 };
     const result = expectRefused(JSON.stringify(newer), /newer version of Brew Design/);
-    expect(result.message).toMatch(/file version 6/);
-    expect(result.message).toMatch(/reads up to version 5/);
+    expect(result.message).toMatch(/file version 7/);
+    expect(result.message).toMatch(/reads up to version 6/);
     // Newer is its own reason, not "damaged": a newer file whose recipe
     // this version cannot read is still reported as newer.
     const newerOddShape = { version: SCHEMA_VERSION + 2, recipe: { hopsV5: [] }, mode: 'x' };

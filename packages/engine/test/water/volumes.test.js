@@ -10,8 +10,10 @@ import { describe, it, expect } from 'vitest';
 import * as engine from '../../src/index.js';
 
 // A made-up brewery (the item file's worked example): 20 lb of grain in two
-// malts, 14 gal before the boil at 60 °F, 7 gal of mash water, 1 gal kept in
-// the mash tun, the built-in absorption.
+// malts, 14 gal before the boil at 60 °F, 7 gal of mash water, the built-in
+// absorption. S4 worked the 8.5 gal of sparge out from 1 gal kept in the
+// mash tun; since S4b item 1 the sparge is typed and the 1 gal left in the
+// mash tun is worked out (the "sparge water typed" scenarios below).
 const MALTS = [
   { name: 'Pale', weightLb: 15, fgdb: 0.8, colorL: 2 },
   { name: 'Munich', weightLb: 5, fgdb: 0.8, colorL: 9 },
@@ -21,7 +23,7 @@ const EXAMPLE = {
   absorptionQtPerLb: 0.1,
   preBoilGal: 14,
   mashWaterGal: 7,
-  keptInTunGal: 1,
+  spargeGal: 8.5,
   spargeMethod: 'batch',
 };
 
@@ -34,60 +36,34 @@ describe('water treatment choice — the engine', () => {
     expect(GRAIN_ABSORPTION_QT_PER_LB).toBe(0.1);
     expect(QT_PER_GAL).toBe(4);
 
-    // By hand: grain 15 + 5 = 20 lb; absorption 20 x 0.1 / 4 = 0.5 gal; the
-    // kettle needs 14 + 0.5 + 1 = 15.5 gal; sparge 15.5 - 7 = 8.5 gal; total
-    // 7 + 8.5 = 15.5 gal.
+    // By hand: grain 15 + 5 = 20 lb; absorption 20 x 0.1 / 4 = 0.5 gal;
+    // total 7 + 8.5 = 15.5 gal.
     const v = waterVolumes(EXAMPLE);
     expect(v.grainLb).toBe(20);
     expect(v.absorptionGal).toBeCloseTo(0.5, 12);
-    expect(v.neededGal).toBeCloseTo(15.5, 12);
     expect(v.spargeGal).toBeCloseTo(8.5, 12);
     expect(v.totalGal).toBeCloseTo(15.5, 12);
-
-    // Fly sparging runs the same sums (Q6).
-    expect(waterVolumes({ ...EXAMPLE, spargeMethod: 'fly' })).toEqual(v);
-
-    // Q4: nothing kept in the tun: 14 + 0.5 + 0 - 7 = 7.5 gal of sparge.
-    expect(waterVolumes({ ...EXAMPLE, keptInTunGal: 0 }).spargeGal).toBeCloseTo(7.5, 12);
 
     // The owner's own bill (water program notes): 29 lb at 0.1 qt/lb absorbs
     // 29 x 0.1 / 4 = 0.725 gal.
     expect(waterVolumes({ ...EXAMPLE, malts: [{ ...MALTS[0], weightLb: 29 }] }).absorptionGal).toBeCloseTo(0.725, 12);
 
-    // Q6: no sparge (full volume): no sparge water; the mash water is all the
-    // water; what the kettle needs, 15.5 gal, is still worked out (the
-    // warning when the mash water differs from it).
+    // Q6: no sparge (full volume): no sparge water; the mash water is all the water.
     const none = waterVolumes({ ...EXAMPLE, spargeMethod: 'none' });
     expect(none.spargeGal).toBe(0);
     expect(none.totalGal).toBe(7);
-    expect(none.neededGal).toBeCloseTo(15.5, 12);
-    // The mash water differs from what the kettle needs: 7 gal against 15.5.
-    expect(none.mashDiffersFromNeeded).toBe(true);
-    expect(waterVolumes({ ...EXAMPLE, spargeMethod: 'none', mashWaterGal: 15.5 }).mashDiffersFromNeeded).toBe(false);
-    // 29 lb: 14 + 0.725 + 1 = 15.725 gal; typed as 15.725 it is the same
-    // figure, whatever the last binary digit of the sum.
-    expect(
-      waterVolumes({ ...EXAMPLE, malts: [{ ...MALTS[0], weightLb: 29 }], spargeMethod: 'none', mashWaterGal: 15.725 })
-        .mashDiffersFromNeeded,
-    ).toBe(false);
-    // With a sparge the question does not arise.
-    expect(v.mashDiffersFromNeeded).toBe(false);
 
     // WT-S9: a blank figure blanks what needs it, never counted as 0.
     const blankWeight = waterVolumes({ ...EXAMPLE, malts: [MALTS[0], { ...MALTS[1], weightLb: NaN }] });
     expect(blankWeight.grainLb).toBeNaN();
     expect(blankWeight.absorptionGal).toBeNaN();
-    expect(blankWeight.spargeGal).toBeNaN();
-    expect(blankWeight.totalGal).toBeNaN();
+    expect(blankWeight.mashTunLeftGal).toBeNaN();
     const blankMash = waterVolumes({ ...EXAMPLE, mashWaterGal: NaN });
     expect(blankMash.absorptionGal).toBeCloseTo(0.5, 12);
-    expect(blankMash.neededGal).toBeCloseTo(15.5, 12);
-    expect(blankMash.spargeGal).toBeNaN();
     expect(blankMash.totalGal).toBeNaN();
-    for (const k of ['absorptionQtPerLb', 'preBoilGal', 'keptInTunGal']) {
-      const v2 = waterVolumes({ ...EXAMPLE, [k]: NaN });
-      expect(v2.spargeGal, k).toBeNaN();
-      expect(v2.totalGal, k).toBeNaN();
+    expect(blankMash.mashTunLeftGal).toBeNaN();
+    for (const k of ['absorptionQtPerLb', 'preBoilGal']) {
+      expect(waterVolumes({ ...EXAMPLE, [k]: NaN }).mashTunLeftGal, k).toBeNaN();
     }
   });
 
@@ -184,5 +160,77 @@ describe('water treatment choice — the engine', () => {
     // A blank figure blanks the kettle amount, never 0.
     expect(kettleSalts({ needed: { gypsum: NaN }, fromMash: { gypsum: 8.4 }, fromSparge: {} }).gypsum).toBeNaN();
     expect(kettleSalts({ needed: { gypsum: 18.6 }, fromMash: { gypsum: 8.4 }, fromSparge: { gypsum: NaN } }).gypsum).toBeNaN();
+  });
+});
+
+// Sparge water typed (S4b item 1, docs/items/water-as-brewed.md, SW-S1–S3,
+// SW-S7): the brewer types the sparge water; the water left in the mash tun
+// is worked out. The worked example again, by hand.
+describe('sparge water typed — the engine', () => {
+  const TYPED = {
+    malts: MALTS,
+    absorptionQtPerLb: 0.1,
+    preBoilGal: 14,
+    mashWaterGal: 7,
+    spargeGal: 8.5,
+    spargeMethod: 'batch',
+  };
+
+  it('the water left in the mash tun is worked out from the typed sparge water', () => {
+    const { waterVolumes } = engine;
+    // 20 x 0.1 / 4 = 0.5 gal absorbed; total 7 + 8.5 = 15.5 gal; left in the
+    // mash tun 7 + 8.5 - 0.5 - 14 = 1.0 gal.
+    const v = waterVolumes(TYPED);
+    expect(v.absorptionGal).toBeCloseTo(0.5, 12);
+    expect(v.spargeGal).toBe(8.5);
+    expect(v.totalGal).toBeCloseTo(15.5, 12);
+    expect(v.mashTunLeftGal).toBeCloseTo(1, 12);
+    expect(v.kettleShortGal).toBe(0);
+    // 8 gal of sparge: 7 + 8 - 0.5 - 14 = 0.5 gal left.
+    expect(waterVolumes({ ...TYPED, spargeGal: 8 }).mashTunLeftGal).toBeCloseTo(0.5, 12);
+    // 7 gal of sparge: 7 + 7 - 0.5 - 14 = -0.5 gal — the kettle is short by 0.5 gal.
+    const short = waterVolumes({ ...TYPED, spargeGal: 7 });
+    expect(short.mashTunLeftGal).toBeCloseTo(-0.5, 12);
+    expect(short.kettleShortGal).toBeCloseTo(0.5, 12);
+    // Exactly full, by hand: 7 + 7.5 - 0.5 - 14 = 0; 12 lb at 0.12 qt/lb is
+    // 0.36 gal, 4.3 + 2.96 - 0.36 - 6.9 = 0. Round-off in the sums (they come
+    // to about -1.8e-15) is not a short kettle.
+    expect(waterVolumes({ ...TYPED, spargeGal: 7.5 }).kettleShortGal).toBe(0);
+    expect(
+      waterVolumes({
+        malts: [{ ...MALTS[0], weightLb: 12 }],
+        absorptionQtPerLb: 0.12,
+        preBoilGal: 6.9,
+        mashWaterGal: 4.3,
+        spargeGal: 2.96,
+        spargeMethod: 'fly',
+      }).kettleShortGal,
+    ).toBe(0);
+    // Fly sparging runs the same sums.
+    expect(waterVolumes({ ...TYPED, spargeMethod: 'fly' })).toEqual(v);
+  });
+
+  it('with no sparge the mash water is all the water', () => {
+    const { waterVolumes } = engine;
+    // 15.5 gal of mash water: 15.5 - 0.5 - 14 = 1.0 gal left in the mash
+    // tun; a typed sparge is not used.
+    const none = waterVolumes({ ...TYPED, spargeMethod: 'none', mashWaterGal: 15.5 });
+    expect(none.spargeGal).toBe(0);
+    expect(none.totalGal).toBe(15.5);
+    expect(none.mashTunLeftGal).toBeCloseTo(1, 12);
+    // 14 gal: 14 - 0.5 - 14 = -0.5 gal: short by 0.5 gal.
+    expect(waterVolumes({ ...TYPED, spargeMethod: 'none', mashWaterGal: 14 }).kettleShortGal).toBeCloseTo(0.5, 12);
+    // A blank sparge does not matter with no sparge.
+    expect(waterVolumes({ ...TYPED, spargeMethod: 'none', mashWaterGal: 15.5, spargeGal: NaN }).mashTunLeftGal).toBeCloseTo(1, 12);
+  });
+
+  it('a blank typed sparge blanks what needs it', () => {
+    const { waterVolumes } = engine;
+    const b = waterVolumes({ ...TYPED, spargeGal: NaN });
+    expect(b.spargeGal).toBeNaN();
+    expect(b.totalGal).toBeNaN();
+    expect(b.mashTunLeftGal).toBeNaN();
+    expect(b.kettleShortGal).toBeNaN();
+    expect(b.absorptionGal).toBeCloseTo(0.5, 12);
   });
 });

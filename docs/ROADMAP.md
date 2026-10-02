@@ -29,7 +29,7 @@ Shelved: the `correctVolumeToRef` identity.
 | Item | Sentence (draft) | Re-test | Session |
 |---|---|---|---|
 | `correctVolumeToRef` identity — **shelved** | Its doc says the factor is exactly 1 at the reference temperature, but `(v · d) / d` differs from `v` by one ulp for v = 7 or 5 (exact for 16, 14.5, 12, 5.5); compute `v · (d / d)` or short-circuit `tempF === refTempF`; golden values unaffected (noticed writing the Options page table, 2026-09-21). Shelved 2026-09-22 on the owner's call: a floating-point artifact ~15 digits down, below every displayed precision and every test tolerance; only a test asserting exact bit-equality would see it. Kept so it is not rediscovered as a mystery | suites + inspector | shelved |
-| Water volumes past their limits | More mash water than the kettle needs gives a negative sparge; a top-up level below the treated water the mash leaves gives a treated share over 100 %. Both are kept as the arithmetic gives them, each with a `// FLAG:` in the engine, because the treatment choice's sentences do not say; decide whether each warns, blanks, or is refused (noticed building the water treatment choice, 2026-10-02) | suites + inspector | unassigned |
+| Water volumes past their limits | A top-up level below the treated water the mash leaves gives a treated share over 100 %; kept as the arithmetic gives it, with a `// FLAG:` in the engine, because the treatment choice's sentences do not say; decide whether it warns, blanks, or is refused (noticed building the water treatment choice, 2026-10-02; its twin, a negative sparge, went when S4b made the sparge typed) | suites + inspector | unassigned |
 
 ## Tier B — touches state, selectors, display, or reference-volume
 

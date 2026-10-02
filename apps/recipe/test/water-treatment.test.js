@@ -64,7 +64,7 @@ const exampleWater = (patch = {}) => ({
   source: { ...IPA_SOURCE },
   styleId: 'ipa',
   enabledSalts: ['gypsum'],
-  keptInTunGal: 1,
+  spargeGal: 8.5,
   ...patch,
 });
 const tankWater = (patch = {}) =>
@@ -91,7 +91,7 @@ describe('water treatment choice', () => {
     // assumed kept in the tun.
     const fresh = defaultWaterState();
     expect(fresh.absorptionQtPerLb).toBe(0.1);
-    expect(fresh.keptInTunGal).toBe(0);
+    expect(fresh.spargeGal).toBeNaN(); // S4b: the sparge is typed, blank until typed
 
     // By hand: 20 x 0.1 / 4 = 0.5 gal absorbed; sparge 14 + 0.5 + 1 - 7 =
     // 8.5 gal; total 7 + 8.5 = 15.5 gal.
@@ -102,17 +102,17 @@ describe('water treatment choice', () => {
     expect(f.volumes.totalGal).toBeCloseTo(15.5, 12);
 
     // Q2: the sums take the pre-boil volume at 60 °F, the engine's one
-    // reference. Measured hot, it is smaller at 60 °F; the sparge follows the
-    // corrected figure, not the typed one.
+    // reference. Measured hot, it is smaller at 60 °F; the water left in the mash
+    // tun follows the corrected figure, not the typed one (S4b: the sparge is typed).
     const hot = exampleRecipe({ measurementTempF: { preBoil: 200, postBoil: 60, ferment: 60 } });
     const preBoilAt60 = computeRecipe(hot).refVolumesGal.preBoil;
     expect(preBoilAt60).toBeLessThan(14);
-    expect(computeWater(exampleWater(), hot).volumes.spargeGal).toBeCloseTo(preBoilAt60 + 0.5 + 1 - 7, 12);
+    expect(computeWater(exampleWater(), hot).volumes.mashTunLeftGal).toBeCloseTo(7 + 8.5 - 0.5 - preBoilAt60, 12);
 
     // The Water tab shows them (Home gal; Pro bbl, 15.5 / 31 = 0.5 bbl).
     const home = text(await render(exampleWater(), exampleRecipe()));
     expect(home).toMatch(/Water absorbed by the grain gal 0\.50/);
-    expect(home).toMatch(/Sparge water gal 8\.50/);
+    expect(home).toMatch(/Water left in the mash tun gal 1\.00/);
     expect(home).toMatch(/Total water gal 15\.50/);
     expect(home).toMatch(/Mash water \(from the recipe\) gal 7\.00/);
     const pro = text(await render(exampleWater(), exampleRecipe(), 'salts', 'pro'));
@@ -146,7 +146,7 @@ describe('water treatment choice', () => {
     // The screen says where they go and that the sparge is untreated.
     const shown = text(await render(exampleWater(), exampleRecipe()));
     expect(shown).toContain('Into the mash water (7.00 gal)');
-    expect(shown).toMatch(/Sparge water gal 8\.50 untreated/);
+    expect(shown).toMatch(/Sparge water gal untreated/);
   });
 
   it('the hot-liquor tank treats its first fill, and the sparge draws only what it needs', async () => {
@@ -272,19 +272,19 @@ describe('water treatment choice', () => {
     expect(shown1).not.toContain("The hot-liquor tank's first fill");
     expect(shown1).not.toContain('Batch sparge');
 
-    // Q6, no sparge: the mash water is all the water; a warning when it
-    // differs from the 15.5 gal the sums need.
+    // Q6, no sparge: the mash water is all the water; since S4b a kettle that
+    // will be short warns: 7 - 0.5 - 14 = -7.5 gal, short by 7.50 gal.
     const none = computeWater(exampleWater({ spargeMethod: 'none' }), exampleRecipe());
     expect(none.volumes.spargeGal).toBe(0);
     expect(none.volumes.totalGal).toBe(7);
-    expect(none.warnings.mashDiffersFromNeeded).toBe(true);
+    expect(none.warnings.kettleShortGal).toBeCloseTo(7.5, 12);
     expect(text(await render(exampleWater({ spargeMethod: 'none' }), exampleRecipe()))).toContain(
-      'No sparge: the mash water (7.00 gal) differs from the 15.50 gal the kettle needs',
+      'The kettle will be short by 7.50 gal',
     );
     expect(
       computeWater(exampleWater({ spargeMethod: 'none' }), exampleRecipe({ mashWaterGal: 15.5 })).warnings
-        .mashDiffersFromNeeded,
-    ).toBe(false);
+        .kettleShortGal,
+    ).toBe(0);
     // Kettle salts then make up only the shortfall of the brewer's own mash
     // amount: the whole water is the 7 gal of mash water, needing 8.4 g; the
     // brewer put in 6 g, so 2.4 g go in the kettle.
@@ -309,7 +309,7 @@ describe('water treatment choice', () => {
       ['spargeMethod', 'fly'],
       ['tankTopUpGal', 10],
       ['absorptionQtPerLb', 0.2],
-      ['keptInTunGal', 2],
+      ['spargeGal', 9],
     ]) {
       const w = s.setWaterSetup(own, key, value);
       expect(w[key], key).toBe(value);
@@ -342,35 +342,37 @@ describe('water treatment choice', () => {
     // A blank mash water blanks the sparge, the total and the mash additions.
     const noMash = computeWater(exampleWater(), exampleRecipe({ mashWaterGal: NaN }));
     expect(noMash.blank).toEqual(['mashWaterGal']);
-    expect(noMash.volumes.spargeGal).toBeNaN();
+    expect(noMash.volumes.mashTunLeftGal).toBeNaN();
     expect(noMash.volumes.totalGal).toBeNaN();
     expect(noMash.volumes.absorptionGal).toBeCloseTo(0.5, 12);
     expect(noMash.recommendation).toBeNull();
     const shownMash = text(await render(exampleWater(), exampleRecipe({ mashWaterGal: NaN })));
     expect(shownMash).toContain('Blank figures the water sums need: Mash water');
-    expect(shownMash).toMatch(/Sparge water gal —/);
+    expect(shownMash).toMatch(/Water left in the mash tun gal —/);
     expect(shownMash).toMatch(/Total water gal —/);
 
     // A blank absorption rate, a blank malt weight, a blank amount kept in
-    // the tun, a blank pre-boil volume: each named; the sparge and total
+    // the tun (since S4b, a blank sparge water), a blank pre-boil volume: each
+    // named; the water left in the mash tun blank;
     // blank; the mash additions stand (they need only the mash water).
     const r = exampleRecipe();
     const cases = [
       [exampleWater({ absorptionQtPerLb: NaN }), r, 'absorptionQtPerLb', 'Grain absorption'],
-      [exampleWater({ keptInTunGal: NaN }), r, 'keptInTunGal', 'Water kept in the mash tun'],
+      [exampleWater({ spargeGal: NaN }), r, 'spargeGal', 'Sparge water'],
       [exampleWater(), { ...r, malts: [r.malts[0], { ...r.malts[1], weightLb: NaN }] }, 'malts', 'Malt weights'],
       [exampleWater(), { ...r, preBoilVolGal: NaN }, 'preBoilGal', 'Pre-boil volume'],
     ];
     for (const [w, rec, key, label] of cases) {
       const g = computeWater(w, rec);
       expect(g.blank, key).toEqual([key]);
-      expect(g.volumes.spargeGal, key).toBeNaN();
-      expect(g.volumes.totalGal, key).toBeNaN();
+      expect(g.volumes.mashTunLeftGal, key).toBeNaN();
+      // Since S4b the total is mash + typed sparge: blank only with the sparge.
+      if (key === 'spargeGal') expect(g.volumes.totalGal, key).toBeNaN();
       expect(amountOf(g.salts, 'gypsum'), key).toBeCloseTo(8.4, 9);
       expect(text(await render(w, rec)), key).toContain(`Blank figures the water sums need: ${label}`);
     }
     // Kettle salts need the total: blank with it.
-    const noTotal = computeWater(exampleWater({ kettleSalts: true, keptInTunGal: NaN }), exampleRecipe());
+    const noTotal = computeWater(exampleWater({ kettleSalts: true, spargeGal: NaN }), exampleRecipe());
     expect(amountOf(noTotal.kettle.salts, 'gypsum')).toBeNaN();
 
     // Nothing blank: no line.

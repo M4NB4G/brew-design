@@ -154,7 +154,7 @@ export function computeWater(water, recipe) {
     absorptionQtPerLb: water.absorptionQtPerLb,
     preBoilGal,
     mashWaterGal,
-    keptInTunGal: water.keptInTunGal,
+    spargeGal: water.spargeGal,
     spargeMethod: setup.spargeMethod,
   });
   const vol = tankTreated ? water.tankTreatedGal : mashWaterGal;
@@ -166,7 +166,7 @@ export function computeWater(water, recipe) {
     ['preBoilGal', preBoilGal],
     ['malts', sums.grainLb],
     ['absorptionQtPerLb', water.absorptionQtPerLb],
-    ['keptInTunGal', water.keptInTunGal],
+    ...(setup.spargeMethod !== 'none' ? [['spargeGal', water.spargeGal]] : []),
     ...(tankTreated
       ? [
           ['tankTreatedGal', water.tankTreatedGal],
@@ -359,7 +359,7 @@ export function computeWater(water, recipe) {
     warnings: {
       mashOverTreated: tank?.mashOverTreated ?? false,
       spargeOverTopUp: tank?.spargeOverTopUp ?? false,
-      mashDiffersFromNeeded: sums.mashDiffersFromNeeded,
+      kettleShortGal: sums.kettleShortGal,
     },
   };
 }

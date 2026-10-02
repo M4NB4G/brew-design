@@ -231,6 +231,7 @@ function waterSection(water, mode, vol, vUnit) {
   const volumes = [
     { label: 'Mash water', value: vol(v.mashWaterGal) },
     { label: 'Water absorbed by the grain', value: vol(v.absorptionGal) },
+    { label: 'Water left in the mash tun', value: vol(v.mashTunLeftGal) },
     { label: tank ? 'Sparge water (from the tank)' : 'Sparge water (untreated)', value: vol(v.spargeGal) },
     { label: 'Total water', value: vol(v.totalGal) },
   ];

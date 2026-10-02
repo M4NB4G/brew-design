@@ -29,6 +29,9 @@
 // built-in water entries — never the brewery's — and the autosave rewrites it
 // as version 5. Its amounts that follow the recommendation are saved as null
 // and read back as null, not as a blank figure.
+// Version 6 (S4b item 1): the water entries carry the typed sparge water in
+// place of the water kept in the mash tun; a version-5 document is read with
+// the sparge blank, its kept-in-tun figure dropped, and saved back as 6.
 //
 // Recipe file (2026-09-23): export hands the browser the same document the
 // autosave writes, as a file; import reads a file with the same reader as
@@ -44,7 +47,8 @@
 // brewery's figures, so a recipe loads as it was saved whatever they are.
 // Their version 2 (Water saved with the recipe, 2026-10-02) adds their water
 // figures; a version-1 document is read with them blank and saved back as
-// version 2.
+// version 2. Their version 3 (S4b item 1) drops the water kept in the mash
+// tun (it is worked out now); a version-1 or 2 document is saved back as 3.
 //
 // Saved rows checked inside (2026-09-23): a document is readable only if its
 // every malt, kettle-hop and dry-hop row, and its yeast, carry every field of
@@ -68,8 +72,8 @@ export const STORAGE_KEY = 'brew-design.recipe';
 // The latest saved copy that could not be read, kept as found (V3); nothing
 // reads it back.
 export const UNREADABLE_KEY = 'brew-design.recipe.unreadable';
-export const SCHEMA_VERSION = 5;
-const READABLE_VERSIONS = [1, 2, 3, 4, SCHEMA_VERSION];
+export const SCHEMA_VERSION = 6;
+const READABLE_VERSIONS = [1, 2, 3, 4, 5, SCHEMA_VERSION];
 
 const MODES = ['home', 'pro'];
 const GRAVITY_UNITS = ['plato', 'sg'];
@@ -154,7 +158,7 @@ function hasWaterOf(water) {
     typeof water.kettleSalts === 'boolean' &&
     VESSEL_COUNTS.includes(water.vessels) &&
     SPARGE_METHODS.includes(water.spargeMethod) &&
-    ['tankTreatedGal', 'tankTopUpGal', 'absorptionQtPerLb', 'keptInTunGal'].every((k) => isNumber(water[k]))
+    ['tankTreatedGal', 'tankTopUpGal', 'absorptionQtPerLb', 'spargeGal'].every((k) => isNumber(water[k]))
   );
 }
 
@@ -192,6 +196,12 @@ function readDocument(raw, defaults) {
     // Amounts that follow the recommendation were saved as null.
     recipe = { ...recipe, water: { ...recipe.water, acidAmounts: null } };
   }
+  if (doc.version === 5 && isRecord(recipe?.water)) {
+    // Version-5 code kept the water left in the mash tun as a typed figure;
+    // the sparge water is typed instead (S4b item 1): blank until typed.
+    const { keptInTunGal, ...water } = recipe.water;
+    recipe = { ...recipe, water: { ...water, spargeGal: NaN } };
+  }
   if (!hasShapeOf(recipe, defaults.recipe) || !hasRowsOf(recipe, defaults.recipe)) return {};
   if (!hasWaterOf(recipe.water)) return {};
   if (!MODES.includes(doc.mode) || !GRAVITY_UNITS.includes(doc.proGravityUnit)) return {};
@@ -200,7 +210,7 @@ function readDocument(raw, defaults) {
 
 /**
  * Read the persisted document. Returns { recipe, mode, proGravityUnit } when
- * storage holds a readable document at SCHEMA_VERSION or at version 4, 3, 2 or 1
+ * storage holds a readable document at SCHEMA_VERSION or at version 5, 4, 3, 2 or 1
  * (read as readDocument describes, against `defaults`); otherwise
  * `fallback`, which is `defaults` unless given. A saved copy that cannot be
  * read is first kept aside, as found, under UNREADABLE_KEY, replacing any
@@ -274,7 +284,7 @@ export function clearPersisted(storage) {
 }
 
 export const BREWERY_KEY = 'brew-design.brewery';
-export const BREWERY_VERSION = 2;
+export const BREWERY_VERSION = 3;
 
 // A saved figure: a finite number, or null (blank).
 const isFigure = (v) => v === null || Number.isFinite(v);
@@ -297,7 +307,7 @@ function readBreweryWater(w) {
     if (w[k] !== null && !ok(w[k])) return null;
     out[k] = w[k];
   }
-  for (const k of ['tankTreatedGal', 'tankTopUpGal', 'absorptionQtPerLb', 'keptInTunGal']) {
+  for (const k of ['tankTreatedGal', 'tankTopUpGal', 'absorptionQtPerLb']) {
     if (!isFigure(w[k])) return null;
     out[k] = w[k];
   }
@@ -334,9 +344,10 @@ function readBrewery(b, version) {
 
 /**
  * Read the brewery's figures. Nothing saved, unreadable data, a version
- * other than 1 or BREWERY_VERSION, or unavailable storage yields every figure
- * blank (the built-in figures). A readable version-1 document is read with
- * the water figures blank and saved back at BREWERY_VERSION (best-effort).
+ * other than 1, 2 or BREWERY_VERSION, or unavailable storage yields every
+ * figure blank (the built-in figures). A readable version-1 document is read
+ * with the water figures blank, a version-2 one without the water kept in
+ * the mash tun; either is saved back at BREWERY_VERSION (best-effort).
  * Never throws.
  */
 export function loadBrewery(storage) {
@@ -344,7 +355,7 @@ export function loadBrewery(storage) {
     const raw = storage.getItem(BREWERY_KEY);
     if (raw === null || raw === undefined) return emptyBreweryFigures();
     const doc = JSON.parse(raw);
-    if (!doc || typeof doc !== 'object' || ![1, BREWERY_VERSION].includes(doc.version)) return emptyBreweryFigures();
+    if (!doc || typeof doc !== 'object' || ![1, 2, BREWERY_VERSION].includes(doc.version)) return emptyBreweryFigures();
     const brewery = readBrewery(doc.brewery, doc.version);
     if (brewery === null) return emptyBreweryFigures();
     if (doc.version !== BREWERY_VERSION) saveBrewery(storage, brewery);

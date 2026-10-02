@@ -1,6 +1,6 @@
 # Water as brewed — S4b, five items
 
-Status: agreed 2026-10-02 ("agree to all"), not started. Written by the S4
+Status: agreed 2026-10-02 ("agree to all"); item 1 landed 2026-10-02 as "The sparge water is typed for each recipe; the water left in the mash tun is worked out, and a kettle that will be short says so". Written by the S4
 session after the owner previewed S4 (deploy preview of PR #28); built by
 the same session on the owner's word (decision P), as batch S4b, in this
 order: **Sparge water typed** (A + B), **Kettle water at the brewhouse
@@ -87,3 +87,26 @@ Previewing S4, the owner asked for four changes (2026-10-02):
 - The kettle water's ions are the source water's plus the salts in the
   kettle over the pre-boil volume: every litre is source water, so the
   water held back in the grain and the tun changes only the salts.
+
+## Item 1 — recorded failure (filled in by the builder)
+
+```
+packages/engine/test/water/volumes.test.js, describe "sparge water typed — the engine" (3 failed / 3):
+  × the water left in the mash tun is worked out from the typed sparge water — AssertionError: expected NaN to be 8.5
+  × with no sparge the mash water is all the water — AssertionError: expected undefined to be close to 1
+  × a blank typed sparge blanks what needs it — AssertionError: expected undefined to be NaN
+apps/recipe/test/sparge-typed.test.js (5 failed / 5):
+  × the sparge water is typed and the water left in the mash tun is worked out — AssertionError: expected undefined to be NaN
+  × a kettle that will be short warns — AssertionError: expected undefined to be close to 0.5
+  × with no sparge there is no sparge box — AssertionError: expected undefined to be close to 1
+  × the HLT draws use the typed sparge water — AssertionError: expected 4.499999999999998 to be close to 3.5
+  × older recipes and brewery figures load without the water kept in the mash tun — AssertionError: expected undefined to be NaN
+```
+
+## Item 1 — builder's notes (filled in by the builder)
+
+1. The engine's water volumes take the typed sparge water; they return the water left in the mash tun (mash + sparge − absorption − pre-boil at 60 °F) and how short the kettle will be (the negative of it, or 0). The S4 figures "what the kettle needs" and "mash water differs from it" go: the shortfall warning replaces the latter, and the negative-sparge FLAG goes with them (the roadmap line keeps the over-100 % share).
+2. The sparge box is a number box on the card, under grain absorption, with "untreated" or "from the tank" beneath it; it is hidden, and not named when blank, with no sparge. The "Sparge water" read-only row becomes this box; "Water left in the mash tun" is a new read-only row; the printed sheet's volumes gain it too.
+3. Changing the sparge water keeps the brewer's own salt and acid amounts (it changes no treated volume, as the S4 K row reads).
+4. A format-5 recipe loads with the sparge blank (A1: blank until typed), its kept-in-tun figure dropped; format-2 brewery figures drop theirs; both are written back at 6 and 3.
+5. Earlier scenarios: the S4 and S4b fixtures that typed 1 gal kept in the mash tun now type 8.5 gal of sparge (the same worked example); the assertions about the computed sparge and the "differs" warning become the left-in-tun figure and the shortfall warning; version pins move to recipe 6 and brewery 3.

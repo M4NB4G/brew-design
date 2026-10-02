@@ -173,7 +173,6 @@ describe('brewery defaults', () => {
       tankTreatedGal: null,
       tankTopUpGal: null,
       absorptionQtPerLb: w.absorptionQtPerLb,
-      keptInTunGal: w.keptInTunGal,
     };
     expect(breweryFiguresFromRecipe(onScreen, 'pro', 'plato')).toEqual({ ...BREWERY, water: recipeWater });
 
@@ -200,17 +199,17 @@ describe('brewery defaults', () => {
   });
 
   // S5, K6
-  it('the brewery figures round-trip through their own saved document at version 2; unreadable, another version or blocked storage gives the built-in figures and nothing throws', () => {
+  it('the brewery figures round-trip through their own saved document at version 3; unreadable, another version or blocked storage gives the built-in figures and nothing throws', () => {
     const s = fakeStorage();
     const withBlank = { ...BREWERY, boilTimeMin: null, measurementTempF: { ...BREWERY.measurementTempF, postBoil: null } };
     saveBrewery(s, withBlank);
 
-    // Their own key, apart from the recipe, in one document carrying version 2.
+    // Their own key, apart from the recipe, in one document carrying version 3.
     expect(BREWERY_KEY).not.toBe(STORAGE_KEY);
-    expect(BREWERY_VERSION).toBe(2);
+    expect(BREWERY_VERSION).toBe(3);
     expect([...s._map.keys()]).toEqual([BREWERY_KEY]);
     const doc = JSON.parse(s._map.get(BREWERY_KEY));
-    expect(doc.version).toBe(2);
+    expect(doc.version).toBe(3);
     expect(doc.brewery.preBoilVolGal).toBe(16); // gallons, not bbl
 
     // A reload reads them back, blanks as blanks.
@@ -224,7 +223,7 @@ describe('brewery defaults', () => {
       return loadBrewery(b);
     };
     expect(bad('{not json')).toEqual(emptyBreweryFigures());
-    expect(bad(JSON.stringify({ version: 3, brewery: BREWERY }))).toEqual(emptyBreweryFigures());
+    expect(bad(JSON.stringify({ version: 4, brewery: BREWERY }))).toEqual(emptyBreweryFigures());
     expect(bad(JSON.stringify({ version: 1, brewery: { ...BREWERY, efficiency: '93' } }))).toEqual(emptyBreweryFigures());
     expect(bad(JSON.stringify({ version: 1, brewery: { ...BREWERY, mode: 'metric' } }))).toEqual(emptyBreweryFigures());
     expect(bad(JSON.stringify({ version: 1 }))).toEqual(emptyBreweryFigures());

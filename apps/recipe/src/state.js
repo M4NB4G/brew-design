@@ -75,13 +75,13 @@ export const DEFAULT_DISPLAY = { mode: 'home', proGravityUnit: 'plato' };
 // water report (mg/L; pH in SU), the salts it keeps on hand, its usual
 // treatment choice and kettle switch, and its water setup (vessels, sparge,
 // the tank's treated volume and top-up level in gal, grain absorption in
-// qt/lb, water kept in the mash tun in gal) — each blank (null) until set.
+// qt/lb) — each blank (null) until set. The sparge water is the recipe's alone.
 // The style and the brewer's own amounts are the recipe's alone (S2, S3).
 const BREWERY_NUMBERS = ['fermentVolGal', 'preBoilVolGal', 'boilOffRateGalPerHr', 'boilTimeMin', 'efficiency'];
 const MEASUREMENT_KINDS = ['preBoil', 'postBoil', 'ferment'];
 const MODES = ['home', 'pro'];
 const GRAVITY_UNITS = ['plato', 'sg'];
-const WATER_NUMBERS = ['tankTreatedGal', 'tankTopUpGal', 'absorptionQtPerLb', 'keptInTunGal'];
+const WATER_NUMBERS = ['tankTreatedGal', 'tankTopUpGal', 'absorptionQtPerLb'];
 
 /** Every brewery water figure blank. */
 export function emptyBreweryWater() {
@@ -95,7 +95,6 @@ export function emptyBreweryWater() {
     tankTreatedGal: null,
     tankTopUpGal: null,
     absorptionQtPerLb: null,
-    keptInTunGal: null,
   };
 }
 

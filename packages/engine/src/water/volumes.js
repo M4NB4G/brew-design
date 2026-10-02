@@ -20,42 +20,42 @@ import { QT_PER_GAL } from '../units.js';
 // less pre-boil collected. A brewery sets its own.
 export const GRAIN_ABSORPTION_QT_PER_LB = 0.1;
 
-// Two volumes typed and summed are the same figure when they differ by no
-// more than floating-point round-off (gal); far below any shown precision.
+// Volumes typed and summed that come to the same figure differ by no more
+// than floating-point round-off (gal), far below any shown precision: a
+// kettle filled exactly is not short (7 + 7.5 - 0.5 - 14 comes to -1.8e-15).
 const SAME_VOLUME_GAL = 1e-9;
 
 /**
- * The water volumes a brew needs.
+ * The water volumes a brew needs (S4b item 1: the brewer types the sparge
+ * water; the water left in the mash tun is worked out).
  *
  * @param {object} p
  * @param {Array<{weightLb}>} p.malts  the grain bill
  * @param {number} p.absorptionQtPerLb water the grain absorbs, qt/lb
  * @param {number} p.preBoilGal        the kettle's pre-boil volume at 60 degF
  * @param {number} p.mashWaterGal      the recipe's mash water
- * @param {number} p.keptInTunGal      water kept in the mash tun (it never reaches the kettle)
+ * @param {number} p.spargeGal         the sparge water, as typed
  * @param {'none'|'batch'|'fly'} p.spargeMethod
- * @returns {{ grainLb, absorptionGal, neededGal, spargeGal, totalGal, mashDiffersFromNeeded }}
- *   neededGal is the water the kettle needs: pre-boil + absorbed + kept in
- *   the tun. With a sparge, the sparge is what the mash water leaves of it.
- *   With none (full volume), there is no sparge water, the mash water is all
- *   the water, and mashDiffersFromNeeded says when it is not what is needed.
- *   FLAG: more mash water than is needed gives a negative sparge; kept as
- *   the arithmetic gives it, not clamped (the item's sentences do not say).
+ * @returns {{ grainLb, absorptionGal, spargeGal, totalGal, mashTunLeftGal, kettleShortGal }}
+ *   With none (full volume), there is no sparge water and the mash water is
+ *   all the water. The water left in the mash tun is what the mash and
+ *   sparge water leave after the grain's absorption and the kettle's
+ *   pre-boil volume; below zero (beyond round-off), the kettle is short by
+ *   kettleShortGal.
  */
-export function waterVolumes({ malts, absorptionQtPerLb, preBoilGal, mashWaterGal, keptInTunGal, spargeMethod }) {
+export function waterVolumes({ malts, absorptionQtPerLb, preBoilGal, mashWaterGal, spargeGal, spargeMethod }) {
   const grainLb = malts.reduce((s, m) => s + m.weightLb, 0);
   const absorptionGal = (grainLb * absorptionQtPerLb) / QT_PER_GAL;
-  const neededGal = preBoilGal + absorptionGal + keptInTunGal;
-  const sparge = spargeMethod !== 'none';
-  const spargeGal = sparge ? neededGal - mashWaterGal : 0;
-  const totalGal = mashWaterGal + spargeGal;
+  const sparge = spargeMethod !== 'none' ? spargeGal : 0;
+  const totalGal = mashWaterGal + sparge;
+  const mashTunLeftGal = totalGal - absorptionGal - preBoilGal;
   return {
     grainLb,
     absorptionGal,
-    neededGal,
-    spargeGal,
+    spargeGal: sparge,
     totalGal,
-    mashDiffersFromNeeded: !sparge && Math.abs(mashWaterGal - neededGal) > SAME_VOLUME_GAL,
+    mashTunLeftGal,
+    kettleShortGal: Number.isNaN(mashTunLeftGal) ? NaN : mashTunLeftGal < -SAME_VOLUME_GAL ? -mashTunLeftGal : 0,
   };
 }
 

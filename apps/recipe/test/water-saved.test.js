@@ -66,7 +66,7 @@ const waterEntries = () => ({
   tankTreatedGal: 12,
   tankTopUpGal: NaN,
   absorptionQtPerLb: 0.12,
-  keptInTunGal: 1.5,
+  spargeGal: 9,
 });
 const withWater = (water) => ({ ...defaultRecipeState(), mashWaterGal: 7, preBoilVolGal: 14, water });
 
@@ -81,7 +81,6 @@ const BREWERY_WATER = {
   tankTreatedGal: 14,
   tankTopUpGal: 10,
   absorptionQtPerLb: 0.12,
-  keptInTunGal: 2,
 };
 
 // A document saved before the water (version 4): the recipe without it.
@@ -113,7 +112,7 @@ describe('water saved with the recipe', () => {
     const s = fakeStorage();
     savePersisted(s, { recipe, mode: 'home', proGravityUnit: 'plato' });
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(5);
+    expect(doc.version).toBe(6);
     expect(doc.recipe.water.styleId).toBe('ipa');
     // One key: nothing else is written.
     expect([...s._map.keys()]).toEqual([STORAGE_KEY]);
@@ -182,7 +181,6 @@ describe('water saved with the recipe', () => {
     expect(ws.kettleSalts).toBe(built.kettleSalts);
     expect(ws.treatment).toBe(built.treatment);
     expect(ws.absorptionQtPerLb).toBe(built.absorptionQtPerLb);
-    expect(ws.keptInTunGal).toBe(built.keptInTunGal);
     // Nothing set: no brewery figures, the built-in water.
     expect(hasBreweryFigures(emptyBreweryFigures())).toBe(false);
     expect(newRecipe(emptyBreweryFigures()).recipe.water).toEqual(built);
@@ -201,13 +199,12 @@ describe('water saved with the recipe', () => {
       tankTreatedGal: 12,
       tankTopUpGal: null,
       absorptionQtPerLb: 0.12,
-      keptInTunGal: 1.5,
     });
 
-    // Saved with the brewery's figures (version 2), read back as saved.
+    // Saved with the brewery's figures (version 3), read back as saved.
     const s = fakeStorage();
     saveBrewery(s, brewery);
-    expect(JSON.parse(s._map.get(BREWERY_KEY)).version).toBe(2);
+    expect(JSON.parse(s._map.get(BREWERY_KEY)).version).toBe(3);
     expect(loadBrewery(s)).toEqual(brewery);
     // A first visit starts from them.
     expect(loadStartingState(s).recipe.water).toEqual(w);
@@ -227,9 +224,9 @@ describe('water saved with the recipe', () => {
     // recipe with the water left out.
     const { water, ...rest } = loaded.recipe;
     expect(computeRecipe(loaded.recipe)).toEqual(computeRecipe(rest));
-    // Saved back as version 5.
+    // Saved back as version 6.
     savePersisted(s, loaded);
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(5);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(6);
     expect(loadStartingState(s)).toEqual(loaded);
 
     // A version-4 recipe file is read the same way.
@@ -254,9 +251,9 @@ describe('water saved with the recipe', () => {
     s.setItem(BREWERY_KEY, JSON.stringify({ version: 1, brewery: v1 }));
     const loaded = loadBrewery(s);
     expect(loaded).toEqual({ ...v1, water: emptyBreweryFigures().water });
-    // Saved back as version 2, the same figures.
+    // Saved back as version 3, the same figures.
     const doc = JSON.parse(s._map.get(BREWERY_KEY));
-    expect(doc.version).toBe(2);
+    expect(doc.version).toBe(3);
     expect(loadBrewery(s)).toEqual(loaded);
     // A new recipe from them has the built-in water.
     expect(newRecipe(loaded).recipe.water).toEqual(defaultWaterState());
@@ -269,7 +266,7 @@ describe('water saved with the recipe', () => {
       return loadBrewery(b);
     };
     expect(bad(JSON.stringify({ version: 1, brewery: { ...v1, efficiency: '90' } }))).toEqual(emptyBreweryFigures());
-    expect(bad(JSON.stringify({ version: 3, brewery: { ...v1, water: BREWERY_WATER } }))).toEqual(emptyBreweryFigures());
+    expect(bad(JSON.stringify({ version: 4, brewery: { ...v1, water: BREWERY_WATER } }))).toEqual(emptyBreweryFigures());
   });
 
   it('damaged water entries make a recipe unreadable', () => {
@@ -297,7 +294,7 @@ describe('water saved with the recipe', () => {
       'a treated volume as text': (w) => ({ ...w, tankTreatedGal: '12' }),
       'a top-up level missing': (w) => ({ ...w, tankTopUpGal: undefined }),
       'the absorption as text': (w) => ({ ...w, absorptionQtPerLb: '0.1' }),
-      'the water kept in the tun missing': (w) => ({ ...w, keptInTunGal: undefined }),
+      'the sparge water missing': (w) => ({ ...w, spargeGal: undefined }),
     };
     for (const [name, damage] of Object.entries(damages)) {
       const doc = good();
@@ -319,7 +316,7 @@ describe('water saved with the recipe', () => {
     // The brewery's water figures damaged: no brewery figures.
     const bad = (water) => {
       const b = fakeStorage();
-      b.setItem(BREWERY_KEY, JSON.stringify({ version: 2, brewery: { ...emptyBreweryFigures(), water } }));
+      b.setItem(BREWERY_KEY, JSON.stringify({ version: 3, brewery: { ...emptyBreweryFigures(), water } }));
       return loadBrewery(b);
     };
     expect(bad({ ...BREWERY_WATER })).toEqual({ ...emptyBreweryFigures(), water: BREWERY_WATER });
@@ -332,7 +329,7 @@ describe('water saved with the recipe', () => {
       { ...BREWERY_WATER, vessels: 0 },
       { ...BREWERY_WATER, spargeMethod: 'drip' },
       { ...BREWERY_WATER, tankTopUpGal: '10' },
-      { ...BREWERY_WATER, keptInTunGal: undefined },
+      { ...BREWERY_WATER, absorptionQtPerLb: undefined },
     ]) {
       expect(bad(water)).toEqual(emptyBreweryFigures());
     }

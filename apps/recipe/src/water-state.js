@@ -33,7 +33,8 @@ export const VESSEL_COUNTS = [1, 2, 3];
 // alkalinity source, salts on hand and acid; the built-in treatment and setup
 // (item Q9): the mash water treated, no kettle salts, three vessels, batch
 // sparge, the tank's volumes blank, the owner's grain absorption (Q3) and
-// nothing kept in the mash tun (Q4).
+// the sparge water blank until typed (S4b item 1: the sparge is typed; the
+// water left in the mash tun is worked out).
 export function defaultWaterState() {
   return {
     source: Object.fromEntries(TEST_RESULT_KEYS.map((k) => [k, NaN])),
@@ -53,7 +54,7 @@ export function defaultWaterState() {
     tankTreatedGal: NaN,
     tankTopUpGal: NaN,
     absorptionQtPerLb: GRAIN_ABSORPTION_QT_PER_LB,
-    keptInTunGal: 0,
+    spargeGal: NaN,
   };
 }
 
@@ -111,7 +112,7 @@ export function setWaterStyle(water, styleId) {
 const CHANGES_TREATED_VOLUME = ['treatment', 'vessels', 'tankTreatedGal'];
 
 // One of the treatment choice and setup: treatment, kettleSalts, vessels,
-// spargeMethod, tankTreatedGal, tankTopUpGal, absorptionQtPerLb, keptInTunGal.
+// spargeMethod, tankTreatedGal, tankTopUpGal, absorptionQtPerLb, spargeGal.
 export function setWaterSetup(water, key, value) {
   const next = { ...water, [key]: value };
   return CHANGES_TREATED_VOLUME.includes(key) ? toRecommendation(next) : next;

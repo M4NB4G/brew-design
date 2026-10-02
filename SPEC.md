@@ -43,10 +43,11 @@ pinned by the golden-master tests.
    water is treated (the mash water or the hot-liquor tank's first fill),
    whether salts also go in the kettle, and the setup the water sums need —
    vessels, sparge method, the tank's treated volume and top-up level and
-   the water kept in the mash tun in US gal, grain absorption in qt/lb;
+   the sparge water in US gal, grain absorption in qt/lb;
    salts and acidulated malt in g, liquid acid in mL; a blank test result
    or setup figure is NaN. The volume treated is the recipe's mash water or
-   the tank's treated volume; nothing else is typed as a water volume.
+   the tank's treated volume; the sparge water is typed and the water left
+   in the mash tun is worked out.
 9. **Convert only at the edges.** `display.js` is the only place that converts
    between canonical and display units, using engine constants and functions
    (`GALLONS_PER_BBL`, `OZ_PER_LB`, `G_PER_OZ`, `sgToPlato`, `platoToSg`, …).
@@ -77,7 +78,7 @@ pinned by the golden-master tests.
     only when the canonical state does, at the value that leaves every pinned
     number the same.
 13. Persisted state is the canonical state, under one key, in one JSON
-    document carrying a schema version (5). A version-1 document — saved
+    document carrying a schema version (6). A version-1 document — saved
     before the measurement temperatures existed — loads as the same recipe
     with the three at 60 °F; a version-1 or version-2 document — saved
     before the recipe had a name, style and notes — loads with those three
@@ -85,7 +86,9 @@ pinned by the golden-master tests.
     strain and a fermentation temperature — loads with an empty strain and a
     blank fermentation temperature; a version-1 to 4 document — saved before
     the water was part of the recipe — loads with the built-in water
-    entries, never the brewery's; each is saved back as version 5. Unreadable data,
+    entries, never the brewery's; a version-5 document — saved with the
+    water kept in the mash tun — loads with the sparge water blank; each is
+    saved back as version 6. Unreadable data,
     any other version, or unavailable storage yields a new recipe (rule 17) and never
     throws. A document is readable only if, after its upgrade, every malt,
     kettle-hop and dry-hop row and the yeast carry every field of the
@@ -120,11 +123,13 @@ pinned by the golden-master tests.
     measurement temperatures, brewhouse efficiency, Home/Pro and Pro gravity
     unit, and their water — the usual water report, the salts on hand, the
     usual treatment choice and kettle switch, and the water setup (vessels,
-    sparge, the tank's treated volume and top-up level, grain absorption,
-    water kept in the mash tun) — are kept in their own JSON document, under
-    their own key, carrying their own version (2), in the recipe's units; a
+    sparge, the tank's treated volume and top-up level, grain absorption)
+    — are kept in their own JSON document, under
+    their own key, carrying their own version (3), in the recipe's units; a
     blank figure is null. A version-1 document — saved before the water —
-    loads with every water figure blank and is saved back as version 2.
+    loads with every water figure blank, and a version-2 one without the
+    water kept in the mash tun; each is saved back as version 3. The sparge
+    water is never a brewery figure.
     Unreadable data, any other version, or unavailable storage yields every
     figure blank and never throws. The water style and the brewer's own
     amounts are never brewery figures. A new recipe — Reset, or a load with no

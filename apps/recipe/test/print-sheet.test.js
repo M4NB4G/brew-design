@@ -294,7 +294,7 @@ const waterRecipe = (patch = {}) => {
       source: { Ca: 0, Mg: 0, Na: 0, SO4: 48.12, Cl: 0, Alkalinity: 0, pH: 7 },
       styleId: 'ipa',
       enabledSalts: ['gypsum'],
-      keptInTunGal: 1,
+      spargeGal: 8.5,
       ...patch,
     },
   };
@@ -353,12 +353,14 @@ describe('water on the printed sheet', () => {
     expect(mash.water.volumes.map((v) => [v.label, v.value])).toEqual([
       ['Mash water', '7.00'],
       ['Water absorbed by the grain', '0.50'],
+      ['Water left in the mash tun', '1.00'],
       ['Sparge water (untreated)', '8.50'],
       ['Total water', '15.50'],
     ]);
     expect(tank.s.water.volumes.map((v) => [v.label, v.value])).toEqual([
       ['Mash water', '7.00'],
       ['Water absorbed by the grain', '0.50'],
+      ['Water left in the mash tun', '1.00'],
       ['Sparge water (from the tank)', '8.50'],
       ['Total water', '15.50'],
       ['Tank first fill, treated', '12.00'],
@@ -367,7 +369,7 @@ describe('water on the printed sheet', () => {
       ['Left in the tank, not used', '3.50'],
     ]);
     expect(mash.water.volumeUnit).toBe('gal');
-    expect(sheetOf(waterRecipe(), 'pro').s.water.volumes[3].value).toBe('0.500');
+    expect(sheetOf(waterRecipe(), 'pro').s.water.volumes.find((v) => v.label === 'Total water').value).toBe('0.500');
     // WP-S3, P3: the measured mash pH box.
     expect(mash.water.mashPhLabel).toBe('Mash pH (cooled sample)');
   });

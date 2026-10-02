@@ -174,12 +174,6 @@ function BreweryWater({ water, mode, setBreweryWater, volume }) {
         onChange={(v) => setBreweryWater('absorptionQtPerLb', v)}
         step={0.01}
       />
-      <FigureRow
-        label={`Water kept in the mash tun (${vUnit})`}
-        value={water.keptInTunGal}
-        onChange={(v) => setBreweryWater('keptInTunGal', v)}
-        {...volume}
-      />
       {TEST_RESULT_KEYS.map((k) => (
         <FigureRow
           key={k}
