@@ -311,7 +311,7 @@ export default function App() {
       {/* The print-only recipe sheet, from the same derived values; portaled
           beside the app root so the print rules can hide the root alone. */}
       {createPortal(
-        <RecipeSheet recipe={recipe} derived={derived} mode={mode} proGravityUnit={proGravityUnit} />,
+        <RecipeSheet recipe={recipe} derived={derived} water={waterFigures} mode={mode} proGravityUnit={proGravityUnit} />,
         document.body,
       )}
 

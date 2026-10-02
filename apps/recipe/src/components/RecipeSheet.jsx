@@ -18,7 +18,7 @@ import { recipeSheet } from './recipe-sheet-data.js';
 
 const SS3 = "'Source Sans 3', system-ui, sans-serif";
 
-export default function RecipeSheet({ recipe, derived, mode, proGravityUnit }) {
+export default function RecipeSheet({ recipe, derived, water, mode, proGravityUnit }) {
   const [today, setToday] = useState(() => new Date());
   useEffect(() => {
     const refresh = () => flushSync(() => setToday(new Date()));
@@ -26,7 +26,7 @@ export default function RecipeSheet({ recipe, derived, mode, proGravityUnit }) {
     return () => window.removeEventListener('beforeprint', refresh);
   }, []);
 
-  const s = recipeSheet({ recipe, derived, mode, proGravityUnit, today });
+  const s = recipeSheet({ recipe, derived, water, mode, proGravityUnit, today });
 
   return (
     <div className="print-sheet" style={{ fontFamily: SS3, color: C.body, background: C.page }}>
@@ -144,6 +144,74 @@ export default function RecipeSheet({ recipe, derived, mode, proGravityUnit }) {
         Mash ratio {s.volumes.mashRv} {s.volumes.mashRvUnit} · {s.volumes.mashR} {s.volumes.mashRUnit}
         {' · '}Boil {s.volumes.boilTime} min at {s.volumes.boilOff} {s.volumes.unit}/hr boil-off
       </Caption>
+
+      {/* Water treatment: where each addition goes, the water volumes, the
+          treated water against the style target, the measured mash pH */}
+      {s.water && (
+        <>
+          <Heading>Water Treatment</Heading>
+          <Caption>
+            Treated: {s.water.treated} · Water ({s.water.volumeUnit}):{' '}
+            {s.water.volumes.map((v) => `${v.label} ${v.value}`).join(' · ')}
+          </Caption>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+            <table style={{ ...tbl, flex: '1' }}>
+              <thead>
+                <tr style={{ background: C.headerBg }}>
+                  <th style={{ ...th, textAlign: 'left' }}>Where</th>
+                  <th style={{ ...th, textAlign: 'left' }}>Addition</th>
+                  <th style={th}>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {s.water.additions.map((a, i) => (
+                  <tr key={`${a.place}-${a.name}`} style={{ background: i % 2 ? C.rowAlt : C.page }}>
+                    <td style={{ ...td, textAlign: 'left' }}>{a.place}</td>
+                    <td style={{ ...td, textAlign: 'left' }}>{a.name}</td>
+                    <td style={td}>
+                      {a.amount} {a.unit}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={measuredLabel}>{s.water.mashPhLabel}</span>
+              <MeasuredBox />
+            </div>
+          </div>
+          <Caption>
+            {s.water.profileLabel}, against the {s.water.style} target (mg/L)
+          </Caption>
+          <table style={tbl}>
+            <thead>
+              <tr style={{ background: C.headerBg }}>
+                <th style={th} />
+                {s.water.profile.map((p) => (
+                  <th key={p.label} style={th}>
+                    {p.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['Predicted', 'predicted'],
+                ['Target', 'target'],
+              ].map(([label, key], i) => (
+                <tr key={key} style={{ background: i % 2 ? C.rowAlt : C.page }}>
+                  <td style={{ ...td, textAlign: 'left' }}>{label}</td>
+                  {s.water.profile.map((p) => (
+                    <td key={p.label} style={td}>
+                      {p[key]}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
 
       {/* Hops */}
       <Heading>Hop Schedule</Heading>

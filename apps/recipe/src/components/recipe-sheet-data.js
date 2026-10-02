@@ -29,8 +29,14 @@ import {
   mashRUnit,
   pitchRateUnit,
   starterVolumeUnit,
+  saltUnit,
+  liquidAcidUnit,
+  acidMaltUnit,
+  acidMaltFromCanonical,
 } from '../display.js';
 import { num, gravity } from '../format.js';
+import { TEST_RESULT_KEYS } from '../water-state.js';
+import { TREATMENT_LABELS } from './water/WaterGoesCard.jsx';
 
 const YEAST_TYPE = { ale: 'Ale', lager: 'Lager' };
 const YEAST_CHARACTER = { high: 'High', mod: 'Moderate', low: 'Low' };
@@ -50,7 +56,7 @@ function tempNote(tempF) {
   return tempF === REFERENCE_TEMP_F ? null : `measured at ${temperature(tempF)} ${tempUnit()}`;
 }
 
-export function recipeSheet({ recipe, derived, mode, proGravityUnit, today }) {
+export function recipeSheet({ recipe, derived, water, mode, proGravityUnit, today }) {
   const { grist, hops, pitchRate, cells, starter } = derived;
   const gu = resolveGravityUnit(mode, proGravityUnit);
   const vUnit = volumeUnit(mode);
@@ -173,6 +179,100 @@ export function recipeSheet({ recipe, derived, mode, proGravityUnit, today }) {
       })),
     },
 
+    // The Water tab's additions, volumes and treated-water profile
+    // (Water on the printed sheet); null with no water entries.
+    water: waterSection(water, mode, vol, vUnit),
+
     notes: text(recipe.notes),
+  };
+}
+
+// --- Water on the printed sheet (docs/items/water-print-sheet.md) ----------
+// What the kettle needs from the Water tab: each addition where it goes, in
+// the screen's units and precision (salts 0.1 g Home, 1 g Pro; liquid acid
+// whole mL; acidulated malt 0.01 oz or lb), only what goes in (P5); the water
+// volumes; the style target and the treated water's predicted profile; and a
+// box for the measured mash pH (P3). `water` is computeWater's output, the
+// figures the Water tab shows: nothing here is computed. No water entries —
+// no test result entered and no amount of the brewer's own — print no
+// section (P4); a blank figure prints "—".
+const PLACES = { mash: 'Mash', tank: 'Hot-liquor tank' };
+
+function waterSection(water, mode, vol, vUnit) {
+  if (!water) return null;
+  const entered = water.missing.length < TEST_RESULT_KEYS.length || water.customized;
+  if (!entered) return null;
+
+  const tank = water.setup.treatment === 'tank';
+  const place = PLACES[water.setup.treatment];
+  const grams = (g) => num(g, mode === 'pro' ? 0 : 1);
+
+  const additions = [];
+  if (!water.recommendation) {
+    additions.push({ place, name: 'Additions', amount: '—', unit: '' });
+  } else {
+    for (const r of [...water.salts, water.raiseSalt]) {
+      if (r.amount > 0) additions.push({ place, name: r.name, amount: grams(r.amount), unit: saltUnit(mode) });
+    }
+    for (const r of water.acid.rows) {
+      if (!(r.amount > 0)) continue;
+      additions.push(
+        r.solid
+          ? { place, name: r.name, amount: num(acidMaltFromCanonical(r.amount, mode), 2), unit: acidMaltUnit(mode) }
+          : { place, name: r.name, amount: num(r.amount, 0), unit: liquidAcidUnit(mode) },
+      );
+    }
+  }
+  for (const k of water.kettle?.salts ?? []) {
+    if (k.amount !== 0) additions.push({ place: 'Kettle', name: k.name, amount: grams(k.amount), unit: saltUnit(mode) });
+  }
+
+  const v = water.volumes;
+  const volumes = [
+    { label: 'Mash water', value: vol(v.mashWaterGal) },
+    { label: 'Water absorbed by the grain', value: vol(v.absorptionGal) },
+    { label: tank ? 'Sparge water (from the tank)' : 'Sparge water (untreated)', value: vol(v.spargeGal) },
+    { label: 'Total water', value: vol(v.totalGal) },
+  ];
+  if (tank) {
+    const share = water.tank.treatedShare;
+    volumes.push(
+      { label: 'Tank first fill, treated', value: vol(v.treatedGal) },
+      { label: 'Tank topped up to', value: vol(water.tank.topUpGal) },
+      {
+        label: 'Treated share of the sparge liquor',
+        value: Number.isFinite(share) ? `${num(fractionToPercent(share), 0)} %` : '—',
+      },
+      { label: 'Left in the tank, not used', value: vol(water.tank.leftGal) },
+    );
+  }
+
+  const f = water.final;
+  const t = water.target;
+  const ion = (label, key, target) => ({ label, predicted: num(f?.ions[key], 0), target: num(target, 0) });
+  const profile = [
+    ion('Calcium', 'Ca', t.Ca),
+    ion('Magnesium', 'Mg', t.Mg),
+    ion('Sodium', 'Na', t.Na),
+    ion('Sulfate', 'SO4', t.SO4),
+    ion('Chloride', 'Cl', t.Cl),
+    ion('Alkalinity', 'Alk', t.Alk),
+    { label: 'Residual alkalinity', predicted: num(f?.residualAlkalinity, 0), target: num(t.RA, 0) },
+    {
+      label: 'SO₄:Cl ratio',
+      predicted: f ? (Number.isFinite(f.ratio) ? num(f.ratio, 2) : '∞') : '—',
+      target: num(water.style.so4_cl_target, 2),
+    },
+  ];
+
+  return {
+    treated: TREATMENT_LABELS[water.setup.treatment],
+    additions,
+    volumeUnit: vUnit,
+    volumes,
+    style: water.style.name,
+    profileLabel: 'Treated water (predicted), not the wort in the kettle',
+    profile,
+    mashPhLabel: 'Mash pH (cooled sample)',
   };
 }

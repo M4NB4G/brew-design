@@ -426,10 +426,11 @@ describe('water figures through the front door', () => {
     expect(files.map((f) => relative(SRC, f).replace(/\\/g, '/'))).toContain('components/shared/styles.js');
   });
 
-  it('the recipe\'s figures and printed sheet are unchanged by any water entry', async () => {
+  it('the recipe\'s figures and the printed sheet\'s recipe sections are unchanged by any water entry', async () => {
     // Water saved with the recipe (WS-S1): the entries are now the recipe's
-    // and saved in its document (water-saved.test.js); no recipe figure and
-    // nothing on the printed sheet reads them.
+    // and saved in its document (water-saved.test.js); no recipe figure and,
+    // apart from its Water Treatment section (print-sheet.test.js), nothing on
+    // the printed sheet reads them; the sheet is shaped here without it.
     const { computeWater, defaultWaterState, EXAMPLE_SOURCE } = await water();
     const snapshot = (recipe) => {
       const derived = computeRecipe(recipe);

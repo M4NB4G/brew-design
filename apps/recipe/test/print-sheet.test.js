@@ -6,7 +6,11 @@
 // and layout (S1, S2, S5, S6, S8, S9) are the far end, in print preview.
 
 import { describe, it, expect } from 'vitest';
-import { computeRecipe } from '../src/selectors.js';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { computeRecipe, computeWater } from '../src/selectors.js';
+import { defaultWaterState } from '../src/water-state.js';
 import {
   resolveGravityUnit,
   gravityFromCanonical,
@@ -15,6 +19,7 @@ import {
   volumeFromCanonical,
   hopWeightFromCanonical,
   dryHopRateFromCanonical,
+  acidMaltFromCanonical,
 } from '../src/display.js';
 import { num, gravity } from '../src/format.js';
 import { recipeSheet } from '../src/components/recipe-sheet-data.js';
@@ -61,6 +66,7 @@ const referenceState = () => ({
 });
 
 const TODAY = new Date(2026, 8, 23); // 23 September 2026, local time
+const SRC = join(dirname(fileURLToPath(import.meta.url)), '..', 'src');
 
 function sheetFor(recipe, mode = 'home', proGravityUnit = 'plato', derived = computeRecipe(recipe)) {
   return recipeSheet({ recipe, derived, mode, proGravityUnit, today: TODAY });
@@ -260,5 +266,176 @@ describe('printed recipe sheet', () => {
     expect(headline(pro, 'OG').value).toBe(num(gravityFromCanonical(d.grist.OG, 'plato'), 2));
     expect(headline(proSg, 'OG').unit).toBe('SG');
     expect(headline(proSg, 'OG').value).toBe('1.068');
+  });
+});
+
+// --- Water on the printed sheet (scope table agreed 2026-10-02,
+// docs/items/water-print-sheet.md), named from its scenario list and its
+// sentences WP-S1 to WP-S6. Every water figure is checked against the Water
+// tab's own (computeWater, through the display boundary and the formatter):
+// the sheet computes nothing (WP-S5).
+
+// The water item's worked example (docs/items/water-treatment.md): 20 lb of
+// grain, 14 gal before the boil, 7 gal of mash water, 1 gal kept in the tun;
+// the IPA family, gypsum the only salt on hand, a report with no calcium and
+// 48.12 mg/L of sulfate, so the recommendation is 1.2 g/gal of gypsum.
+const waterRecipe = (patch = {}) => {
+  const r = { ...referenceState(), water: defaultWaterState() };
+  return {
+    ...r,
+    malts: [
+      { ...r.malts[0], weightLb: 15 },
+      { ...r.malts[1], weightLb: 5 },
+    ],
+    preBoilVolGal: 14,
+    mashWaterGal: 7,
+    water: {
+      ...defaultWaterState(),
+      source: { Ca: 0, Mg: 0, Na: 0, SO4: 48.12, Cl: 0, Alkalinity: 0, pH: 7 },
+      styleId: 'ipa',
+      enabledSalts: ['gypsum'],
+      keptInTunGal: 1,
+      ...patch,
+    },
+  };
+};
+const sheetOf = (recipe, mode = 'home') => {
+  const derived = computeRecipe(recipe);
+  const water = computeWater(recipe.water, recipe);
+  return { s: recipeSheet({ recipe, derived, water, mode, proGravityUnit: 'plato', today: TODAY }), water };
+};
+const additionsAt = (s, place) => s.water.additions.filter((a) => a.place === place);
+
+describe('water on the printed sheet', () => {
+  it('the sheet lists each addition where it goes, in the screen\'s units', () => {
+    // WP-S1, P5. The mash water treated: 1.2 g/gal x 7 gal = 8.4 g of gypsum
+    // into the mash; nothing else is added (no zero rows; no acid needed).
+    const mash = sheetOf(waterRecipe()).s;
+    expect(mash.water.treated).toBe('The mash water');
+    expect(additionsAt(mash, 'Mash')).toEqual([{ place: 'Mash', name: 'Gypsum (CaSO₄·2H₂O)', amount: '8.4', unit: 'g' }]);
+    expect(mash.water.additions.every((a) => a.amount !== '0.0' && a.amount !== '0')).toBe(true);
+
+    // Salts in the kettle: 18.6 - 8.4 = 10.2 g of gypsum in the kettle.
+    const kettle = sheetOf(waterRecipe({ kettleSalts: true })).s;
+    expect(additionsAt(kettle, 'Kettle')).toEqual([{ place: 'Kettle', name: 'Gypsum (CaSO₄·2H₂O)', amount: '10.2', unit: 'g' }]);
+
+    // The hot-liquor tank, 12 gal topped up to 12: 14.4 g into the tank's
+    // first fill; with kettle salts 18.6 - 8.4 - 4.25 = 5.95 g, printed at
+    // the screen's 0.1 g as on screen.
+    const tank = sheetOf(waterRecipe({ treatment: 'tank', tankTreatedGal: 12, tankTopUpGal: 12, kettleSalts: true }));
+    expect(tank.s.water.treated).toBe("The hot-liquor tank's first fill");
+    expect(additionsAt(tank.s, 'Hot-liquor tank')).toEqual([
+      { place: 'Hot-liquor tank', name: 'Gypsum (CaSO₄·2H₂O)', amount: '14.4', unit: 'g' },
+    ]);
+    expect(additionsAt(tank.s, 'Kettle')[0].amount).toBe(num(tank.water.kettle.salts[0].amount, 1));
+
+    // Acid where the water is treated, in its own unit: liquid mL; the
+    // acidulated malt oz at Home and lb in Pro, as the screen shows it.
+    const hard = waterRecipe({ source: { Ca: 0, Mg: 0, Na: 0, SO4: 48.12, Cl: 0, Alkalinity: 200, pH: 7 } });
+    const lactic = sheetOf(hard).s;
+    const acidRow = additionsAt(lactic, 'Mash').find((a) => a.unit === 'mL');
+    expect(acidRow.name).toBe('88% Lactic Acid');
+    const malt = { ...hard, water: { ...hard.water, primaryAcid: 'acidulated_malt' } };
+    const g = computeWater(malt.water, malt).acid.amounts.acidulated_malt;
+    expect(additionsAt(sheetOf(malt).s, 'Mash').find((a) => a.name.startsWith('Acidulated'))).toMatchObject({
+      amount: num(acidMaltFromCanonical(g, 'home'), 2),
+      unit: 'oz',
+    });
+    expect(additionsAt(sheetOf(malt, 'pro').s, 'Mash').find((a) => a.name.startsWith('Acidulated'))).toMatchObject({
+      amount: num(acidMaltFromCanonical(g, 'pro'), 2),
+      unit: 'lb',
+    });
+    // Pro grams whole, as on screen: 8.4 g prints as 8.
+    expect(additionsAt(sheetOf(waterRecipe(), 'pro').s, 'Mash')[0].amount).toBe('8');
+
+    // The water volumes: mash water, absorbed by the grain, sparge, total —
+    // 7.00, 0.50, 8.50, 15.50 gal by hand; the tank's figures with the tank.
+    expect(mash.water.volumes.map((v) => [v.label, v.value])).toEqual([
+      ['Mash water', '7.00'],
+      ['Water absorbed by the grain', '0.50'],
+      ['Sparge water (untreated)', '8.50'],
+      ['Total water', '15.50'],
+    ]);
+    expect(tank.s.water.volumes.map((v) => [v.label, v.value])).toEqual([
+      ['Mash water', '7.00'],
+      ['Water absorbed by the grain', '0.50'],
+      ['Sparge water (from the tank)', '8.50'],
+      ['Total water', '15.50'],
+      ['Tank first fill, treated', '12.00'],
+      ['Tank topped up to', '12.00'],
+      ['Treated share of the sparge liquor', '42 %'],
+      ['Left in the tank, not used', '3.50'],
+    ]);
+    expect(mash.water.volumeUnit).toBe('gal');
+    expect(sheetOf(waterRecipe(), 'pro').s.water.volumes[3].value).toBe('0.500');
+    // WP-S3, P3: the measured mash pH box.
+    expect(mash.water.mashPhLabel).toBe('Mash pH (cooled sample)');
+  });
+
+  it('the sheet prints the treated water\'s profile against the target', () => {
+    // WP-S2: the style and every predicted figure beside its target,
+    // labelled as the treated water.
+    const { s, water } = sheetOf(waterRecipe());
+    expect(s.water.profileLabel).toBe('Treated water (predicted), not the wort in the kettle');
+    expect(s.water.style).toBe('IPA (American/English)');
+    const rows = Object.fromEntries(s.water.profile.map((p) => [p.label, [p.predicted, p.target]]));
+    expect(Object.keys(rows)).toEqual(['Calcium', 'Magnesium', 'Sodium', 'Sulfate', 'Chloride', 'Alkalinity', 'Residual alkalinity', 'SO₄:Cl ratio']);
+    // By hand: 0 + 1.2 x 61.5 = 73.8 → "74" calcium against 120; sulfate
+    // 48.12 + 1.2 x 147.4 = 225 against 225; no chloride: an endless ratio.
+    expect(rows.Calcium).toEqual(['74', '120']);
+    expect(rows.Sulfate).toEqual(['225', '225']);
+    expect(rows['SO₄:Cl ratio']).toEqual(['∞', '3.00']);
+    expect(rows['Residual alkalinity'][0]).toBe(num(water.final.residualAlkalinity, 0));
+    expect(rows['Residual alkalinity'][1]).toBe('-30');
+    // No kettle or wort figure anywhere in the section.
+    expect(JSON.stringify(s.water)).not.toMatch(/wort profile|kettle profile/i);
+  });
+
+  it('a recipe with no water entries prints no Water section', () => {
+    // WP-S4, P4: nothing typed on the Water tab.
+    const none = { ...referenceState(), water: defaultWaterState() };
+    expect(sheetOf(none).s.water).toBeNull();
+    // A blank figure prints "—": a blank sodium blanks the recommendation.
+    const blankNa = waterRecipe({ source: { Ca: 0, Mg: 0, Na: NaN, SO4: 48.12, Cl: 0, Alkalinity: 0, pH: 7 } });
+    const s = sheetOf(blankNa).s;
+    expect(s.water).not.toBeNull();
+    expect(s.water.additions).toEqual([{ place: 'Mash', name: 'Additions', amount: '—', unit: '' }]);
+    expect(s.water.profile.every((p) => p.predicted === '—')).toBe(true);
+    // A blank mash water prints its volumes as "—".
+    const noMash = sheetOf(waterRecipe(), 'home');
+    const blankMash = { ...waterRecipe(), mashWaterGal: NaN };
+    expect(sheetOf(blankMash).s.water.volumes[0].value).toBe('—');
+    expect(noMash.s.water.volumes[0].value).toBe('7.00');
+  });
+
+  it('the sheet\'s water figures are the Water tab\'s', () => {
+    // WP-S5: every printed water figure is the Water tab's, through the same
+    // display boundary — for each choice, Home and Pro.
+    for (const patch of [{}, { kettleSalts: true }, { treatment: 'tank', tankTreatedGal: 12, tankTopUpGal: 12, kettleSalts: true }]) {
+      for (const mode of ['home', 'pro']) {
+        const { s, water } = sheetOf(waterRecipe(patch), mode);
+        const grams = mode === 'pro' ? 0 : 1;
+        const treated = [...water.salts, water.raiseSalt].filter((r) => r.amount > 0);
+        const place = water.setup.treatment === 'tank' ? 'Hot-liquor tank' : 'Mash';
+        for (const r of treated) {
+          expect(additionsAt(s, place).find((a) => a.name === r.name).amount).toBe(num(r.amount, grams));
+        }
+        for (const r of water.kettle?.salts.filter((k) => k.amount > 0) ?? []) {
+          expect(additionsAt(s, 'Kettle').find((a) => a.name === r.name).amount).toBe(num(r.amount, grams));
+        }
+        expect(s.water.volumes.find((v) => v.label === 'Total water').value).toBe(
+          num(volumeFromCanonical(water.volumes.totalGal, mode), mode === 'pro' ? 3 : 2),
+        );
+        expect(s.water.profile[0].predicted).toBe(num(water.final.ions.Ca, 0));
+      }
+    }
+    // WP-S6: printing reads only — the recipe and its water are unchanged.
+    const recipe = waterRecipe({ kettleSalts: true });
+    const before = JSON.stringify(recipe);
+    sheetOf(recipe);
+    expect(JSON.stringify(recipe)).toBe(before);
+    // App.jsx hands the sheet the Water tab's own figures.
+    const app = readFileSync(join(SRC, 'App.jsx'), 'utf8');
+    expect(app).toMatch(/<RecipeSheet[^>]*water=\{waterFigures\}/);
   });
 });

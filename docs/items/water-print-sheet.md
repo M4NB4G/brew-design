@@ -1,6 +1,6 @@
 # Water on the printed sheet — Tier B
 
-Status: agreed 2026-10-02 ("agree to all"), not started. Written by
+Status: agreed 2026-10-02 ("agree to all"); landed 2026-10-02 on branch S4 as "The printed sheet carries a Water section: where the additions go, each salt and acid with its amount in the screen's units, and the water volumes". Written by
 the S3 session; to be built in batch S4, third of three items, after
 `docs/items/water-saved.md`. Water program step 6 (WP1; S3's W7).
 
@@ -51,4 +51,22 @@ Print preview for mash only, mash and kettle, and the tank, Home and Pro: the se
 
 ## Recorded failure (filled in by the builder)
 
+Run alone against the code before this item (2026-10-02):
+
+```
+apps/recipe/test/print-sheet.test.js, describe "water on the printed sheet" (4 failed / 4; the 5 earlier sheet scenarios pass):
+  × the sheet lists each addition where it goes, in the screen's units — TypeError: Cannot read properties of undefined (reading 'treated')
+  × the sheet prints the treated water's profile against the target — TypeError: Cannot read properties of undefined (reading 'profileLabel')
+  × a recipe with no water entries prints no Water section — AssertionError: expected undefined to be null
+  × the sheet's water figures are the Water tab's — TypeError: Cannot read properties of undefined (reading 'additions')
+```
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+1. **Where the scenarios live.** A new describe, "water on the printed sheet", appended to `apps/recipe/test/print-sheet.test.js` (the item names that file), with the water item's worked example as its recipe.
+2. **"No water entries" (WP-S4, P4)** means no test result entered and no salt or acid amount of the brewer's own: then the section is not printed. With entries but no recommendation (a blank test result, a blank treated volume), the additions print as one row "Additions —" and the profile as "—".
+3. **What prints, in the screen's units and precision** (WP-S1, P1, P5): each salt and acid where it is treated ("Mash" or "Hot-liquor tank"), and each kettle salt ("Kettle"), skipping zeros; salts 0.1 g Home and 1 g Pro, liquid acid whole mL, acidulated malt 0.01 oz or lb — the Water tab's own precision. The water volumes are the Water tab's card's: mash water, absorbed by the grain, sparge (untreated / from the tank), total; with the tank, its treated fill, top-up level, treated share and what is left. A blank kettle amount prints "—".
+4. **The profile** (WP-S2) prints calcium, magnesium, sodium, sulfate, chloride, alkalinity, residual alkalinity and the sulfate-to-chloride ratio, predicted and target, under "Treated water (predicted), not the wort in the kettle, against the <style> target (mg/L)"; an endless ratio prints "∞" as on screen.
+5. **Layout.** A "Water Treatment" section after Water & Volumes and before the Hop Schedule (P2): one caption line with the treatment and the water volumes, the additions table with the "Mash pH (cooled sample)" box beside it (P3), then the profile table. The volumes are a line, not a table, to save height.
+6. **One page.** The built-in recipe's sheet is 9.16 in tall without water and 10.91 in with it (Letter prints 10 in); the section is 1.75 in. So a small recipe with water now prints on two pages. Recorded as a roadmap line ("Printed sheet with water on one page", Tier C) for the owner.
+7. **The sheet computes nothing** (WP-S5): `recipeSheet` takes the Water tab's figures (`computeWater`'s output) as `water`, passed by App; every number goes through the display boundary and the formatter. The S3 scenario "the recipe's figures and printed sheet are unchanged by any water entry" is renamed "… the printed sheet's recipe sections …": it shapes the sheet without the water figures.
