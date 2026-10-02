@@ -325,9 +325,9 @@ describe('water on the printed sheet', () => {
     // first fill; the kettle salts (since S4b, at this recipe's 93 %
     // brewhouse efficiency) printed at the screen's 0.1 g as on screen.
     const tank = sheetOf(waterRecipe({ treatment: 'tank', tankTreatedGal: 12, tankTopUpGal: 12, kettleSalts: true }));
-    expect(tank.s.water.treated).toBe("The hot-liquor tank's first fill");
-    expect(additionsAt(tank.s, 'Hot-liquor tank')).toEqual([
-      { place: 'Hot-liquor tank', name: 'Gypsum (CaSO₄·2H₂O)', amount: '14.4', unit: 'g' },
+    expect(tank.s.water.treated).toBe('The Hot Liquor Tank (HLT) first fill');
+    expect(additionsAt(tank.s, 'HLT')).toEqual([
+      { place: 'HLT', name: 'Gypsum (CaSO₄·2H₂O)', amount: '14.4', unit: 'g' },
     ]);
     expect(additionsAt(tank.s, 'Kettle')[0].amount).toBe(num(tank.water.kettle.salts[0].amount, 1));
 
@@ -363,12 +363,12 @@ describe('water on the printed sheet', () => {
       ['Mash water', '7.00'],
       ['Water absorbed by the grain', '0.50'],
       ['Water left in the mash tun', '1.00'],
-      ['Sparge water (from the tank)', '8.50'],
+      ['Sparge water (from the HLT)', '8.50'],
       ['Total water', '15.50'],
-      ['Tank first fill, treated', '12.00'],
-      ['Tank topped up to', '12.00'],
+      ['HLT first fill, treated', '12.00'],
+      ['HLT topped up to', '12.00'],
       ['Treated share of the sparge liquor', '42 %'],
-      ['Left in the tank, not used', '3.50'],
+      ['Left in the HLT, not used', '3.50'],
     ]);
     expect(mash.water.volumeUnit).toBe('gal');
     expect(sheetOf(waterRecipe(), 'pro').s.water.volumes.find((v) => v.label === 'Total water').value).toBe('0.500');
@@ -420,7 +420,7 @@ describe('water on the printed sheet', () => {
         const { s, water } = sheetOf(waterRecipe(patch), mode);
         const grams = mode === 'pro' ? 0 : 1;
         const treated = [...water.salts, water.raiseSalt].filter((r) => r.amount > 0);
-        const place = water.setup.treatment === 'tank' ? 'Hot-liquor tank' : 'Mash';
+        const place = water.setup.treatment === 'tank' ? 'HLT' : 'Mash';
         for (const r of treated) {
           expect(additionsAt(s, place).find((a) => a.name === r.name).amount).toBe(num(r.amount, grams));
         }

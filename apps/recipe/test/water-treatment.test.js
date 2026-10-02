@@ -167,23 +167,23 @@ describe('water treatment choice', () => {
     expect(f.warnings.spargeOverTopUp).toBe(false);
 
     const shown = text(await render(tankWater(), exampleRecipe()));
-    expect(shown).toContain("Into the hot-liquor tank's first fill (12.00 gal)");
+    expect(shown).toContain("Into the HLT's first fill (12.00 gal)");
     expect(shown).toMatch(/Treated share of the sparge liquor 42 %/);
-    expect(shown).toMatch(/Left in the tank, not used 3\.50 gal/);
+    expect(shown).toMatch(/Left in the HLT, not used 3\.50 gal/);
     // Q8: the acid goes in the tank too, and a note says so.
-    expect(shown).toContain("The acid goes in the tank with the salts, so the sparge liquor's treated share carries acid too.");
+    expect(shown).toContain("The acid goes in the HLT with the salts, so the sparge liquor's treated share carries acid too.");
 
     // The two warnings: 13 gal of mash water from a 12 gal fill; 8.5 gal of
     // sparge from a tank topped up to 8 gal.
     const short = computeWater(tankWater(), exampleRecipe({ mashWaterGal: 13 }));
     expect(short.warnings.mashOverTreated).toBe(true);
     expect(text(await render(tankWater(), exampleRecipe({ mashWaterGal: 13 })))).toContain(
-      "The mash water (13.00 gal) is more than the tank's treated volume (12.00 gal)",
+      "The mash water (13.00 gal) is more than the HLT's treated volume (12.00 gal)",
     );
     const low = tankWater({ tankTopUpGal: 8 });
     expect(computeWater(low, exampleRecipe()).warnings.spargeOverTopUp).toBe(true);
     expect(text(await render(low, exampleRecipe()))).toContain(
-      "The sparge water (8.50 gal) is more than the tank's top-up level (8.00 gal)",
+      "The sparge water (8.50 gal) is more than the HLT's top-up level (8.00 gal)",
     );
   });
 
@@ -238,7 +238,7 @@ describe('water treatment choice', () => {
       const shown = text(await render(water, exampleRecipe()));
       expect(shown.includes('Kettle water before the boil')).toBe(water.kettleSalts);
       if (water.kettleSalts) expect(shown).toContain("the water and its salts, not the wort's minerals");
-      expect(shown).toMatch(/Predicted Final Profile The treated (mash water|tank water \(first fill\))/);
+      expect(shown).toMatch(/Predicted Final Profile The treated (mash water|HLT water \(first fill\))/);
       expect(shown).toContain('This is the water as treated, not the wort in the kettle.');
       expect(shown).not.toMatch(/kettle profile|wort profile|in the kettle (Calcium|Sulfate)/i);
       expect(shown.match(/Predicted Final Profile/g)).toHaveLength(1);
@@ -265,7 +265,7 @@ describe('water treatment choice', () => {
     }
     for (const mode of ['home', 'pro']) {
       const shown = await render(tankWater(), exampleRecipe(), 'salts', mode);
-      expect(text(shown)).toContain("The hot-liquor tank's first fill");
+      expect(text(shown)).toContain('The Hot Liquor Tank (HLT) first fill');
     }
 
     // One vessel: no sparge, the mash water the only treatment; a tank choice
@@ -279,7 +279,7 @@ describe('water treatment choice', () => {
     expect(f1.tank).toBeNull();
     expect(amountOf(f1.salts, 'gypsum')).toBeCloseTo(8.4, 9);
     const shown1 = text(await render(one, exampleRecipe()));
-    expect(shown1).not.toContain("The hot-liquor tank's first fill");
+    expect(shown1).not.toContain('The Hot Liquor Tank (HLT) first fill');
     expect(shown1).not.toContain('Batch sparge');
 
     // Q6, no sparge: the mash water is all the water; since S4b a kettle that

@@ -196,7 +196,7 @@ export function recipeSheet({ recipe, derived, water, mode, proGravityUnit, toda
 // figures the Water tab shows: nothing here is computed. No water entries —
 // no test result entered and no amount of the brewer's own — print no
 // section (P4); a blank figure prints "—".
-const PLACES = { mash: 'Mash', tank: 'Hot-liquor tank' };
+const PLACES = { mash: 'Mash', tank: 'HLT' };
 
 function waterSection(water, mode, vol, vUnit) {
   if (!water) return null;
@@ -232,19 +232,19 @@ function waterSection(water, mode, vol, vUnit) {
     { label: 'Mash water', value: vol(v.mashWaterGal) },
     { label: 'Water absorbed by the grain', value: vol(v.absorptionGal) },
     { label: 'Water left in the mash tun', value: vol(v.mashTunLeftGal) },
-    { label: tank ? 'Sparge water (from the tank)' : 'Sparge water (untreated)', value: vol(v.spargeGal) },
+    { label: tank ? 'Sparge water (from the HLT)' : 'Sparge water (untreated)', value: vol(v.spargeGal) },
     { label: 'Total water', value: vol(v.totalGal) },
   ];
   if (tank) {
     const share = water.tank.treatedShare;
     volumes.push(
-      { label: 'Tank first fill, treated', value: vol(v.treatedGal) },
-      { label: 'Tank topped up to', value: vol(water.tank.topUpGal) },
+      { label: 'HLT first fill, treated', value: vol(v.treatedGal) },
+      { label: 'HLT topped up to', value: vol(water.tank.topUpGal) },
       {
         label: 'Treated share of the sparge liquor',
         value: Number.isFinite(share) ? `${num(fractionToPercent(share), 0)} %` : '—',
       },
-      { label: 'Left in the tank, not used', value: vol(water.tank.leftGal) },
+      { label: 'Left in the HLT, not used', value: vol(water.tank.leftGal) },
     );
   }
 
@@ -275,6 +275,8 @@ function waterSection(water, mode, vol, vUnit) {
     profileLabel: 'Treated water (predicted), not the wort in the kettle',
     profile,
     mashPhLabel: 'Mash pH (cooled sample)',
+    // HL-S2: the acronym spelled out on the sheet, with the HLT treated.
+    hltNote: tank ? 'HLT = Hot Liquor Tank' : null,
     kettle: kettleSection(water),
   };
 }

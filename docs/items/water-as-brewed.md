@@ -1,6 +1,6 @@
 # Water as brewed — S4b, five items
 
-Status: agreed 2026-10-02 ("agree to all"); item 1 landed 2026-10-02 as "The sparge water is typed for each recipe; the water left in the mash tun is worked out, and a kettle that will be short says so"; item 2 as "Kettle salts bring the kettle water before the boil to the target, the mash's salts reaching it at the recipe's brewhouse efficiency, and the Water tab and the printed sheet show that kettle water". Written by the S4
+Status: agreed 2026-10-02 ("agree to all"); item 1 landed 2026-10-02 as "The sparge water is typed for each recipe; the water left in the mash tun is worked out, and a kettle that will be short says so"; item 2 as "Kettle salts bring the kettle water before the boil to the target, the mash's salts reaching it at the recipe's brewhouse efficiency, and the Water tab and the printed sheet show that kettle water"; item 3 as "The hot liquor tank reads HLT on screen and on the printed sheet, spelled out where it is first used". Written by the S4
 session after the owner previewed S4 (deploy preview of PR #28); built by
 the same session on the owner's word (decision P), as batch S4b, in this
 order: **Sparge water typed** (A + B), **Kettle water at the brewhouse
@@ -138,3 +138,15 @@ apps/recipe/test/kettle-water.test.js (5 failed / 5):
 6. **SPEC rule 10** now describes the kettle water beside the treated profile; no wort mineral figure.
 7. **Earlier scenarios** re-pinned by hand: S4's kettle salts at the built-in 75 % (10.5 g, 6.125 g; never below zero now with 25 g), the no-sparge shortfall now the mash-well-mixed case (3.25 g), the S4 scenario "no choice shows a kettle mineral figure" renamed "… a wort mineral figure; the kettle water only with kettle salts", the sheet's kettle line at its recipe's 93 % (9.0 g). S4's engine kettle-balance pins (10.2 g, 5.95 g) stand: the function is unchanged.
 8. The engine comment the item-1 inspector noted ("comes to −1.8e-15") now says it does so at a pre-boil volume corrected to 60 °F.
+
+## Item 3 — recorded failure (filled in by the builder)
+
+```
+apps/recipe/test/hlt-wording.test.js (1 failed / 1):
+  × the hot liquor tank reads HLT, spelled out where it is first used — AssertionError: expected ' Water In Style Salts & Acid Notes Wh…' to contain 'The Hot Liquor Tank (HLT) first fill'
+```
+
+## Item 3 — builder's notes (filled in by the builder)
+
+1. Wording only (Tier C): every "hot-liquor tank" and "tank" a brewer sees reads "HLT"; the treatment choice reads "The Hot Liquor Tank (HLT) first fill" wherever it is offered (Water tab, My brewery); a line "HLT = Hot Liquor Tank" sits under the Where the Water Goes heading, always; the printed sheet adds "(HLT = Hot Liquor Tank)" after the treatment in its Water caption when the HLT is treated. Names inside the code (the "tank" treatment choice, saved as before) are unchanged, so no saved recipe or brewery file changes.
+2. Earlier scenarios' wording assertions updated to the new text; their figures unchanged.

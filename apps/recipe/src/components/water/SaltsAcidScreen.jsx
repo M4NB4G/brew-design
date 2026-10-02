@@ -202,7 +202,7 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
             <div style={tokens.cardTitle}>{style.name}</div>
             <div style={whereStyle}>
               {tankTreated
-                ? `Into the hot-liquor tank's first fill (${treatedVolume})`
+                ? `Into the HLT's first fill (${treatedVolume})`
                 : `Into the mash water (${treatedVolume})`}
             </div>
             <div style={tokens.accentBar} />
@@ -299,7 +299,7 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
             </p>
             {tankTreated && (
               <p style={tokens.notice}>
-                The acid goes in the tank with the salts, so the sparge liquor's treated share carries acid too.
+                The acid goes in the HLT with the salts, so the sparge liquor's treated share carries acid too.
               </p>
             )}
           </Card>
@@ -358,7 +358,7 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
           <Card>
             <div style={tokens.cardLabel}>Predicted Final Profile</div>
             <div style={tokens.cardTitle}>
-              {tankTreated ? 'The treated tank water (first fill)' : 'The treated mash water'}
+              {tankTreated ? 'The treated HLT water (first fill)' : 'The treated mash water'}
             </div>
             <p style={{ ...tokens.notice, marginTop: 0 }}>
               This is the water as treated, not the wort in the kettle.

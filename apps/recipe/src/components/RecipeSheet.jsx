@@ -151,7 +151,7 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
         <>
           <Heading>Water Treatment</Heading>
           <Caption>
-            Treated: {s.water.treated} · Water ({s.water.volumeUnit}):{' '}
+            Treated: {s.water.treated}{s.water.hltNote && ` (${s.water.hltNote})`} · Water ({s.water.volumeUnit}):{' '}
             {s.water.volumes.map((v) => `${v.label} ${v.value}`).join(' · ')}
           </Caption>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>

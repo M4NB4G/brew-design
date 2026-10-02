@@ -36,7 +36,7 @@ export const KETTLE_ASSUMPTION = {
 // The efficiency's known bias (C17), beside the readout on screen and sheet.
 export const KETTLE_BIAS_NOTE =
   'The brewhouse efficiency also counts how completely the mash dissolves the extract, so it slightly understates the salts reaching the kettle: the kettle salts come out slightly generous.';
-export const TREATMENT_LABELS = { mash: 'The mash water', tank: "The hot-liquor tank's first fill" };
+export const TREATMENT_LABELS = { mash: 'The mash water', tank: 'The Hot Liquor Tank (HLT) first fill' };
 
 // The figures the sums need, named as the card names them (WaterTab.jsx's
 // line for blank figures).
@@ -140,6 +140,7 @@ export default function WaterGoesCard({ water, figures, mode, setWater }) {
   return (
     <Card>
       <div style={tokens.cardLabel}>Where the Water Goes</div>
+      <div style={{ fontSize: '0.78rem', color: colors.textMuted, marginBottom: '0.5rem' }}>HLT = Hot Liquor Tank</div>
 
       <div style={choiceGridStyle}>
         <Choice
@@ -187,7 +188,7 @@ export default function WaterGoesCard({ water, figures, mode, setWater }) {
         step={0.01}
         min={0}
       />
-      {setup.spargeMethod !== 'none' && volumeRow('spargeGal', 'Sparge water', tankTreated ? 'from the tank' : 'untreated')}
+      {setup.spargeMethod !== 'none' && volumeRow('spargeGal', 'Sparge water', tankTreated ? 'from the HLT' : 'untreated')}
 
       <ReadRow label="Mash water (from the recipe)" unit={unit} value={v(volumes.mashWaterGal)} />
       <ReadRow label="Water absorbed by the grain" unit={unit} value={v(volumes.absorptionGal)} />
@@ -209,16 +210,16 @@ export default function WaterGoesCard({ water, figures, mode, setWater }) {
           />
           {draw('Into the mash', volumes.mashWaterGal, tank.mashSalts)}
           {draw('Carried by the sparge', volumes.spargeGal, tank.spargeSalts)}
-          {draw('Left in the tank, not used', tank.leftGal, tank.leftSalts)}
+          {draw('Left in the HLT, not used', tank.leftGal, tank.leftSalts)}
           {warnings.mashOverTreated && (
             <Warning>
-              The mash water ({v(volumes.mashWaterGal)} {unit}) is more than the tank's treated volume (
+              The mash water ({v(volumes.mashWaterGal)} {unit}) is more than the HLT's treated volume (
               {v(volumes.treatedGal)} {unit})
             </Warning>
           )}
           {warnings.spargeOverTopUp && (
             <Warning>
-              The sparge water ({v(volumes.spargeGal)} {unit}) is more than the tank's top-up level ({v(tank.topUpGal)}{' '}
+              The sparge water ({v(volumes.spargeGal)} {unit}) is more than the HLT's top-up level ({v(tank.topUpGal)}{' '}
               {unit})
             </Warning>
           )}
