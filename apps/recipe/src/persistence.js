@@ -440,3 +440,25 @@ export function importRecipeFile(text, defaults, confirmReplace) {
   if (!confirmReplace(read.state)) return { outcome: 'declined' };
   return { outcome: 'replaced', state: read.state };
 }
+
+// My brewery banner (S4b item 4): "Not now" is kept in this browser under its
+// own key, apart from the recipe and the brewery's figures; nothing else reads
+// it. Best-effort: unavailable storage reads as not dismissed; never throws.
+export const BANNER_KEY = 'brew-design.banner.brewery-not-now';
+
+export function loadBannerDismissed(storage) {
+  try {
+    return storage.getItem(BANNER_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function saveBannerDismissed(storage, dismissed) {
+  try {
+    if (dismissed) storage.setItem(BANNER_KEY, 'true');
+    else storage.removeItem(BANNER_KEY);
+  } catch {
+    // Storage unavailable: the banner comes back next visit.
+  }
+}

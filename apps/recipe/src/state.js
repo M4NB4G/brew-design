@@ -197,3 +197,16 @@ export function newRecipe(brewery) {
     proGravityUnit: GRAVITY_UNITS.includes(b.proGravityUnit) ? b.proGravityUnit : DEFAULT_DISPLAY.proGravityUnit,
   };
 }
+
+// --- My brewery banner (S4b item 4) -------------------------------------------
+// While every brewery figure is blank, a banner recommends setting them up,
+// unless the brewer said "Not now" in this browser (BB-S1, BB-S2).
+export function breweryBannerShown(brewery, dismissed) {
+  return !hasBreweryFigures(brewery) && !dismissed;
+}
+
+// Setting a figure ends a "Not now", so clearing the figures again brings the
+// banner back; while every figure stays blank, it stands (BB-S2).
+export function bannerDismissalAfter(brewery, dismissed) {
+  return hasBreweryFigures(brewery) ? false : dismissed;
+}

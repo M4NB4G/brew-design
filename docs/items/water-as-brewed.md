@@ -1,6 +1,6 @@
 # Water as brewed — S4b, five items
 
-Status: agreed 2026-10-02 ("agree to all"); item 1 landed 2026-10-02 as "The sparge water is typed for each recipe; the water left in the mash tun is worked out, and a kettle that will be short says so"; item 2 as "Kettle salts bring the kettle water before the boil to the target, the mash's salts reaching it at the recipe's brewhouse efficiency, and the Water tab and the printed sheet show that kettle water"; item 3 as "The hot liquor tank reads HLT on screen and on the printed sheet, spelled out where it is first used". Written by the S4
+Status: agreed 2026-10-02 ("agree to all"); item 1 landed 2026-10-02 as "The sparge water is typed for each recipe; the water left in the mash tun is worked out, and a kettle that will be short says so"; item 2 as "Kettle salts bring the kettle water before the boil to the target, the mash's salts reaching it at the recipe's brewhouse efficiency, and the Water tab and the printed sheet show that kettle water"; item 3 as "The hot liquor tank reads HLT on screen and on the printed sheet, spelled out where it is first used"; item 4 as "While every My brewery figure is blank, a banner on every tab recommends setting them up; its Not now is kept in this browser until a figure is set". Written by the S4
 session after the owner previewed S4 (deploy preview of PR #28); built by
 the same session on the owner's word (decision P), as batch S4b, in this
 order: **Sparge water typed** (A + B), **Kettle water at the brewhouse
@@ -150,3 +150,20 @@ apps/recipe/test/hlt-wording.test.js (1 failed / 1):
 
 1. Wording only (Tier C): every "hot-liquor tank" and "tank" a brewer sees reads "HLT"; the treatment choice reads "The Hot Liquor Tank (HLT) first fill" wherever it is offered (Water tab, My brewery); a line "HLT = Hot Liquor Tank" sits under the Where the Water Goes heading, always; the printed sheet adds "(HLT = Hot Liquor Tank)" after the treatment in its Water caption when the HLT is treated. Names inside the code (the "tank" treatment choice, saved as before) are unchanged, so no saved recipe or brewery file changes.
 2. Earlier scenarios' wording assertions updated to the new text; their figures unchanged.
+
+## Item 4 — recorded failure (filled in by the builder)
+
+```
+apps/recipe/test/brewery-banner.test.js (3 failed / 3):
+  × a banner recommends setting up My brewery while every figure is blank — TypeError: breweryBannerShown is not a function
+  × "Not now" hides it in this browser until a figure is set and cleared again — TypeError: breweryBannerShown is not a function
+  × setting any brewery figure hides the banner, and nothing else changes — TypeError: breweryBannerShown is not a function
+```
+
+## Item 4 — builder's notes (filled in by the builder)
+
+1. The rule lives in the app's state module (shown while every brewery figure is blank and not dismissed; a set figure ends a dismissal); the dismissal in the persistence module under its own key, `brew-design.banner.brewery-not-now`, best-effort; the banner is its own small component; App draws it at the top of the page's content, so on every tab, and wires "Set up My brewery" to the Options tab and "Not now" to the dismissal.
+2. "Until a figure is set and then cleared again" (BB-S2) is built as: any brewery change that leaves a figure set removes the stored dismissal; Forget then clears the figures and the banner returns. A dismissal while blank stays across reloads.
+3. The banner's test reads App's wiring from its source (the suite has no DOM; App itself needs one), as earlier scenarios do.
+4. SPEC rule 17 gains a sentence on the banner and its key.
+5. While writing the scenario, its check that the banner touches no recipe first matched the banner's own words ("new recipes"); it was narrowed to code that could change a recipe before the build was judged.

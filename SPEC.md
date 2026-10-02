@@ -135,7 +135,10 @@ pinned by the golden-master tests.
     water is never a brewery figure.
     Unreadable data, any other version, or unavailable storage yields every
     figure blank and never throws. The water style and the brewer's own
-    amounts are never brewery figures. A new recipe — Reset, or a load with no
+    amounts are never brewery figures. While every one is blank, a banner on
+    every tab recommends setting them up; its "Not now" is kept in this
+    browser under its own key, never part of a recipe or the brewery's
+    figures, and ends when a figure is set. A new recipe — Reset, or a load with no
     readable saved recipe — is the built-in recipe and display settings with
     each figure that is set in place of the built-in one; a blank figure
     never reaches a recipe. They are copied only when a recipe is created:

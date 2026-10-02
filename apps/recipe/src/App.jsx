@@ -13,6 +13,8 @@ import {
   DEFAULT_DISPLAY,
   emptyBreweryFigures,
   hasBreweryFigures,
+  breweryBannerShown,
+  bannerDismissalAfter,
   breweryFiguresFromRecipe,
   newRecipe,
 } from './state.js';
@@ -27,6 +29,8 @@ import {
   recipeFileName,
   importRecipeFile,
   loadBrewery,
+  loadBannerDismissed,
+  saveBannerDismissed,
   saveBrewery,
   clearBrewery,
 } from './persistence.js';
@@ -42,6 +46,7 @@ import YeastCard from './components/YeastCard.jsx';
 import YeastSection from './components/YeastSection.jsx';
 import OptionsSection from './components/OptionsSection.jsx';
 import WaterTab from './components/water/WaterTab.jsx';
+import BreweryBanner from './components/BreweryBanner.jsx';
 import RecipeSheet from './components/RecipeSheet.jsx';
 import Footer from './components/Footer.jsx';
 import { colors } from './components/shared/styles.js';
@@ -150,7 +155,15 @@ export default function App() {
 
   // The brewery's figures: each change is saved at once, and never touches
   // the recipe on screen or its saved copy (S4).
+  // "Not now" on the My brewery banner (S4b item 4): kept in this browser.
+  const [bannerDismissed, setBannerDismissed] = useState(() => loadBannerDismissed(browserStorage()));
+  const dismissBanner = (dismissed) => {
+    setBannerDismissed(dismissed);
+    saveBannerDismissed(browserStorage(), dismissed);
+  };
   const changeBrewery = (next) => {
+    const dismissed = bannerDismissalAfter(next, bannerDismissed);
+    if (dismissed !== bannerDismissed) dismissBanner(dismissed);
     setBrewery(next);
     saveBrewery(browserStorage(), next);
   };
@@ -225,6 +238,11 @@ export default function App() {
       </div>
 
       <main style={{ maxWidth: '900px', margin: '0 auto', padding: '1rem 1.25rem' }}>
+        {/* My brewery banner (S4b item 4): on every tab while every brewery figure is blank */}
+        {breweryBannerShown(brewery, bannerDismissed) && (
+          <BreweryBanner onSetUp={() => setTab('options')} onNotNow={() => dismissBanner(true)} />
+        )}
+
         {tab === 'recipe' && (
           <>
             <IdentitySection name={recipe.name} style={recipe.style} setField={setField} />
