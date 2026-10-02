@@ -22,7 +22,7 @@ with a meter on brew day (the printed sheet now has the box for it).
 - **MP-S4** The model's figures are checked against the owner's logged mash pH for his past batches (cooled samples); each batch's predicted and measured pH and their difference are recorded in this file and pinned by a test.
 - **MP-S5** A blank figure the model needs (a malt's type or weight, the mash water, a test result) blanks the predicted pH, shows "—", and is named.
 - **MP-S6** The printed sheet prints the predicted mash pH beside the measured mash pH box.
-- **MP-S7** A recipe saved before malt types (saved format 5 or earlier) loads as the same recipe with each malt's type as MP-Q8 decides, and is saved back at the next version.
+- **MP-S7** A recipe saved before malt types (saved format 6 or earlier; S4b moved it to 6) loads as the same recipe with each malt's type as MP-Q8 decides, and is saved back at the next version.
 - **MP-S8** Nothing else changes: every other recipe and water figure is the same for the same entries.
 
 ## Decisions — agreed
@@ -43,7 +43,7 @@ with a meter on brew day (the printed sheet now has the box for it).
 | MP-Q10 | A mash pH range warning | Yes: a warning when the predicted pH is outside the range your logs and Palmer & Kaminski give for a cooled sample (5.2–5.6), the range cited beside it | A warning changes no number; the range is a published figure |
 | MP-Q11 | Checking against your logs (MP-S4) | You supply at least five past batches (grain bill, water report, salts and acid, measured cooled mash pH). The builder reports each difference; no pass/fail line is set by the builder — you judge the result before item 2 is built | WP9; the model is only as good as its check, and the judgment is yours |
 | MP-Q12 | Where the figure shows | The Water tab's Salts & Acid screen, at the top of the predicted profile card ("Predicted mash pH (cooled sample)"), and on the printed sheet beside the measured box. Not in the stats bar | The stats bar holds the recipe's figures; the water figures stay on the Water tab |
-| K | Silent properties | **Schema migration:** malt rows gain a type and two lab figures — recipe format 6 (MP-Q8 for older rows). **Ingredient refresh:** the refresh tool and the ingredient test change (Tier B by CLAUDE.md, Ingredient data). **Ordering, multi-tab, storage disabled:** as today. **Idempotence:** the model is pure; same entries, same pH | — |
+| K | Silent properties | **Schema migration:** malt rows gain a type and two lab figures — recipe format 7 — S4b took 6 (MP-Q8 for older rows). **Ingredient refresh:** the refresh tool and the ingredient test change (Tier B by CLAUDE.md, Ingredient data). **Ordering, multi-tab, storage disabled:** as today. **Idempotence:** the model is pure; same entries, same pH | — |
 
 ## Scenarios — to be written first, must fail before
 

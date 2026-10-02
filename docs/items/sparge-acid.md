@@ -36,7 +36,7 @@ pH and on how much sparge water there is — figures the Water tab now has.
 | SA-Q5 | The source water's pH | The water report's pH; blank pH blanks the sparge acid (as today a blank test result blanks what needs it) | S3's W5: a blank is never a number nobody entered |
 | SA-Q6 | No sparge (full volume), one vessel | The switch is not offered | S4's rule: a choice the setup cannot use is not offered |
 | SA-Q7 | Brewery figures | The switch's usual setting, the usual target and the usual sparge acid are brewery figures a new recipe copies, as S4's water setup | S4's WS-S2 |
-| SA-Q8 | Saved format | The recipe format moves once in S5 for both items (6): malt types and lab figures, and the sparge switch, target and acid; the brewery format to 3 | One format change per batch where it can be |
+| SA-Q8 | Saved format | The recipe format moves once in S5 for both items (7, since S4b took 6): malt types and lab figures, and the sparge switch, target and acid; the brewery format to 4 (S4b took 3) | One format change per batch where it can be |
 | SA-Q9 | Is the sparge acid part of the "customized" reset? | Yes: changing the source water, the sparge volume (through the recipe) or the target returns a sparge acid amount the brewer typed to the recommendation, as the mash acid does today | S3's K ordering |
 | K | Silent properties | **Schema migration:** older recipes load with the switch off (SA-S6). **Ordering:** SA-Q9. **Idempotence:** pure sums. **Multi-tab, storage disabled:** as today | — |
 
