@@ -22,7 +22,7 @@ import { SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS } from '@brew/engine';
 import Card from '../shared/Card.jsx';
 import StatBox from '../shared/StatBox.jsx';
 import { colors, radii, tokens } from '../shared/styles.js';
-import WaterGoesCard, { volumeText } from './WaterGoesCard.jsx';
+import WaterGoesCard, { volumeText, KETTLE_LABEL, KETTLE_ASSUMPTION, KETTLE_BIAS_NOTE } from './WaterGoesCard.jsx';
 import {
   volumeUnit,
   saltUnit,
@@ -153,6 +153,8 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
   const tileStyle = (match) => ({ fontSize: '1.6rem', color: match ? MATCH[match] : colors.textPrimary });
   const sign = (n) => (n > 0 ? '+' : '');
   const ions = final?.ions;
+  const kettleProfile = figures.kettle?.profile;
+  const kettleIons = kettleProfile?.ions;
 
   return (
     <>
@@ -331,9 +333,15 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
             <Card>
               <div style={tokens.cardLabel}>Kettle Salts</div>
               <div style={{ fontSize: '0.8rem', color: colors.textMuted, marginBottom: '0.4rem' }}>
-                What the whole water ({volumeText(figures.volumes.totalGal, mode)} {volumeUnit(mode)}) needs, less
-                what reaches the kettle from the mash{tankTreated ? ' and what the sparge carries' : ''}.
+                These bring the kettle water ({volumeText(figures.kettle.volumeGal, mode)} {volumeUnit(mode)}) to the{' '}
+                {style.name} target.
               </div>
+              {figures.kettle.overTarget.length > 0 && (
+                <p role="status" style={{ ...tokens.warning, margin: '0 0 0.4rem' }}>
+                  Already over the target from the mash:{' '}
+                  {figures.kettle.overTarget.map((k) => SALT_CONTRIBUTIONS_PER_G_GAL[k].name).join(', ')}
+                </p>
+              )}
               {figures.kettle.salts.length === 0 && <p style={tokens.notice}>—</p>}
               {figures.kettle.salts.map((row) => (
                 <div key={row.key} style={editableRowStyle}>
@@ -402,6 +410,41 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
 
             <p style={tokens.notice}>RA per Kolbach (1953): Alk − (Ca/1.4 + Mg/1.7), all as CaCO₃.</p>
           </Card>
+
+          {figures.kettle && (
+            <Card>
+              <div style={tokens.cardLabel}>Kettle Water</div>
+              <div style={tokens.cardTitle}>{KETTLE_LABEL}</div>
+              <p style={{ ...tokens.notice, marginTop: 0 }}>{KETTLE_ASSUMPTION[figures.setup.spargeMethod]}</p>
+              <div style={tokens.statGrid}>
+                {[['Ca', 'Calcium'], ['Mg', 'Magnesium'], ['Na', 'Sodium'], ['SO4', 'Sulfate'], ['Cl', 'Chloride']].map(
+                  ([key, label]) => (
+                    <StatBox
+                      key={key}
+                      value={num(kettleIons?.[key], 0)}
+                      label={label}
+                      sublabel={`tgt ${target[key]}`}
+                      valueStyle={tileStyle(kettleProfile?.match[key])}
+                    />
+                  ),
+                )}
+                <StatBox
+                  value={
+                    kettleProfile ? (Number.isFinite(kettleProfile.ratio) ? num(kettleProfile.ratio, 2) : '∞') : '—'
+                  }
+                  label="SO₄:Cl Ratio"
+                  sublabel={`tgt ${style.so4_cl_target.toFixed(2)}`}
+                  valueStyle={tileStyle(kettleProfile?.match.ratio)}
+                />
+              </div>
+              <p style={tokens.notice}>The boil concentrates each figure by the pre-boil ÷ post-boil volume.</p>
+              {figures.setup.spargeMethod !== 'none' && <p style={tokens.notice}>{KETTLE_BIAS_NOTE}</p>}
+              <p style={tokens.notice}>
+                A kettle sample may read lower in calcium and higher in magnesium: calcium partly reacts with the
+                malt's phosphate, and the malt adds its own magnesium.
+              </p>
+            </Card>
+          )}
         </>
       )}
     </>

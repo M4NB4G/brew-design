@@ -59,8 +59,11 @@ pinned by the golden-master tests.
     each predicted figure is to its target, the water volumes from the
     recipe (its grain, mash water and pre-boil volume at 60 °F), the
     hot-liquor tank's draws and the kettle salts, comes from the engine
-    through it. No kettle or wort mineral figure is worked out: the one
-    predicted profile is the treated water's.
+    through it. No wort mineral figure is worked out. Beside the treated
+    water's predicted profile, with kettle salts on, the kettle water before
+    the boil: the source water plus the salts in the kettle over the pre-boil
+    volume, the mash's salts reaching it at the recipe's brewhouse
+    efficiency with a sparge (no sparge: the mash well mixed).
 11. `toReferenceVolume(measuredGal, kind, measurementTempF)` is the
     volume-correction slot. Pre-boil, post-boil, and ferment volumes route
     through it and reach the engine corrected to the engine's reference

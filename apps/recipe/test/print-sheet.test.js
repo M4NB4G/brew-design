@@ -315,13 +315,15 @@ describe('water on the printed sheet', () => {
     expect(additionsAt(mash, 'Mash')).toEqual([{ place: 'Mash', name: 'Gypsum (CaSO₄·2H₂O)', amount: '8.4', unit: 'g' }]);
     expect(mash.water.additions.every((a) => a.amount !== '0.0' && a.amount !== '0')).toBe(true);
 
-    // Salts in the kettle: 18.6 - 8.4 = 10.2 g of gypsum in the kettle.
+    // Salts in the kettle (since S4b item 2, at this recipe's 93 % brewhouse
+    // efficiency): 1.2 x 14 = 16.8 g for the kettle water, less 0.93 x 8.4 =
+    // 7.812 g from the mash: 8.988 g, printed at 0.1 g as 9.0 g.
     const kettle = sheetOf(waterRecipe({ kettleSalts: true })).s;
-    expect(additionsAt(kettle, 'Kettle')).toEqual([{ place: 'Kettle', name: 'Gypsum (CaSO₄·2H₂O)', amount: '10.2', unit: 'g' }]);
+    expect(additionsAt(kettle, 'Kettle')).toEqual([{ place: 'Kettle', name: 'Gypsum (CaSO₄·2H₂O)', amount: '9.0', unit: 'g' }]);
 
     // The hot-liquor tank, 12 gal topped up to 12: 14.4 g into the tank's
-    // first fill; with kettle salts 18.6 - 8.4 - 4.25 = 5.95 g, printed at
-    // the screen's 0.1 g as on screen.
+    // first fill; the kettle salts (since S4b, at this recipe's 93 %
+    // brewhouse efficiency) printed at the screen's 0.1 g as on screen.
     const tank = sheetOf(waterRecipe({ treatment: 'tank', tankTreatedGal: 12, tankTopUpGal: 12, kettleSalts: true }));
     expect(tank.s.water.treated).toBe("The hot-liquor tank's first fill");
     expect(additionsAt(tank.s, 'Hot-liquor tank')).toEqual([

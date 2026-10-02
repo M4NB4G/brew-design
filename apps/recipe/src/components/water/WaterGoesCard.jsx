@@ -24,6 +24,18 @@ import { setWaterSetup } from '../../water-state.js';
 
 export const VESSEL_LABELS = { 1: 'One vessel', 2: 'Two vessels', 3: 'Three vessels' };
 export const SPARGE_LABELS = { none: 'No sparge (full volume)', batch: 'Batch sparge', fly: 'Fly sparge' };
+// The kettle water readout's label and its assumption per sparge method
+// (water-as-brewed.md, KW-S3), on screen and on the printed sheet.
+export const KETTLE_LABEL =
+  "Kettle water before the boil — mash salts at the recipe's brewhouse efficiency; the water and its salts, not the wort's minerals";
+export const KETTLE_ASSUMPTION = {
+  none: 'No sparge, the mash well mixed',
+  batch: 'Batch sparge, well mixed',
+  fly: 'Fly sparge, plug flow',
+};
+// The efficiency's known bias (C17), beside the readout on screen and sheet.
+export const KETTLE_BIAS_NOTE =
+  'The brewhouse efficiency also counts how completely the mash dissolves the extract, so it slightly understates the salts reaching the kettle: the kettle salts come out slightly generous.';
 export const TREATMENT_LABELS = { mash: 'The mash water', tank: "The hot-liquor tank's first fill" };
 
 // The figures the sums need, named as the card names them (WaterTab.jsx's

@@ -80,4 +80,6 @@ export {
   tankDraws,
   shareOfSalts,
   kettleSalts,
+  kettleShares,
+  sumSalts,
 } from './water/volumes.js';

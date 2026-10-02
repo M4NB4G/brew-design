@@ -36,7 +36,7 @@ import {
 } from '../display.js';
 import { num, gravity } from '../format.js';
 import { TEST_RESULT_KEYS } from '../water-state.js';
-import { TREATMENT_LABELS } from './water/WaterGoesCard.jsx';
+import { TREATMENT_LABELS, KETTLE_LABEL, KETTLE_ASSUMPTION, KETTLE_BIAS_NOTE } from './water/WaterGoesCard.jsx';
 
 const YEAST_TYPE = { ale: 'Ale', lager: 'Lager' };
 const YEAST_CHARACTER = { high: 'High', mod: 'Moderate', low: 'Low' };
@@ -275,5 +275,33 @@ function waterSection(water, mode, vol, vUnit) {
     profileLabel: 'Treated water (predicted), not the wort in the kettle',
     profile,
     mashPhLabel: 'Mash pH (cooled sample)',
+    kettle: kettleSection(water),
+  };
+}
+
+// The kettle water before the boil (S4b item 2, KW-S6), as the Water tab
+// shows it, while kettle salts are on; null otherwise. A blank prints "—".
+function kettleSection(water) {
+  if (!water.kettle) return null;
+  const p = water.kettle.profile;
+  const t = water.target;
+  const ion = (label, key) => ({ label, predicted: num(p?.ions[key], 0), target: num(t[key], 0) });
+  return {
+    label: KETTLE_LABEL,
+    assumption: KETTLE_ASSUMPTION[water.setup.spargeMethod],
+    // C17: the efficiency's bias, with a sparge (no sparge does not use it).
+    biasNote: water.setup.spargeMethod === 'none' ? null : KETTLE_BIAS_NOTE,
+    rows: [
+      ion('Calcium', 'Ca'),
+      ion('Magnesium', 'Mg'),
+      ion('Sodium', 'Na'),
+      ion('Sulfate', 'SO4'),
+      ion('Chloride', 'Cl'),
+      {
+        label: 'SO₄:Cl ratio',
+        predicted: p ? (Number.isFinite(p.ratio) ? num(p.ratio, 2) : '∞') : '—',
+        target: num(water.style.so4_cl_target, 2),
+      },
+    ],
   };
 }

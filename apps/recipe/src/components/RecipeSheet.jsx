@@ -210,6 +210,41 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
               ))}
             </tbody>
           </table>
+          {s.water.kettle && (
+            <>
+              <Caption>
+                {s.water.kettle.label} ({s.water.kettle.assumption}; mg/L). The boil concentrates each figure by the
+                pre-boil ÷ post-boil volume.{s.water.kettle.biasNote && ` ${s.water.kettle.biasNote}`}
+              </Caption>
+              <table style={tbl}>
+                <thead>
+                  <tr style={{ background: C.headerBg }}>
+                    <th style={th} />
+                    {s.water.kettle.rows.map((r) => (
+                      <th key={r.label} style={th}>
+                        {r.label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ['Predicted', 'predicted'],
+                    ['Target', 'target'],
+                  ].map(([label, key], i) => (
+                    <tr key={key} style={{ background: i % 2 ? C.rowAlt : C.page }}>
+                      <td style={{ ...td, textAlign: 'left' }}>{label}</td>
+                      {s.water.kettle.rows.map((r) => (
+                        <td key={r.label} style={td}>
+                          {r[key]}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
         </>
       )}
 

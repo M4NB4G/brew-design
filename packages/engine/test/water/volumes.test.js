@@ -234,3 +234,88 @@ describe('sparge water typed — the engine', () => {
     expect(b.absorptionGal).toBeCloseTo(0.5, 12);
   });
 });
+
+// Kettle water at the brewhouse efficiency (S4b item 2,
+// docs/items/water-as-brewed.md, KW-S1, KW-S2): the share of the mash's and
+// the sparge's salts that reach the kettle. The worked example by hand, at a
+// brewhouse efficiency of 90 %: 7 gal of mash water, 8.5 gal of sparge, 14
+// gal before the boil.
+describe('kettle water at the brewhouse efficiency — the engine', () => {
+  const SHARES = { efficiency: 0.9, mashWaterGal: 7, spargeGal: 8.5, preBoilGal: 14, spargeMethod: 'batch' };
+
+  it('the mash salts reach the kettle at the brewhouse efficiency', () => {
+    const { kettleShares, kettleSalts, shareOfSalts } = engine;
+    // With a sparge: 90 % of the mash's salts; the kettle holds 0.9 x 7 =
+    // 6.3 gal-worth of mash liquor, so 14 - 6.3 = 7.7 of the 8.5 gal of sparge
+    // reach it: 7.7 / 8.5 = 0.905882.
+    const s = kettleShares(SHARES);
+    expect(s.mash).toBeCloseTo(0.9, 12);
+    expect(s.sparge).toBeCloseTo(7.7 / 8.5, 12);
+    expect(kettleShares({ ...SHARES, spargeMethod: 'fly' })).toEqual(s);
+
+    // Mash water treated, 1.2 g/gal of gypsum: 8.4 g in the mash, 7.56 g of it
+    // reaches the kettle; the kettle water, 14 gal, needs 1.2 x 14 = 16.8 g:
+    // 16.8 - 7.56 = 9.24 g in the kettle.
+    const fromMash = shareOfSalts({ gypsum: 8.4 }, s.mash);
+    expect(fromMash.gypsum).toBeCloseTo(7.56, 12);
+    expect(kettleSalts({ needed: { gypsum: 16.8 }, fromMash, fromSparge: {} }).gypsum).toBeCloseTo(9.24, 12);
+
+    // The HLT treated (12 gal, topped up to 12): the sparge carries 4.25 g
+    // (S4's worked example); 7.7 / 8.5 of it, 0.5 g/gal x 7.7 = 3.85 g,
+    // reaches the kettle: 16.8 - 7.56 - 3.85 = 5.39 g in the kettle.
+    const fromSparge = shareOfSalts({ gypsum: 4.25 }, s.sparge);
+    expect(fromSparge.gypsum).toBeCloseTo(3.85, 12);
+    expect(kettleSalts({ needed: { gypsum: 16.8 }, fromMash, fromSparge }).gypsum).toBeCloseTo(5.39, 12);
+  });
+
+  it('with no sparge the mash is well mixed', () => {
+    const { kettleShares } = engine;
+    // 15.5 gal of mash water, 14 gal before the boil: 14 / 15.5 of the mash's
+    // salts reach the kettle, whatever the efficiency (C11).
+    const s = kettleShares({ ...SHARES, spargeMethod: 'none', mashWaterGal: 15.5 });
+    expect(s.mash).toBeCloseTo(14 / 15.5, 12);
+    expect(s.sparge).toBe(0);
+    // 1.2 g/gal x 15.5 = 18.6 g in the mash; 18.6 x 14 / 15.5 = 16.8 g reach
+    // the 14 gal kettle: exactly its need, 1.2 x 14 — no kettle salts.
+    expect(18.6 * s.mash).toBeCloseTo(16.8, 12);
+  });
+
+  it('a share past the whole is kept as the arithmetic gives it', () => {
+    const { kettleShares } = engine;
+    // FLAG (volumes.js): no limit is set; the owner decides (roadmap
+    // "Kettle shares past their limits"). By hand:
+    // at 75 %, 0.75 x 7 = 5.25 gal-worth of mash liquor leaves 14 - 5.25 =
+    // 8.75 gal for the 8.5 gal of sparge: a share of 8.75 / 8.5 = 1.029412.
+    expect(kettleShares({ ...SHARES, efficiency: 0.75 }).sparge).toBeCloseTo(8.75 / 8.5, 12);
+    // At 95 % with 16 gal of mash water, 0.95 x 16 = 15.2 gal-worth for a
+    // 14 gal kettle: the mash share stays 0.95; the sparge share is
+    // (14 - 15.2) / 8.5 = -0.141176.
+    const big = kettleShares({ ...SHARES, efficiency: 0.95, mashWaterGal: 16 });
+    expect(big.mash).toBe(0.95);
+    expect(big.sparge).toBeCloseTo(-1.2 / 8.5, 12);
+    // No sparge with a short kettle: 7 gal of mash water for 14 gal before
+    // the boil gives 14 / 7 = 2.
+    expect(kettleShares({ ...SHARES, spargeMethod: 'none' }).mash).toBe(2);
+  });
+
+  it('a blank figure blanks the shares', () => {
+    const { kettleShares } = engine;
+    for (const k of ['efficiency', 'mashWaterGal', 'spargeGal', 'preBoilGal']) {
+      const s = kettleShares({ ...SHARES, [k]: NaN });
+      expect(Number.isNaN(s.mash) || Number.isNaN(s.sparge), k).toBe(true);
+    }
+  });
+});
+
+describe('kettle water at the brewhouse efficiency — the salts in the kettle', () => {
+  it('the salts in the kettle add up', () => {
+    const { sumSalts } = engine;
+    // 7.56 g from the mash + 3.85 g from the sparge + 5.39 g in the kettle =
+    // 16.8 g of gypsum, the kettle water's need; a salt in one list only
+    // keeps its amount.
+    const s = sumSalts({ gypsum: 7.56 }, { gypsum: 3.85 }, { gypsum: 5.39, epsom: 1 });
+    expect(s.gypsum).toBeCloseTo(16.8, 12);
+    expect(s.epsom).toBe(1);
+    expect(sumSalts({ gypsum: NaN }, { gypsum: 1 }).gypsum).toBeNaN();
+  });
+});

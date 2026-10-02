@@ -35,6 +35,8 @@ import {
   tankDraws,
   shareOfSalts,
   kettleSalts,
+  kettleShares,
+  sumSalts,
 } from '@brew/engine';
 import { toReferenceVolume } from './reference-volume.js';
 import { TEST_RESULT_KEYS, effectiveSetup } from './water-state.js';
@@ -131,8 +133,9 @@ export function computeRecipe(state) {
 // volume is the recipe's mash water, or the hot-liquor tank's typed first
 // fill. The water volumes come from the recipe — its grain, its mash water and
 // its pre-boil volume at 60 degF (Q2) — by the engine's sums; so do the tank's
-// draws and the kettle salts. No kettle or wort mineral figure is worked out
-// (WT-S6): the one predicted profile is the treated water's.
+// draws and the kettle salts. No wort mineral figure is worked out; beside the
+// treated water's predicted profile, with kettle salts on, the kettle water
+// before the boil (S4b item 2).
 
 const SALT_KEYS = Object.keys(SALT_CONTRIBUTIONS_PER_G_GAL);
 const ACID_KEYS = Object.keys(ACIDS);
@@ -306,21 +309,33 @@ export function computeWater(water, recipe) {
     };
   }
 
-  // Salts in the kettle (WT-S5): the whole water's need — the solver for the
-  // total water — less what reaches the kettle from the mash (all the mash
-  // water's salts) and what the sparge carries. No acid.
+  // Salts in the kettle (S4b item 2, KW-S1–S2, replacing S4's balance over
+  // the mash plus sparge water): the kettle water before the boil (the
+  // pre-boil volume at 60 degF) brought to the target — the solver for that
+  // volume of source water — less the mash's salts at the recipe's
+  // brewhouse efficiency (no sparge: the mash well mixed) and the share of
+  // the sparge's that reaches it. No acid. The kettle water's figures are the
+  // source water's plus every salt in the kettle over its volume.
   let kettle = null;
   if (setup.kettleSalts) {
-    const total = sums.totalGal;
-    const fromMash = tank ? tank.mashSalts : added;
-    const fromSparge = tank ? tank.spargeSalts : {};
+    const kettleGal = preBoilGal;
+    const shares = kettleShares({
+      efficiency: recipe.efficiency,
+      mashWaterGal,
+      spargeGal: sums.spargeGal,
+      preBoilGal: kettleGal,
+      spargeMethod: setup.spargeMethod,
+    });
+    const fromMash = shareOfSalts(tank ? tank.mashSalts : added, shares.mash);
+    const fromSparge = shareOfSalts(tank ? tank.spargeSalts : {}, shares.sparge);
+    const fromLauter = sumSalts(fromMash, fromSparge);
     const whole =
-      complete && entered(total) && total > 0
+      complete && entered(kettleGal) && kettleGal > 0 && entered(shares.mash) && entered(shares.sparge)
         ? saltTotals(
             solveAdditions({
               source: s,
               target,
-              volumeGallons: total,
+              volumeGallons: kettleGal,
               raiseAlkSource: water.raiseAlkSource,
               enabledSalts: new Set(water.enabledSalts),
             }).additions,
@@ -328,13 +343,35 @@ export function computeWater(water, recipe) {
         : null;
     const balance = whole
       ? kettleSalts({ needed: whole, fromMash, fromSparge })
-      : Object.fromEntries(Object.keys({ ...fromMash, ...fromSparge }).map((k) => [k, NaN]));
+      : Object.fromEntries(Object.keys(fromLauter).map((k) => [k, NaN]));
+    const inKettle = sumSalts(fromLauter, balance);
+    let profile = null;
+    if (whole && Object.values(inKettle).every(entered)) {
+      const ions = predictFinalProfile({ source: s, additions: inKettle, acids: {}, volumeGallons: kettleGal });
+      const ratio = sulfateChlorideRatio(ions.SO4, ions.Cl);
+      profile = {
+        ions,
+        ratio,
+        match: {
+          Ca: targetMatch(ions.Ca, target.Ca),
+          Mg: targetMatch(ions.Mg, target.Mg),
+          Na: targetMatch(ions.Na, target.Na),
+          SO4: targetMatch(ions.SO4, target.SO4),
+          Cl: targetMatch(ions.Cl, target.Cl),
+          ratio: targetMatch(ratio, style.so4_cl_target),
+        },
+      };
+    }
     kettle = {
+      volumeGal: kettleGal,
       salts: Object.entries(balance).map(([k, amount]) => ({
         key: k,
         name: SALT_CONTRIBUTIONS_PER_G_GAL[k].name,
         amount,
       })),
+      // A salt the mash (and sparge) already bring past the kettle's need.
+      overTarget: whole ? Object.keys(fromLauter).filter((k) => fromLauter[k] > (whole[k] ?? 0)) : [],
+      profile,
     };
   }
 

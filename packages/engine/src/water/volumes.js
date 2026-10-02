@@ -22,7 +22,8 @@ export const GRAIN_ABSORPTION_QT_PER_LB = 0.1;
 
 // Volumes typed and summed that come to the same figure differ by no more
 // than floating-point round-off (gal), far below any shown precision: a
-// kettle filled exactly is not short (7 + 7.5 - 0.5 - 14 comes to -1.8e-15).
+// kettle filled exactly is not short (7 + 7.5 - 0.5 - 14 at a pre-boil volume
+// corrected to 60 degF comes to -1.8e-15).
 const SAME_VOLUME_GAL = 1e-9;
 
 /**
@@ -117,6 +118,43 @@ export function kettleSalts({ needed, fromMash, fromSparge }) {
   const out = {};
   for (const k of keys) {
     out[k] = Math.max(0, (needed?.[k] ?? 0) - (fromMash?.[k] ?? 0) - (fromSparge?.[k] ?? 0));
+  }
+  return out;
+}
+
+/**
+ * The shares of the salts that reach the kettle (S4b item 2, KW-S1): with a
+ * sparge (batch or fly), the mash's salts reach it at the recipe's
+ * brewhouse efficiency (into the kettle, against FGDB — the owner's measured,
+ * equipment-specific figure, standing in for the lauter's recovery of what is
+ * dissolved; it also holds the mash's conversion, so it understates salts a
+ * little and the kettle salts come out a little generous). The kettle then
+ * holds that share of the mash liquor, and the rest of its pre-boil volume is
+ * sparge water: the sparge's salts reach it in that proportion. With no
+ * sparge the mash is well mixed: the kettle draws pre-boil / mash water of it.
+ *
+ * @returns {{ mash, sparge }} shares of the mash's and the sparge's salts
+ *   FLAG: kept as the arithmetic gives them, past 0 and 1 (the item's
+ *   sentences set no limit; the owner decides — roadmap "Kettle shares past
+ *   their limits"). A low efficiency against the volumes asks for more
+ *   sparge water than there is (a sparge share above 1: at 75 % in the
+ *   worked example, 8.75 gal of an 8.5 gal sparge); a high one leaves the
+ *   kettle more mash liquor than it holds (a sparge share below 0); with no
+ *   sparge, a kettle larger than the mash water — a short kettle, which the
+ *   water volumes warn of — gives a mash share above 1. The efficiency holds
+ *   the mash's conversion too, so neither limit is a figure the brewer typed.
+ */
+export function kettleShares({ efficiency, mashWaterGal, spargeGal, preBoilGal, spargeMethod }) {
+  if (spargeMethod === 'none') return { mash: preBoilGal / mashWaterGal, sparge: 0 };
+  const spargeInKettle = preBoilGal - efficiency * mashWaterGal;
+  return { mash: efficiency, sparge: spargeInKettle / spargeGal };
+}
+
+/** Amounts of the same salts added together ({ [key]: amount } each). */
+export function sumSalts(...lists) {
+  const out = {};
+  for (const list of lists) {
+    for (const [k, v] of Object.entries(list ?? {})) out[k] = (out[k] ?? 0) + v;
   }
   return out;
 }

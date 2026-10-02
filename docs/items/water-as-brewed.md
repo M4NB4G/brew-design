@@ -1,6 +1,6 @@
 # Water as brewed — S4b, five items
 
-Status: agreed 2026-10-02 ("agree to all"); item 1 landed 2026-10-02 as "The sparge water is typed for each recipe; the water left in the mash tun is worked out, and a kettle that will be short says so". Written by the S4
+Status: agreed 2026-10-02 ("agree to all"); item 1 landed 2026-10-02 as "The sparge water is typed for each recipe; the water left in the mash tun is worked out, and a kettle that will be short says so"; item 2 as "Kettle salts bring the kettle water before the boil to the target, the mash's salts reaching it at the recipe's brewhouse efficiency, and the Water tab and the printed sheet show that kettle water". Written by the S4
 session after the owner previewed S4 (deploy preview of PR #28); built by
 the same session on the owner's word (decision P), as batch S4b, in this
 order: **Sparge water typed** (A + B), **Kettle water at the brewhouse
@@ -110,3 +110,31 @@ apps/recipe/test/sparge-typed.test.js (5 failed / 5):
 3. Changing the sparge water keeps the brewer's own salt and acid amounts (it changes no treated volume, as the S4 K row reads).
 4. A format-5 recipe loads with the sparge blank (A1: blank until typed), its kept-in-tun figure dropped; format-2 brewery figures drop theirs; both are written back at 6 and 3.
 5. Earlier scenarios: the S4 and S4b fixtures that typed 1 gal kept in the mash tun now type 8.5 gal of sparge (the same worked example); the assertions about the computed sparge and the "differs" warning become the left-in-tun figure and the shortfall warning; version pins move to recipe 6 and brewery 3.
+
+## Item 2 — recorded failure (filled in by the builder)
+
+```
+packages/engine/test/water/volumes.test.js, describes "kettle water at the brewhouse efficiency — the engine" and "— the salts in the kettle" (5 failed / 5):
+  × the mash salts reach the kettle at the brewhouse efficiency — TypeError: kettleShares is not a function
+  × with no sparge the mash is well mixed — TypeError: kettleShares is not a function
+  × a share never exceeds the whole — TypeError: kettleShares is not a function
+  × a blank figure blanks the shares — TypeError: kettleShares is not a function
+  × the salts in the kettle add up — TypeError: sumSalts is not a function
+apps/recipe/test/kettle-water.test.js (5 failed / 5):
+  × kettle salts bring the kettle water before the boil to the target — AssertionError: expected 10.199999999999998 to be close to 9.24
+  × the Water tab shows the kettle water before the boil — TypeError: Cannot read properties of undefined (reading 'ions')
+  × the kettle salts card says they bring the kettle water to the target — AssertionError: expected ' Water In Style Salts & Acid Notes Wh…' to contain 'These bring the kettle water (14.00 g…'
+  × the printed sheet prints the kettle water — TypeError: Cannot read properties of undefined (reading 'label')
+  × a blank figure the readout needs blanks it — AssertionError: expected 10.199999999999998 to be NaN
+```
+
+## Item 2 — builder's notes (filled in by the builder)
+
+1. **The shares** (engine): with a sparge, the mash's salts reach the kettle at the efficiency; the kettle then holds efficiency × mash water gal-worth of mash liquor and the rest of its pre-boil volume is sparge water, so the sparge's salts reach it in the share (pre-boil − efficiency × mash water) ÷ sparge water. With no sparge, pre-boil ÷ mash water (C11). The shares are kept as the arithmetic gives them, past 0 and 1, with a FLAG and the roadmap line "Kettle shares past their limits" for the owner (the first build held them at 0 and 1; its inspector sent that choice back to the owner).
+2. **The C11/C16 overlap** (as the table's notes say): no sparge uses pre-boil ÷ mash water, not the efficiency.
+3. **The kettle salts**: the solver for the pre-boil volume of source water, less the mash's and sparge's shares (S4's salt balance function, unchanged), never below zero; no acid. "Already over the target" names a salt whose mash-and-sparge share is above the kettle's need (zero when the kettle needs none of it).
+4. **The kettle water's figures**: the source water plus every salt in the kettle (the three shares added) over the pre-boil volume, by the engine's predicted-profile function with no acid; calcium, magnesium, sodium, sulfate, chloride and their ratio, each against the target with the screen's colours. A blank efficiency, pre-boil volume, sparge water (with a sparge) or test result blanks the kettle salts and the readout.
+5. **Screen**: the Kettle Salts card's first line now reads "These bring the kettle water (X gal) to the <style> target."; the readout is its own "Kettle Water" card under the treated profile, with the label, the sparge assumption ("No sparge, the mash well mixed" / "Batch sparge, well mixed" / "Fly sparge, plug flow"), the boil and calcium/magnesium notes, and — with a sparge, where the efficiency is used — C17's bias note ("…the kettle salts come out slightly generous"), which the sheet prints too. **Sheet**: a caption with the label, assumption and boil note, and a Predicted / Target table, under the treated profile.
+6. **SPEC rule 10** now describes the kettle water beside the treated profile; no wort mineral figure.
+7. **Earlier scenarios** re-pinned by hand: S4's kettle salts at the built-in 75 % (10.5 g, 6.125 g; never below zero now with 25 g), the no-sparge shortfall now the mash-well-mixed case (3.25 g), the S4 scenario "no choice shows a kettle mineral figure" renamed "… a wort mineral figure; the kettle water only with kettle salts", the sheet's kettle line at its recipe's 93 % (9.0 g). S4's engine kettle-balance pins (10.2 g, 5.95 g) stand: the function is unchanged.
+8. The engine comment the item-1 inspector noted ("comes to −1.8e-15") now says it does so at a pre-boil volume corrected to 60 °F.

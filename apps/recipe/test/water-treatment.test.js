@@ -188,17 +188,24 @@ describe('water treatment choice', () => {
   });
 
   it('salts in the kettle bring the whole water to the target', async () => {
-    // WT-S5, Q7, A. The whole water, 15.5 gal at 1.2 g/gal, needs 18.6 g.
-    // Mash water treated: 18.6 - 8.4 = 10.2 g of gypsum in the kettle.
+    // WT-S5, Q7, A — since S4b item 2 (C7) the kettle salts bring the kettle
+    // water (14 gal before the boil, needing 1.2 x 14 = 16.8 g) to the target,
+    // the mash's salts reaching it at the recipe's brewhouse efficiency (the
+    // built-in 75 %): 0.75 x 8.4 = 6.3 g. Mash water treated: 16.8 - 6.3 =
+    // 10.5 g of gypsum in the kettle.
     const mash = computeWater(exampleWater({ kettleSalts: true }), exampleRecipe());
-    expect(amountOf(mash.kettle.salts, 'gypsum')).toBeCloseTo(10.2, 9);
-    // The tank treated: 18.6 - 8.4 - 4.25 = 5.95 g in the kettle.
+    expect(amountOf(mash.kettle.salts, 'gypsum')).toBeCloseTo(10.5, 9);
+    // The tank treated: the kettle holds 0.75 x 7 = 5.25 gal-worth of mash
+    // liquor, leaving 14 - 5.25 = 8.75 gal for the 8.5 gal of sparge, which
+    // carries 4.25 g: 4.25 x 8.75 / 8.5 = 4.375 g (a share past the whole,
+    // kept as the arithmetic gives it — FLAG in the engine):
+    // 16.8 - 6.3 - 4.375 = 6.125 g in the kettle.
     const tank = computeWater(tankWater({ kettleSalts: true }), exampleRecipe());
-    expect(amountOf(tank.kettle.salts, 'gypsum')).toBeCloseTo(5.95, 9);
+    expect(amountOf(tank.kettle.salts, 'gypsum')).toBeCloseTo(6.125, 9);
 
-    // Never below zero: the brewer's own 20 g in the mash covers the whole
-    // water's 18.6 g.
-    const own = computeWater(exampleWater({ kettleSalts: true, saltOverrides: { gypsum: 20 } }), exampleRecipe());
+    // Never below zero: the brewer's own 25 g in the mash, 0.75 x 25 =
+    // 18.75 g reaching the kettle, covers its 16.8 g.
+    const own = computeWater(exampleWater({ kettleSalts: true, saltOverrides: { gypsum: 25 } }), exampleRecipe());
     expect(amountOf(own.kettle.salts, 'gypsum')).toBe(0);
 
     // No acid goes in the kettle, even when the treated water takes acid.
@@ -215,9 +222,11 @@ describe('water treatment choice', () => {
     expect(text(await render(exampleWater(), exampleRecipe()))).not.toContain('Kettle Salts');
   });
 
-  it('no choice shows a kettle mineral figure', async () => {
-    // WT-S6: every choice, with and without kettle salts, shows one profile,
-    // labelled as the treated water, and no figure for the kettle or wort.
+  it('no choice shows a wort mineral figure; the kettle water only with kettle salts', async () => {
+    // WT-S6: every choice, with and without kettle salts, shows one treated
+    // profile, labelled as the treated water. Since S4b item 2 (C8′, KW-S3,
+    // KW-S5) the kettle water before the boil shows with kettle salts on,
+    // labelled as the water and its salts, never the wort's minerals.
     for (const water of [
       exampleWater(),
       exampleWater({ kettleSalts: true }),
@@ -226,8 +235,9 @@ describe('water treatment choice', () => {
     ]) {
       const f = computeWater(water, exampleRecipe());
       expect(Object.keys(f.kettle ?? {})).not.toContain('ions');
-      expect(f.kettle ? Object.keys(f.kettle) : []).toEqual(f.kettle ? ['salts'] : []);
       const shown = text(await render(water, exampleRecipe()));
+      expect(shown.includes('Kettle water before the boil')).toBe(water.kettleSalts);
+      if (water.kettleSalts) expect(shown).toContain("the water and its salts, not the wort's minerals");
       expect(shown).toMatch(/Predicted Final Profile The treated (mash water|tank water \(first fill\))/);
       expect(shown).toContain('This is the water as treated, not the wort in the kettle.');
       expect(shown).not.toMatch(/kettle profile|wort profile|in the kettle (Calcium|Sulfate)/i);
@@ -286,13 +296,15 @@ describe('water treatment choice', () => {
         .kettleShortGal,
     ).toBe(0);
     // Kettle salts then make up only the shortfall of the brewer's own mash
-    // amount: the whole water is the 7 gal of mash water, needing 8.4 g; the
-    // brewer put in 6 g, so 2.4 g go in the kettle.
+    // amount (since S4b item 2, the mash well mixed, C11): 15.5 gal of mash
+    // water at 1.2 g/gal would be 18.6 g; the brewer put in 15 g; 14 / 15.5
+    // of the mash reaches the 14 gal kettle, so (18.6 - 15) x 14 / 15.5 =
+    // 3.2516 g go in the kettle.
     const shortfall = computeWater(
-      exampleWater({ spargeMethod: 'none', kettleSalts: true, saltOverrides: { gypsum: 6 } }),
-      exampleRecipe(),
+      exampleWater({ spargeMethod: 'none', kettleSalts: true, saltOverrides: { gypsum: 15 } }),
+      exampleRecipe({ mashWaterGal: 15.5 }),
     );
-    expect(amountOf(shortfall.kettle.salts, 'gypsum')).toBeCloseTo(2.4, 9);
+    expect(amountOf(shortfall.kettle.salts, 'gypsum')).toBeCloseTo((3.6 * 14) / 15.5, 9);
 
     // K, ordering: changing the treatment, the vessels or the tank's treated
     // volume returns the brewer's own amounts to the recommendation; the
