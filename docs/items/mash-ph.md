@@ -1,9 +1,10 @@
 # Mash pH from the grain bill — Tier A + B (two items)
 
-Status: agreed 2026-10-02 ("agree to all"), not started; the logs and
-the archived pages are in hand and the model rules agreed (S5 decisions
-below); the check waits on the owner setting each malt's type and base-malt
-figure. Written by the S4 session; to be built in
+Status: agreed 2026-10-02 ("agree to all"); item 1 landed: "The engine predicts the mash
+pH of a cooled sample from the grain bill and the treated mash water by
+Troester's published model, checked against the owner's logged batches"
+(S5 decisions below). Item 2 waits on the owner's judgment of the check
+(MP-Q11) and his malt types in the workbook (S5-B6). Written by the S4 session; to be built in
 batch S5 (docs/ROADMAP.md, Sessions). **Sparge acidification**
 (`docs/items/sparge-acid.md`) left S5 on 2026-10-02. Water program step 5
 (`docs/items/water-program.md`: WP8 the model, WP9 the check against the
@@ -79,7 +80,49 @@ Third round — agreed 2026-10-02 ("agree to all"), after the builder read the 2
 | S5-B14 | The specialty-malt rules | As published: crystal acidity = 14 + 0.13 × colour (EBC) mEq/kg; roast acidity ≈ 40 mEq/kg at any colour; each specialty malt counts at pH 5.7 in the grist's average, which is then lowered by 0.14 × Σ(acidity × share of grist) ÷ mash thickness (L/kg); °L converts to EBC by the paper's EBC = 2.65 × °L − 1.2. An acidulated-malt row in the grain bill counts by its lactic acid at the Water tab's existing 2 % (not the paper's ~3 %), so the app carries one figure; a roadmap line to revisit it | SPEC rule 2: transcribe as published; MP-Q7: one figure on screen |
 | S5-B15 | The water's effect | Mash pH = the grist's distilled-water pH + slope × the treated mash water's residual alkalinity (mEq/L). The residual alkalinity is the Water tab's, after salts and acid (Kolbach's 3.5 for calcium, 7 for magnesium, which the paper calls close to its measurements); the slope is 0.013 × mash thickness (L/kg) + 0.013 as published, fitted on finely ground grist (a coarser crush made it steeper in his tests) — kept and marked in the engine, never adjusted | MP-Q6; SPEC rules 2 and 3 |
 
+Fourth round — the owner's word, 2026-10-02: "the base model of f(x)=-0.02x+5.82 is all i can think of to go off of. also all my color numbers are in lovibond."
+
+| id | Question | Decision | Rule |
+|---|---|---|---|
+| S5-B16 | Base malts without a measured figure (supersedes S5-B12's "a figure the owner sets") | The trend line printed on the paper's Figure 5: distilled-water pH = 5.82 − 0.02 × colour in EBC, the colour converted from the workbook's °L by EBC = 2.65 × °L − 1.2 (S5-B14). The builder confirmed the line's unit by refitting Table 2: slope −0.0207, intercept 5.822, r² 0.54 against EBC (the paper states 0.54); against °L the slope would be −0.055. A measured distilled-water pH still replaces it (S5-B13). The coefficients are used as printed, two decimals | The owner's word; SPEC rule 2: as published |
+
+Fifth round — the owner's word, 2026-10-02, with Weyermann's Barke Pilsner specification attached: "s5-b19 treat as a very light crystal. c20 has a mEQ/kg of 14.2 and a DI pH of 5.22. i think go with that unless you are super opposed. s5-B20 i would also assume a light crystal. assume similar to c40? s5-b21 see attached".
+
+| id | Question | Decision | Rule |
+|---|---|---|---|
+| S5-B17 | Malts Troester measured himself (Weyermann Pilsner, Munich I and II): his measured figure or the line? | The line, for every base malt: S5-B16 is the owner's one rule for base malts, and no measured figure is set in his workbook. Not answered separately; recorded as following from S5-B16 | S5-B16 |
+| S5-B18 | The maltsters' lot analyses in the logs give a congress "wort pH" (Rahr North Star 5.89, 5.92; Rahr white wheat 5.95; Rahr 2-row 6.01) | Not used: a thinner, longer standard lab mash than Troester's (on Rahr 2-row the two differ by 0.45). Colours come from the workbook, not the lot sheets. Not answered separately; recorded as following from S5-B16 | S5-B16; SPEC rule 16 |
+| S5-B19 | Aromatic malt (20 °L, past the line's fitted range) | A very light crystal malt with a measured acidity of 14.2 mEq/kg — Troester's Briess Crystal 20L (paper, Table 4) as its stand-in | The owner's word |
+| S5-B20 | Special Roast malt (borderline) | A light crystal malt "similar to C40": the builder reads that, as for Aromatic, as Troester's Briess Crystal 40L measured acidity, 25.6 mEq/kg (Table 4) — the colour rule at 40 °L would give 27.6 | The owner's word, the builder's reading stated in the report |
+| S5-B21 | Malts the logs don't identify | 2022 Holy Hefe "Pilsener" is Rahr North Star (its folder holds the North Star lot sheet). Weyermann Barke Pilsner (2024 Kölsch): the attached sheet is Weyermann's specification, a colour range (1.2–1.8 °L malt colour), not one figure — the 2024 Kölsch waits for the owner's one colour. The 2023 Baltic Porter's "Pilsner" waits until named | No number the owner did not enter |
+
 The builder computes no prediction for the owner's batches before these rules are fixed, so no rule is chosen by how well it fits his logs.
+
+## Item 1 — the check against the owner's logs (MP-S4)
+
+Run 2026-10-02 on the rules above, fixed before any prediction was worked out. Each prediction is worked by hand in the scenario *the owner's logged batches*; the measured pH is a cooled sample (S5-B7). Difference = predicted − measured. No pass/fail line is set: the owner judges it before item 2 is built (MP-Q11).
+
+| Batch | Water report | Predicted | Measured | Difference |
+|---|---|---|---|---|
+| 2022-06-11 Holy Hefe | its log | 5.68 | 5.30 | +0.38 |
+| 2022-09-05 Marple Hill Wet Hop IPA | its log | 5.64 | 5.40 | +0.24 |
+| 2022-09-27 Holy Hefe | its log | 5.68 | 5.78 | −0.10 |
+| 2022-10-17 Orange Grenade JPA | Home 2022-09-23 | 5.69 | 5.78 | −0.09 |
+| 2022-12-10 Night is Darkest B-IPA | Home 2022-09-23 | 5.76 | 6.05 | −0.29 |
+| 2023-01-21 O'Neill Kolsch | Home 2022-12-31 | 5.67 | 5.95 | −0.28 |
+| 2023-03-15 Best Bitter | Home 2022-12-31 | 5.64 | 5.87 | −0.23 |
+| 2023-06-17 Hop Rapids | Home 2023-06-17 | 5.59 | 5.60 | −0.01 |
+| 2023-07-08 Belgian Single | Home 2023-06-17 | 5.67 | 5.79 | −0.12 |
+| 2023-08-03 Oktoberfest | Home 2023-06-17 | 5.49 | 5.80 | −0.31 |
+| 2023-11-03 Bob's Your Uncle ESB | Home 2023-11-03 | 5.60 | 5.70 | −0.10 |
+| 2023-12-02 Time Warp DIPA | Home 2023-11-03 | 5.63 | 5.60 | +0.03 |
+| 2024-03-23 Holy Hefe | Home 2024-03-20 | 5.68 | 5.65 | +0.03 |
+| 2024-09-17 Experiments Are Fun WCIPA | Home 2024-03-20 | 5.65 | 5.36 | +0.29 |
+| 2025-03-22 Nordic Saison | Home 2024-03-20 | 5.72 | 5.54 | +0.18 |
+
+Across the 15: mean difference −0.02, mean size of the difference 0.18, largest 0.38; 5 within 0.10, 8 within 0.20.
+
+Not checked: batches with flaked or raw grain (S5-B10); the 2023 Baltic Porter and 2024 Kölsch (S5-B21); logs without a mash water volume or a pH reading.
 
 ## Sources — the archived Troester pages (S5-B2')
 
@@ -106,6 +149,18 @@ mash pH*; *an older recipe loads with its malt types blank and named*;
 *nothing else changes*.
 
 ## Notes for the builder
+
+Item 1, builder's notes (choices the sentences did not make, for the inspector to check):
+
+- The model is one engine function, the mash pH from the malts, the mash water and the treated water profile, with the malt types as a list; it lives in a new water module and is exported from the engine's public surface. Nothing in the app calls it yet (item 2), so the built site is unchanged.
+- A fifth type, "none", carries S5-B10 (hulls and sugars count as nothing): such a row is left out of the grain weight and the shares, and its blank figures do not blank the pH. A blank type, or any other type, blanks the pH (MP-S5).
+- The treated water enters as the Water tab predicts it (alkalinity after salts and acid, calcium, magnesium); the model takes the engine's existing residual alkalinity (Kolbach) and converts it to mEq/L by the engine's 50.04 mg/L as CaCO3 per mEq/L, the figure its acid sums use, not the paper's rounded 50.
+- Mash thickness R is the mash water as entered (US gal × 3.785411784 L) over the grain in the mash (lb × the engine's 453.592 g/lb).
+- A specialty malt's acidity: its measured figure where given, else crystal by colour, roast 40, acidulated at the acid table's 2 % lactic. A measured figure for a base malt is its distilled-water pH.
+- The check takes each batch's calcium and magnesium from its report's hardness by the owner's own template formulas (Ca = Ca hardness × 0.4, Mg = Mg hardness × 0.24); the reports from 2023-08 on carry only the hardness. The salts and acid go in the 14 gal tank; the mash draws its logged volume (the log's actual column, not its plan).
+- FLAGs in the engine: the water slope fitted on ground grist (S5-B15); the base-malt line's loose fit, printed rounding and fitted colour range (S5-B16); the acidulated malt's 2 % against the paper's ~3 % (S5-B14, roadmap).
+- No SPEC rule changes in item 1: the engine gains a model and no app rule moves; item 2 changes rules 8, 13 and 16.
+
 
 - Needs from the owner before item 1: his logged batches (MP-Q11), and the
   malt-type column filled in his workbook before item 2.

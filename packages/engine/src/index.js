@@ -74,6 +74,8 @@ export {
 
 export { STYLE_FAMILIES, findStyle } from './water/styles.js';
 
+export { MALT_TYPES, mashPh } from './water/mash-ph.js';
+
 export {
   GRAIN_ABSORPTION_QT_PER_LB,
   waterVolumes,
