@@ -138,7 +138,12 @@ pinned by the golden-master tests.
     amounts are never brewery figures. While every one is blank, a banner on
     every tab recommends setting them up; its "Not now" is kept in this
     browser under its own key, never part of a recipe or the brewery's
-    figures, and ends when a figure is set. A new recipe — Reset, or a load with no
+    figures, and ends when a figure is set. The brewery file is the same
+    document: an export is byte for byte what storage holds, and an import
+    reads it with the same reader, versions and upgrades included, asks
+    before it replaces the brewery's figures and never touches the recipe; a
+    file that is not a brewery file, is damaged or is newer is refused with
+    a message. A new recipe — Reset, or a load with no
     readable saved recipe — is the built-in recipe and display settings with
     each figure that is set in place of the built-in one; a blank figure
     never reaches a recipe. They are copied only when a recipe is created:

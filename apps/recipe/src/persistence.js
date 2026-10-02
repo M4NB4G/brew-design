@@ -354,15 +354,27 @@ export function loadBrewery(storage) {
   try {
     const raw = storage.getItem(BREWERY_KEY);
     if (raw === null || raw === undefined) return emptyBreweryFigures();
-    const doc = JSON.parse(raw);
-    if (!doc || typeof doc !== 'object' || ![1, 2, BREWERY_VERSION].includes(doc.version)) return emptyBreweryFigures();
-    const brewery = readBrewery(doc.brewery, doc.version);
-    if (brewery === null) return emptyBreweryFigures();
-    if (doc.version !== BREWERY_VERSION) saveBrewery(storage, brewery);
+    const { brewery, version } = readBreweryDocument(raw);
+    if (!brewery) return emptyBreweryFigures();
+    if (version !== BREWERY_VERSION) saveBrewery(storage, brewery);
     return brewery;
   } catch {
     return emptyBreweryFigures();
   }
+}
+
+// One brewery document's text, read as storage and the brewery file both
+// read it (S4b item 5, K): { brewery, version } when readable at version 1, 2
+// or BREWERY_VERSION (upgraded as loadBrewery says); { newer: version } for a
+// later version; otherwise {}. Throws on text that is not JSON.
+function readBreweryDocument(raw) {
+  const doc = JSON.parse(raw);
+  // A document without the brewery's figures (a recipe file, say) is not one.
+  if (!doc || typeof doc !== 'object' || !('brewery' in doc)) return {};
+  if (Number.isInteger(doc.version) && doc.version > BREWERY_VERSION) return { newer: doc.version };
+  if (![1, 2, BREWERY_VERSION].includes(doc.version)) return {};
+  const brewery = readBrewery(doc.brewery, doc.version);
+  return brewery ? { brewery, version: doc.version } : {};
 }
 
 /**
@@ -372,7 +384,7 @@ export function loadBrewery(storage) {
  */
 export function saveBrewery(storage, brewery) {
   try {
-    storage.setItem(BREWERY_KEY, JSON.stringify({ version: BREWERY_VERSION, brewery }));
+    storage.setItem(BREWERY_KEY, exportBreweryDocument(brewery));
   } catch {
     // Storage unavailable: behave as if there is none.
   }
@@ -461,4 +473,54 @@ export function saveBannerDismissed(storage, dismissed) {
   } catch {
     // Storage unavailable: the banner comes back next visit.
   }
+}
+
+// --- Brewery file (S4b item 5) -------------------------------------------------
+// The brewery's figures as a file, to move them between sites and devices:
+// byte for byte the document this browser keeps (BF-S1), read back by the
+// same reader, versions and upgrades included (BF-S3). Import asks before it
+// replaces the brewery's figures and never touches the recipe (BF-S2).
+
+/** The brewery document, as text: what storage keeps and the file carries. */
+export function exportBreweryDocument(brewery) {
+  return JSON.stringify({ version: BREWERY_VERSION, brewery });
+}
+
+/** The brewery file's name: "Brew Design brewery" and the local date. */
+export function breweryFileName(date) {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `Brew Design brewery ${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}.json`;
+}
+
+const BREWERY_UNCHANGED = 'Your brewery figures are unchanged.';
+
+/**
+ * Import a brewery file's text. Returns { outcome: 'replaced', brewery } when
+ * readable and confirmed by `confirmReplace()`, { outcome: 'declined' } when
+ * not confirmed, or { outcome: 'refused', message } — not a brewery file,
+ * damaged, or newer — without asking. Never throws for any text.
+ */
+export function importBreweryFile(text, confirmReplace) {
+  let read;
+  try {
+    read = readBreweryDocument(text);
+  } catch {
+    read = {};
+  }
+  if (read.newer !== undefined) {
+    return {
+      outcome: 'refused',
+      message:
+        'Not imported: this brewery file was saved by a newer version of Brew Design ' +
+        `(file version ${read.newer}; this app reads up to version ${BREWERY_VERSION}). ${BREWERY_UNCHANGED}`,
+    };
+  }
+  if (!read.brewery) {
+    return {
+      outcome: 'refused',
+      message: `Not imported: this file is not a Brew Design brewery file, or it is damaged. ${BREWERY_UNCHANGED}`,
+    };
+  }
+  if (!confirmReplace()) return { outcome: 'declined' };
+  return { outcome: 'replaced', brewery: read.brewery };
 }

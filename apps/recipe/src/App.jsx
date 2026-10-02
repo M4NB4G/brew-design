@@ -31,6 +31,9 @@ import {
   loadBrewery,
   loadBannerDismissed,
   saveBannerDismissed,
+  exportBreweryDocument,
+  breweryFileName,
+  importBreweryFile,
   saveBrewery,
   clearBrewery,
 } from './persistence.js';
@@ -178,6 +181,39 @@ export default function App() {
     setBrewery(emptyBreweryFigures());
   };
 
+  // The brewery file (S4b item 5): Export hands the browser the brewery's
+  // document; Import asks first, then replaces the brewery's figures through
+  // the usual brewery change (saved at once) and never the recipe. A refusal
+  // is shown on Options until the next brewery-file action.
+  const [breweryFileMessage, setBreweryFileMessage] = useState('');
+  const exportBrewery = () => {
+    setBreweryFileMessage('');
+    const blob = new Blob([exportBreweryDocument(brewery)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = breweryFileName(new Date());
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url));
+  };
+  const importBrewery = async (file) => {
+    setBreweryFileMessage('');
+    let text;
+    try {
+      text = await file.text();
+    } catch {
+      text = ''; // an unreadable file is refused like any other
+    }
+    const result = importBreweryFile(text, () =>
+      window.confirm(`Replace your brewery's figures with those in "${file.name}"? The recipe on screen is unchanged.`),
+    );
+    if (result.outcome === 'refused') setBreweryFileMessage(result.message);
+    if (result.outcome !== 'replaced') return;
+    changeBrewery(result.brewery);
+  };
+
   // Top-level scalar field setter.
   // A new mash water, when it is the treated water, returns the brewer's own
   // salt and acid amounts to the recommendation (water treatment K).
@@ -319,6 +355,9 @@ export default function App() {
             setBreweryWater={setBreweryWater}
             onUseRecipeFigures={useRecipeFigures}
             onForgetBrewery={forgetBrewery}
+            onExportBrewery={exportBrewery}
+            onImportBreweryFile={importBrewery}
+            breweryFileMessage={breweryFileMessage}
           />
         )}
       </main>

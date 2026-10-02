@@ -16,6 +16,7 @@
 // Their Water group (Water saved with the recipe, S7): the usual treatment
 // and kettle switch, the water setup, the usual water report and the salts
 // on hand.
+import { useRef } from 'react';
 import { REFERENCE_TEMP_F, SALT_CONTRIBUTIONS_PER_G_GAL } from '@brew/engine';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
@@ -231,7 +232,11 @@ export default function OptionsSection({
   setBreweryWater,
   onUseRecipeFigures,
   onForgetBrewery,
+  onExportBrewery,
+  onImportBreweryFile,
+  breweryFileMessage,
 }) {
+  const breweryFile = useRef(null); // the brewery file's picker (S4b item 5)
   const vUnit = volumeUnit(mode);
   const tUnit = tempUnit();
   const volume = {
@@ -344,7 +349,28 @@ export default function OptionsSection({
         <button type="button" onClick={onForgetBrewery} style={button}>
           Forget my brewery figures
         </button>
+        <button type="button" onClick={onExportBrewery} style={button}>
+          Export my brewery figures
+        </button>
+        <button type="button" onClick={() => breweryFile.current.click()} style={button}>
+          Import my brewery figures
+        </button>
+        <input
+          ref={breweryFile}
+          type="file"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            e.target.value = '';
+            if (file) onImportBreweryFile(file);
+          }}
+          style={{ display: 'none' }}
+        />
       </div>
+      {breweryFileMessage && (
+        <p role="status" style={{ ...tokens.warning, marginTop: '0.6rem' }}>
+          {breweryFileMessage}
+        </p>
+      )}
     </Card>
     </>
   );

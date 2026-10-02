@@ -1,6 +1,6 @@
 # Water as brewed — S4b, five items
 
-Status: agreed 2026-10-02 ("agree to all"); item 1 landed 2026-10-02 as "The sparge water is typed for each recipe; the water left in the mash tun is worked out, and a kettle that will be short says so"; item 2 as "Kettle salts bring the kettle water before the boil to the target, the mash's salts reaching it at the recipe's brewhouse efficiency, and the Water tab and the printed sheet show that kettle water"; item 3 as "The hot liquor tank reads HLT on screen and on the printed sheet, spelled out where it is first used"; item 4 as "While every My brewery figure is blank, a banner on every tab recommends setting them up; its Not now is kept in this browser until a figure is set". Written by the S4
+Status: agreed 2026-10-02 ("agree to all"); item 1 landed 2026-10-02 as "The sparge water is typed for each recipe; the water left in the mash tun is worked out, and a kettle that will be short says so"; item 2 as "Kettle salts bring the kettle water before the boil to the target, the mash's salts reaching it at the recipe's brewhouse efficiency, and the Water tab and the printed sheet show that kettle water"; item 3 as "The hot liquor tank reads HLT on screen and on the printed sheet, spelled out where it is first used"; item 4 as "While every My brewery figure is blank, a banner on every tab recommends setting them up; its Not now is kept in this browser until a figure is set"; item 5 as "The brewery's figures export as a file, byte for byte what this browser keeps, and import asks first, never touches the recipe, and refuses a file that is not one, is damaged or is newer". Written by the S4
 session after the owner previewed S4 (deploy preview of PR #28); built by
 the same session on the owner's word (decision P), as batch S4b, in this
 order: **Sparge water typed** (A + B), **Kettle water at the brewhouse
@@ -167,3 +167,20 @@ apps/recipe/test/brewery-banner.test.js (3 failed / 3):
 3. The banner's test reads App's wiring from its source (the suite has no DOM; App itself needs one), as earlier scenarios do.
 4. SPEC rule 17 gains a sentence on the banner and its key.
 5. While writing the scenario, its check that the banner touches no recipe first matched the banner's own words ("new recipes"); it was narrowed to code that could change a recipe before the build was judged.
+
+## Item 5 — recorded failure (filled in by the builder)
+
+```
+apps/recipe/test/brewery-file.test.js (3 failed / 3):
+  × the brewery file is the document this browser keeps — TypeError: p.exportBreweryDocument is not a function
+  × importing a brewery file asks first and never touches the recipe — TypeError: p.exportBreweryDocument is not a function
+  × a file that is not a brewery file, is damaged, or is newer is refused; an older one is read as storage reads it — TypeError: p.importBreweryFile is not a function
+```
+
+## Item 5 — builder's notes (filled in by the builder)
+
+1. One reader for the brewery document, shared by storage and the file (versions 1, 2 and 3, upgraded as storage reads them); storage's save now writes the same text the export gives. A document with no brewery section (a recipe file, say) is "not a brewery file", not "newer", whatever its version.
+2. Messages follow the recipe file's: "Not imported: this file is not a Brew Design brewery file, or it is damaged. Your brewery figures are unchanged." and "…saved by a newer version of Brew Design (file version N; this app reads up to version 3)…". The confirm reads "Replace your brewery's figures with those in "<file>"? The recipe on screen is unchanged."
+3. Options: "Export my brewery figures" and "Import my brewery figures" beside the existing two buttons; a refusal shows under them until the next brewery-file action. The file is named "Brew Design brewery YYYY-MM-DD.json" (local date).
+4. Import replaces the brewery's figures through the usual brewery change, so it is saved at once and ends a banner "Not now" when it brings a figure (item 4).
+5. SPEC rule 17 gains the brewery file.
