@@ -96,6 +96,18 @@ Fifth round — the owner's word, 2026-10-02, with Weyermann's Barke Pilsner spe
 | S5-B20 | Special Roast malt (borderline) | A light crystal malt "similar to C40": the builder reads that, as for Aromatic, as Troester's Briess Crystal 40L measured acidity, 25.6 mEq/kg (Table 4) — the colour rule at 40 °L would give 27.6 | The owner's word, the builder's reading stated in the report |
 | S5-B21 | Malts the logs don't identify | 2022 Holy Hefe "Pilsener" is Rahr North Star (its folder holds the North Star lot sheet). Weyermann Barke Pilsner (2024 Kölsch): the attached sheet is Weyermann's specification, a colour range (1.2–1.8 °L malt colour), not one figure — the 2024 Kölsch waits for the owner's one colour. The 2023 Baltic Porter's "Pilsner" waits until named | No number the owner did not enter |
 
+Sixth round — the owner's word, 2026-10-02, after the item 1 report: "why cant we do flaked or raw? Baltic was made with Weyermann i believe. for the barke, assume 1.5L. Carafoam is a dextrin malt that is very pale. not a crystal. midnight wheat is roasted. rice hulls and sugar are good to be none. use c40 Acidity for special roast. use 2%. I can probably do some testing though later on".
+
+| id | Question | Decision | Rule |
+|---|---|---|---|
+| S5-B22 | Carafoam's type (the builder had proposed crystal) | Not a crystal: a very pale dextrin malt. The builder reads that as a base malt by the line (2 °L = 4.1 EBC → 5.738), since it is a malt and the four types leave base as the only other one that counts; stated in the report for the owner to correct | The owner's word, the builder's reading stated |
+| S5-B23 | The other proposed types used in the check | Midnight Wheat roast; rice hulls and sugars "none" — confirmed | The owner's word; S5-B10 |
+| S5-B24 | Special Roast's acidity | Troester's Briess Crystal 40L measured acidity, 25.6 mEq/kg — confirms S5-B20 | The owner's word |
+| S5-B25 | The 2023 Baltic Porter's Pilsner and the 2024 Kölsch's Barke | Weyermann Pilsner (1.8 °L, the workbook's); Barke at 1.5 °L. Both batches join the check. The Baltic Porter's folder holds an app screenshot of its adjusted water (Ca 59, Mg 14), not a report, so it takes the latest Home report before brew day, 2023-08-18 (S5-B8), which the screenshot matches (the engine's salt sums give Ca 59.3, Mg 14.6) | The owner's word; S5-B8 |
+| S5-B26 | The acidulated malt's lactic acid | 2 %, as the Water tab uses; the owner may test it later | The owner's word |
+
+Still open: flaked and raw grains (S5-B10) — the owner asked why they cannot be counted; put back to him as a question.
+
 The builder computes no prediction for the owner's batches before these rules are fixed, so no rule is chosen by how well it fits his logs.
 
 ## Item 1 — the check against the owner's logs (MP-S4)
@@ -109,20 +121,22 @@ Run 2026-10-02 on the rules above, fixed before any prediction was worked out. E
 | 2022-09-27 Holy Hefe | its log | 5.68 | 5.78 | −0.10 |
 | 2022-10-17 Orange Grenade JPA | Home 2022-09-23 | 5.69 | 5.78 | −0.09 |
 | 2022-12-10 Night is Darkest B-IPA | Home 2022-09-23 | 5.76 | 6.05 | −0.29 |
-| 2023-01-21 O'Neill Kolsch | Home 2022-12-31 | 5.67 | 5.95 | −0.28 |
+| 2023-01-21 O'Neill Kolsch | Home 2022-12-31 | 5.68 | 5.95 | −0.27 |
 | 2023-03-15 Best Bitter | Home 2022-12-31 | 5.64 | 5.87 | −0.23 |
 | 2023-06-17 Hop Rapids | Home 2023-06-17 | 5.59 | 5.60 | −0.01 |
 | 2023-07-08 Belgian Single | Home 2023-06-17 | 5.67 | 5.79 | −0.12 |
 | 2023-08-03 Oktoberfest | Home 2023-06-17 | 5.49 | 5.80 | −0.31 |
+| 2023-10-04 Baltic Porter | Home 2023-08-18 | 5.43 | 5.66 | −0.23 |
 | 2023-11-03 Bob's Your Uncle ESB | Home 2023-11-03 | 5.60 | 5.70 | −0.10 |
-| 2023-12-02 Time Warp DIPA | Home 2023-11-03 | 5.63 | 5.60 | +0.03 |
+| 2023-12-02 Time Warp DIPA | Home 2023-11-03 | 5.66 | 5.60 | +0.06 |
 | 2024-03-23 Holy Hefe | Home 2024-03-20 | 5.68 | 5.65 | +0.03 |
-| 2024-09-17 Experiments Are Fun WCIPA | Home 2024-03-20 | 5.65 | 5.36 | +0.29 |
+| 2024-04-28 Kolsch | Home 2024-03-20 | 5.73 | 5.58 | +0.15 |
+| 2024-09-17 Experiments Are Fun WCIPA | Home 2024-03-20 | 5.69 | 5.36 | +0.33 |
 | 2025-03-22 Nordic Saison | Home 2024-03-20 | 5.72 | 5.54 | +0.18 |
 
-Across the 15: mean difference −0.02, mean size of the difference 0.18, largest 0.38; 5 within 0.10, 8 within 0.20.
+Across the 17: mean difference −0.02, mean size of the difference 0.18, largest 0.38; 5 within 0.10, 9 within 0.20. Updated 2026-10-02 after the sixth round (Carafoam as base; the Baltic Porter and 2024 Kölsch added); the first run, 15 batches with Carafoam as crystal, gave −0.02, 0.18 and 0.38.
 
-Not checked: batches with flaked or raw grain (S5-B10); the 2023 Baltic Porter and 2024 Kölsch (S5-B21); logs without a mash water volume or a pH reading.
+Not checked: batches with flaked or raw grain (S5-B10, open); logs without a mash water volume or a pH reading.
 
 ## Sources — the archived Troester pages (S5-B2')
 

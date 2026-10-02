@@ -189,7 +189,8 @@ describe('mash pH from the grain bill — the engine', () => {
     // 50.04 / 61.02 as CaCO3; the acid 1.054 x 0.10 x 1000 / 97.99 mEq/mL.
     // Malts by the workbook's colour (degL); base malts by the line (S5-B16);
     // Aromatic and Special Roast as crystal at 14.2 and 25.6 mEq/kg (S5-B19,
-    // B20); hulls and dextrose count as nothing (S5-B10).
+    // B20); Carafoam, a pale dextrin malt, as base (S5-B22); hulls and
+    // dextrose count as nothing (S5-B10).
     const { mashPh, predictFinalProfile } = engine;
     const TANK_GAL = 14;
     for (const b of OWNER_BATCHES) {
@@ -202,11 +203,11 @@ describe('mash pH from the grain bill — the engine', () => {
       const predicted = mashPh({ malts: b.malts, mashWaterGal: b.mashWaterGal, water: treated });
       expect(predicted, b.name).toBeCloseTo(b.predicted, 9);
     }
-    expect(OWNER_BATCHES).toHaveLength(15);
+    expect(OWNER_BATCHES).toHaveLength(17);
   });
 });
 
-// The owner's logged batches (S5-B1 to B21), oldest first.
+// The owner's logged batches (S5-B1 to B22), oldest first.
 const OWNER_BATCHES = [
     {
       // 2022-06-11 Holy Hefe. Measured 5.30 (cooled sample).
@@ -326,8 +327,8 @@ const OWNER_BATCHES = [
       // R = 11 x 3.785411784 / (17.5 x 0.453592) = 5.2456870773735; slope 0.0811939320058555.
       // NorthStar 16 lb base 2 L = 4.1 EBC -> 5.738.
       // MunichT1 1 lb base 6.9 L = 17.085 EBC -> 5.4783.
-      // Carafoam 0.5 lb crystal acidity 14.533 mEq/kg.
-      // Grist 5.71099241995627 + 0.0811939320058555 x -0.503372666852589 = 5.67012161387024.
+      // Carafoam 0.5 lb base 2 L = 4.1 EBC -> 5.738.
+      // Grist 5.72316 + 0.0811939320058555 x -0.503372666852589 = 5.68228919391396.
       name: "2023-01-21 O'Neill Kolsch",
       log: "Lagers & Hybrids/20230121 O'Neill Kolsch/20230121 Kolsch Brewing Log.xlsx",
       water: { Alkalinity: 70, Ca: 12, Mg: 4.8 },
@@ -337,10 +338,10 @@ const OWNER_BATCHES = [
       malts: [
         { name: "Pilsner, Northstar", type: 'base', weightLb: 16, colorL: 2 },
         { name: "Munich Type 1", type: 'base', weightLb: 1, colorL: 6.9 },
-        { name: "Carafoam", type: 'crystal', weightLb: 0.5, colorL: 2 },
+        { name: "Carafoam", type: 'base', weightLb: 0.5, colorL: 2 },
       ],
       measured: 5.95,
-      predicted: 5.67012161387024,
+      predicted: 5.68228919391396,
     },
     {
       // 2023-03-15 Best Bitter. Measured 5.87 (cooled sample).
@@ -437,6 +438,36 @@ const OWNER_BATCHES = [
       predicted: 5.48977819560367,
     },
     {
+      // 2023-10-04 Baltic Porter. Measured 5.66 (cooled sample).
+      // Water: Home 2023-08-18, alkalinity 90 as CaCO3, Ca 40 x 0.4 = 16, Mg 30 x 0.24 = 7.2.
+      // Treated in 14 gal: Ca 59.2857142857143, Mg 14.6285714285714, alkalinity 123.686852085967 after 0 mL acid;
+      // RA 72.7348712936502 = 1.45353459819445 mEq/L.
+      // R = 12 x 3.785411784 / (32.2 x 0.453592) = 3.11009115259298; slope 0.0534311849837088.
+      // MunichT2 18 lb base 9 L = 22.65 EBC -> 5.367.
+      // WeyPils 11 lb base 1.8 L = 3.57 EBC -> 5.7486.
+      // C40 1 lb crystal acidity 27.624 mEq/kg.
+      // SpecialB 1 lb crystal acidity 51.739 mEq/kg.
+      // CarafaSpecial2 0.7 lb roast acidity 40 mEq/kg.
+      // PaleChoc 0.5 lb roast acidity 40 mEq/kg.
+      // Grist 5.35240327332565 + 0.0534311849837088 x 1.45353459819445 = 5.43006734932199.
+      name: "2023-10-04 Baltic Porter",
+      log: "Porters and Stouts/20231004 Baltic Porter/20231004 Baltic Porter Data Log .xlsx",
+      water: { Alkalinity: 90, Ca: 16, Mg: 7.2 },
+      salts: { gypsum: 4, calcium_chloride: 5, epsom: 4, baking_soda: 3 },
+      acidMl: 0,
+      mashWaterGal: 12,
+      malts: [
+        { name: "Munich Type 2", type: 'base', weightLb: 18, colorL: 9 },
+        { name: "Pilsner, Weyermann", type: 'base', weightLb: 11, colorL: 1.8 },
+        { name: "American Crystal 40", type: 'crystal', weightLb: 1, colorL: 40 },
+        { name: "Special \"B\"", type: 'crystal', weightLb: 1, colorL: 110 },
+        { name: "Carafa Special 2", type: 'roast', weightLb: 0.7, colorL: 430 },
+        { name: "Pale Chocolate Malt", type: 'roast', weightLb: 0.5, colorL: 225 },
+      ],
+      measured: 5.66,
+      predicted: 5.43006734932199,
+    },
+    {
       // 2023-11-03 Bob's Your Uncle ESB. Measured 5.70 (cooled sample).
       // Water: Home 2023-11-03, alkalinity 60 as CaCO3, Ca 30 x 0.4 = 12, Mg 10 x 0.24 = 2.4.
       // Treated in 14 gal: Ca 67.7142857142857, Mg 9.82857142857143, alkalinity 41.7186823907663 after 18 mL acid;
@@ -471,8 +502,8 @@ const OWNER_BATCHES = [
       // GP 29 lb base 2.2 L = 4.63 EBC -> 5.7274.
       // Bonlander 2.5 lb base 10 L = 25.3 EBC -> 5.314.
       // C40 0.5 lb crystal acidity 27.624 mEq/kg.
-      // Carafoam 1.5 lb crystal acidity 14.533 mEq/kg.
-      // Grist 5.64895902152939 + 0.0551007314283097 x -0.396718942112883 = 5.6270995176475.
+      // Carafoam 1.5 lb base 2 L = 4.1 EBC -> 5.738.
+      // Grist 5.67879140406781 + 0.0551007314283097 x -0.396718942112883 = 5.65693190018593.
       name: "2023-12-02 Time Warp DIPA",
       log: "IPA/20231202 Time Warp DIPA/20231202 DIPA Data Log .xlsx",
       water: { Alkalinity: 60, Ca: 12, Mg: 2.4 },
@@ -483,11 +514,11 @@ const OWNER_BATCHES = [
         { name: "Golden Promise Pale Malt", type: 'base', weightLb: 29, colorL: 2.2 },
         { name: "Bonlander Munich", type: 'base', weightLb: 2.5, colorL: 10 },
         { name: "American Crystal 40", type: 'crystal', weightLb: 0.5, colorL: 40 },
-        { name: "Carafoam", type: 'crystal', weightLb: 1.5, colorL: 2 },
+        { name: "Carafoam", type: 'base', weightLb: 1.5, colorL: 2 },
         { name: "Dextrose", type: 'none', weightLb: 3, colorL: 0 },
       ],
       measured: 5.6,
-      predicted: 5.6270995176475,
+      predicted: 5.65693190018593,
     },
     {
       // 2024-03-23 Holy Hefe. Measured 5.65 (cooled sample).
@@ -513,14 +544,36 @@ const OWNER_BATCHES = [
       predicted: 5.68303270421218,
     },
     {
+      // 2024-04-28 Kolsch. Measured 5.58 (cooled sample).
+      // Water: Home 2024-03-20, alkalinity 60 as CaCO3, Ca 30 x 0.4 = 12, Mg 20 x 0.24 = 4.8.
+      // Treated in 14 gal: Ca 50.8928571428571, Mg 10.3714285714286, alkalinity 22.4217360254641 after 37 mL acid;
+      // RA -20.0311451269969 = -0.400302660411608 mEq/L.
+      // R = 8 x 3.785411784 / (19 x 0.453592) = 3.5138573724033; slope 0.0586801458412429.
+      // Barke 17 lb base 1.5 L = 2.775 EBC -> 5.7645.
+      // WhiteWheat 2 lb base 3 L = 6.75 EBC -> 5.685.
+      // Grist 5.75613157894737 + 0.0586801458412429 x -0.400302660411608 = 5.73264176045378.
+      name: "2024-04-28 Kolsch",
+      log: "Lagers & Hybrids/20240428 Kölsch/20240428 Kolsch Data Log.xlsx",
+      water: { Alkalinity: 60, Ca: 12, Mg: 4.8 },
+      salts: { gypsum: 3, calcium_chloride: 5, epsom: 3 },
+      acidMl: 37,
+      mashWaterGal: 8,
+      malts: [
+        { name: "Weyermann Barke Pilsner (not in the workbook; the owner gave 1.5 degL)", type: 'base', weightLb: 17, colorL: 1.5 },
+        { name: "White Wheat Malt", type: 'base', weightLb: 2, colorL: 3 },
+      ],
+      measured: 5.58,
+      predicted: 5.73264176045378,
+    },
+    {
       // 2024-09-17 Experiments Are Fun WCIPA. Measured 5.36 (cooled sample).
       // Water: Home 2024-03-20, alkalinity 60 as CaCO3, Ca 30 x 0.4 = 12, Mg 20 x 0.24 = 4.8.
       // Treated in 14 gal: Ca 62.5714285714286, Mg 10.3714285714286, alkalinity 20.390478513327 after 39 mL acid;
       // RA -30.4042393738278 = -0.607598708509749 mEq/L.
       // R = 13 x 3.785411784 / (29 x 0.453592) = 3.74104642665351; slope 0.0616336035464957.
       // GP 27 lb base 2.2 L = 4.63 EBC -> 5.7274.
-      // Carafoam 2 lb crystal acidity 14.533 mEq/kg.
-      // Grist 5.68800249149277 + 0.0616336035464957 x -0.607598708509749 = 5.65055399357712.
+      // Carafoam 2 lb base 2 L = 4.1 EBC -> 5.738.
+      // Grist 5.72813103448276 + 0.0616336035464957 x -0.607598708509749 = 5.69068253656711.
       name: "2024-09-17 Experiments Are Fun WCIPA",
       log: "IPA/20240917 Exp are Fun WCIPA/20240917 WCIPA Data Log .xlsx",
       water: { Alkalinity: 60, Ca: 12, Mg: 4.8 },
@@ -529,10 +582,10 @@ const OWNER_BATCHES = [
       mashWaterGal: 13,
       malts: [
         { name: "Golden Promise Pale Malt", type: 'base', weightLb: 27, colorL: 2.2 },
-        { name: "Carafoam", type: 'crystal', weightLb: 2, colorL: 2 },
+        { name: "Carafoam", type: 'base', weightLb: 2, colorL: 2 },
       ],
       measured: 5.36,
-      predicted: 5.65055399357712,
+      predicted: 5.69068253656711,
     },
     {
       // 2025-03-22 Nordic Saison. Measured 5.54 (cooled sample).
