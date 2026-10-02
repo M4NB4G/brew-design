@@ -1,9 +1,9 @@
 # Mash pH from the grain bill — Tier A + B (two items)
 
-Status: agreed 2026-10-02 ("agree to all"), not started. Written by the
-S4 session; to be built in batch S5
-(docs/ROADMAP.md, Sessions) before **Sparge acidification**
-(`docs/items/sparge-acid.md`). Water program step 5
+Status: agreed 2026-10-02 ("agree to all"), not started; waiting on the
+owner (S5 decisions below). Written by the S4 session; to be built in
+batch S5 (docs/ROADMAP.md, Sessions). **Sparge acidification**
+(`docs/items/sparge-acid.md`) left S5 on 2026-10-02. Water program step 5
 (`docs/items/water-program.md`: WP8 the model, WP9 the check against the
 owner's logs).
 
@@ -44,6 +44,18 @@ with a meter on brew day (the printed sheet now has the box for it).
 | MP-Q11 | Checking against your logs (MP-S4) | You supply at least five past batches (grain bill, water report, salts and acid, measured cooled mash pH). The builder reports each difference; no pass/fail line is set by the builder — you judge the result before item 2 is built | WP9; the model is only as good as its check, and the judgment is yours |
 | MP-Q12 | Where the figure shows | The Water tab's Salts & Acid screen, at the top of the predicted profile card ("Predicted mash pH (cooled sample)"), and on the printed sheet beside the measured box. Not in the stats bar | The stats bar holds the recipe's figures; the water figures stay on the Water tab |
 | K | Silent properties | **Schema migration:** malt rows gain a type and two lab figures — recipe format 7 — S4b took 6 (MP-Q8 for older rows). **Ingredient refresh:** the refresh tool and the ingredient test change (Tier B by CLAUDE.md, Ingredient data). **Ordering, multi-tab, storage disabled:** as today. **Idempotence:** the model is pure; same entries, same pH | — |
+
+## S5 decisions — agreed 2026-10-02 ("agree to all"), before building
+
+Raised by the S5 builder, who found item 1 could not start.
+
+| id | Question | Decision | Rule |
+|---|---|---|---|
+| S5-B1 | The owner's batch logs | The owner supplies his brewing logs; a log without its own water report uses the most recent report he had at the time, and each batch records which report it used (a known source of error: the tap water may have drifted). A batch is usable only with its grain bill, mash water, salts and acid (or none), and a measured mash pH of a cooled sample | MP-Q11 |
+| S5-B2' | MP-Q3's source, braukaiser.com, no longer serves its wiki (the site answers, every wiki page errors) | Troester's archived pages on the Wayback Machine, cited by archive address and date; the owner allows web.archive.org in the environment's network access or attaches the pages as PDFs | MP-Q3: the same published model, read from the original pages |
+| S5-B2'' | The archive does not have them | Stop and ask the owner before using any other source | No number from a source nobody checked |
+| S5-B4' | Sparge acidification in S5 | Out of S5, unassigned on the roadmap | The owner does not acidify his sparge |
+| S5-B6 | Filling in the malt types | The builder proposes each malt's type from its name in a review copy of the workbook, never the workbook itself; the owner reviews it and makes the edit. Malts the four types do not cover (unmalted grains, sugars, hulls, a fermenter addition) and three borderline malts (Victory, Special Roast, Honey Malt) are left blank and marked for his decision | MP-Q2: the owner sets each type |
 
 ## Scenarios — to be written first, must fail before
 

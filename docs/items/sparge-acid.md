@@ -1,7 +1,10 @@
 # Sparge acidification — Tier A + B
 
-Status: agreed 2026-10-02 ("agree to all"), not started. Written by the
-S4 session; to be built in batch S5
+Status: agreed 2026-10-02 ("agree to all"), not started; taken out of
+batch S5 and unassigned on the owner's call, 2026-10-02 (S5-B4'): he does
+not acidify his sparge, and SA-Q1's built-in target needs its page in
+Palmer & Kaminski's *Water*, not on hand. The table stands as agreed for
+whichever session takes it up. Written by the S4 session; to be built
 after **Mash pH from the grain bill** (`docs/items/mash-ph.md`). Left out of
 the water program (WP6c) and recorded on the roadmap.
 
