@@ -1,7 +1,7 @@
 // water-state.js
-// The Water tab's entries (docs/items/water-tab.md). Kept beside the recipe,
-// never in the recipe state or its saved document, and not saved at all yet
-// (W6: saved with the recipe from S4). Canonical units, as the engine's water
+// The Water tab's entries (docs/items/water-tab.md): part of the recipe,
+// its `water` field, saved and reset with it (docs/items/water-saved.md).
+// Canonical units, as the engine's water
 // chemistry takes them: the test results in mg/L (ppm; pH in SU), volumes in
 // US gal, grain absorption in qt/lb, salts in g, liquid acid in mL and
 // acidulated malt in g. A blank test result or setup figure is NaN, never 0
@@ -121,12 +121,6 @@ export function setWaterSetup(water, key, value) {
 // brewer's own amounts return to the recommendation (water treatment K).
 export function mashWaterChanged(water) {
   return effectiveSetup(water).treatment === 'mash' ? toRecommendation(water) : water;
-}
-
-// The recipe replaced (Import, Reset): as mashWaterChanged when its mash
-// water is not the one before; otherwise the entries as they are.
-export function recipeReplaced(water, before, after) {
-  return Object.is(before.mashWaterGal, after.mashWaterGal) ? water : mashWaterChanged(water);
 }
 
 export function setRaiseAlkSource(water, raiseAlkSource) {

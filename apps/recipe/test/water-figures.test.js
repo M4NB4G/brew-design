@@ -29,7 +29,6 @@ import {
 } from '@brew/engine';
 import { computeRecipe } from '../src/selectors.js';
 import { defaultRecipeState } from '../src/state.js';
-import { savePersisted, STORAGE_KEY } from '../src/persistence.js';
 import { recipeSheet } from '../src/components/recipe-sheet-data.js';
 
 const APP = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -427,26 +426,19 @@ describe('water figures through the front door', () => {
     expect(files.map((f) => relative(SRC, f).replace(/\\/g, '/'))).toContain('components/shared/styles.js');
   });
 
-  it('the recipe\'s figures, saved document and printed sheet are unchanged by any water entry', async () => {
+  it('the recipe\'s figures and printed sheet are unchanged by any water entry', async () => {
+    // Water saved with the recipe (WS-S1): the entries are now the recipe's
+    // and saved in its document (water-saved.test.js); no recipe figure and
+    // nothing on the printed sheet reads them.
     const { computeWater, defaultWaterState, EXAMPLE_SOURCE } = await water();
-    const recipe = defaultRecipeState();
-    const store = () => {
-      const m = new Map();
-      return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k), map: m };
-    };
-    const snapshot = () => {
-      const s = store();
-      savePersisted(s, { recipe, mode: 'home', proGravityUnit: 'plato' });
+    const snapshot = (recipe) => {
       const derived = computeRecipe(recipe);
       return {
         derived: JSON.stringify(derived),
-        saved: s.map.get(STORAGE_KEY),
-        keys: [...s.map.keys()],
         sheet: JSON.stringify(recipeSheet({ recipe, derived, mode: 'home', proGravityUnit: 'plato', today: new Date(2026, 8, 24) })),
       };
     };
-    const before = snapshot();
-    const recipeBytes = JSON.stringify(recipe);
+    const before = snapshot(defaultRecipeState());
 
     const states = [
       defaultWaterState(),
@@ -459,12 +451,8 @@ describe('water figures through the front door', () => {
       computeWater(w);
       // The selector reads its entries and changes none of them.
       expect(JSON.stringify(w)).toBe(input);
+      const { volumeGal, ...entered } = w;
+      expect(snapshot({ ...defaultRecipeState(), water: { ...defaultWaterState(), ...entered } })).toEqual(before);
     }
-
-    expect(JSON.stringify(recipe)).toBe(recipeBytes);
-    expect(snapshot()).toEqual(before);
-    expect(before.keys).toEqual([STORAGE_KEY]);
-    // No water entry is part of the recipe or its saved document.
-    expect(before.saved).not.toMatch(/Alkalinity|saltOverrides|acidAmounts|styleId/);
   });
 });

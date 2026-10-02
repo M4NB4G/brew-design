@@ -12,6 +12,7 @@ import { describe, it, expect } from 'vitest';
 import { sgToPlato } from '@brew/engine';
 import { computeRecipe } from '../src/selectors.js';
 import { volumeToCanonical, gravityFromCanonical, cellsFromCanonical } from '../src/display.js';
+import { defaultWaterState } from '../src/water-state.js';
 
 // Reference recipe expressed in canonical units (US gal, lb, oz, degF, SG).
 // preBoil 16 with boil-off 1.5 gal/hr for 60 min -> postBoil 14.5 gal.
@@ -51,6 +52,7 @@ const referenceState = {
   fermentVolGal: 12,
   yeast: { type: 'ale', density: 'mod', name: '', fermTempF: NaN },
   measurementTempF: { preBoil: 60, postBoil: 60, ferment: 60 },
+  water: defaultWaterState(), // read by no recipe figure
 };
 
 describe('parity through the UI selector (computeRecipe)', () => {

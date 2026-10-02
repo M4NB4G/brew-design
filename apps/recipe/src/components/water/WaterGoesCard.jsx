@@ -21,9 +21,9 @@ import {
 import { num } from '../../format.js';
 import { setWaterSetup } from '../../water-state.js';
 
-const VESSEL_LABELS = { 1: 'One vessel', 2: 'Two vessels', 3: 'Three vessels' };
-const SPARGE_LABELS = { none: 'No sparge (full volume)', batch: 'Batch sparge', fly: 'Fly sparge' };
-const TREATMENT_LABELS = { mash: 'The mash water', tank: "The hot-liquor tank's first fill" };
+export const VESSEL_LABELS = { 1: 'One vessel', 2: 'Two vessels', 3: 'Three vessels' };
+export const SPARGE_LABELS = { none: 'No sparge (full volume)', batch: 'Batch sparge', fly: 'Fly sparge' };
+export const TREATMENT_LABELS = { mash: 'The mash water', tank: "The hot-liquor tank's first fill" };
 
 // The figures the sums need, named as the card names them (WaterTab.jsx's
 // line for blank figures).

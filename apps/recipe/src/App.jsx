@@ -1,8 +1,8 @@
 // App.jsx
 // Owns the single canonical recipe-state object plus the display settings
 // (mode, Pro-mode gravity unit) and the active tab (Recipe · Water · Options;
-// not persisted). Beside the recipe it holds the Water tab's entries
-// (water-state.js), never inside the recipe and never saved (Water tab, W6). Derives all stats once via computeRecipe and passes plain props
+// not persisted). The Water tab's entries are the recipe's own (`recipe.water`,
+// water-state.js), saved and reset with it (Water saved with the recipe). Derives all stats once via computeRecipe and passes plain props
 // down to cleanly separated section components. No brewing math and no unit
 // conversion live here — those are in selectors.js and display.js
 // respectively.
@@ -17,7 +17,7 @@ import {
   newRecipe,
 } from './state.js';
 import { computeRecipe, computeWater } from './selectors.js';
-import { defaultWaterState, mashWaterChanged, recipeReplaced } from './water-state.js';
+import { mashWaterChanged } from './water-state.js';
 import { emptyFields, emptyFieldsLine } from './empty-fields.js';
 import {
   loadStartingState,
@@ -72,16 +72,17 @@ export default function App() {
   // The brewery's figures (Options tab, My brewery): kept apart from the
   // recipe, and read only when a new recipe is made.
   const [brewery, setBrewery] = useState(() => loadBrewery(browserStorage()));
-  // The Water tab's entries and its open screen: kept while the page is open,
-  // saved nowhere (W6), and changed only through water-state.js's steps.
-  const [water, setWater] = useState(defaultWaterState);
+  // The Water tab's entries are the recipe's (saved by the autosave below),
+  // changed only through water-state.js's steps; its open screen is not saved.
+  const water = recipe.water;
+  const setWater = (step) => setRecipe((r) => ({ ...r, water: step(r.water) }));
   const [waterScreen, setWaterScreen] = useState('water'); // 'water' | 'style' | 'salts' | 'notes'
 
   const derived = useMemo(() => computeRecipe(recipe), [recipe]);
   // The empty number boxes, named under the stats bar (null when none).
   const emptyLine = useMemo(() => emptyFieldsLine(emptyFields(recipe, derived)), [recipe, derived]);
   // The water figures read the recipe's grain, mash water and pre-boil volume.
-  const waterFigures = useMemo(() => computeWater(water, recipe), [water, recipe]);
+  const waterFigures = useMemo(() => computeWater(recipe.water, recipe), [recipe]);
 
   // Autosave on every change (scope table P6: synchronous, no debounce).
   useEffect(() => {
@@ -128,7 +129,6 @@ export default function App() {
     );
     if (result.outcome === 'refused') setFileMessage(result.message);
     if (result.outcome !== 'replaced') return;
-    setWater((w) => recipeReplaced(w, recipe, result.state.recipe)); // water treatment K
     setRecipe(result.state.recipe);
     setMode(result.state.mode);
     setProGravityUnit(result.state.proGravityUnit);
@@ -143,7 +143,6 @@ export default function App() {
     if (!window.confirm(`Reset the recipe and settings to ${to}? The saved copy will be removed.`)) return;
     clearPersisted(browserStorage());
     const fresh = newRecipe(brewery);
-    setWater((w) => recipeReplaced(w, recipe, fresh.recipe)); // water treatment K
     setRecipe(fresh.recipe);
     setMode(fresh.mode);
     setProGravityUnit(fresh.proGravityUnit);
@@ -158,6 +157,7 @@ export default function App() {
   const setBreweryFigure = (key, value) => changeBrewery({ ...brewery, [key]: value });
   const setBreweryTemp = (kind, tempF) =>
     changeBrewery({ ...brewery, measurementTempF: { ...brewery.measurementTempF, [kind]: tempF } });
+  const setBreweryWater = (key, value) => changeBrewery({ ...brewery, water: { ...brewery.water, [key]: value } });
   const useRecipeFigures = () => changeBrewery(breweryFiguresFromRecipe(recipe, mode, proGravityUnit));
   const forgetBrewery = () => {
     if (!window.confirm("Forget your brewery's figures? A new recipe will start from the built-in figures; the recipe on screen is unchanged.")) return;
@@ -298,6 +298,7 @@ export default function App() {
             brewery={brewery}
             setBreweryFigure={setBreweryFigure}
             setBreweryTemp={setBreweryTemp}
+            setBreweryWater={setBreweryWater}
             onUseRecipeFigures={useRecipeFigures}
             onForgetBrewery={forgetBrewery}
           />

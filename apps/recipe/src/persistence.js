@@ -24,6 +24,11 @@
 // and the fermentation temperature (degF). A version-1, 2 or 3 document is
 // read with an empty strain and a blank (NaN) temperature, and the autosave
 // rewrites it as version 4.
+// Version 5 (Water saved with the recipe, 2026-10-02): the recipe gains the
+// Water tab's entries, `water`. A version-1 to 4 document is read with the
+// built-in water entries — never the brewery's — and the autosave rewrites it
+// as version 5. Its amounts that follow the recommendation are saved as null
+// and read back as null, not as a blank figure.
 //
 // Recipe file (2026-09-23): export hands the browser the same document the
 // autosave writes, as a file; import reads a file with the same reader as
@@ -37,6 +42,9 @@
 // first visit with nothing saved starts from them. Upgrading an old recipe
 // and checking its shape always use the built-in recipe, never the
 // brewery's figures, so a recipe loads as it was saved whatever they are.
+// Their version 2 (Water saved with the recipe, 2026-10-02) adds their water
+// figures; a version-1 document is read with them blank and saved back as
+// version 2.
 //
 // Saved rows checked inside (2026-09-23): a document is readable only if its
 // every malt, kettle-hop and dry-hop row, and its yeast, carry every field of
@@ -45,15 +53,23 @@
 // found, under its own key before a new recipe replaces it; a refused file
 // is not (it is still on the brewer's disk).
 
-import { PITCH_RATES } from '@brew/engine';
-import { defaultRecipeState, DEFAULT_DISPLAY, emptyBreweryFigures, newRecipe } from './state.js';
+import { PITCH_RATES, SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS, STYLE_FAMILIES } from '@brew/engine';
+import {
+  defaultRecipeState,
+  DEFAULT_DISPLAY,
+  emptyBreweryFigures,
+  emptyBreweryWater,
+  BREWERY_WATER_CHOICES,
+  newRecipe,
+} from './state.js';
+import { TEST_RESULT_KEYS, TREATMENTS, SPARGE_METHODS, VESSEL_COUNTS } from './water-state.js';
 
 export const STORAGE_KEY = 'brew-design.recipe';
 // The latest saved copy that could not be read, kept as found (V3); nothing
 // reads it back.
 export const UNREADABLE_KEY = 'brew-design.recipe.unreadable';
-export const SCHEMA_VERSION = 4;
-const READABLE_VERSIONS = [1, 2, 3, SCHEMA_VERSION];
+export const SCHEMA_VERSION = 5;
+const READABLE_VERSIONS = [1, 2, 3, 4, SCHEMA_VERSION];
 
 const MODES = ['home', 'pro'];
 const GRAVITY_UNITS = ['plato', 'sg'];
@@ -113,6 +129,35 @@ function hasRowsOf(recipe, template) {
   );
 }
 
+// Water saved with the recipe (WS-S5): the water entries carry every field,
+// each of its kind — a number as a number or blank; a choice among the Water
+// tab's own; a salt, an acid or a style the engine knows.
+const SALT_KEYS = Object.keys(SALT_CONTRIBUTIONS_PER_G_GAL);
+const ACID_KEYS = Object.keys(ACIDS);
+const STYLE_IDS = STYLE_FAMILIES.map((s) => s.id);
+const isNumber = (v) => typeof v === 'number';
+const amountsOf = (o, keys) => isRecord(o) && Object.entries(o).every(([k, v]) => keys.includes(k) && isNumber(v));
+
+function hasWaterOf(water) {
+  if (!isRecord(water) || !isRecord(water.source)) return false;
+  return (
+    TEST_RESULT_KEYS.every((k) => isNumber(water.source[k])) &&
+    STYLE_IDS.includes(water.styleId) &&
+    ['baking_soda', 'pickling_lime'].includes(water.raiseAlkSource) &&
+    Array.isArray(water.enabledSalts) &&
+    water.enabledSalts.every((k) => SALT_KEYS.includes(k)) &&
+    amountsOf(water.saltOverrides, SALT_KEYS) &&
+    (water.acidAmounts === null || amountsOf(water.acidAmounts, ACID_KEYS)) &&
+    ACID_KEYS.includes(water.primaryAcid) &&
+    typeof water.multiAcid === 'boolean' &&
+    TREATMENTS.includes(water.treatment) &&
+    typeof water.kettleSalts === 'boolean' &&
+    VESSEL_COUNTS.includes(water.vessels) &&
+    SPARGE_METHODS.includes(water.spargeMethod) &&
+    ['tankTreatedGal', 'tankTopUpGal', 'absorptionQtPerLb', 'keptInTunGal'].every((k) => isNumber(water[k]))
+  );
+}
+
 // Read one document's text. Returns { state } when it is a readable document
 // at SCHEMA_VERSION, at version 3 (read with an empty strain and a blank
 // fermentation temperature), at version 2 (read also with an empty name,
@@ -139,14 +184,23 @@ function readDocument(raw, defaults) {
     // Code before version 4 never wrote a strain or a fermentation temperature.
     recipe = { ...recipe, yeast: { ...yeast, name: '', fermTempF: NaN } };
   }
+  if (doc.version <= 4 && isRecord(recipe)) {
+    // Code before version 5 never wrote the water entries: the built-in
+    // recipe's, never the brewery's figures (WS-S3).
+    recipe = { ...recipe, water: structuredClone(defaults.recipe.water) };
+  } else if (isRecord(recipe?.water) && Number.isNaN(recipe.water.acidAmounts)) {
+    // Amounts that follow the recommendation were saved as null.
+    recipe = { ...recipe, water: { ...recipe.water, acidAmounts: null } };
+  }
   if (!hasShapeOf(recipe, defaults.recipe) || !hasRowsOf(recipe, defaults.recipe)) return {};
+  if (!hasWaterOf(recipe.water)) return {};
   if (!MODES.includes(doc.mode) || !GRAVITY_UNITS.includes(doc.proGravityUnit)) return {};
   return { state: { recipe, mode: doc.mode, proGravityUnit: doc.proGravityUnit } };
 }
 
 /**
  * Read the persisted document. Returns { recipe, mode, proGravityUnit } when
- * storage holds a readable document at SCHEMA_VERSION or at version 3, 2 or 1
+ * storage holds a readable document at SCHEMA_VERSION or at version 4, 3, 2 or 1
  * (read as readDocument describes, against `defaults`); otherwise
  * `fallback`, which is `defaults` unless given. A saved copy that cannot be
  * read is first kept aside, as found, under UNREADABLE_KEY, replacing any
@@ -220,19 +274,46 @@ export function clearPersisted(storage) {
 }
 
 export const BREWERY_KEY = 'brew-design.brewery';
-export const BREWERY_VERSION = 1;
+export const BREWERY_VERSION = 2;
 
 // A saved figure: a finite number, or null (blank).
 const isFigure = (v) => v === null || Number.isFinite(v);
 
+// The brewery's water figures in a document, or null when one is missing or
+// is not a figure: each test result blank or a number; the salts on hand
+// blank or a list of the engine's salts; each choice blank or one the Water
+// tab offers; each setup figure blank or a number.
+function readBreweryWater(w) {
+  if (!isRecord(w) || !isRecord(w.source)) return null;
+  const out = emptyBreweryWater();
+  for (const k of TEST_RESULT_KEYS) {
+    if (!isFigure(w.source[k])) return null;
+    out.source[k] = w.source[k];
+  }
+  const salts = w.enabledSalts;
+  if (salts !== null && !(Array.isArray(salts) && salts.every((k) => SALT_KEYS.includes(k)))) return null;
+  out.enabledSalts = salts === null ? null : [...salts];
+  for (const [k, ok] of Object.entries(BREWERY_WATER_CHOICES)) {
+    if (w[k] !== null && !ok(w[k])) return null;
+    out[k] = w[k];
+  }
+  for (const k of ['tankTreatedGal', 'tankTopUpGal', 'absorptionQtPerLb', 'keptInTunGal']) {
+    if (!isFigure(w[k])) return null;
+    out[k] = w[k];
+  }
+  return out;
+}
+
 // The brewery figures in a document, or null when one is missing or is not
-// a figure: every key of the blank figures, each blank or of its kind.
-function readBrewery(b) {
+// a figure: every key of the blank figures, each blank or of its kind. A
+// version-1 document, saved before the water setup, has every water figure
+// blank (WS-S4).
+function readBrewery(b, version) {
   const isObject = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
   if (!isObject(b) || !isObject(b.measurementTempF)) return null;
   const out = emptyBreweryFigures();
   for (const k of Object.keys(out)) {
-    if (k === 'measurementTempF') continue;
+    if (k === 'measurementTempF' || k === 'water') continue;
     if (!(k in b)) return null;
     out[k] = b[k];
   }
@@ -240,25 +321,34 @@ function readBrewery(b) {
     if (!isFigure(b.measurementTempF[k])) return null;
     out.measurementTempF[k] = b.measurementTempF[k];
   }
-  const { mode, proGravityUnit, measurementTempF, ...numbers } = out;
+  const { mode, proGravityUnit, measurementTempF, water, ...numbers } = out;
   if (!Object.values(numbers).every(isFigure)) return null;
   if (mode !== null && !MODES.includes(mode)) return null;
   if (proGravityUnit !== null && !GRAVITY_UNITS.includes(proGravityUnit)) return null;
+  if (version > 1) {
+    out.water = readBreweryWater(b.water);
+    if (out.water === null) return null;
+  }
   return out;
 }
 
 /**
- * Read the brewery's figures. Nothing saved, unreadable data, any version
- * but BREWERY_VERSION, or unavailable storage yields every figure blank (the
- * built-in figures). Never throws.
+ * Read the brewery's figures. Nothing saved, unreadable data, a version
+ * other than 1 or BREWERY_VERSION, or unavailable storage yields every figure
+ * blank (the built-in figures). A readable version-1 document is read with
+ * the water figures blank and saved back at BREWERY_VERSION (best-effort).
+ * Never throws.
  */
 export function loadBrewery(storage) {
   try {
     const raw = storage.getItem(BREWERY_KEY);
     if (raw === null || raw === undefined) return emptyBreweryFigures();
     const doc = JSON.parse(raw);
-    if (!doc || typeof doc !== 'object' || doc.version !== BREWERY_VERSION) return emptyBreweryFigures();
-    return readBrewery(doc.brewery) ?? emptyBreweryFigures();
+    if (!doc || typeof doc !== 'object' || ![1, BREWERY_VERSION].includes(doc.version)) return emptyBreweryFigures();
+    const brewery = readBrewery(doc.brewery, doc.version);
+    if (brewery === null) return emptyBreweryFigures();
+    if (doc.version !== BREWERY_VERSION) saveBrewery(storage, brewery);
+    return brewery;
   } catch {
     return emptyBreweryFigures();
   }

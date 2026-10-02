@@ -36,16 +36,17 @@ pinned by the golden-master tests.
    printed sheet, names every empty number box that feeds a figure, and
    any measurement temperature the correction cannot use — read from the
    recipe's own figures, not from a range written in the app.
-   The Water tab's entries are a second object beside it, never inside it
-   or its saved document: the test results in mg/L (pH in SU); where the
+   The Water tab's entries are part of the recipe, its `water` field, saved
+   and reset with it and read by no recipe figure: the test results in mg/L
+   (pH in SU); the style family; the salts on hand and the brewer's own salt
+   and acid amounts (none while they follow the recommendation); where the
    water is treated (the mash water or the hot-liquor tank's first fill),
    whether salts also go in the kettle, and the setup the water sums need —
    vessels, sparge method, the tank's treated volume and top-up level and
    the water kept in the mash tun in US gal, grain absorption in qt/lb;
    salts and acidulated malt in g, liquid acid in mL; a blank test result
    or setup figure is NaN. The volume treated is the recipe's mash water or
-   the tank's treated volume; nothing else is typed as a water volume. They
-   are not saved yet (Water tab, W6).
+   the tank's treated volume; nothing else is typed as a water volume.
 9. **Convert only at the edges.** `display.js` is the only place that converts
    between canonical and display units, using engine constants and functions
    (`GALLONS_PER_BBL`, `OZ_PER_LB`, `G_PER_OZ`, `sgToPlato`, `platoToSg`, …).
@@ -76,19 +77,24 @@ pinned by the golden-master tests.
     only when the canonical state does, at the value that leaves every pinned
     number the same.
 13. Persisted state is the canonical state, under one key, in one JSON
-    document carrying a schema version (4). A version-1 document — saved
+    document carrying a schema version (5). A version-1 document — saved
     before the measurement temperatures existed — loads as the same recipe
     with the three at 60 °F; a version-1 or version-2 document — saved
     before the recipe had a name, style and notes — loads with those three
     empty; a version-1, 2 or 3 document — saved before the yeast had a
     strain and a fermentation temperature — loads with an empty strain and a
-    blank fermentation temperature; each is saved back as version 4. Unreadable data,
+    blank fermentation temperature; a version-1 to 4 document — saved before
+    the water was part of the recipe — loads with the built-in water
+    entries, never the brewery's; each is saved back as version 5. Unreadable data,
     any other version, or unavailable storage yields a new recipe (rule 17) and never
     throws. A document is readable only if, after its upgrade, every malt,
     kettle-hop and dry-hop row and the yeast carry every field of the
     built-in recipe's, each of its kind — text as text, a number as a
     number or blank — with ale/lager and the yeast character among the
-    engine's pitch-rate choices; extra fields are ignored. A saved copy in
+    engine's pitch-rate choices, and the water entries carry every field,
+    each of its kind — a number as a number or blank, a choice among the
+    Water tab's, a salt, acid or style the engine knows; extra fields are
+    ignored. A saved copy in
     storage that cannot be read is kept aside, as found, under its own key
     (`brew-design.recipe.unreadable`), replacing any copy kept before;
     nothing reads it back, and failing to keep it never stops a load.
@@ -112,10 +118,16 @@ pinned by the golden-master tests.
 17. **The brewery's figures are not a recipe.** The brewery's batch
     (fermentation) volume, pre-boil volume, boil-off rate, boil time, three
     measurement temperatures, brewhouse efficiency, Home/Pro and Pro gravity
-    unit are kept in their own JSON document, under their own key, carrying
-    their own version (1), in the recipe's units; a blank figure is null.
+    unit, and their water — the usual water report, the salts on hand, the
+    usual treatment choice and kettle switch, and the water setup (vessels,
+    sparge, the tank's treated volume and top-up level, grain absorption,
+    water kept in the mash tun) — are kept in their own JSON document, under
+    their own key, carrying their own version (2), in the recipe's units; a
+    blank figure is null. A version-1 document — saved before the water —
+    loads with every water figure blank and is saved back as version 2.
     Unreadable data, any other version, or unavailable storage yields every
-    figure blank and never throws. A new recipe — Reset, or a load with no
+    figure blank and never throws. The water style and the brewer's own
+    amounts are never brewery figures. A new recipe — Reset, or a load with no
     readable saved recipe — is the built-in recipe and display settings with
     each figure that is set in place of the built-in one; a blank figure
     never reaches a recipe. They are copied only when a recipe is created:

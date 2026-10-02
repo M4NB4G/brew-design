@@ -318,18 +318,12 @@ describe('water treatment choice', () => {
     expect(s.mashWaterChanged(own).saltOverrides).toEqual({});
     const ownTank = { ...own, treatment: 'tank' };
     expect(s.mashWaterChanged(ownTank).saltOverrides).toEqual({ gypsum: 9 });
-    // A recipe replaced by Import or Reset: a different mash water is a new
-    // treated volume; the same mash water (a blank one included) is not.
-    expect(s.recipeReplaced(own, exampleRecipe(), exampleRecipe({ mashWaterGal: 5 })).saltOverrides).toEqual({});
-    expect(s.recipeReplaced(own, exampleRecipe(), exampleRecipe()).saltOverrides).toEqual({ gypsum: 9 });
-    const blankMash = exampleRecipe({ mashWaterGal: NaN });
-    expect(s.recipeReplaced(own, blankMash, blankMash).saltOverrides).toEqual({ gypsum: 9 });
-    expect(s.recipeReplaced(ownTank, exampleRecipe(), exampleRecipe({ mashWaterGal: 5 })).saltOverrides).toEqual({
-      gypsum: 9,
-    });
-    // The app applies it wherever the recipe is replaced: Import and Reset.
+    // A recipe replaced by Import or Reset brings its own water entries,
+    // their amounts made for its own mash water (Water saved with the
+    // recipe, WS-S1, superseding the reset this item first did there): the
+    // Water tab's entries are the recipe's.
     const app = readFileSync(join(SRC, 'App.jsx'), 'utf8');
-    expect(app.match(/setWater\(\(w\) => recipeReplaced\(w, recipe, (result\.state|fresh)\.recipe\)\)/g)).toHaveLength(2);
+    expect(app).toMatch(/const water = recipe\.water;/);
   });
 
   it('a blank figure the sums need blanks what needs it and is named', async () => {

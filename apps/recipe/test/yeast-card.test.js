@@ -11,6 +11,7 @@ import { describe, it, expect } from 'vitest';
 import ingredients from '../src/ingredients.json';
 import { selectPitchRate } from '@brew/engine';
 import { defaultRecipeState } from '../src/state.js';
+import { defaultWaterState } from '../src/water-state.js';
 import { computeRecipe } from '../src/selectors.js';
 import {
   loadPersisted,
@@ -193,7 +194,7 @@ describe('yeast card', () => {
   });
 
   // Y5, Q9
-  it('the saved document carries version 4 with the strain and the fermentation temperature; a blank temperature round-trips as blank', () => {
+  it('the saved document carries version 5 with the strain and the fermentation temperature; a blank temperature round-trips as blank', () => {
     const s = fakeStorage();
     const recipe = {
       ...defaultRecipeState(),
@@ -203,8 +204,8 @@ describe('yeast card', () => {
     savePersisted(s, state);
 
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(SCHEMA_VERSION).toBe(4);
-    expect(doc.version).toBe(4);
+    expect(SCHEMA_VERSION).toBe(5);
+    expect(doc.version).toBe(5);
     expect(doc.recipe.yeast).toEqual({ type: 'lager', density: 'high', name: 'Hausstamm Kölner ÄLE', fermTempF: 52.5 });
     expect(loadPersisted(s, defaults())).toEqual(state);
     // The recipe file is the same document, and imports as the same recipe.
@@ -223,7 +224,7 @@ describe('yeast card', () => {
   });
 
   // Y5
-  it('a version 1, 2 or 3 document loads with an empty strain and a blank fermentation temperature, every number as before, and is saved back as version 4', () => {
+  it('a version 1, 2 or 3 document loads with an empty strain and a blank fermentation temperature, every number as before, and is saved back as version 5 with the built-in water', () => {
     // What version-3 code saved: the yeast without a strain or a temperature.
     const v3Recipe = {
       ...referenceState(),
@@ -249,7 +250,9 @@ describe('yeast card', () => {
         },
       },
     ];
-    for (const { version, recipe, expected } of cases) {
+    for (const { version, recipe, expected: before5 } of cases) {
+      // Water saved with the recipe (WS-S3): read with the built-in water.
+      const expected = { ...before5, water: defaultWaterState() };
       const text = JSON.stringify({ version, recipe, mode: 'pro', proGravityUnit: 'sg' });
       const s = fakeStorage();
       s.setItem(STORAGE_KEY, text);
@@ -266,7 +269,7 @@ describe('yeast card', () => {
       expect(importRecipeFile(text, defaults(), () => true).state.recipe, `version ${version}`).toEqual(expected);
 
       savePersisted(s, loaded);
-      expect(JSON.parse(s._map.get(STORAGE_KEY)).version, `version ${version}`).toBe(4);
+      expect(JSON.parse(s._map.get(STORAGE_KEY)).version, `version ${version}`).toBe(5);
     }
   });
 

@@ -1,8 +1,8 @@
 // WaterTab.jsx
 // The Water tab (docs/items/water-tab.md, item 2): Brew Water Chem's four
 // screens under a second row of tabs — Water In · Style · Salts & Acid ·
-// Notes, its "Recipe" renamed so there are not two (W2) — with a line saying
-// the entries are not saved (W6), a line naming any blank test result (W5),
+// Notes, its "Recipe" renamed so there are not two (W2) — with a line naming
+// any blank test result (W5)
 // and one naming any blank figure the water sums need (water treatment,
 // WT-S9). Every figure comes from computeWater (selectors.js) as `figures`; the
 // entries change only through water-state.js's steps, handed to `setWater`.
@@ -62,10 +62,6 @@ export default function WaterTab({ water, figures, mode, screen, onScreen, setWa
           );
         })}
       </div>
-
-      <p style={{ ...tokens.notice, marginTop: 0, marginBottom: '0.75rem' }}>
-        Not saved yet: the water entries last until the page is reloaded.
-      </p>
 
       {blank.length > 0 && (
         <p role="status" style={{ ...tokens.warning, margin: '0 0 0.9rem' }}>

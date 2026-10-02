@@ -1,6 +1,6 @@
 # Water saved with the recipe — Tier B
 
-Status: agreed 2026-10-02 ("agree to all"), not started. Written by
+Status: agreed 2026-10-02 ("agree to all"); landed 2026-10-02 on branch S4 as "The Water tab's entries are part of the recipe: saved with it, carried in the recipe file, restored when it loads, and reset with it; the brewery's figures gain the water setup". Written by
 the S3 session; to be built in batch S4, second of three items, after
 `docs/items/water-treatment.md`. Water program step 4 (WP4, WP5, WP10).
 
@@ -59,4 +59,26 @@ brewery's other figures, so a new recipe starts from them (WP4, WP10).
 
 ## Recorded failure (filled in by the builder)
 
+Run alone against the code before this item (2026-10-02), every scenario failed:
+
+```
+apps/recipe/test/water-saved.test.js (6 failed / 6):
+  × the water entries round-trip with the recipe through storage and the recipe file — AssertionError: expected undefined to deeply equal { …(16) }
+  × a new recipe starts from the brewery's water figures; a blank one is the built-in — AssertionError: expected false to be true
+  × an older recipe loads with the built-in water, whatever the brewery's figures — AssertionError: expected undefined to deeply equal { …(16) }
+  × older brewery figures load with the water setup blank — AssertionError: expected 1 to be 2
+  × damaged water entries make a recipe unreadable — AssertionError: no water: expected { recipe: … } to deeply equal { recipe: … }
+  × the same entries give the same figures, saved or typed — AssertionError: expected { style: { id: 'ipa', … } } to deeply equal { style: { id: 'ipa', … } }
+```
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+1. **Where the entries live.** In the recipe itself, as its `water` field (`defaultRecipeState().water` is `defaultWaterState()`), so the autosave, the recipe file, Import and Reset carry them with no further wiring. No recipe figure reads them (`computeRecipe` is unchanged); the smoke test's reference state gains `water: defaultWaterState()` as rule 12 requires, every pinned number the same.
+2. **Import and Reset bring the recipe's own water.** The first item's reset of the brewer's own amounts on Import and Reset (added after its inspector's FAIL) is removed: the imported or reset recipe's amounts are its own, made for its own mash water. A mash water typed on the Recipe tab still resets them (that item's K).
+3. **Amounts that follow the recommendation** are saved as null and read back as null (the reader turns blanks to NaN everywhere else).
+4. **A version-1 to 4 document** gets the built-in water entries even if it happens to carry a `water` field (ignored, as extra fields are).
+5. **What "damaged" means (WS-S5).** The water entries must carry every field: each test result a number or blank; the style one of the engine's families; the alkalinity salt baking soda or pickling lime; salts on hand a list of the engine's salts; the brewer's salt amounts and acid amounts numbers keyed by the engine's salts and acids (acid amounts may be null); the primary acid one of the engine's; several-acids and the kettle switch yes/no; the treatment, vessels and sparge among the Water tab's choices; the four setup figures numbers or blank.
+6. **The brewery's water** is a nested group in the brewery document: each test result, the four setup figures, the three choices and the kettle switch blank (null) or set; salts on hand blank (all, the built-in) or a list. A blank never reaches a recipe. "Use this recipe's figures" takes them from the recipe's water, a blank result or tank volume as a blank.
+7. **Version-1 brewery figures** are read with every water figure blank and rewritten in storage as version 2 when read (best-effort, never throws) — the brewery document is otherwise written only when a figure changes.
+8. **Options → My brewery → Water** (S7): Vessels, Sparge, Treat, "Salts also go in the kettle" as choices whose blank option names the built-in one; Treated volume, Top-up level, Grain absorption (qt/lb), Water kept in the mash tun, and the seven report rows as number boxes, blank until set; Salts on hand as ticks, all ticked with "Built-in (all)" until one is changed. Once changed, salts on hand return to blank only through "Forget my brewery figures".
+9. **Earlier scenarios.** The options, identity, recipe-file and yeast-card scenarios pin version 5 where they pinned 4 (their names say so), their older documents also reading with the built-in water; brewery-defaults' fixture gains blank water figures and pins version 2; "use this recipe's figures" now expects the recipe's water too; the Water tab's W6 scenario ("the entries are not saved") is retired, WS-S1 holding the opposite; the S3 scenario "the recipe's figures, saved document and printed sheet are unchanged by any water entry" drops the saved document; item 1's Import/Reset assertions give way to point 2.

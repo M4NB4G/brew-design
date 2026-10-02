@@ -12,16 +12,11 @@
 import { describe, it, expect } from 'vitest';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { STYLE_FAMILIES, SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS } from '@brew/engine';
 import { computeWater as computeWaterFor } from '../src/selectors.js';
 import { defaultWaterState, EXAMPLE_SOURCE } from '../src/water-state.js';
-import { defaultRecipeState, emptyBreweryFigures } from '../src/state.js';
-import { savePersisted, saveBrewery, STORAGE_KEY, BREWERY_KEY } from '../src/persistence.js';
+import { defaultRecipeState } from '../src/state.js';
 
-const SRC = join(dirname(fileURLToPath(import.meta.url)), '..', 'src');
 // Water treatment choice (WT-S8): the water figures read the recipe; the
 // built-in recipe's 5 gal of mash water is S3's 5 gal.
 const computeWater = (water) => computeWaterFor(water, defaultRecipeState());
@@ -198,61 +193,9 @@ describe('water tab screens', () => {
     expect(notes).toContain('water program step 5');
   });
 
-  it('the Water tab says the entries are not saved, and nothing is saved', async () => {
-    const s = await steps();
-
-    // Every screen says so (W6).
-    for (const screen of ['water', 'style', 'salts', 'notes']) {
-      expect(text(await renderWater(defaultWaterState(), screen))).toContain('Not saved yet');
-    }
-
-    // A browser's storage holding a saved recipe and brewery figures keeps
-    // the same keys and bytes through every water entry.
-    const map = new Map();
-    const storage = {
-      getItem: (k) => (map.has(k) ? map.get(k) : null),
-      setItem: (k, v) => map.set(k, String(v)),
-      removeItem: (k) => map.delete(k),
-    };
-    savePersisted(storage, { recipe: defaultRecipeState(), mode: 'home', proGravityUnit: 'plato' });
-    saveBrewery(storage, { ...emptyBreweryFigures(), fermentVolGal: 12 });
-    const before = JSON.stringify([...map.entries()]);
-    const hadStorage = 'localStorage' in globalThis;
-    const saved = globalThis.localStorage;
-    globalThis.localStorage = storage;
-    try {
-      let w = defaultWaterState();
-      const current = () => computeWater(w).acid.amounts;
-      w = s.fillTestResults(w, EXAMPLE_SOURCE);
-      w = s.setTestResult(w, 'Ca', 40);
-      w = s.setWaterStyle(w, 'ipa');
-      w = s.setWaterSetup(w, 'treatment', 'tank');
-      w = s.setWaterSetup(w, 'tankTreatedGal', 310);
-      w = s.setRaiseAlkSource(w, 'pickling_lime');
-      w = s.toggleSaltOnHand(w, 'chalk');
-      w = s.setSaltAmount(w, 'gypsum', 12);
-      w = s.setAcidAmount(w, current(), 'lactic_88', 4);
-      w = s.setMultiAcid(w, current(), true);
-      w = s.setPrimaryAcid(w, current(), 'phosphoric_10');
-      w = s.setMultiAcid(w, current(), false);
-      w = s.resetToRecommended(w);
-      computeWater(w);
-    } finally {
-      if (hadStorage) globalThis.localStorage = saved;
-      else delete globalThis.localStorage;
-    }
-    expect(JSON.stringify([...map.entries()])).toBe(before);
-    expect([...map.keys()].sort()).toEqual([BREWERY_KEY, STORAGE_KEY].sort());
-
-    // The app saves the recipe and its display settings alone, as before;
-    // the water entries reach no save, export or brewery call.
-    const app = readFileSync(join(SRC, 'App.jsx'), 'utf8');
-    expect(app).toMatch(/savePersisted\(browserStorage\(\), \{ recipe, mode, proGravityUnit \}\);\s*\}, \[recipe, mode, proGravityUnit\]\);/);
-    for (const call of app.matchAll(/\b(savePersisted|exportRecipeDocument|saveBrewery|breweryFiguresFromRecipe)\(([^)]*)\)/g)) {
-      expect(call[2], call[0]).not.toMatch(/water/i);
-    }
-    expect(app).toMatch(/useState\(defaultWaterState\)/);
-  });
+  // W6 ("the Water tab says the entries are not saved, and nothing is saved")
+  // is superseded by Water saved with the recipe (WS-S1): the entries are now
+  // saved with the recipe, and water-saved.test.js holds the scenario.
 
   it('changing the volume, style or salts on hand returns the salt and acid amounts to the recommendation', async () => {
     const s = await steps();

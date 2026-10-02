@@ -8,6 +8,7 @@
 // the reference spreadsheet. The parity recipe lives in test/smoke.test.js.
 
 import { REFERENCE_TEMP_F } from '@brew/engine';
+import { defaultWaterState, TEST_RESULT_KEYS, TREATMENTS, SPARGE_METHODS, VESSEL_COUNTS } from './water-state.js';
 
 export function defaultRecipeState() {
   return {
@@ -52,6 +53,11 @@ export function defaultRecipeState() {
     // recipe starts at the engine's reference: the factor is 1, so its
     // numbers are the uncorrected ones.
     measurementTempF: { preBoil: REFERENCE_TEMP_F, postBoil: REFERENCE_TEMP_F, ferment: REFERENCE_TEMP_F },
+
+    // The Water tab's entries (water-state.js): part of the recipe, saved and
+    // reset with it (Water saved with the recipe, WS-S1). No recipe figure
+    // reads them; the Water tab's figures do (computeWater).
+    water: defaultWaterState(),
   };
 }
 
@@ -64,10 +70,34 @@ export const DEFAULT_DISPLAY = { mode: 'home', proGravityUnit: 'plato' };
 // display settings. null is a blank figure: the new recipe takes the built-in
 // one. They are copied into a recipe only when it is created; a recipe never
 // refers back to them.
+//
+// Their water (Water saved with the recipe, S1, WS-S2): the brewery's usual
+// water report (mg/L; pH in SU), the salts it keeps on hand, its usual
+// treatment choice and kettle switch, and its water setup (vessels, sparge,
+// the tank's treated volume and top-up level in gal, grain absorption in
+// qt/lb, water kept in the mash tun in gal) — each blank (null) until set.
+// The style and the brewer's own amounts are the recipe's alone (S2, S3).
 const BREWERY_NUMBERS = ['fermentVolGal', 'preBoilVolGal', 'boilOffRateGalPerHr', 'boilTimeMin', 'efficiency'];
 const MEASUREMENT_KINDS = ['preBoil', 'postBoil', 'ferment'];
 const MODES = ['home', 'pro'];
 const GRAVITY_UNITS = ['plato', 'sg'];
+const WATER_NUMBERS = ['tankTreatedGal', 'tankTopUpGal', 'absorptionQtPerLb', 'keptInTunGal'];
+
+/** Every brewery water figure blank. */
+export function emptyBreweryWater() {
+  return {
+    source: Object.fromEntries(TEST_RESULT_KEYS.map((k) => [k, null])),
+    enabledSalts: null,
+    treatment: null,
+    kettleSalts: null,
+    vessels: null,
+    spargeMethod: null,
+    tankTreatedGal: null,
+    tankTopUpGal: null,
+    absorptionQtPerLb: null,
+    keptInTunGal: null,
+  };
+}
 
 /** Every brewery figure blank. */
 export function emptyBreweryFigures() {
@@ -80,17 +110,32 @@ export function emptyBreweryFigures() {
     efficiency: null,
     mode: null,
     proGravityUnit: null,
+    water: emptyBreweryWater(),
   };
 }
+
+// The water choices a brewery figure may hold, each checked against the
+// Water tab's own list.
+export const BREWERY_WATER_CHOICES = {
+  treatment: (v) => TREATMENTS.includes(v),
+  kettleSalts: (v) => typeof v === 'boolean',
+  vessels: (v) => VESSEL_COUNTS.includes(v),
+  spargeMethod: (v) => SPARGE_METHODS.includes(v),
+};
 
 /** True when any brewery figure is set. */
 export function hasBreweryFigures(brewery) {
   const b = brewery ?? {};
+  const w = b.water ?? {};
   return (
     BREWERY_NUMBERS.some((k) => b[k] != null) ||
     MEASUREMENT_KINDS.some((k) => b.measurementTempF?.[k] != null) ||
     b.mode != null ||
-    b.proGravityUnit != null
+    b.proGravityUnit != null ||
+    TEST_RESULT_KEYS.some((k) => w.source?.[k] != null) ||
+    w.enabledSalts != null ||
+    Object.keys(BREWERY_WATER_CHOICES).some((k) => w[k] != null) ||
+    WATER_NUMBERS.some((k) => w[k] != null)
   );
 }
 
@@ -109,6 +154,13 @@ export function breweryFiguresFromRecipe(recipe, mode, proGravityUnit) {
   for (const k of MEASUREMENT_KINDS) out.measurementTempF[k] = figure(recipe.measurementTempF?.[k]);
   out.mode = MODES.includes(mode) ? mode : null;
   out.proGravityUnit = GRAVITY_UNITS.includes(proGravityUnit) ? proGravityUnit : null;
+  const w = recipe.water;
+  if (w) {
+    for (const k of TEST_RESULT_KEYS) out.water.source[k] = figure(w.source?.[k]);
+    out.water.enabledSalts = Array.isArray(w.enabledSalts) ? [...w.enabledSalts] : null;
+    for (const [k, ok] of Object.entries(BREWERY_WATER_CHOICES)) out.water[k] = ok(w[k]) ? w[k] : null;
+    for (const k of WATER_NUMBERS) out.water[k] = figure(w[k]);
+  }
   return out;
 }
 
@@ -127,6 +179,18 @@ export function newRecipe(brewery) {
   for (const k of MEASUREMENT_KINDS) {
     const t = b.measurementTempF?.[k];
     if (figure(t) !== null) recipe.measurementTempF[k] = t;
+  }
+  const w = b.water ?? {};
+  for (const k of TEST_RESULT_KEYS) {
+    const v = w.source?.[k];
+    if (figure(v) !== null) recipe.water.source[k] = v;
+  }
+  if (Array.isArray(w.enabledSalts)) recipe.water.enabledSalts = [...w.enabledSalts];
+  for (const [k, ok] of Object.entries(BREWERY_WATER_CHOICES)) {
+    if (ok(w[k])) recipe.water[k] = w[k];
+  }
+  for (const k of WATER_NUMBERS) {
+    if (figure(w[k]) !== null) recipe.water[k] = w[k];
   }
   return {
     recipe,
