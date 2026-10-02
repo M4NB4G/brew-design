@@ -16,12 +16,15 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { STYLE_FAMILIES, SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS } from '@brew/engine';
-import { computeWater } from '../src/selectors.js';
+import { computeWater as computeWaterFor } from '../src/selectors.js';
 import { defaultWaterState, EXAMPLE_SOURCE } from '../src/water-state.js';
 import { defaultRecipeState, emptyBreweryFigures } from '../src/state.js';
 import { savePersisted, saveBrewery, STORAGE_KEY, BREWERY_KEY } from '../src/persistence.js';
 
 const SRC = join(dirname(fileURLToPath(import.meta.url)), '..', 'src');
+// Water treatment choice (WT-S8): the water figures read the recipe; the
+// built-in recipe's 5 gal of mash water is S3's 5 gal.
+const computeWater = (water) => computeWaterFor(water, defaultRecipeState());
 const ACID_KEYS = Object.keys(ACIDS);
 const ZERO_ACIDS = Object.fromEntries(ACID_KEYS.map((k) => [k, 0]));
 
@@ -112,8 +115,8 @@ describe('water tab screens', () => {
     // button (W7: Print prints the recipe sheet).
     const salts = text(await renderWater(example(), 'salts'));
     for (const words of [
-      'Mash Volume',
-      'Volume gal',
+      'Where the Water Goes',
+      'Mash water (from the recipe) gal 5.00',
       'Available Salts',
       'Check the salts you have on hand. The solver will only use enabled salts.',
       'Salt Additions',
@@ -223,7 +226,8 @@ describe('water tab screens', () => {
       w = s.fillTestResults(w, EXAMPLE_SOURCE);
       w = s.setTestResult(w, 'Ca', 40);
       w = s.setWaterStyle(w, 'ipa');
-      w = s.setWaterVolume(w, 310);
+      w = s.setWaterSetup(w, 'treatment', 'tank');
+      w = s.setWaterSetup(w, 'tankTreatedGal', 310);
       w = s.setRaiseAlkSource(w, 'pickling_lime');
       w = s.toggleSaltOnHand(w, 'chalk');
       w = s.setSaltAmount(w, 'gypsum', 12);
@@ -269,7 +273,7 @@ describe('water tab screens', () => {
       expect(f.acid.amounts[f.acid.primary]).toBe(f.acid.recommended);
       expect(f.customized).toBe(false);
     };
-    followsRecommendation(s.setWaterVolume(own, 10));
+    followsRecommendation(s.setWaterSetup({ ...own, treatment: 'tank', tankTreatedGal: 12 }, 'tankTreatedGal', 10));
     followsRecommendation(s.setWaterStyle(own, 'stout'));
     followsRecommendation(s.toggleSaltOnHand(own, 'epsom'));
     followsRecommendation(s.toggleSaltOnHand(s.toggleSaltOnHand(own, 'epsom'), 'epsom'));
@@ -347,16 +351,16 @@ describe('water tab screens', () => {
   });
 
   it('the water volume and acidulated malt show in the Home/Pro unit', async () => {
-    // W3: the one volume, 5 gal, shows as 5 / 31 = 0.161290 bbl in Pro;
-    // salts stay g and liquid acid mL; the water app's Pro precision (1 g).
+    // W3: the treated volume, the recipe's 5 gal of mash water (water
+    // treatment, WT-S8), shows as 5 / 31 = 0.161 bbl in Pro; salts stay g and
+    // liquid acid mL; the water app's Pro precision (1 g).
     const pro = await renderWater(example(), 'salts', 'pro');
-    expect(text(pro)).toContain('Volume bbl');
-    expect(pro).toMatch(/value="0\.16129/);
-    expect(text(pro)).not.toContain('Volume gal');
+    expect(text(pro)).toContain('Mash water (from the recipe) bbl 0.161');
+    expect(text(pro)).not.toMatch(/ gal /);
     const f = computeWater(example());
     for (const s of f.salts) expect(text(pro)).toContain(`rec ${s.recommended.toFixed(0)} g`);
     const home = await renderWater(example(), 'salts', 'home');
-    expect(home).toMatch(/value="5"/);
+    expect(text(home)).toContain('Mash water (from the recipe) gal 5.00');
 
     // Acidulated malt picked: oz at Home, lb in Pro (the dose in grams
     // shown by the engine's G_PER_OZ, G_PER_LB — pinned in water-figures.test.js).

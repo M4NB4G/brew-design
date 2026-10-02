@@ -2,14 +2,16 @@
 // The Water tab (docs/items/water-tab.md, item 2): Brew Water Chem's four
 // screens under a second row of tabs — Water In · Style · Salts & Acid ·
 // Notes, its "Recipe" renamed so there are not two (W2) — with a line saying
-// the entries are not saved (W6) and a line naming any blank test result
-// (W5). Every figure comes from computeWater (selectors.js) as `figures`; the
+// the entries are not saved (W6), a line naming any blank test result (W5),
+// and one naming any blank figure the water sums need (water treatment,
+// WT-S9). Every figure comes from computeWater (selectors.js) as `figures`; the
 // entries change only through water-state.js's steps, handed to `setWater`.
 // Nothing here is computed.
 import { colors, tokens } from '../shared/styles.js';
 import WaterInScreen, { REPORT_LABELS } from './WaterInScreen.jsx';
 import StyleScreen from './StyleScreen.jsx';
 import SaltsAcidScreen from './SaltsAcidScreen.jsx';
+import { SETUP_LABELS } from './WaterGoesCard.jsx';
 import NotesScreen from './NotesScreen.jsx';
 
 const SCREENS = [
@@ -21,6 +23,7 @@ const SCREENS = [
 
 export default function WaterTab({ water, figures, mode, screen, onScreen, setWater }) {
   const blank = figures.missing.map((k) => REPORT_LABELS[k]);
+  const blankSetup = figures.blank.map((k) => SETUP_LABELS[k]);
   return (
     <>
       {/* The water app's tab row, one size down, inside the Water tab */}
@@ -67,6 +70,12 @@ export default function WaterTab({ water, figures, mode, screen, onScreen, setWa
       {blank.length > 0 && (
         <p role="status" style={{ ...tokens.warning, margin: '0 0 0.9rem' }}>
           Blank test results: {blank.join(', ')}
+        </p>
+      )}
+
+      {blankSetup.length > 0 && (
+        <p role="status" style={{ ...tokens.warning, margin: '0 0 0.9rem' }}>
+          Blank figures the water sums need: {blankSetup.join(', ')}
         </p>
       )}
 

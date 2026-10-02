@@ -37,18 +37,28 @@ pinned by the golden-master tests.
    any measurement temperature the correction cannot use — read from the
    recipe's own figures, not from a range written in the app.
    The Water tab's entries are a second object beside it, never inside it
-   or its saved document: the test results in mg/L (pH in SU), the volume
-   in US gal, salts and acidulated malt in g, liquid acid in mL; a blank
-   test result is NaN. They are not saved yet (Water tab, W6).
+   or its saved document: the test results in mg/L (pH in SU); where the
+   water is treated (the mash water or the hot-liquor tank's first fill),
+   whether salts also go in the kettle, and the setup the water sums need —
+   vessels, sparge method, the tank's treated volume and top-up level and
+   the water kept in the mash tun in US gal, grain absorption in qt/lb;
+   salts and acidulated malt in g, liquid acid in mL; a blank test result
+   or setup figure is NaN. The volume treated is the recipe's mash water or
+   the tank's treated volume; nothing else is typed as a water volume. They
+   are not saved yet (Water tab, W6).
 9. **Convert only at the edges.** `display.js` is the only place that converts
    between canonical and display units, using engine constants and functions
    (`GALLONS_PER_BBL`, `OZ_PER_LB`, `G_PER_OZ`, `sgToPlato`, `platoToSg`, …).
    No new conversion constants anywhere in the app.
 10. `selectors.js` is the only place the app calls engine compute functions.
     The UI renders from `computeRecipe(state)`; tests assert through it.
-    The Water tab renders from `computeWater(water)` beside it: every water
-    figure, including the solver's dose as the acid picked and how near each
-    predicted figure is to its target, comes from the engine through it.
+    The Water tab renders from `computeWater(water, recipe)` beside it: every
+    water figure, including the solver's dose as the acid picked, how near
+    each predicted figure is to its target, the water volumes from the
+    recipe (its grain, mash water and pre-boil volume at 60 °F), the
+    hot-liquor tank's draws and the kettle salts, comes from the engine
+    through it. No kettle or wort mineral figure is worked out: the one
+    predicted profile is the treated water's.
 11. `toReferenceVolume(measuredGal, kind, measurementTempF)` is the
     volume-correction slot. Pre-boil, post-boil, and ferment volumes route
     through it and reach the engine corrected to the engine's reference
@@ -128,6 +138,7 @@ pinned by the golden-master tests.
 | Dry-hop rate | oz/gal | lb/bbl |
 | Temperature | °F | °F |
 | Water volume | gal | bbl |
+| Grain absorption | qt/lb | same |
 | Water test results | mg/L (ppm); pH in SU | same |
 | Salts | g | g |
 | Liquid acid | mL | mL |

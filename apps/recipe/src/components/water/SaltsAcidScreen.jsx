@@ -12,15 +12,18 @@
 // result is blank the recommendation is blank: its boxes show empty and its
 // figures "—" (W5). Salts are grams and liquid acid mL in both modes;
 // acidulated malt shows oz (Home) or lb (Pro) and is held in grams (W-S4).
+//
+// Where the water is treated (docs/items/water-treatment.md): the Where the
+// Water Goes card in place of the Mash Volume card; the salts and acid say
+// where they go; salts in the kettle have their own card, with no acid; the
+// predicted profile is labelled as the treated water (WT-S6).
 import { useEffect, useState } from 'react';
 import { SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS } from '@brew/engine';
 import Card from '../shared/Card.jsx';
 import StatBox from '../shared/StatBox.jsx';
-import InputRow from '../shared/InputRow.jsx';
 import { colors, radii, tokens } from '../shared/styles.js';
+import WaterGoesCard, { volumeText } from './WaterGoesCard.jsx';
 import {
-  volumeToCanonical,
-  volumeFromCanonical,
   volumeUnit,
   saltUnit,
   liquidAcidUnit,
@@ -28,9 +31,8 @@ import {
   acidMaltFromCanonical,
   acidMaltToCanonical,
 } from '../../display.js';
-import { num, roundForInput } from '../../format.js';
+import { num } from '../../format.js';
 import {
-  setWaterVolume,
   setRaiseAlkSource,
   toggleSaltOnHand,
   setSaltAmount,
@@ -96,9 +98,9 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
     return isNaN(v) || v < 0 ? null : v;
   };
 
-  const volumeShown = Number.isFinite(water.volumeGal)
-    ? roundForInput(volumeFromCanonical(water.volumeGal, mode))
-    : '';
+  // Where the treated water's additions go (water treatment, WT-S1).
+  const tankTreated = figures.setup.treatment === 'tank';
+  const treatedVolume = `${volumeText(figures.volumes.treatedGal, mode)} ${volumeUnit(mode)}`;
 
   const saltRow = (row, warnings) => (
     <div key={row.key} style={editableRowStyle}>
@@ -154,20 +156,7 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
 
   return (
     <>
-      <Card>
-        <div style={tokens.cardLabel}>Mash Volume</div>
-        <InputRow
-          label="Volume"
-          unit={volumeUnit(mode)}
-          value={volumeShown}
-          onChange={(e) => {
-            const v = parseFloat(e.target.value);
-            setWater((w) => setWaterVolume(w, Number.isNaN(v) ? NaN : volumeToCanonical(v, mode)));
-          }}
-          step={0.1}
-          min={0}
-        />
-      </Card>
+      <WaterGoesCard water={water} figures={figures} mode={mode} setWater={setWater} />
 
       <Card>
         <div style={tokens.cardLabel}>Available Salts</div>
@@ -209,6 +198,11 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
               )}
             </div>
             <div style={tokens.cardTitle}>{style.name}</div>
+            <div style={whereStyle}>
+              {tankTreated
+                ? `Into the hot-liquor tank's first fill (${treatedVolume})`
+                : `Into the mash water (${treatedVolume})`}
+            </div>
             <div style={tokens.accentBar} />
 
             {salts.length === 0 && (
@@ -301,6 +295,11 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
               Phosphoric acid treated as monoprotic at mash pH 5.4 (pKa₁=2.15,
               pKa₂=7.20). See Troester (2009), Braukaiser.com.
             </p>
+            {tankTreated && (
+              <p style={tokens.notice}>
+                The acid goes in the tank with the salts, so the sparge liquor's treated share carries acid too.
+              </p>
+            )}
           </Card>
 
           <Card>
@@ -328,8 +327,34 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
             )}
           </Card>
 
+          {figures.kettle && (
+            <Card>
+              <div style={tokens.cardLabel}>Kettle Salts</div>
+              <div style={{ fontSize: '0.8rem', color: colors.textMuted, marginBottom: '0.4rem' }}>
+                What the whole water ({volumeText(figures.volumes.totalGal, mode)} {volumeUnit(mode)}) needs, less
+                what reaches the kettle from the mash{tankTreated ? ' and what the sparge carries' : ''}.
+              </div>
+              {figures.kettle.salts.length === 0 && <p style={tokens.notice}>—</p>}
+              {figures.kettle.salts.map((row) => (
+                <div key={row.key} style={editableRowStyle}>
+                  <div style={recipeNameStyle}>{row.name}</div>
+                  <div style={{ ...recipeNameStyle, color: colors.textSecondary }}>
+                    {num(row.amount, gramDigits)} {saltUnit(mode)}
+                  </div>
+                </div>
+              ))}
+              <p style={tokens.notice}>No acid goes in the kettle.</p>
+            </Card>
+          )}
+
           <Card>
             <div style={tokens.cardLabel}>Predicted Final Profile</div>
+            <div style={tokens.cardTitle}>
+              {tankTreated ? 'The treated tank water (first fill)' : 'The treated mash water'}
+            </div>
+            <p style={{ ...tokens.notice, marginTop: 0 }}>
+              This is the water as treated, not the wort in the kettle.
+            </p>
 
             <div style={profileSectionLabel}>Mash Chemistry</div>
             <div style={tokens.statGrid}>
@@ -528,6 +553,12 @@ const multiToggleStyle = {
   fontSize: '0.78rem',
   color: colors.textSecondary,
   cursor: 'pointer',
+};
+
+const whereStyle = {
+  fontSize: '0.82rem',
+  color: colors.textSecondary,
+  marginTop: '0.2rem',
 };
 
 const resetButtonStyle = {

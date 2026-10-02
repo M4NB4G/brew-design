@@ -1,7 +1,10 @@
 # Water treatment choice — Tier A + B
 
-Status: agreed 2026-10-02 ("agree to all else", Q3 changed to 0.1 qt/lb),
-not started. Written by the S3 session; to be built in batch S4 (docs/ROADMAP.md, Sessions) as the first of
+Status: agreed 2026-10-02 ("agree to all else", Q3 changed to 0.1 qt/lb);
+landed 2026-10-02 on branch S4 as "The Water tab asks where the water is
+treated — the mash water, or the hot-liquor tank's first fill — and, with
+either, whether salts also go in the kettle; it works the additions out for
+that choice". Written by the S3 session; to be built in batch S4 (docs/ROADMAP.md, Sessions) as the first of
 three items: **Water treatment choice** (this file), then **Water saved with
 the recipe** (`docs/items/water-saved.md`), then **Water on the printed
 sheet** (`docs/items/water-print-sheet.md`). Water program step 4
@@ -91,4 +94,33 @@ gypsum.
 
 ## Recorded failure (filled in by the builder)
 
+Run alone against the unchanged code (2026-10-02), every scenario failed:
+
+```
+packages/engine/test/water/volumes.test.js (3 failed / 3):
+  × the water volumes come from the recipe — AssertionError: expected undefined to be 0.1
+  × the hot-liquor tank treats its first fill, and the sparge draws only what it needs — TypeError: tankDraws is not a function
+  × salts in the kettle bring the whole water to the target — TypeError: kettleSalts is not a function
+apps/recipe/test/water-treatment.test.js (7 failed / 7):
+  × the water volumes come from the recipe — AssertionError: expected undefined to be 0.1
+  × treating the mash water treats the recipe's mash water — AssertionError: expected { additions: [ …(3) ] } to deeply equal { additions: [ …(3) ] }
+  × the hot-liquor tank treats its first fill, and the sparge draws only what it needs — AssertionError: expected 6 to be close to 14.4
+  × salts in the kettle bring the whole water to the target — TypeError: Cannot read properties of undefined (reading 'salts')
+  × no choice shows a kettle mineral figure — AssertionError: expected ' Water In Style Salts & Acid Notes No…' to match /Predicted Final Profile The treated (…/
+  × the setup limits the choices — AssertionError: expected undefined to be 'mash'
+  × a blank figure the sums need blanks what needs it and is named — AssertionError: expected undefined to deeply equal [ 'tankTreatedGal', 'tankTopUpGal' ]
+```
+
 ## Builder's notes — choices the sentences did not make (filled in by the builder)
+
+1. **Engine.** `packages/engine/src/water/volumes.js`: `GRAIN_ABSORPTION_QT_PER_LB` (0.1, the owner's figure, Q3), `waterVolumes` (grain weight, absorption, what the kettle needs, sparge, total; no sparge → sparge 0 and total = mash water), `tankDraws` (the tank's shares to the mash, the sparge and left over; the two warnings), `shareOfSalts`, `kettleSalts` (the balance, salts only). `QT_PER_GAL` (4, definitional) joins `units.js`. The engine sums the grain weight, so the app does no arithmetic.
+2. **Grain absorption is held and shown in qt/lb in both Home and Pro**, as Mash Rv is; SPEC's display-unit table gains the row. The engine takes qt/lb.
+3. **Past the limits (FLAG, roadmap line).** More mash water than the kettle needs gives a negative sparge; a top-up level below the treated water the mash leaves gives a share over 100 %. Both kept as the arithmetic gives them, each with a `// FLAG:`; the roadmap line "Water volumes past their limits" (Tier A) asks the owner.
+4. **One vessel.** The stored treatment and sparge are kept but not used: the figures use the mash water and no sparge while one vessel is set (`effectiveSetup`), and the choices offered are only those; going back to two or three vessels shows the earlier choice again. With two or three vessels and no sparge, the tank is still offered (Q5 limits by vessels).
+5. **No sparge, "differs".** The mash water differs from what the kettle needs when they differ by more than 1e-9 gal — floating-point round-off only, far below any shown figure (14 + 0.725 + 1 typed as 15.725 does not warn).
+6. **Kettle salts.** The whole water's need is the solver's recommendation for the total water; what reaches the kettle is the brewer's own amounts (or the recommendation where none) — so with no sparge, kettle salts make up only a shortfall of the brewer's own mash amounts (Q6). "Each kettle salt" is read literally: an alkalinity-raising salt the whole water's recommendation includes is balanced like the rest; acids never. Kettle amounts are read-only figures, not boxes.
+7. **Ordering (K).** Changing the treatment, the vessels or the tank's treated volume resets the brewer's own amounts; so does a new mash water while the mash water is treated (it is the treated volume) — typed on the Recipe tab, or brought by Import or Reset (added after the inspector's first FAIL).
+8. **Naming blanks (WT-S9).** A line "Blank figures the water sums need: …" under the blank-test-results line names the recipe's figures (mash water, pre-boil volume, malt weights) as well as the Water tab's (grain absorption, water kept in the mash tun, and with the tank its treated volume and top-up level). The pre-boil volume is also blank when its measurement temperature cannot be corrected (the stats-bar line names that temperature).
+9. **On screen.** The card shows the mash water (from the recipe), water absorbed by the grain, sparge water ("untreated", or "from the tank"), total water; with the tank, the treated share (whole percent) and three rows — into the mash, carried by the sparge, left in the tank, not used — each with its volume and its salts (salts only; Q8's note says the acid is shared too). Volumes to 0.01 gal / 0.001 bbl; grams at the water app's precision, 0.1 g Home and 1 g Pro, so the worked example's 4.25 g and 1.75 g read 4.3 g and 1.7 g, and 5.95 g reads 6.0 g. The Salt Additions card says where they go ("Into the mash water (7.00 gal)"); the profile card is titled "The treated mash water" or "The treated tank water (first fill)" with "This is the water as treated, not the wort in the kettle."
+10. **S3's scenarios.** `water-figures.test.js` and `water-tab.test.js` type the water app's volume as the recipe's mash water (the built-in 5 gal is S3's 5 gal); their checks are otherwise unchanged except the Mash Volume card's wording, now the new card's.
+11. **Branch.** Built on `S4-tables` (this item file is there; PR #27 not yet merged).

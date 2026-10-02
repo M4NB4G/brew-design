@@ -37,10 +37,16 @@ const SRC = join(APP, 'src');
 
 // Imported inside each scenario so that, before the water selector exists,
 // each scenario fails on its own rather than the whole file failing to load.
+// Water treatment choice (WT-S8): the typed volume is gone; the mash water
+// is treated by default and the volume is the recipe's mash water. Here the
+// water app's volume (`volumeGal`, 5 gal unless given) is typed as the
+// recipe's mash water, on the built-in treatment and setup.
 const water = async () => {
   const selectors = await import('../src/selectors.js');
   const state = await import('../src/water-state.js');
-  return { computeWater: selectors.computeWater, ...state };
+  const computeWater = ({ volumeGal = 5, ...entries }) =>
+    selectors.computeWater({ ...state.defaultWaterState(), ...entries }, { ...defaultRecipeState(), mashWaterGal: volumeGal });
+  return { ...state, computeWater };
 };
 
 const SALT_KEYS = Object.keys(SALT_CONTRIBUTIONS_PER_G_GAL);
@@ -214,10 +220,15 @@ describe('water figures through the front door', () => {
     expect(EXAMPLE_SOURCE).toEqual(BWC_EXAMPLE);
     expect(RO_SOURCE).toEqual(BWC_RO);
 
-    // The starting entries are the water app's Home ones (W4: 5 gal), with
-    // every test result blank (W5).
+    // The starting entries are the water app's Home ones, with every test
+    // result blank (W5); its 5 gal (W4) is now the built-in recipe's mash
+    // water, the treated water by default (water treatment, WT-S8, Q9).
     const start = defaultWaterState();
-    expect(start).toEqual({ ...entries({}), source: start.source });
+    const { volumeGal, ...s3 } = entries({});
+    expect(start).toMatchObject({ ...s3, source: start.source });
+    expect('volumeGal' in start).toBe(false);
+    expect(start.treatment).toBe('mash');
+    expect(defaultRecipeState().mashWaterGal).toBe(volumeGal);
     expect(Object.values(start.source).every(Number.isNaN)).toBe(true);
     expect(Object.keys(start.source)).toEqual(['Ca', 'Mg', 'Na', 'SO4', 'Cl', 'Alkalinity', 'pH']);
 

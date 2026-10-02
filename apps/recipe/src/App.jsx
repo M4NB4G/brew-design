@@ -17,7 +17,7 @@ import {
   newRecipe,
 } from './state.js';
 import { computeRecipe, computeWater } from './selectors.js';
-import { defaultWaterState } from './water-state.js';
+import { defaultWaterState, mashWaterChanged, recipeReplaced } from './water-state.js';
 import { emptyFields, emptyFieldsLine } from './empty-fields.js';
 import {
   loadStartingState,
@@ -80,7 +80,8 @@ export default function App() {
   const derived = useMemo(() => computeRecipe(recipe), [recipe]);
   // The empty number boxes, named under the stats bar (null when none).
   const emptyLine = useMemo(() => emptyFieldsLine(emptyFields(recipe, derived)), [recipe, derived]);
-  const waterFigures = useMemo(() => computeWater(water), [water]);
+  // The water figures read the recipe's grain, mash water and pre-boil volume.
+  const waterFigures = useMemo(() => computeWater(water, recipe), [water, recipe]);
 
   // Autosave on every change (scope table P6: synchronous, no debounce).
   useEffect(() => {
@@ -127,6 +128,7 @@ export default function App() {
     );
     if (result.outcome === 'refused') setFileMessage(result.message);
     if (result.outcome !== 'replaced') return;
+    setWater((w) => recipeReplaced(w, recipe, result.state.recipe)); // water treatment K
     setRecipe(result.state.recipe);
     setMode(result.state.mode);
     setProGravityUnit(result.state.proGravityUnit);
@@ -141,6 +143,7 @@ export default function App() {
     if (!window.confirm(`Reset the recipe and settings to ${to}? The saved copy will be removed.`)) return;
     clearPersisted(browserStorage());
     const fresh = newRecipe(brewery);
+    setWater((w) => recipeReplaced(w, recipe, fresh.recipe)); // water treatment K
     setRecipe(fresh.recipe);
     setMode(fresh.mode);
     setProGravityUnit(fresh.proGravityUnit);
@@ -163,7 +166,12 @@ export default function App() {
   };
 
   // Top-level scalar field setter.
-  const setField = (field, value) => setRecipe((r) => ({ ...r, [field]: value }));
+  // A new mash water, when it is the treated water, returns the brewer's own
+  // salt and acid amounts to the recommendation (water treatment K).
+  const setField = (field, value) => {
+    setRecipe((r) => ({ ...r, [field]: value }));
+    if (field === 'mashWaterGal') setWater(mashWaterChanged);
+  };
 
   // Row helpers for the array fields (malts, kettleAdditions, dryHops).
   const setRow = (field, index, key, value) =>

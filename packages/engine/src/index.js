@@ -15,6 +15,7 @@ export {
   correctVolumeToRef,
   GALLONS_PER_BBL,
   LITERS_PER_BBL,
+  QT_PER_GAL,
   G_PER_OZ,
   OZ_PER_LB,
   G_PER_LB,
@@ -72,3 +73,11 @@ export {
 } from './water/solver.js';
 
 export { STYLE_FAMILIES, findStyle } from './water/styles.js';
+
+export {
+  GRAIN_ABSORPTION_QT_PER_LB,
+  waterVolumes,
+  tankDraws,
+  shareOfSalts,
+  kettleSalts,
+} from './water/volumes.js';

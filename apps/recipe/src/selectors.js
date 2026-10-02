@@ -31,9 +31,13 @@ import {
   ratioCharacter,
   targetMatch,
   residualAlkalinityMatch,
+  waterVolumes,
+  tankDraws,
+  shareOfSalts,
+  kettleSalts,
 } from '@brew/engine';
 import { toReferenceVolume } from './reference-volume.js';
-import { TEST_RESULT_KEYS } from './water-state.js';
+import { TEST_RESULT_KEYS, effectiveSetup } from './water-state.js';
 
 export function computeRecipe(state) {
   // Boil-off is applied to the measured (hot) pre-boil volume; the resulting
@@ -120,19 +124,58 @@ export function computeRecipe(state) {
 // calcium, magnesium and alkalinity; its ratio sulfate and chloride; the
 // recommendation needs all six ions (each step of the solver reads several),
 // and the salt amounts, the acid dose and the predicted profile follow it.
-// pH is shown only. With no positive volume there is no recommendation either
-// (the water app shows none).
+// pH is shown only. With no positive treated volume there is no
+// recommendation either (the water app shows none).
+//
+// Where the water is treated (docs/items/water-treatment.md): the treated
+// volume is the recipe's mash water, or the hot-liquor tank's typed first
+// fill. The water volumes come from the recipe — its grain, its mash water and
+// its pre-boil volume at 60 degF (Q2) — by the engine's sums; so do the tank's
+// draws and the kettle salts. No kettle or wort mineral figure is worked out
+// (WT-S6): the one predicted profile is the treated water's.
 
 const SALT_KEYS = Object.keys(SALT_CONTRIBUTIONS_PER_G_GAL);
 const ACID_KEYS = Object.keys(ACIDS);
 const SOLVER_IONS = ['Ca', 'Mg', 'Na', 'SO4', 'Cl', 'Alkalinity'];
 const entered = (v) => Number.isFinite(v);
 
-export function computeWater(water) {
+export function computeWater(water, recipe) {
   const style = findStyle(water.styleId);
   const target = { ...style.profile };
   const s = water.source;
-  const vol = water.volumeGal;
+  const setup = effectiveSetup(water);
+  const tankTreated = setup.treatment === 'tank';
+
+  // The water volumes from the recipe (WT-S2).
+  const preBoilGal = toReferenceVolume(recipe.preBoilVolGal, 'preBoil', recipe.measurementTempF);
+  const mashWaterGal = recipe.mashWaterGal;
+  const sums = waterVolumes({
+    malts: recipe.malts,
+    absorptionQtPerLb: water.absorptionQtPerLb,
+    preBoilGal,
+    mashWaterGal,
+    keptInTunGal: water.keptInTunGal,
+    spargeMethod: setup.spargeMethod,
+  });
+  const vol = tankTreated ? water.tankTreatedGal : mashWaterGal;
+  const volumes = { mashWaterGal, treatedGal: vol, ...sums };
+
+  // The blank figures the sums need, in the order the card shows them (WT-S9).
+  const needed = [
+    ['mashWaterGal', mashWaterGal],
+    ['preBoilGal', preBoilGal],
+    ['malts', sums.grainLb],
+    ['absorptionQtPerLb', water.absorptionQtPerLb],
+    ['keptInTunGal', water.keptInTunGal],
+    ...(tankTreated
+      ? [
+          ['tankTreatedGal', water.tankTreatedGal],
+          ['tankTopUpGal', water.tankTopUpGal],
+        ]
+      : []),
+  ];
+  const blank = needed.filter(([, v]) => !entered(v)).map(([k]) => k);
+
   const overrides = water.saltOverrides;
   const primary = water.primaryAcid;
 
@@ -238,11 +281,71 @@ export function computeWater(water) {
     };
   }
 
+  // The salts that go in the treated water, as the screen shows them (the
+  // brewer's own over the recommendation); none until there is one.
+  const added = recommendation
+    ? Object.fromEntries(Object.entries(effectiveSalts).filter(([, g]) => g > 0))
+    : {};
+
+  // The hot-liquor tank (WT-S4): what the mash draws, what the sparge
+  // carries, and what is left in the tank, not used.
+  let tank = null;
+  if (tankTreated) {
+    const draws = tankDraws({
+      treatedGal: water.tankTreatedGal,
+      topUpGal: water.tankTopUpGal,
+      mashWaterGal,
+      spargeGal: sums.spargeGal,
+    });
+    tank = {
+      ...draws,
+      topUpGal: water.tankTopUpGal,
+      mashSalts: shareOfSalts(added, draws.toMash),
+      spargeSalts: shareOfSalts(added, draws.toSparge),
+      leftSalts: shareOfSalts(added, draws.left),
+    };
+  }
+
+  // Salts in the kettle (WT-S5): the whole water's need — the solver for the
+  // total water — less what reaches the kettle from the mash (all the mash
+  // water's salts) and what the sparge carries. No acid.
+  let kettle = null;
+  if (setup.kettleSalts) {
+    const total = sums.totalGal;
+    const fromMash = tank ? tank.mashSalts : added;
+    const fromSparge = tank ? tank.spargeSalts : {};
+    const whole =
+      complete && entered(total) && total > 0
+        ? saltTotals(
+            solveAdditions({
+              source: s,
+              target,
+              volumeGallons: total,
+              raiseAlkSource: water.raiseAlkSource,
+              enabledSalts: new Set(water.enabledSalts),
+            }).additions,
+          )
+        : null;
+    const balance = whole
+      ? kettleSalts({ needed: whole, fromMash, fromSparge })
+      : Object.fromEntries(Object.keys({ ...fromMash, ...fromSparge }).map((k) => [k, NaN]));
+    kettle = {
+      salts: Object.entries(balance).map(([k, amount]) => ({
+        key: k,
+        name: SALT_CONTRIBUTIONS_PER_G_GAL[k].name,
+        amount,
+      })),
+    };
+  }
+
   return {
     style,
     target,
     missing: TEST_RESULT_KEYS.filter((k) => !entered(s[k])),
     source,
+    setup,
+    volumes,
+    blank,
     hasVolume,
     complete,
     recommendation,
@@ -251,5 +354,12 @@ export function computeWater(water) {
     acid,
     customized,
     final,
+    tank,
+    kettle,
+    warnings: {
+      mashOverTreated: tank?.mashOverTreated ?? false,
+      spargeOverTopUp: tank?.spargeOverTopUp ?? false,
+      mashDiffersFromNeeded: sums.mashDiffersFromNeeded,
+    },
   };
 }
