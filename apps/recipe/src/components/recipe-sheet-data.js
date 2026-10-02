@@ -39,6 +39,7 @@ import { TEST_RESULT_KEYS } from '../water-state.js';
 import {
   TREATMENT_LABELS,
   KETTLE_LABEL,
+  KETTLE_CAVEAT,
   KETTLE_ASSUMPTION,
   KETTLE_BIAS_NOTE,
   KETTLE_HELD_NOTE,
@@ -296,6 +297,7 @@ function kettleSection(water) {
   const ion = (label, key) => ({ label, predicted: num(p?.ions[key], 0), target: num(t[key], 0) });
   return {
     label: KETTLE_LABEL,
+    caveat: KETTLE_CAVEAT,
     assumption: KETTLE_ASSUMPTION[water.setup.spargeMethod],
     // C17: the efficiency's bias, with a sparge (no sparge does not use it).
     biasNote: water.setup.spargeMethod === 'none' ? null : KETTLE_BIAS_NOTE,

@@ -25,6 +25,7 @@ import { colors, radii, tokens } from '../shared/styles.js';
 import WaterGoesCard, {
   volumeText,
   KETTLE_LABEL,
+  KETTLE_CAVEAT,
   KETTLE_ASSUMPTION,
   KETTLE_BIAS_NOTE,
   KETTLE_HELD_NOTE,
@@ -421,6 +422,7 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
             <Card>
               <div style={tokens.cardLabel}>Kettle Water</div>
               <div style={tokens.cardTitle}>{KETTLE_LABEL}</div>
+              <p style={{ ...tokens.notice, marginTop: 0 }}>{KETTLE_CAVEAT}</p>
               <p style={{ ...tokens.notice, marginTop: 0 }}>{KETTLE_ASSUMPTION[figures.setup.spargeMethod]}</p>
               <div style={tokens.statGrid}>
                 {[['Ca', 'Calcium'], ['Mg', 'Magnesium'], ['Na', 'Sodium'], ['SO4', 'Sulfate'], ['Cl', 'Chloride']].map(

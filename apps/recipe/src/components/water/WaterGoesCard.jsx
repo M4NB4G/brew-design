@@ -24,10 +24,11 @@ import { setWaterSetup } from '../../water-state.js';
 
 export const VESSEL_LABELS = { 1: 'One vessel', 2: 'Two vessels', 3: 'Three vessels' };
 export const SPARGE_LABELS = { none: 'No sparge (full volume)', batch: 'Batch sparge', fly: 'Fly sparge' };
-// The kettle water readout's label and its assumption per sparge method
-// (water-as-brewed.md, KW-S3), on screen and on the printed sheet.
-export const KETTLE_LABEL =
-  "Kettle water before the boil — mash salts at the recipe's brewhouse efficiency; the water and its salts, not the wort's minerals";
+// The kettle water readout's label, its caveat and its assumption per sparge
+// method (water-as-brewed.md, KW-S3, its wording amended by the owner
+// 2026-10-02: the title, then his caveat), on screen and on the printed sheet.
+export const KETTLE_LABEL = 'Kettle water before the boil';
+export const KETTLE_CAVEAT = 'Consider these estimates until confirmed with lab sampling.';
 export const KETTLE_ASSUMPTION = {
   none: 'No sparge, the mash well mixed',
   batch: 'Batch sparge, well mixed',

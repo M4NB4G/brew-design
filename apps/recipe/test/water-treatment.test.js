@@ -237,7 +237,7 @@ describe('water treatment choice', () => {
       expect(Object.keys(f.kettle ?? {})).not.toContain('ions');
       const shown = text(await render(water, exampleRecipe()));
       expect(shown.includes('Kettle water before the boil')).toBe(water.kettleSalts);
-      if (water.kettleSalts) expect(shown).toContain("the water and its salts, not the wort's minerals");
+      if (water.kettleSalts) expect(shown).toContain('Consider these estimates until confirmed with lab sampling.');
       expect(shown).toMatch(/Predicted Final Profile The treated (mash water|HLT water \(first fill\))/);
       expect(shown).toContain('This is the water as treated, not the wort in the kettle.');
       expect(shown).not.toMatch(/kettle profile|wort profile|in the kettle (Calcium|Sulfate)/i);

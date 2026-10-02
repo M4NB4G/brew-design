@@ -95,9 +95,9 @@ describe('kettle water at the brewhouse efficiency', () => {
     expect(f.kettle.profile.ions.SO4).toBeCloseTo(225, 9);
     expect(f.kettle.profile.ratio).toBe(Infinity);
     const shown = text(await render(exampleWater(), exampleRecipe()));
-    expect(shown).toContain(
-      "Kettle water before the boil — mash salts at the recipe's brewhouse efficiency; the water and its salts, not the wort's minerals",
-    );
+    // The label, in the owner's words (2026-10-02, amending KW-S3).
+    expect(shown).toContain('Kettle Water Kettle water before the boil Consider these estimates until confirmed with lab sampling.');
+    expect(shown).not.toContain("not the wort's minerals");
     expect(shown).toContain('Batch sparge, well mixed');
     expect(shown).toMatch(/74 Calcium tgt 120/);
     expect(shown).toMatch(/225 Sulfate tgt 225/);
@@ -147,9 +147,8 @@ describe('kettle water at the brewhouse efficiency', () => {
     const derived = computeRecipe(recipe);
     const water = computeWater(recipe.water, recipe);
     const s = recipeSheet({ recipe, derived, water, mode: 'home', proGravityUnit: 'plato', today: new Date(2026, 9, 2) });
-    expect(s.water.kettle.label).toBe(
-      "Kettle water before the boil — mash salts at the recipe's brewhouse efficiency; the water and its salts, not the wort's minerals",
-    );
+    expect(s.water.kettle.label).toBe('Kettle water before the boil');
+    expect(s.water.kettle.caveat).toBe('Consider these estimates until confirmed with lab sampling.');
     expect(s.water.kettle.assumption).toBe('Batch sparge, well mixed');
     expect(s.water.kettle.biasNote).toContain('the kettle salts come out slightly generous');
     const rows = Object.fromEntries(s.water.kettle.rows.map((r) => [r.label, [r.predicted, r.target]]));
