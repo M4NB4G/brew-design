@@ -189,8 +189,9 @@ describe('mash pH from the grain bill — the engine', () => {
     // 50.04 / 61.02 as CaCO3; the acid 1.054 x 0.10 x 1000 / 97.99 mEq/mL.
     // Malts by the workbook's colour (degL); base malts by the line (S5-B16);
     // Aromatic and Special Roast as crystal at 14.2 and 25.6 mEq/kg (S5-B19,
-    // B20); Carafoam, a pale dextrin malt, as base (S5-B22); hulls and
-    // dextrose count as nothing (S5-B10).
+    // B20); Carafoam, a pale dextrin malt, as base (S5-B22); flaked and raw
+    // grains as base by the line (S5-B27); hulls and dextrose count as
+    // nothing (S5-B10).
     const { mashPh, predictFinalProfile } = engine;
     const TANK_GAL = 14;
     for (const b of OWNER_BATCHES) {
@@ -203,11 +204,11 @@ describe('mash pH from the grain bill — the engine', () => {
       const predicted = mashPh({ malts: b.malts, mashWaterGal: b.mashWaterGal, water: treated });
       expect(predicted, b.name).toBeCloseTo(b.predicted, 9);
     }
-    expect(OWNER_BATCHES).toHaveLength(17);
+    expect(OWNER_BATCHES).toHaveLength(27);
   });
 });
 
-// The owner's logged batches (S5-B1 to B22), oldest first.
+// The owner's logged batches (S5-B1 to B29), oldest first.
 const OWNER_BATCHES = [
     {
       // 2022-06-11 Holy Hefe. Measured 5.30 (cooled sample).
@@ -231,6 +232,56 @@ const OWNER_BATCHES = [
       ],
       measured: 5.3,
       predicted: 5.68244829963038,
+    },
+    {
+      // 2022-07-02 Mo' Juicy Mo' Bettah. Measured 5.25 (cooled sample).
+      // Water: the log's own report (2022-06-29), alkalinity 70 as CaCO3, Ca 30 x 0.4 = 12, Mg 10 x 0.24 = 2.4.
+      // Treated in 14 gal: Ca 72.2142857142857, Mg 7.97142857142857, alkalinity 45.6249098543551 after 24 mL acid;
+      // RA -10.6457984289582 = -0.212745771961596 mEq/L.
+      // R = 12 x 3.785411784 / (26 x 0.453592) = 3.85172827359593; slope 0.063072467556747.
+      // TwoRow 19 lb base 2.2 L = 4.63 EBC -> 5.7274.
+      // RawWheat 4 lb base 2 L = 4.1 EBC -> 5.738.
+      // FlakedOats 3 lb base 2.5 L = 5.425 EBC -> 5.7115.
+      // Grist 5.72719615384615 + 0.063072467556747 x -0.212745771961596 = 5.71377775304627.
+      name: "2022-07-02 Mo' Juicy Mo' Bettah",
+      log: "IPA/20220702 Mo' Juicy Mo' Bettah/20220702 NEIPA Brew and Ferment Logs.xlsx",
+      water: { Alkalinity: 70, Ca: 12, Mg: 2.4 },
+      salts: { gypsum: 2, calcium_chloride: 10, epsom: 3 },
+      acidMl: 24,
+      mashWaterGal: 12,
+      malts: [
+        { name: "2-Row Brewers Malt", type: 'base', weightLb: 19, colorL: 2.2 },
+        { name: "Raw Wheat", type: 'base', weightLb: 4, colorL: 2 },
+        { name: "Flaked Oats", type: 'base', weightLb: 3, colorL: 2.5 },
+        { name: "Rice Hulls", type: 'none', weightLb: 1, colorL: 0 },
+      ],
+      measured: 5.25,
+      predicted: 5.71377775304627,
+    },
+    {
+      // 2022-08-20 Mo' Juicy Mo' Bettah. Measured 5.27 (cooled sample).
+      // Water: the log's own report (2022-06-29), alkalinity 70 as CaCO3, Ca 30 x 0.4 = 12, Mg 10 x 0.24 = 2.4.
+      // Treated in 14 gal: Ca 72.2142857142857, Mg 7.97142857142857, alkalinity 45.6249098543551 after 24 mL acid;
+      // RA -10.6457984289582 = -0.212745771961596 mEq/L.
+      // R = 12 x 3.785411784 / (26 x 0.453592) = 3.85172827359593; slope 0.063072467556747.
+      // TwoRow 19 lb base 2.2 L = 4.63 EBC -> 5.7274.
+      // WhiteWheat 4 lb base 3 L = 6.75 EBC -> 5.685.
+      // FlakedOats 3 lb base 2.5 L = 5.425 EBC -> 5.7115.
+      // Grist 5.71904230769231 + 0.063072467556747 x -0.212745771961596 = 5.70562390689243.
+      name: "2022-08-20 Mo' Juicy Mo' Bettah",
+      log: "IPA/20220820 Mo' Juicy Mo' Bettah/20220820 NEIPA Brew and Ferment Logs.xlsx",
+      water: { Alkalinity: 70, Ca: 12, Mg: 2.4 },
+      salts: { gypsum: 2, calcium_chloride: 10, epsom: 3 },
+      acidMl: 24,
+      mashWaterGal: 12,
+      malts: [
+        { name: "2-Row Brewers Malt", type: 'base', weightLb: 19, colorL: 2.2 },
+        { name: "White Wheat Malt", type: 'base', weightLb: 4, colorL: 3 },
+        { name: "Flaked Oats", type: 'base', weightLb: 3, colorL: 2.5 },
+        { name: "Rice Hulls", type: 'none', weightLb: 1, colorL: 0 },
+      ],
+      measured: 5.27,
+      predicted: 5.70562390689243,
     },
     {
       // 2022-09-05 Marple Hill Wet Hop IPA. Measured 5.40 (cooled sample).
@@ -320,6 +371,32 @@ const OWNER_BATCHES = [
       predicted: 5.75592394634087,
     },
     {
+      // 2022-12-31 Mosaic Implications NEIPA. Measured 5.85 (cooled sample).
+      // Water: Home 2022-12-31, alkalinity 70 as CaCO3, Ca 30 x 0.4 = 12, Mg 20 x 0.24 = 4.8.
+      // Treated in 14 gal: Ca 72.42, Mg 10.3714285714286, alkalinity 52.7343111468349 after 17 mL acid;
+      // RA -5.09510061787102 = -0.10182055591269 mEq/L.
+      // R = 12 x 3.785411784 / (26 x 0.453592) = 3.85172827359593; slope 0.063072467556747.
+      // GP 20 lb base 2.2 L = 4.63 EBC -> 5.7274.
+      // WhiteWheat 3 lb base 3 L = 6.75 EBC -> 5.685.
+      // FlakedOats 1.5 lb base 2.5 L = 5.425 EBC -> 5.7115.
+      // Carafoam 1.5 lb base 2 L = 4.1 EBC -> 5.738.
+      // Grist 5.72220192307692 + 0.063072467556747 x -0.10182055591269 = 5.71577984936751.
+      name: "2022-12-31 Mosaic Implications NEIPA",
+      log: "IPA/20221231 Mosaic Implications NEIPA/20221231 Mos Imp NEIPA Brewing Data Log.xlsx",
+      water: { Alkalinity: 70, Ca: 12, Mg: 4.8 },
+      salts: { gypsum: 2, calcium_chloride: 10.04, epsom: 3 },
+      acidMl: 17,
+      mashWaterGal: 12,
+      malts: [
+        { name: "Golden Promise Pale Malt", type: 'base', weightLb: 20, colorL: 2.2 },
+        { name: "White Wheat Malt", type: 'base', weightLb: 3, colorL: 3 },
+        { name: "Flaked Oats", type: 'base', weightLb: 1.5, colorL: 2.5 },
+        { name: "Carafoam", type: 'base', weightLb: 1.5, colorL: 2 },
+      ],
+      measured: 5.85,
+      predicted: 5.71577984936751,
+    },
+    {
       // 2023-01-21 O'Neill Kolsch. Measured 5.95 (cooled sample).
       // Water: Home 2022-12-31, alkalinity 70 as CaCO3, Ca 30 x 0.4 = 12, Mg 20 x 0.24 = 4.8.
       // Treated in 14 gal: Ca 50.8928571428571, Mg 8.51428571428571, alkalinity 16.1716759283675 after 53 mL acid;
@@ -368,6 +445,80 @@ const OWNER_BATCHES = [
       ],
       measured: 5.87,
       predicted: 5.64270345398826,
+    },
+    {
+      // 2023-04-05 Mo' Juicy Mo' Bettah. Measured 5.75 (cooled sample).
+      // Water: Home 2023-03-27, alkalinity 50 as CaCO3, Ca 30 x 0.4 = 12, Mg 10 x 0.24 = 2.4.
+      // Treated in 14 gal: Ca 72.2142857142857, Mg 7.97142857142857, alkalinity 35.7811974150405 after 14 mL acid;
+      // RA -20.4895108682729 = -0.409462647247659 mEq/L.
+      // R = 11.5 x 3.785411784 / (25.5 x 0.453592) = 3.76361684250059; slope 0.0619270189525077.
+      // GP 19 lb base 2.2 L = 4.63 EBC -> 5.7274.
+      // WhiteWheat 4 lb base 3 L = 6.75 EBC -> 5.685.
+      // FlakedOats 1.5 lb base 2.5 L = 5.425 EBC -> 5.7115.
+      // Carafoam 1 lb base 2 L = 4.1 EBC -> 5.738.
+      // Grist 5.72022941176471 + 0.0619270189525077 x -0.409462647247659 = 5.69487261064826.
+      name: "2023-04-05 Mo' Juicy Mo' Bettah",
+      log: "IPA/20230405 Mo' Juicy Mo' Bettah/20230405 MJMB Data Log .xlsx",
+      water: { Alkalinity: 50, Ca: 12, Mg: 2.4 },
+      salts: { gypsum: 2, calcium_chloride: 10, epsom: 3 },
+      acidMl: 14,
+      mashWaterGal: 11.5,
+      malts: [
+        { name: "Golden Promise Pale Malt", type: 'base', weightLb: 19, colorL: 2.2 },
+        { name: "White Wheat Malt", type: 'base', weightLb: 4, colorL: 3 },
+        { name: "Flaked Oats", type: 'base', weightLb: 1.5, colorL: 2.5 },
+        { name: "Carafoam", type: 'base', weightLb: 1, colorL: 2 },
+      ],
+      measured: 5.75,
+      predicted: 5.69487261064826,
+    },
+    {
+      // 2023-04-24 Mosaic Implications NEIPA. Measured 5.74 (cooled sample).
+      // Water: the log's own report, Home 2023-03-27, alkalinity 50 as CaCO3, Ca 30 x 0.4 = 12, Mg 10 x 0.24 = 2.4.
+      // Treated in 14 gal: Ca 72.0085714285714, Mg 7.97142857142857, alkalinity 30.7030536346978 after 19 mL acid;
+      // RA -25.4207158731054 = -0.5080079111332 mEq/L.
+      // R = 11 x 3.785411784 / (26 x 0.453592) = 3.53075091746293; slope 0.0588997619270181.
+      // GP 20 lb base 2.2 L = 4.63 EBC -> 5.7274.
+      // WhiteWheat 3 lb base 3 L = 6.75 EBC -> 5.685.
+      // FlakedOats 1.5 lb base 2.5 L = 5.425 EBC -> 5.7115.
+      // Carafoam 1.5 lb base 2 L = 4.1 EBC -> 5.738.
+      // Grist 5.72220192307692 + 0.0588997619270181 x -0.5080079111332 = 5.69228037805414.
+      name: "2023-04-24 Mosaic Implications NEIPA",
+      log: "IPA/20230424 Mosaic Implications NEIPA/20230424 Mo Imp NEIPA Data Log .xlsx",
+      water: { Alkalinity: 50, Ca: 12, Mg: 2.4 },
+      salts: { gypsum: 2, calcium_chloride: 9.96, epsom: 3 },
+      acidMl: 19,
+      mashWaterGal: 11,
+      malts: [
+        { name: "Golden Promise Pale Malt", type: 'base', weightLb: 20, colorL: 2.2 },
+        { name: "White Wheat Malt", type: 'base', weightLb: 3, colorL: 3 },
+        { name: "Flaked Oats", type: 'base', weightLb: 1.5, colorL: 2.5 },
+        { name: "Carafoam", type: 'base', weightLb: 1.5, colorL: 2 },
+      ],
+      measured: 5.74,
+      predicted: 5.69228037805414,
+    },
+    {
+      // 2023-05-14 Cold for Kveik IPA. Measured 5.64 (cooled sample).
+      // Water: Home 2023-05-14, alkalinity 50 as CaCO3, Ca 70 x 0.4 = 28, Mg 20 x 0.24 = 4.8.
+      // Treated in 14 gal: Ca 78.5714285714286, Mg 10.3714285714286, alkalinity 18.5155085618753 after 31 mL acid;
+      // RA -43.707780753851 = -0.873456849597341 mEq/L.
+      // R = 14 x 3.785411784 / (25 x 0.453592) = 4.67343030529639; slope 0.0737545939688531.
+      // NorthStar 21 lb base 2 L = 4.1 EBC -> 5.738.
+      // FlakedCorn 4 lb base 0.8 L = 0.92 EBC -> 5.8016.
+      // Grist 5.748176 + 0.0737545939688531 x -0.873456849597341 = 5.68375454470863.
+      name: "2023-05-14 Cold for Kveik IPA",
+      log: "IPA/20230514 Cold for Kveik IPA/20230514 Cold IPA Data Log .xlsx",
+      water: { Alkalinity: 50, Ca: 28, Mg: 4.8 },
+      salts: { gypsum: 8, calcium_chloride: 3, epsom: 3 },
+      acidMl: 31,
+      mashWaterGal: 14,
+      malts: [
+        { name: "Pilsner, Northstar", type: 'base', weightLb: 21, colorL: 2 },
+        { name: "Flaked Corn", type: 'base', weightLb: 4, colorL: 0.8 },
+      ],
+      measured: 5.64,
+      predicted: 5.68375454470863,
     },
     {
       // 2023-06-17 Hop Rapids. Measured 5.60 (cooled sample).
@@ -436,6 +587,32 @@ const OWNER_BATCHES = [
       ],
       measured: 5.8,
       predicted: 5.48977819560367,
+    },
+    {
+      // 2023-09-03 JWSYF Hazy IPA. Measured 5.70 (cooled sample).
+      // Water: Home 2023-08-18, alkalinity 90 as CaCO3, Ca 40 x 0.4 = 16, Mg 30 x 0.24 = 7.2.
+      // Treated in 14 gal: Ca 76.2142857142857, Mg 20.2, alkalinity 37.187304684436 after 52 mL acid;
+      // RA -29.1338237669445 = -0.582210706773472 mEq/L.
+      // R = 10 x 3.785411784 / (30.5 x 0.453592) = 2.736200412937; slope 0.0485706053681809.
+      // GP 24 lb base 2.2 L = 4.63 EBC -> 5.7274.
+      // WhiteWheat 4 lb base 3 L = 6.75 EBC -> 5.685.
+      // FlakedOats 1.5 lb base 2.5 L = 5.425 EBC -> 5.7115.
+      // Carafoam 1 lb base 2 L = 4.1 EBC -> 5.738.
+      // Grist 5.72140491803279 + 0.0485706053681809 x -0.582210706773472 = 5.69312659155296.
+      name: "2023-09-03 JWSYF Hazy IPA",
+      log: "IPA/20230903 JWSYF Hazy IPA/20230903 HIPA Data Log.xlsx",
+      water: { Alkalinity: 90, Ca: 16, Mg: 7.2 },
+      salts: { gypsum: 2, calcium_chloride: 10, epsom: 7 },
+      acidMl: 52,
+      mashWaterGal: 10,
+      malts: [
+        { name: "Golden Promise Pale Malt", type: 'base', weightLb: 24, colorL: 2.2 },
+        { name: "White Wheat Malt", type: 'base', weightLb: 4, colorL: 3 },
+        { name: "Flaked Oats", type: 'base', weightLb: 1.5, colorL: 2.5 },
+        { name: "Carafoam", type: 'base', weightLb: 1, colorL: 2 },
+      ],
+      measured: 5.7,
+      predicted: 5.69312659155296,
     },
     {
       // 2023-10-04 Baltic Porter. Measured 5.66 (cooled sample).
@@ -588,6 +765,59 @@ const OWNER_BATCHES = [
       predicted: 5.69068253656711,
     },
     {
+      // 2024-11-10 JWSYF Hazy IPA. Measured 5.67 (cooled sample).
+      // Water: Home 2024-03-20, alkalinity 60 as CaCO3, Ca 30 x 0.4 = 12, Mg 20 x 0.24 = 4.8.
+      // Treated in 14 gal: Ca 82.5, Mg 8.51428571428571, alkalinity 39.6874248786292 after 20 mL acid;
+      // RA -24.2495499112867 = -0.484603315573276 mEq/L.
+      // R = 13 x 3.785411784 / (31.5 x 0.453592) = 3.44413798009371; slope 0.0577737937412182.
+      // TwoRow 10 lb base 2.2 L = 4.63 EBC -> 5.7274.
+      // GP 15 lb base 2.2 L = 4.63 EBC -> 5.7274.
+      // WhiteWheat 3.5 lb base 3 L = 6.75 EBC -> 5.685.
+      // FlakedOats 2 lb base 2.5 L = 5.425 EBC -> 5.7115.
+      // Carafoam 1 lb base 2 L = 4.1 EBC -> 5.738.
+      // Grist 5.72201587301587 + 0.0577737937412182 x -0.484603315573276 = 5.69401850101563.
+      name: "2024-11-10 JWSYF Hazy IPA",
+      log: "IPA/20241110 JWSYF Hazy IPA/20241110 HIPA Data Log .xlsx",
+      water: { Alkalinity: 60, Ca: 12, Mg: 4.8 },
+      salts: { gypsum: 2, calcium_chloride: 12, epsom: 2 },
+      acidMl: 20,
+      mashWaterGal: 13,
+      malts: [
+        { name: "2-Row Brewers Malt", type: 'base', weightLb: 10, colorL: 2.2 },
+        { name: "Golden Promise Pale Malt", type: 'base', weightLb: 15, colorL: 2.2 },
+        { name: "White Wheat Malt", type: 'base', weightLb: 3.5, colorL: 3 },
+        { name: "Flaked Oats", type: 'base', weightLb: 2, colorL: 2.5 },
+        { name: "Carafoam", type: 'base', weightLb: 1, colorL: 2 },
+      ],
+      measured: 5.67,
+      predicted: 5.69401850101563,
+    },
+    {
+      // 2025-02-20 Tropical Cream Ale. Measured 5.69 (cooled sample).
+      // Water: Home 2024-03-20, alkalinity 60 as CaCO3, Ca 30 x 0.4 = 12, Mg 20 x 0.24 = 4.8.
+      // Treated in 14 gal: Ca 50.8928571428571, Mg 10.3714285714286, alkalinity 22.4217360254641 after 37 mL acid;
+      // RA -20.0311451269969 = -0.400302660411608 mEq/L.
+      // R = 9 x 3.785411784 / (22 x 0.453592) = 3.41403187886912; slope 0.0573824144252985.
+      // NorthStar 16 lb base 2 L = 4.1 EBC -> 5.738.
+      // FlakedCorn 5 lb base 0.8 L = 0.92 EBC -> 5.8016.
+      // Carafoam 1 lb base 2 L = 4.1 EBC -> 5.738.
+      // Grist 5.75245454545455 + 0.0573824144252985 x -0.400302660411608 = 5.72948421229926.
+      name: "2025-02-20 Tropical Cream Ale",
+      log: "Lagers & Hybrids/20250220 Tropical Cream Ale/20250220 Tropical Cream Ale Data Log.xlsx",
+      water: { Alkalinity: 60, Ca: 12, Mg: 4.8 },
+      salts: { gypsum: 3, calcium_chloride: 5, epsom: 3 },
+      acidMl: 37,
+      mashWaterGal: 9,
+      malts: [
+        { name: "Pilsner, Northstar", type: 'base', weightLb: 16, colorL: 2 },
+        { name: "Flaked Corn", type: 'base', weightLb: 5, colorL: 0.8 },
+        { name: "Carafoam", type: 'base', weightLb: 1, colorL: 2 },
+        { name: "Dextrose", type: 'none', weightLb: 1, colorL: 0 },
+      ],
+      measured: 5.69,
+      predicted: 5.72948421229926,
+    },
+    {
       // 2025-03-22 Nordic Saison. Measured 5.54 (cooled sample).
       // Water: Home 2024-03-20, alkalinity 60 as CaCO3, Ca 30 x 0.4 = 12, Mg 20 x 0.24 = 4.8.
       // Treated in 14 gal: Ca 55.2857142857143, Mg 10.3714285714286, alkalinity 18.35922100119 after 41 mL acid;
@@ -606,5 +836,33 @@ const OWNER_BATCHES = [
       ],
       measured: 5.54,
       predicted: 5.71681120627143,
+    },
+    {
+      // 2025-10-28 Aussie Xmas Hazy IPA. Measured 5.45 (cooled sample).
+      // Water: Bristlecone 2025-10-22, alkalinity 50 as CaCO3, Ca 20 x 0.4 = 8, Mg 10 x 0.24 = 2.4.
+      // Treated in 14 gal: Ca 88.7857142857143, Mg 7.97142857142857, alkalinity 30.7030536346978 after 19 mL acid;
+      // RA -37.4043893424931 = -0.747489795013851 mEq/L.
+      // R = 10 x 3.785411784 / (26.7 x 0.453592) = 3.1256221945535; slope 0.0536330885291955.
+      // GP 14 lb base 2.2 L = 4.63 EBC -> 5.7274.
+      // TwoRow 6 lb base 2.2 L = 4.63 EBC -> 5.7274.
+      // WhiteWheat 4.2 lb base 3 L = 6.75 EBC -> 5.685.
+      // FlakedOats 1.5 lb base 2.5 L = 5.425 EBC -> 5.7115.
+      // Carafoam 1 lb base 2 L = 4.1 EBC -> 5.738.
+      // Grist 5.720234082397 + 0.0536330885291955 x -0.747489795013851 = 5.68014389604636.
+      name: "2025-10-28 Aussie Xmas Hazy IPA",
+      log: "IPA/20251028 Aussie Xmas Hazy IPA/20251028 Hazy Data Log.xlsx",
+      water: { Alkalinity: 50, Ca: 8, Mg: 2.4 },
+      salts: { gypsum: 2, calcium_chloride: 14, epsom: 3 },
+      acidMl: 19,
+      mashWaterGal: 10,
+      malts: [
+        { name: "Golden Promise Pale Malt", type: 'base', weightLb: 14, colorL: 2.2 },
+        { name: "2-Row Brewers Malt", type: 'base', weightLb: 6, colorL: 2.2 },
+        { name: "White Wheat Malt", type: 'base', weightLb: 4.2, colorL: 3 },
+        { name: "Flaked Oats", type: 'base', weightLb: 1.5, colorL: 2.5 },
+        { name: "Carafoam", type: 'base', weightLb: 1, colorL: 2 },
+      ],
+      measured: 5.45,
+      predicted: 5.68014389604636,
     },
 ];

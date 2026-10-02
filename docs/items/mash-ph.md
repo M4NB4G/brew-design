@@ -106,7 +106,13 @@ Sixth round — the owner's word, 2026-10-02, after the item 1 report: "why cant
 | S5-B25 | The 2023 Baltic Porter's Pilsner and the 2024 Kölsch's Barke | Weyermann Pilsner (1.8 °L, the workbook's); Barke at 1.5 °L. Both batches join the check. The Baltic Porter's folder holds an app screenshot of its adjusted water (Ca 59, Mg 14), not a report, so it takes the latest Home report before brew day, 2023-08-18 (S5-B8), which the screenshot matches (the engine's salt sums give Ca 59.3, Mg 14.6) | The owner's word; S5-B8 |
 | S5-B26 | The acidulated malt's lactic acid | 2 %, as the Water tab uses; the owner may test it later | The owner's word |
 
-Still open: flaked and raw grains (S5-B10) — the owner asked why they cannot be counted; put back to him as a question.
+Seventh round — the owner's word, 2026-10-02: "Option a as recommended".
+
+| id | Question | Decision | Rule |
+|---|---|---|---|
+| S5-B27 | Flaked and raw grains (S5-B10 left them waiting; the paper tested only malts) | Counted as base malts by the line on their workbook colour: flaked oats 2.5 °L → 5.71, flaked corn 0.8 °L → 5.78, flaked and raw wheat 2 °L → 5.74. An assumption, not a source figure; the batches with them join the check, which shows whether it holds. Supersedes S5-B10's "wait" | The owner's word |
+| S5-B28 | A correction to S5-B8's premise (the builder's error) | The 2023-03-27 Home report is not empty: its figures sit one column to the right of the others', which the builder's survey did not read (alkalinity 50, calcium hardness 30, magnesium hardness 10). S5-B8's rule — the latest Home report on or before brew day — therefore takes it for brews from 2023-03-27 to the next report (2023-05-14). No batch checked before this round falls in that window; of this round's, the 2023-04-05 Mo' Juicy Mo' Bettah takes it (the 2023-04-24 Mosaic Implications carries it in its own log). The 2023-05-14 report (file "HOME copy", no date inside) is taken by its file date, as S5-B8 says. Reported to the owner | S5-B8 |
+| S5-B29 | The 2023-05-14 Cold IPA's "Pilsner" | Rahr North Star: its folder holds the North Star lot sheet, as for the 2022 Holy Hefe (S5-B21) | S5-B21 |
 
 The builder computes no prediction for the owner's batches before these rules are fixed, so no rule is chosen by how well it fits his logs.
 
@@ -117,26 +123,36 @@ Run 2026-10-02 on the rules above, fixed before any prediction was worked out. E
 | Batch | Water report | Predicted | Measured | Difference |
 |---|---|---|---|---|
 | 2022-06-11 Holy Hefe | its log | 5.68 | 5.30 | +0.38 |
+| 2022-07-02 Mo' Juicy Mo' Bettah | its log (2022-06-29) | 5.71 | 5.25 | +0.46 |
+| 2022-08-20 Mo' Juicy Mo' Bettah | its log (2022-06-29) | 5.71 | 5.27 | +0.44 |
 | 2022-09-05 Marple Hill Wet Hop IPA | its log | 5.64 | 5.40 | +0.24 |
 | 2022-09-27 Holy Hefe | its log | 5.68 | 5.78 | −0.10 |
 | 2022-10-17 Orange Grenade JPA | Home 2022-09-23 | 5.69 | 5.78 | −0.09 |
 | 2022-12-10 Night is Darkest B-IPA | Home 2022-09-23 | 5.76 | 6.05 | −0.29 |
+| 2022-12-31 Mosaic Implications NEIPA | Home 2022-12-31 | 5.72 | 5.85 | −0.13 |
 | 2023-01-21 O'Neill Kolsch | Home 2022-12-31 | 5.68 | 5.95 | −0.27 |
 | 2023-03-15 Best Bitter | Home 2022-12-31 | 5.64 | 5.87 | −0.23 |
+| 2023-04-05 Mo' Juicy Mo' Bettah | Home 2023-03-27 | 5.69 | 5.75 | −0.06 |
+| 2023-04-24 Mosaic Implications NEIPA | its log (Home 2023-03-27) | 5.69 | 5.74 | −0.05 |
+| 2023-05-14 Cold for Kveik IPA | Home 2023-05-14 | 5.68 | 5.64 | +0.04 |
 | 2023-06-17 Hop Rapids | Home 2023-06-17 | 5.59 | 5.60 | −0.01 |
 | 2023-07-08 Belgian Single | Home 2023-06-17 | 5.67 | 5.79 | −0.12 |
 | 2023-08-03 Oktoberfest | Home 2023-06-17 | 5.49 | 5.80 | −0.31 |
+| 2023-09-03 JWSYF Hazy IPA | Home 2023-08-18 | 5.69 | 5.70 | −0.01 |
 | 2023-10-04 Baltic Porter | Home 2023-08-18 | 5.43 | 5.66 | −0.23 |
 | 2023-11-03 Bob's Your Uncle ESB | Home 2023-11-03 | 5.60 | 5.70 | −0.10 |
 | 2023-12-02 Time Warp DIPA | Home 2023-11-03 | 5.66 | 5.60 | +0.06 |
 | 2024-03-23 Holy Hefe | Home 2024-03-20 | 5.68 | 5.65 | +0.03 |
 | 2024-04-28 Kolsch | Home 2024-03-20 | 5.73 | 5.58 | +0.15 |
 | 2024-09-17 Experiments Are Fun WCIPA | Home 2024-03-20 | 5.69 | 5.36 | +0.33 |
+| 2024-11-10 JWSYF Hazy IPA | Home 2024-03-20 | 5.69 | 5.67 | +0.02 |
+| 2025-02-20 Tropical Cream Ale | Home 2024-03-20 | 5.73 | 5.69 | +0.04 |
 | 2025-03-22 Nordic Saison | Home 2024-03-20 | 5.72 | 5.54 | +0.18 |
+| 2025-10-28 Aussie Xmas Hazy IPA | Bristlecone 2025-10-22 | 5.68 | 5.45 | +0.23 |
 
-Across the 17: mean difference −0.02, mean size of the difference 0.18, largest 0.38; 5 within 0.10, 9 within 0.20. Updated 2026-10-02 after the sixth round (Carafoam as base; the Baltic Porter and 2024 Kölsch added); the first run, 15 batches with Carafoam as crystal, gave −0.02, 0.18 and 0.38.
+Across the 27: mean difference +0.02, mean size of the difference 0.17, largest 0.46; 11 within 0.10, 16 within 0.20. Updated 2026-10-02 after the seventh round (flaked and raw grains as base: ten batches added). Earlier runs: 15 batches with Carafoam as crystal, −0.02 / 0.18 / 0.38; 17 batches after the sixth round, −0.02 / 0.18 / 0.38.
 
-Not checked: batches with flaked or raw grain (S5-B10, open); logs without a mash water volume or a pH reading.
+Not checked: logs without a mash water volume or a pH reading.
 
 ## Sources — the archived Troester pages (S5-B2')
 
