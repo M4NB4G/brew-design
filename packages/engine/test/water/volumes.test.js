@@ -280,22 +280,39 @@ describe('kettle water at the brewhouse efficiency — the engine', () => {
     expect(18.6 * s.mash).toBeCloseTo(16.8, 12);
   });
 
-  it('a share past the whole is kept as the arithmetic gives it', () => {
+  it('a share past the whole is held at its limit', () => {
     const { kettleShares } = engine;
-    // FLAG (volumes.js): no limit is set; the owner decides (roadmap
-    // "Kettle shares past their limits"). By hand:
+    // KS1 (docs/items/kettle-share-limits.md, KS-S1), by hand:
     // at 75 %, 0.75 x 7 = 5.25 gal-worth of mash liquor leaves 14 - 5.25 =
-    // 8.75 gal for the 8.5 gal of sparge: a share of 8.75 / 8.5 = 1.029412.
-    expect(kettleShares({ ...SHARES, efficiency: 0.75 }).sparge).toBeCloseTo(8.75 / 8.5, 12);
+    // 8.75 gal for the 8.5 gal of sparge: 8.75 / 8.5 = 1.029 is held at 1.
+    const low = kettleShares({ ...SHARES, efficiency: 0.75 });
+    expect(low.mash).toBe(0.75);
+    expect(low.sparge).toBe(1);
+    expect(low.held).toBe(true);
     // At 95 % with 16 gal of mash water, 0.95 x 16 = 15.2 gal-worth for a
-    // 14 gal kettle: the mash share stays 0.95; the sparge share is
-    // (14 - 15.2) / 8.5 = -0.141176.
+    // 14 gal kettle: the mash share is held at the kettle's, 14 / 16 =
+    // 0.875, which leaves 14 - 0.875 x 16 = 0 for the sparge: 0.
     const big = kettleShares({ ...SHARES, efficiency: 0.95, mashWaterGal: 16 });
-    expect(big.mash).toBe(0.95);
-    expect(big.sparge).toBeCloseTo(-1.2 / 8.5, 12);
+    expect(big.mash).toBeCloseTo(14 / 16, 12);
+    expect(big.sparge).toBeCloseTo(0, 12);
+    expect(big.held).toBe(true);
     // No sparge with a short kettle: 7 gal of mash water for 14 gal before
-    // the boil gives 14 / 7 = 2.
-    expect(kettleShares({ ...SHARES, spargeMethod: 'none' }).mash).toBe(2);
+    // the boil, 14 / 7 = 2, is held at 1.
+    const shortNone = kettleShares({ ...SHARES, spargeMethod: 'none' });
+    expect(shortNone.mash).toBe(1);
+    expect(shortNone.held).toBe(true);
+    // KS-S3: within the limits, nothing is held (90 %: 0.9 and 7.7 / 8.5).
+    const within = kettleShares(SHARES);
+    expect(within.held).toBe(false);
+    expect(within.sparge).toBeCloseTo(7.7 / 8.5, 12);
+    expect(kettleShares({ ...SHARES, spargeMethod: 'none', mashWaterGal: 15.5 }).held).toBe(false);
+    // An exact fit is not held, whatever the round-off: 11 gal of mash water,
+    // 1 gal of sparge, 8.5 gal before the boil, efficiency 7.5 / 11: by hand
+    // 8.5 - 7.5 = 1 gal of sparge reaches the kettle, all of it; the sums come
+    // to 1.0000000000000009, which is not a held share.
+    const exact = kettleShares({ efficiency: 7.5 / 11, mashWaterGal: 11, spargeGal: 1, preBoilGal: 8.5, spargeMethod: 'batch' });
+    expect(exact.sparge).toBe(1);
+    expect(exact.held).toBe(false);
   });
 
   it('a blank figure blanks the shares', () => {

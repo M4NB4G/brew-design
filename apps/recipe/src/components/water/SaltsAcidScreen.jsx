@@ -22,7 +22,13 @@ import { SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS } from '@brew/engine';
 import Card from '../shared/Card.jsx';
 import StatBox from '../shared/StatBox.jsx';
 import { colors, radii, tokens } from '../shared/styles.js';
-import WaterGoesCard, { volumeText, KETTLE_LABEL, KETTLE_ASSUMPTION, KETTLE_BIAS_NOTE } from './WaterGoesCard.jsx';
+import WaterGoesCard, {
+  volumeText,
+  KETTLE_LABEL,
+  KETTLE_ASSUMPTION,
+  KETTLE_BIAS_NOTE,
+  KETTLE_HELD_NOTE,
+} from './WaterGoesCard.jsx';
 import {
   volumeUnit,
   saltUnit,
@@ -439,6 +445,11 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
               </div>
               <p style={tokens.notice}>The boil concentrates each figure by the pre-boil ÷ post-boil volume.</p>
               {figures.setup.spargeMethod !== 'none' && <p style={tokens.notice}>{KETTLE_BIAS_NOTE}</p>}
+              {figures.kettle.held && (
+                <p role="status" style={tokens.warning}>
+                  {KETTLE_HELD_NOTE}
+                </p>
+              )}
               <p style={tokens.notice}>
                 A kettle sample may read lower in calcium and higher in magnesium: calcium partly reacts with the
                 malt's phosphate, and the malt adds its own magnesium.

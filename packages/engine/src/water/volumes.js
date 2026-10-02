@@ -133,21 +133,28 @@ export function kettleSalts({ needed, fromMash, fromSparge }) {
  * sparge water: the sparge's salts reach it in that proportion. With no
  * sparge the mash is well mixed: the kettle draws pre-boil / mash water of it.
  *
- * @returns {{ mash, sparge }} shares of the mash's and the sparge's salts
- *   FLAG: kept as the arithmetic gives them, past 0 and 1 (the item's
- *   sentences set no limit; the owner decides — roadmap "Kettle shares past
- *   their limits"). A low efficiency against the volumes asks for more
- *   sparge water than there is (a sparge share above 1: at 75 % in the
- *   worked example, 8.75 gal of an 8.5 gal sparge); a high one leaves the
- *   kettle more mash liquor than it holds (a sparge share below 0); with no
- *   sparge, a kettle larger than the mash water — a short kettle, which the
- *   water volumes warn of — gives a mash share above 1. The efficiency holds
- *   the mash's conversion too, so neither limit is a figure the brewer typed.
+ * @returns {{ mash, sparge, held }} shares of the mash's and the sparge's
+ *   salts, each held between 0 and 1 (the owner's KS1,
+ *   docs/items/kettle-share-limits.md): with a sparge, the mash share never
+ *   more than the kettle's share of the mash water (pre-boil / mash water),
+ *   the sparge share between 0 and 1; with no sparge, the mash share never
+ *   above 1. The efficiency holds the mash's conversion too, so it does not
+ *   always fit the volumes (at the built-in 75 % in the worked example it asks
+ *   for 8.75 gal of an 8.5 gal sparge); `held` says when a share was held.
  */
+// A share past its limit by no more than floating-point round-off is not held.
+const SAME_SHARE = 1e-9;
+
 export function kettleShares({ efficiency, mashWaterGal, spargeGal, preBoilGal, spargeMethod }) {
-  if (spargeMethod === 'none') return { mash: preBoilGal / mashWaterGal, sparge: 0 };
-  const spargeInKettle = preBoilGal - efficiency * mashWaterGal;
-  return { mash: efficiency, sparge: spargeInKettle / spargeGal };
+  const kettleShare = preBoilGal / mashWaterGal;
+  if (spargeMethod === 'none') {
+    return { mash: Math.min(1, kettleShare), sparge: 0, held: kettleShare > 1 + SAME_SHARE };
+  }
+  const mash = Math.min(efficiency, kettleShare);
+  const sparge = (preBoilGal - mash * mashWaterGal) / spargeGal;
+  const spargeHeld = Math.min(1, Math.max(0, sparge));
+  const held = efficiency > kettleShare + SAME_SHARE || sparge < -SAME_SHARE || sparge > 1 + SAME_SHARE;
+  return { mash, sparge: spargeHeld, held };
 }
 
 /** Amounts of the same salts added together ({ [key]: amount } each). */

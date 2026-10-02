@@ -215,6 +215,7 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
               <Caption>
                 {s.water.kettle.label} ({s.water.kettle.assumption}; mg/L). The boil concentrates each figure by the
                 pre-boil ÷ post-boil volume.{s.water.kettle.biasNote && ` ${s.water.kettle.biasNote}`}
+                {s.water.kettle.heldNote && ` ${s.water.kettle.heldNote}`}
               </Caption>
               <table style={tbl}>
                 <thead>

@@ -364,6 +364,8 @@ export function computeWater(water, recipe) {
     }
     kettle = {
       volumeGal: kettleGal,
+      // KS1: a share held at its limit (docs/items/kettle-share-limits.md).
+      held: whole ? shares.held : false,
       salts: Object.entries(balance).map(([k, amount]) => ({
         key: k,
         name: SALT_CONTRIBUTIONS_PER_G_GAL[k].name,

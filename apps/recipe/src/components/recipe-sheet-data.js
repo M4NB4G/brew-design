@@ -36,7 +36,13 @@ import {
 } from '../display.js';
 import { num, gravity } from '../format.js';
 import { TEST_RESULT_KEYS } from '../water-state.js';
-import { TREATMENT_LABELS, KETTLE_LABEL, KETTLE_ASSUMPTION, KETTLE_BIAS_NOTE } from './water/WaterGoesCard.jsx';
+import {
+  TREATMENT_LABELS,
+  KETTLE_LABEL,
+  KETTLE_ASSUMPTION,
+  KETTLE_BIAS_NOTE,
+  KETTLE_HELD_NOTE,
+} from './water/WaterGoesCard.jsx';
 
 const YEAST_TYPE = { ale: 'Ale', lager: 'Lager' };
 const YEAST_CHARACTER = { high: 'High', mod: 'Moderate', low: 'Low' };
@@ -293,6 +299,8 @@ function kettleSection(water) {
     assumption: KETTLE_ASSUMPTION[water.setup.spargeMethod],
     // C17: the efficiency's bias, with a sparge (no sparge does not use it).
     biasNote: water.setup.spargeMethod === 'none' ? null : KETTLE_BIAS_NOTE,
+    // KS1: a share held at its limit.
+    heldNote: water.kettle.held ? KETTLE_HELD_NOTE : null,
     rows: [
       ion('Calcium', 'Ca'),
       ion('Magnesium', 'Mg'),

@@ -63,7 +63,8 @@ pinned by the golden-master tests.
     water's predicted profile, with kettle salts on, the kettle water before
     the boil: the source water plus the salts in the kettle over the pre-boil
     volume, the mash's salts reaching it at the recipe's brewhouse
-    efficiency with a sparge (no sparge: the mash well mixed).
+    efficiency with a sparge (no sparge: the mash well mixed), each share held
+    between 0 and 1 and the card and sheet saying when one is.
 11. `toReferenceVolume(measuredGal, kind, measurementTempF)` is the
     volume-correction slot. Pre-boil, post-boil, and ferment volumes route
     through it and reach the engine corrected to the engine's reference

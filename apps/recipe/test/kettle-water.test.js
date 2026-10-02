@@ -165,6 +165,27 @@ describe('kettle water at the brewhouse efficiency', () => {
     ).toBeNull();
   });
 
+  it('a share held at its limit is said so', async () => {
+    // KS1 (docs/items/kettle-share-limits.md, KS-S1, KS-S2), by hand: at
+    // 75 %, the HLT's sparge share 8.75 / 8.5 is held at 1, so all 4.25 g it
+    // carries reach the kettle: 16.8 - 0.75 x 8.4 - 4.25 = 16.8 - 6.3 - 4.25
+    // = 6.25 g in the kettle.
+    const note =
+      "A share was held at its limit: the brewhouse efficiency does not fit these volumes (it also counts the mash's conversion), so the kettle salts are an estimate.";
+    const held = computeWater(hltWater(), exampleRecipe({ efficiency: 0.75 }));
+    expect(gypsumIn(held)).toBeCloseTo(6.25, 9);
+    expect(held.kettle.held).toBe(true);
+    expect(text(await render(hltWater(), exampleRecipe({ efficiency: 0.75 })))).toContain(note);
+    const recipe = { ...exampleRecipe({ efficiency: 0.75 }), water: hltWater() };
+    const s = recipeSheet({ recipe, derived: computeRecipe(recipe), water: computeWater(recipe.water, recipe), mode: 'home', proGravityUnit: 'plato', today: new Date(2026, 9, 2) });
+    expect(s.water.kettle.heldNote).toBe(note);
+    // KS-S3: within the limits (90 %), no note and S4b's figures.
+    const within = computeWater(hltWater(), exampleRecipe());
+    expect(within.kettle.held).toBe(false);
+    expect(gypsumIn(within)).toBeCloseTo(5.39, 9);
+    expect(text(await render(hltWater(), exampleRecipe()))).not.toContain('A share was held at its limit');
+  });
+
   it('a blank figure the readout needs blanks it', async () => {
     // KW-S7: a blank efficiency, pre-boil volume or sparge water.
     for (const [w, r] of [

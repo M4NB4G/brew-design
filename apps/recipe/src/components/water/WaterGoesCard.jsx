@@ -36,6 +36,9 @@ export const KETTLE_ASSUMPTION = {
 // The efficiency's known bias (C17), beside the readout on screen and sheet.
 export const KETTLE_BIAS_NOTE =
   'The brewhouse efficiency also counts how completely the mash dissolves the extract, so it slightly understates the salts reaching the kettle: the kettle salts come out slightly generous.';
+// KS1 (docs/items/kettle-share-limits.md, KS-S2): a share held at its limit.
+export const KETTLE_HELD_NOTE =
+  "A share was held at its limit: the brewhouse efficiency does not fit these volumes (it also counts the mash's conversion), so the kettle salts are an estimate.";
 export const TREATMENT_LABELS = { mash: 'The mash water', tank: 'The Hot Liquor Tank (HLT) first fill' };
 
 // The figures the sums need, named as the card names them (WaterTab.jsx's

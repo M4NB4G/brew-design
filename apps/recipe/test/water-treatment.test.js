@@ -197,11 +197,11 @@ describe('water treatment choice', () => {
     expect(amountOf(mash.kettle.salts, 'gypsum')).toBeCloseTo(10.5, 9);
     // The tank treated: the kettle holds 0.75 x 7 = 5.25 gal-worth of mash
     // liquor, leaving 14 - 5.25 = 8.75 gal for the 8.5 gal of sparge, which
-    // carries 4.25 g: 4.25 x 8.75 / 8.5 = 4.375 g (a share past the whole,
-    // kept as the arithmetic gives it — FLAG in the engine):
-    // 16.8 - 6.3 - 4.375 = 6.125 g in the kettle.
+    // carries 4.25 g; the share, 8.75 / 8.5, is held at all of it (KS1,
+    // docs/items/kettle-share-limits.md): 16.8 - 6.3 - 4.25 = 6.25 g in the
+    // kettle.
     const tank = computeWater(tankWater({ kettleSalts: true }), exampleRecipe());
-    expect(amountOf(tank.kettle.salts, 'gypsum')).toBeCloseTo(6.125, 9);
+    expect(amountOf(tank.kettle.salts, 'gypsum')).toBeCloseTo(6.25, 9);
 
     // Never below zero: the brewer's own 25 g in the mash, 0.75 x 25 =
     // 18.75 g reaching the kettle, covers its 16.8 g.
