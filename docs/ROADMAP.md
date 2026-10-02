@@ -17,7 +17,7 @@ carries its session.
 | Session | Builds, in order | Writes the scope tables for |
 |---|---|---|
 | S4b · Water as brewed | Sparge water typed, the mash tun's water worked out · Kettle water and kettle salts at the recipe's brewhouse efficiency · "HLT" wording · My brewery banner · Brewery file | — (built by the S4 session, on the owner's word, 2026-10-02) |
-| S5 · Mash pH | Mash pH from the grain bill (step 5); waits on the owner's batch logs and the archived Troester pages (`docs/items/mash-ph.md`, S5 decisions) | S6 |
+| S5 · Mash pH | Mash pH from the grain bill (step 5); the owner's logs and Troester's archived pages are in hand; waits on the model questions the paper raised (`docs/items/mash-ph.md`, S5 decisions) | S6 |
 | S6 · Polish | Measurement temperatures beside their volumes · °C display toggle · Pro unit choices · Blank brewery figures name the built-in one | S7 and S8 |
 | S7 · Design tools | Inverse solver UI (target OG → grain bill) · Economics · Notes / methodology page | — |
 | S8 · My ingredients | My ingredients | — |

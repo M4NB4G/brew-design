@@ -1,7 +1,8 @@
 # Mash pH from the grain bill — Tier A + B (two items)
 
-Status: agreed 2026-10-02 ("agree to all"), not started; waiting on the
-owner (S5 decisions below). Written by the S4 session; to be built in
+Status: agreed 2026-10-02 ("agree to all"), not started; the logs and
+the archived pages are in hand (S5 decisions below), waiting on the
+owner's answers to the model questions the paper raised. Written by the S4 session; to be built in
 batch S5 (docs/ROADMAP.md, Sessions). **Sparge acidification**
 (`docs/items/sparge-acid.md`) left S5 on 2026-10-02. Water program step 5
 (`docs/items/water-program.md`: WP8 the model, WP9 the check against the
@@ -56,6 +57,27 @@ Raised by the S5 builder, who found item 1 could not start.
 | S5-B2'' | The archive does not have them | Stop and ask the owner before using any other source | No number from a source nobody checked |
 | S5-B4' | Sparge acidification in S5 | Out of S5, unassigned on the roadmap | The owner does not acidify his sparge |
 | S5-B6 | Filling in the malt types | The builder proposes each malt's type from its name in a review copy of the workbook, never the workbook itself; the owner reviews it and makes the edit. Malts the four types do not cover (unmalted grains, sugars, hulls, a fermenter addition) and three borderline malts (Victory, Special Roast, Honey Malt) are left blank and marked for his decision | MP-Q2: the owner sets each type |
+
+Second round — agreed 2026-10-02 ("all cooled … always 14 gal. agree to all else"), after the S5 builder found the archive unreachable from the owner's computer and surveyed his logs.
+
+| id | Question | Decision | Rule |
+|---|---|---|---|
+| S5-B2‴ | How the archived pages reach the builder | The owner saved them as PDFs; they are kept in `docs/sources/` (see Sources below) | S5-B2' |
+| S5-B7 | Were the logged mash-tun readings cooled samples? | All cooled: his meter cannot read at mash temperature, and it has automatic temperature compensation | S5-B1 |
+| S5-B8 | Which water report goes with each batch | A log carrying its own report uses it (June–September 2022); otherwise the latest Home report on or before brew day (September 2022 – March 2024); from 2025 the Bristlecone reports by the date in their file name. Reports from other places (Barman house, BrewChatter, Slieve, John Lamb, Steve, Matty, Otis, the canned water) are not used; the empty 2023-03-27 Home report is skipped | S5-B1 |
+| S5-B9 | Where the salts and acid went | Dissolved in the 14 gal hot-liquor-tank fill; the mash drew its logged volume of that treated water (the Water tab's tank treatment). Always 14 gal, including the two logs without a tank line (Cold IPA 2023-05-14, Nordic Saison 2025-03-22) | MP-Q6 |
+| S5-B10 | Grain bills with hulls, sugar or unmalted grain | Rice hulls and sugars count as nothing in the mash (hulls are husk; sugars go in the kettle). Batches with flaked oats, flaked corn, flaked or raw wheat wait until the source says how to count them | S5-B6 left these to the owner |
+| S5-B11 | The logs folder | Stays out of the repository (it holds shipping labels with other people's addresses); the test carries each batch's figures and names its log file | Nothing personal goes to GitHub |
+
+## Sources — the archived Troester pages (S5-B2')
+
+Saved by the owner from the Wayback Machine, 2026-10-02, kept in `docs/sources/`:
+
+- `effect_of_water_and_grist_on_mash_pH.pdf` — Kai Troester, *The effect of brewing water and grist composition on the pH of the mash*, braukaiser.com, 2009 (dated Oct 31, 2009 in its footer; CC BY-NC 3.0). Archive address `web.archive.org/web/20250906010619/https://braukaiser.com/documents/effect_of_water_and_grist_on_mash_pH.pdf`, snapshot 2025-09-06 (the archive's index; the saved file carries no page header). The model's figures are in this paper.
+- `Mash pH control - German brewing and more.pdf` — braukaiser.com wiki, last modified 4 March 2011. Archive address `web.archive.org/web/20240805161308/http://braukaiser.com/wiki/index.php?title=Mash_pH_control`, snapshot 2024-08-05 (printed in its header). Qualitative; cites the 2009 paper for its numbers.
+- `Residual Alkalinity illustrated - German brewing and more.pdf` — what "Understanding Mash pH" became (the page says so). Archive snapshot 2022-08-20 (`web.archive.org/web/20220820014332/…`, printed in its header). Qualitative.
+
+Reading note for the builder: in the paper's equations the plus sign is a private-use glyph (U+E083) that text extraction drops — e.g. the crystal-malt line extracts as "140.13⋅C" for 14 + 0.13·C. The paper's own data confirm the plus (its mash-thickness slope at 4 l/kg, 0.013·4 + 0.013 = 0.065, against the 0.066 it measured).
 
 ## Scenarios — to be written first, must fail before
 
