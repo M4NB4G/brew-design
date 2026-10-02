@@ -17,7 +17,7 @@ carries its session.
 | Session | Builds, in order | Writes the scope tables for |
 |---|---|---|
 | S4b · Water as brewed | Sparge water typed, the mash tun's water worked out · Kettle water and kettle salts at the recipe's brewhouse efficiency · "HLT" wording · My brewery banner · Brewery file | — (built by the S4 session, on the owner's word, 2026-10-02) |
-| S5 · Mash pH | Mash pH from the grain bill (step 5); the owner's logs and Troester's archived pages are in hand; waits on the model questions the paper raised (`docs/items/mash-ph.md`, S5 decisions) | S6 |
+| S5 · Mash pH | Mash pH from the grain bill (step 5); the owner's logs and Troester's archived pages are in hand; model rules agreed (S5-B12 to B15); item 1 waits on the owner setting each malt's type and base-malt figure (`docs/items/mash-ph.md`, S5 decisions) | S6 |
 | S6 · Polish | Measurement temperatures beside their volumes · °C display toggle · Pro unit choices · Blank brewery figures name the built-in one | S7 and S8 |
 | S7 · Design tools | Inverse solver UI (target OG → grain bill) · Economics · Notes / methodology page | — |
 | S8 · My ingredients | My ingredients | — |
@@ -29,6 +29,7 @@ Shelved: the `correctVolumeToRef` identity.
 | Item | Sentence (draft) | Re-test | Session |
 |---|---|---|---|
 | `correctVolumeToRef` identity — **shelved** | Its doc says the factor is exactly 1 at the reference temperature, but `(v · d) / d` differs from `v` by one ulp for v = 7 or 5 (exact for 16, 14.5, 12, 5.5); compute `v · (d / d)` or short-circuit `tempF === refTempF`; golden values unaffected (noticed writing the Options page table, 2026-09-21). Shelved 2026-09-22 on the owner's call: a floating-point artifact ~15 digits down, below every displayed precision and every test tolerance; only a test asserting exact bit-equality would see it. Kept so it is not rediscovered as a mystery | suites + inspector | shelved |
+| Acidulated malt's lactic acid | The Water tab counts acidulated malt at 2 % lactic acid by weight (the engine's acid table, "published range 1–2 %; midpoint used"), while Troester titrated Weyermann Sauermalz at 315–358 mEq/kg, 2.85–3.22 % lactic, matching Weyermann's ~3 % (docs/sources, the 2009 paper §3.3); the mash pH model uses the 2 % so the app carries one figure (S5-B14); decide which figure both use | suites + inspector | unassigned |
 | Water volumes past their limits | A top-up level below the treated water the mash leaves gives a treated share over 100 %; kept as the arithmetic gives it, with a `// FLAG:` in the engine, because the treatment choice's sentences do not say; decide whether it warns, blanks, or is refused (noticed building the water treatment choice, 2026-10-02; its twin, a negative sparge, went when S4b made the sparge typed) | suites + inspector | unassigned |
 
 ## Tier B — touches state, selectors, display, or reference-volume

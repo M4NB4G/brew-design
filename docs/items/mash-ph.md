@@ -1,8 +1,9 @@
 # Mash pH from the grain bill — Tier A + B (two items)
 
 Status: agreed 2026-10-02 ("agree to all"), not started; the logs and
-the archived pages are in hand (S5 decisions below), waiting on the
-owner's answers to the model questions the paper raised. Written by the S4 session; to be built in
+the archived pages are in hand and the model rules agreed (S5 decisions
+below); the check waits on the owner setting each malt's type and base-malt
+figure. Written by the S4 session; to be built in
 batch S5 (docs/ROADMAP.md, Sessions). **Sparge acidification**
 (`docs/items/sparge-acid.md`) left S5 on 2026-10-02. Water program step 5
 (`docs/items/water-program.md`: WP8 the model, WP9 the check against the
@@ -68,6 +69,17 @@ Second round — agreed 2026-10-02 ("all cooled … always 14 gal. agree to all 
 | S5-B9 | Where the salts and acid went | Dissolved in the 14 gal hot-liquor-tank fill; the mash drew its logged volume of that treated water (the Water tab's tank treatment). Always 14 gal, including the two logs without a tank line (Cold IPA 2023-05-14, Nordic Saison 2025-03-22) | MP-Q6 |
 | S5-B10 | Grain bills with hulls, sugar or unmalted grain | Rice hulls and sugars count as nothing in the mash (hulls are husk; sugars go in the kettle). Batches with flaked oats, flaked corn, flaked or raw wheat wait until the source says how to count them | S5-B6 left these to the owner |
 | S5-B11 | The logs folder | Stays out of the repository (it holds shipping labels with other people's addresses); the test carries each batch's figures and names its log file | Nothing personal goes to GitHub |
+
+Third round — agreed 2026-10-02 ("agree to all"), after the builder read the 2009 paper (Sources below) and found it disagrees with MP-S2, MP-Q3 and MP-Q4 on base malts and on the lab figures. These rows govern where they differ from the earlier ones.
+
+| id | Question | Decision | Rule |
+|---|---|---|---|
+| S5-B12 | How a base malt's distilled-water pH is found — the paper gives no colour rule for base malts (it measured eleven named malts, found a loose link to colour, and says a base malt's figure "needs to be known") | A figure in the owner's workbook that he sets for each base malt: Troester's measured figure where he judges the malt matches one Troester tested (paper Table 2), otherwise a maltster's analysis. A base malt with no figure blanks the predicted pH and is named. Replaces "by its colour" for base malts in MP-S2; Troester's beer-colour method (his "Beer color, alkalinity and mash pH" page and water-calculator spreadsheet) is not used | MP-Q3: no figure chosen by the builder; the paper's own finding |
+| S5-B13 | What the two lab columns hold (MP-Q4 said distilled-water pH and buffering) | Distilled-water mash pH (base malts) and acidity in mEq per kg titrated to pH 5.7 (crystal, roast, acidulated malts); a specialty malt with a measured acidity uses it instead of the rule for its type. The model has no per-malt buffering figure | MP-Q4, matched to the published model |
+| S5-B14 | The specialty-malt rules | As published: crystal acidity = 14 + 0.13 × colour (EBC) mEq/kg; roast acidity ≈ 40 mEq/kg at any colour; each specialty malt counts at pH 5.7 in the grist's average, which is then lowered by 0.14 × Σ(acidity × share of grist) ÷ mash thickness (L/kg); °L converts to EBC by the paper's EBC = 2.65 × °L − 1.2. An acidulated-malt row in the grain bill counts by its lactic acid at the Water tab's existing 2 % (not the paper's ~3 %), so the app carries one figure; a roadmap line to revisit it | SPEC rule 2: transcribe as published; MP-Q7: one figure on screen |
+| S5-B15 | The water's effect | Mash pH = the grist's distilled-water pH + slope × the treated mash water's residual alkalinity (mEq/L). The residual alkalinity is the Water tab's, after salts and acid (Kolbach's 3.5 for calcium, 7 for magnesium, which the paper calls close to its measurements); the slope is 0.013 × mash thickness (L/kg) + 0.013 as published, fitted on finely ground grist (a coarser crush made it steeper in his tests) — kept and marked in the engine, never adjusted | MP-Q6; SPEC rules 2 and 3 |
+
+The builder computes no prediction for the owner's batches before these rules are fixed, so no rule is chosen by how well it fits his logs.
 
 ## Sources — the archived Troester pages (S5-B2')
 
