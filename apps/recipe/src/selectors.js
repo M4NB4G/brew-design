@@ -40,6 +40,7 @@ import {
   MALT_TYPES,
   mashPh,
   mashPhOutsideRange,
+  mashPhTestedRange,
 } from '@brew/engine';
 import { toReferenceVolume } from './reference-volume.js';
 import { TEST_RESULT_KEYS, effectiveSetup } from './water-state.js';
@@ -312,6 +313,12 @@ export function computeWater(water, recipe) {
   const mashPhFigures = {
     ph: predictedMashPh,
     outsideRange: mashPhOutsideRange(predictedMashPh),
+    // TR-S1: the limits of the range the model was tested on that the
+    // water the mash draws or the mash thickness crosses; none while the
+    // pH is blank.
+    testedRange: Number.isFinite(predictedMashPh)
+      ? mashPhTestedRange({ malts: recipe.malts, mashWaterGal, water: final.ions })
+      : [],
     countedTwice: recipe.malts.some((m) => m.type === 'acidulated') && (amounts.acidulated_malt ?? 0) > 0,
     needs: mashPhNeeds,
   };

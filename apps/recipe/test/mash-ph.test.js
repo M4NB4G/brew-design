@@ -348,3 +348,155 @@ describe('mash pH from the grain bill (item 2)', () => {
     }
   });
 });
+
+// S5b item B (docs/items/mash-ph-acid.md, TR-S1 to TR-S3): the range the
+// model was tested on — residual alkalinity from -5.61 to +14.3 mEq/L
+// (Troester 2009, Table 3) and mash thickness from 2 to 5 L/kg (Tables 15
+// and 16), the ends inside.
+const RA_LOW = -5.61;
+const RA_HIGH = 14.3;
+const R_LOW = 2;
+const R_HIGH = 5;
+
+// The owner's West Coast Pilsner (the item file's case): Pilsner Northstar
+// 12 lb (2 °L), Pilsner Weyermann 7 lb (1.8 °L), Carafoam 1 lb (2 °L), all
+// base; 8 gal of mash water; the example report; Pilsner / Light Lager; the
+// tank treated at 14 gal, topped up to 12; fly sparge 10 gal; kettle salts
+// on; the salts as recommended; 75 % phosphoric as the acid.
+const wcPils = (acidMl = null, mashWaterGal = 8) => ({
+  ...defaultRecipeState(),
+  name: 'Home Grown WC Pils',
+  malts: [
+    malt('Pilsner Northstar', 'base', 12, 2),
+    malt('Pilsner Weyermann', 'base', 7, 1.8),
+    malt('Carafoam', 'base', 1, 2),
+  ],
+  mashWaterGal,
+  water: {
+    ...defaultWaterState(),
+    source: { ...EXAMPLE_SOURCE },
+    styleId: 'pilsner',
+    primaryAcid: 'phosphoric_75',
+    treatment: 'tank',
+    tankTreatedGal: 14,
+    tankTopUpGal: 12,
+    spargeMethod: 'fly',
+    spargeGal: 10,
+    kettleSalts: true,
+    acidAmounts:
+      acidMl === null ? null : { ...Object.fromEntries(Object.keys(ACIDS).map((k) => [k, 0])), phosphoric_75: acidMl },
+  },
+});
+
+const NOTE_START = 'Beyond the range the model was tested on (Troester 2009): ';
+const NOTE_END = '; this prediction is unreliable.';
+
+describe('the tested range', () => {
+  it('beyond the tested range the predicted pH warns', () => {
+    // 35 mL of 75 % phosphoric in the tank's 14 gal, by hand: the engine's
+    // acid figures, 1.579 g/mL x 0.75 x 1000 / 97.99 = 12.0854168792734
+    // mEq/mL; 35 mL = 422.989590774569 mEq; over 14 x 3.785411784 =
+    // 52.995764976 L = 7.98157345150365 mEq/L = 399.397935513243 mg/L as CaCO3.
+    // Alkalinity 50 - 399.397935513243 = -349.397935513243 mg/L. The salts
+    // bring calcium and magnesium to the style's 50 and 10:
+    // 50 / 1.4 + 10 / 1.7 = 41.5966386554622 mg/L. Residual alkalinity
+    // -349.397935513243 - 41.5966386554622 = -390.994574168705 mg/L
+    // = -7.81364057091737 mEq/L: below -5.61.
+    // The pH still shows. Grist: 1.8 °L = 3.57 EBC -> 5.82 - 0.0714 = 5.7486;
+    // 2 °L = 4.1 EBC -> 5.738; (12 x 5.738 + 7 x 5.7486 + 1 x 5.738) / 20
+    // = 114.8342 / 20 = 5.74171. R = 8 x 3.785411784 / (20 x 0.453592)
+    // = 3.33816450378314 L/kg (inside 2-5); slope 0.0563961385491808; acid
+    // slope 0.0814 x 0.0563961385491808 / 0.065 = 0.0706253181215894.
+    // pH = 5.74171 - 0.0563961385491808 x 0.831267758902122
+    //      + 0.0706253181215894 x -6.98237281201525 = 5.20169740720538.
+    const recipe = wcPils(35);
+    const figures = computeWater(recipe.water, recipe);
+    expect(figures.final.ions.Ca).toBeCloseTo(50, 6);
+    expect(figures.final.ions.Mg).toBeCloseTo(10, 6);
+    expect(figures.final.ions.Alk).toBeCloseTo(-349.397935513243, 6);
+    expect(figures.mashPh.ph).toBeCloseTo(5.20169740720538, 6);
+    expect(figures.mashPh.testedRange).toEqual([{ figure: 'residualAlkalinity', side: 'below', limit: RA_LOW }]);
+    const html = tab(recipe);
+    expect(html).toMatch(/>5\.20<\/div><div[^>]*>Predicted mash pH \(cooled sample\)</);
+    expect(html).toContain(`${NOTE_START}residual alkalinity below −5.61 mEq/L${NOTE_END}`);
+
+    // At the recommendation the water is inside: no note.
+    const rec = wcPils();
+    const recFigures = computeWater(rec.water, rec);
+    expect(recFigures.mashPh.testedRange).toEqual([]);
+    expect(tab(rec)).not.toContain(NOTE_START);
+
+    // The mash thickness: 20 lb = 9.07184 kg; 1.9 L/kg is 1.9 x 9.07184 /
+    // 3.785411784 = 4.55340052378302 gal of mash water, 5.1 L/kg is
+    // 12.2222856164702 gal.
+    const thin = wcPils(null, 12.2222856164702);
+    expect(computeWater(thin.water, thin).mashPh.testedRange).toEqual([
+      { figure: 'thickness', side: 'above', limit: R_HIGH },
+    ]);
+    expect(tab(thin)).toContain(`${NOTE_START}mash thickness above 5 L/kg${NOTE_END}`);
+    const thick = wcPils(35, 4.55340052378302);
+    expect(computeWater(thick.water, thick).mashPh.testedRange).toEqual([
+      { figure: 'residualAlkalinity', side: 'below', limit: RA_LOW },
+      { figure: 'thickness', side: 'below', limit: R_LOW },
+    ]);
+    expect(tab(thick)).toContain(
+      `${NOTE_START}residual alkalinity below −5.61 mEq/L, mash thickness below 2 L/kg${NOTE_END}`,
+    );
+
+    // Each edge is inside; just past it is not; a blank warns of nothing.
+    const crossed = (ra, r) => engine.mashPhTestedRangeCrossed?.({ residualAlkalinityMeq: ra, thicknessLPerKg: r });
+    expect(engine.MASH_PH_TESTED_RANGE).toEqual({
+      residualAlkalinityMeq: { low: RA_LOW, high: RA_HIGH },
+      thicknessLPerKg: { low: R_LOW, high: R_HIGH },
+    });
+    expect(crossed(RA_LOW, 3)).toEqual([]);
+    expect(crossed(RA_HIGH, 3)).toEqual([]);
+    expect(crossed(0, R_LOW)).toEqual([]);
+    expect(crossed(0, R_HIGH)).toEqual([]);
+    expect(crossed(-5.62, 3)).toEqual([{ figure: 'residualAlkalinity', side: 'below', limit: RA_LOW }]);
+    expect(crossed(14.31, 3)).toEqual([{ figure: 'residualAlkalinity', side: 'above', limit: RA_HIGH }]);
+    expect(crossed(0, 1.99)).toEqual([{ figure: 'thickness', side: 'below', limit: R_LOW }]);
+    expect(crossed(0, 5.01)).toEqual([{ figure: 'thickness', side: 'above', limit: R_HIGH }]);
+    expect(crossed(NaN, NaN)).toEqual([]);
+    expect(tab(rec)).not.toContain('above 14.3');
+    // A blank pH carries no note.
+    const blank = { ...recipe, malts: [malt('Pale', '', 10, 2)] };
+    expect(computeWater(blank.water, blank).mashPh.testedRange).toEqual([]);
+  });
+
+  it('the printed sheet carries the note', () => {
+    // TR-S2.
+    const sheetOf = (recipe) => {
+      const water = computeWater(recipe.water, recipe);
+      const derived = computeRecipe(recipe);
+      return {
+        data: recipeSheet({ recipe, derived, water, mode: 'home', proGravityUnit: 'plato', today: new Date(2026, 9, 3) }),
+        html: renderToStaticMarkup(
+          createElement(RecipeSheet, { recipe, derived, water, mode: 'home', proGravityUnit: 'plato' }),
+        ),
+      };
+    };
+    const note = `${NOTE_START}residual alkalinity below −5.61 mEq/L${NOTE_END}`;
+    const beyond = sheetOf(wcPils(35));
+    expect(beyond.data.water.mashPhPredicted).toBe('5.20');
+    expect(beyond.data.water.mashPhNote).toBe(note);
+    expect(beyond.html).toMatch(/predicted 5\.20[\s\S]*?Beyond the range the model was tested on/);
+    expect(beyond.html).toContain(note);
+    const inside = sheetOf(wcPils());
+    expect(inside.data.water.mashPhNote).toBeNull();
+    expect(inside.html).not.toContain(NOTE_START);
+  });
+
+  it('nothing else changes', () => {
+    // TR-S3: a warning; no figure moves. The predicted pH is the engine's
+    // model on the treated profile, as before; the water figures carry the
+    // note's crossings and nothing else new.
+    for (const recipe of [wcPils(35), wcPils(), handRecipe()]) {
+      const figures = computeWater(recipe.water, recipe);
+      expect(figures.mashPh.ph).toBe(
+        engine.mashPh({ malts: recipe.malts, mashWaterGal: recipe.mashWaterGal, water: figures.final.ions }),
+      );
+      expect(Object.keys(figures.mashPh).sort()).toEqual(['countedTwice', 'needs', 'outsideRange', 'ph', 'testedRange']);
+    }
+  });
+});

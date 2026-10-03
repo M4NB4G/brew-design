@@ -9,6 +9,7 @@
 // precision only.
 
 import { REFERENCE_TEMP_F } from '@brew/engine';
+import { testedRangeNote } from './water/tested-range-note.js';
 import {
   resolveGravityUnit,
   gravityUnitLabel,
@@ -284,6 +285,8 @@ function waterSection(water, mode, vol, vUnit) {
     profile,
     mashPhLabel: 'Mash pH (cooled sample)',
     mashPhPredicted: num(water.mashPh.ph, 2),
+    // TR-S2: the Water tab's tested-range note, or null.
+    mashPhNote: testedRangeNote(water.mashPh.testedRange),
     // HL-S2: the acronym spelled out on the sheet, with the HLT treated.
     hltNote: tank ? 'HLT = Hot Liquor Tank' : null,
     kettle: kettleSection(water),

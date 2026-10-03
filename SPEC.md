@@ -73,9 +73,11 @@ pinned by the golden-master tests.
     the predicted profile, the predicted mash pH of a cooled sample, from the
     malts, the mash water as entered and the treated mash water's predicted
     profile, with a warning outside the engine's cooled-sample range and when
-    acidulated malt is in the grain bill and is also the acid; the tab names
-    each blank malt figure it needs. The printed sheet prints it beside the
-    measured mash pH box.
+    acidulated malt is in the grain bill and is also the acid, and a note
+    naming each limit crossed when the water's residual alkalinity or the
+    mash thickness is beyond the range the engine's model was tested on (the
+    figure still shown); the tab names each blank malt figure it needs. The
+    printed sheet prints it, and that note, beside the measured mash pH box.
 11. `toReferenceVolume(measuredGal, kind, measurementTempF)` is the
     volume-correction slot. Pre-boil, post-boil, and ferment volumes route
     through it and reach the engine corrected to the engine's reference

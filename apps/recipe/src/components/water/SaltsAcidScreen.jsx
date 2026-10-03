@@ -24,6 +24,7 @@
 // (MP-Q10) and when acidulated malt is counted twice (MP-Q5).
 import { useEffect, useState } from 'react';
 import { SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS, MASH_PH_RANGE } from '@brew/engine';
+import { testedRangeNote } from './tested-range-note.js';
 import Card from '../shared/Card.jsx';
 import StatBox from '../shared/StatBox.jsx';
 import { colors, radii, tokens } from '../shared/styles.js';
@@ -383,6 +384,11 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
               <p role="status" style={tokens.warning}>
                 Outside {MASH_PH_RANGE.low}–{MASH_PH_RANGE.high}, the range for a cooled sample (Palmer &amp; Kaminski,
                 Water, 2013).
+              </p>
+            )}
+            {mashPh.testedRange.length > 0 && (
+              <p role="status" style={tokens.warning}>
+                {testedRangeNote(mashPh.testedRange)}
               </p>
             )}
             {mashPh.countedTwice && (

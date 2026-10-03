@@ -182,6 +182,7 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
               </span>
               <MeasuredBox />
             </div>
+            {s.water.mashPhNote && <p style={noData}>{s.water.mashPhNote}</p>}
           </div>
           <Caption>
             {s.water.profileLabel}, against the {s.water.style} target (mg/L)

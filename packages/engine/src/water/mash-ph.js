@@ -64,6 +64,9 @@ export const MALT_TYPES = Object.freeze(['base', 'crystal', 'roast', 'acidulated
 
 const given = (v) => typeof v === 'number' && Number.isFinite(v);
 
+// Mash thickness, L of mash water per kg of grain.
+const thickness = (mashWaterGal, grainLb) => (mashWaterGal * LITERS_PER_GALLON) / ((grainLb * G_PER_LB) / 1000);
+
 // A specialty malt's acidity, mEq/kg: its measured figure where given (S5-B13),
 // otherwise its type's rule (S5-B14).
 function specialtyAcidity(m) {
@@ -99,8 +102,7 @@ export function mashPh({ malts, mashWaterGal, water }) {
   }
   if (!(grainLb > 0) || !given(mashWaterGal)) return NaN;
 
-  // Mash thickness, L of mash water per kg of grain.
-  const r = (mashWaterGal * LITERS_PER_GALLON) / ((grainLb * G_PER_LB) / 1000);
+  const r = thickness(mashWaterGal, grainLb);
 
   // §3.5: the grist's distilled-water pH.
   let basePh = 0;
@@ -144,4 +146,46 @@ export const MASH_PH_RANGE = Object.freeze({ low: 5.2, high: 5.6 });
 /** true when a predicted mash pH lies outside MASH_PH_RANGE; a blank (NaN) gives false. */
 export function mashPhOutsideRange(ph) {
   return ph < MASH_PH_RANGE.low || ph > MASH_PH_RANGE.high; // NaN compares false
+}
+
+// The range the model was tested on (TR-S1, AS-4): residual alkalinity from
+// -5.61 to +14.3 mEq/L (Table 3, the most acidic and most alkaline waters
+// mashed; general hardness 0, so the residual alkalinity is the alkalinity)
+// and mash thickness from 2 to 5 L/kg (Tables 15 and 16). The ends are
+// inside. A warning changes no number.
+export const MASH_PH_TESTED_RANGE = Object.freeze({
+  residualAlkalinityMeq: Object.freeze({ low: -5.61, high: 14.3 }),
+  thicknessLPerKg: Object.freeze({ low: 2, high: 5 }),
+});
+
+/**
+ * The tested-range limits crossed by a water's residual alkalinity (mEq/L)
+ * and a mash thickness (L/kg), in that order; a blank (NaN) crosses none.
+ *
+ * @returns {Array<{figure: 'residualAlkalinity'|'thickness', side: 'below'|'above', limit: number}>}
+ */
+export function mashPhTestedRangeCrossed({ residualAlkalinityMeq, thicknessLPerKg }) {
+  const crossed = [];
+  const check = (figure, value, { low, high }) => {
+    if (value < low) crossed.push({ figure, side: 'below', limit: low });
+    else if (value > high) crossed.push({ figure, side: 'above', limit: high });
+  };
+  check('residualAlkalinity', residualAlkalinityMeq, MASH_PH_TESTED_RANGE.residualAlkalinityMeq);
+  check('thickness', thicknessLPerKg, MASH_PH_TESTED_RANGE.thicknessLPerKg);
+  return crossed;
+}
+
+/**
+ * The tested-range limits crossed by a mash, from the same entries as
+ * mashPh: the water's residual alkalinity (Kolbach, mEq/L) and the mash
+ * thickness of the grain in the mash.
+ */
+export function mashPhTestedRange({ malts, mashWaterGal, water }) {
+  const grainLb = (malts ?? [])
+    .filter((m) => m.type !== 'none')
+    .reduce((sum, m) => sum + m.weightLb, 0);
+  return mashPhTestedRangeCrossed({
+    residualAlkalinityMeq: residualAlkalinity(water?.Alk, water?.Ca, water?.Mg) / MG_CACO3_PER_MEQ,
+    thicknessLPerKg: grainLb > 0 ? thickness(mashWaterGal, grainLb) : NaN,
+  });
 }

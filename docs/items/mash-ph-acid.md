@@ -2,7 +2,11 @@
 
 Status: agreed 2026-10-02 ("agree to all"). Item A landed: "Acid beyond
 the treated mash water's alkalinity lowers the predicted mash pH by
-Troester's measured acid-side slope" (its builder's notes below). Written by
+Troester's measured acid-side slope" (its builder's notes below). Item B
+landed: "When the water the mash draws or the mash thickness is beyond the
+range Troester's model was tested on, the predicted mash pH still shows,
+with a note naming the limit crossed, on the Water tab and the printed
+sheet" (its builder's notes below). Written by
 the S5 item 2 session after the owner's far-end use of item 2 (below). The
 table planned to build the three items on the item 2 branch, `S5-item2`, and
 merge them with item 2 as one deploy (G3); the owner reversed G3 on
@@ -85,6 +89,15 @@ Silent property: none new (nothing saved).
 Scenarios (`apps/recipe/test/mash-ph.test.js`, describe "the tested range"): *beyond the tested range the predicted pH warns* (the owner's West Coast Pilsner at 35 mL of 75 % phosphoric, −7.8 mEq/L by hand; each edge inside; a thickness of 1.9 and 5.1 L/kg); *the printed sheet carries the note*; *nothing else changes*.
 
 Builder's notes: the limits are engine constants beside the model (as the cooled-sample range), pinned with literals from the paper's tables; the check reads the water the mash draws (item C's mash water when the acid goes into the mash).
+
+Item B, builder's notes (choices the sentences did not make, for the inspector to check):
+
+- The engine gains the limits beside the model (residual alkalinity −5.61 to 14.3 mEq/L, thickness 2 to 5 L/kg), a check of the two figures against them, and the same check worked from the model's own entries (malts, mash water, water). The mash thickness is worked by one helper the model now shares, the same arithmetic as before. That makes the commit Tier A + B.
+- The residual alkalinity checked is the Water tab's (Kolbach, with calcium and magnesium) of the water the model reads, in mEq/L; Table 3's waters had no hardness, so there it equals the alkalinity. Until item C that water is the treated profile.
+- The note shows only while the predicted pH shows; a blank pH carries none. Each limit crossed is named, residual alkalinity first, as "residual alkalinity below −5.61 mEq/L" or "mash thickness above 5 L/kg", joined by a comma, inside the sentence TR-S1 gives.
+- The note's words are built once, in a new helper beside the Water tab's components (`components/water/tested-range-note.js`, a file the item did not name), so the tab and the sheet print the same words.
+- On the printed sheet the note sits in the mash pH row, after the measured box, in the sheet's small grey italic.
+- The edges are pinned on the engine's check with the literals; the West Coast Pilsner's 1.9 and 5.1 L/kg come from mash water worked by hand (4.5534 and 12.2223 gal for 20 lb).
 
 ## Item C — acid into the mash (Tier B, A if the engine needs a function)
 
