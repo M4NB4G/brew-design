@@ -3,10 +3,11 @@
 Status: agreed 2026-10-02 ("agree to all"); item 1 landed: "The engine predicts the mash
 pH of a cooled sample from the grain bill and the treated mash water by
 Troester's published model, checked against the owner's logged batches"
-(S5 decisions below). Item 2 landed: "The Water tab shows the predicted mash
+(S5 decisions below). Item 2 built: "The Water tab shows the predicted mash
 pH, as a cooled sample reads, worked out from the grain bill, the treated mash
 water and its salts, and the acid in the mash" (eighth round and item 2's
-builder's notes below). Written by the S4 session; built in
+builder's notes below); held on its branch, on the owner's word (2026-10-02,
+G3), to merge with batch S5b (`docs/items/mash-ph-acid.md`). Written by the S4 session; built in
 batch S5 (docs/ROADMAP.md, Sessions). **Sparge acidification**
 (`docs/items/sparge-acid.md`) left S5 on 2026-10-02. Water program step 5
 (`docs/items/water-program.md`: WP8 the model, WP9 the check against the
