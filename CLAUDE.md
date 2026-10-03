@@ -189,8 +189,12 @@ owner before building. The box records the inspector's.
   decision, 2026-10-02). A batch of only Tier C and D items runs on
   Sonnet 5.5 with Opus as its advisor (`/advisor opus`). An item the
   catch-all promotes to Tier B is not built in that session: it returns
-  to the roadmap for an Opus session, and the report names it. The
-  report states the session's builder model and advisor. When a Tier C
+  to the roadmap for an Opus session, and the report names it. Because
+  the catch-all is the builder's call, each item's report lists every
+  number its change adds, and the Opus advisor confirms none is a
+  recipe value before the item is committed (the owner's decision,
+  2026-10-02). The report states the session's builder model and
+  advisor. When a Tier C
   and D batch runs on Opus instead, the builder runs at medium effort.
   Review after two trial batches: the owner compares FAIL rounds,
   rework, and `/usage` against an Opus batch, then keeps, widens, or
