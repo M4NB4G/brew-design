@@ -141,6 +141,9 @@ cannot pass is not committed, is named in the report, and returns to the
 roadmap, and the rest land. A Tier C or D item needs no scope table beyond
 its roadmap line unless building it raises a question for the owner.
 
+A batch holds at most three items (the owner's decision, 2026-10-02):
+shorter sessions cost less per step and leave less to go wrong.
+
 After its report, while the owner reads it, the session writes the scope
 tables for the next batch (procedure step 1) and puts their questions to
 the owner. The agreed tables go on their own branch, `<next batch>-tables`,
@@ -178,9 +181,23 @@ Both the builder's and the inspector's model are decision rows in every
 Tier A/B scope table — proposed by whoever writes the table, agreed by the
 owner before building. The box records the inspector's.
 
-- **Default: Opus builds, Opus inspects, every tier** (the owner's decision,
-  2026-09-23). Builder at high effort; inspector at default effort — its
-  value is in reading and running, not reasoning depth.
+- **Default: Opus builds, Opus inspects, Tier A and B** (the owner's
+  decision, 2026-09-23). Builder at high effort; inspector at default
+  effort (its value is in reading and running, not reasoning depth).
+  Scope-table sessions run on Opus.
+- **Tier C and D trial: Sonnet 5.5 builds, Opus advises** (the owner's
+  decision, 2026-10-02). A batch of only Tier C and D items runs on
+  Sonnet 5.5 with Opus as its advisor (`/advisor opus`). An item the
+  catch-all promotes to Tier B is not built in that session: it returns
+  to the roadmap for an Opus session, and the report names it. The
+  report states the session's builder model and advisor. When a Tier C
+  and D batch runs on Opus instead, the builder runs at medium effort.
+  Review after two trial batches: the owner compares FAIL rounds,
+  rework, and `/usage` against an Opus batch, then keeps, widens, or
+  ends the trial.
+- **The inspector's model is always named when it is spawned.** It
+  never inherits the session's model. The box's `Inspector:` line
+  confirms it.
 - **Independence comes from the session, not the model.** The inspector is
   always a separate, fresh subagent — never the builder checking its own
   work — and receives only the prompt below: no chat history, no builder
@@ -194,8 +211,9 @@ owner before building. The box records the inspector's.
   (100 for percent, 1000 for trillion) needs a hand-calculated pin: a value
   worked out independently of the code, with the working written beside it
   in the test, so the check is a fact rather than a reading.
-- **Fable and Sonnet** are not recommended by default. The owner can still
-  choose either for an item; the choice is recorded in its model rows.
+- **Fable, and Sonnet outside the Tier C and D trial**, are not
+  recommended by default. The owner can still choose either for an
+  item; the choice is recorded in its model rows.
 
 This departs from METHOD.md's cross-model inspection, on the owner's
 decision; where the two differ, this section governs.
