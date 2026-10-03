@@ -174,6 +174,99 @@ describe('mash pH from the grain bill — the engine', () => {
     expect(ph({ malts: [malt('none', 1)] })).toBeNaN();
   });
 
+  // S5b item A (docs/items/mash-ph-acid.md, AS-S1, AS-S2, AS-1): acid beyond
+  // the treated water's alkalinity counts by Troester's measured acid side.
+  it('acid past neutral counts by the acid-side slope', () => {
+    const { mashPh } = engine;
+
+    // Table 3 (paper, p. 16; 4 L/kg, no calcium or magnesium), the four
+    // points from 0 to -5.61 mEq/L, least squares by hand. x = -5.61, -3.5,
+    // -1.75, 0; mean -10.86 / 4 = -2.715; Sxx = 2.895^2 + 0.785^2 + 0.965^2
+    // + 2.715^2 = 8.381025 + 0.616225 + 0.931225 + 7.371225 = 17.2997.
+    //   100 % Pilsner, pH 5.2, 5.43, 5.59, 5.74, mean 5.49:
+    //     Sxy = -2.895 x -0.29 + -0.785 x -0.06 + 0.965 x 0.10 + 2.715 x 0.25
+    //         = 0.83955 + 0.0471 + 0.0965 + 0.67875 = 1.6619
+    //     slope 1.6619 / 17.2997 = 0.0960652496864107
+    //   50/50 Pilsner/Munich I, 5.13, 5.26, 5.4, 5.54, mean 5.3325:
+    //     Sxy = 0.5862375 + 0.0569125 + 0.0651375 + 0.5633625 = 1.27165
+    //     slope 1.27165 / 17.2997 = 0.0735070550356365
+    //   85/15 Pilsner/CaraMunich II, 5.13, 5.27, 5.4, 5.55, mean 5.3375:
+    //     Sxy = 0.6007125 + 0.0529875 + 0.0603125 + 0.5769375 = 1.29095
+    //     slope 1.29095 / 17.2997 = 0.0746226813181731
+    //   mean (0.0960652496864107 + 0.0735070550356365 + 0.0746226813181731) / 3
+    //     = 0.0813983286800734, 0.0814 as AS-1 states it.
+    const fit = (ys) => {
+      const xs = [-5.61, -3.5, -1.75, 0];
+      const mx = xs.reduce((a, b) => a + b) / 4;
+      const my = ys.reduce((a, b) => a + b) / 4;
+      const sxy = xs.reduce((a, x, i) => a + (x - mx) * (ys[i] - my), 0);
+      const sxx = xs.reduce((a, x) => a + (x - mx) ** 2, 0);
+      return sxy / sxx;
+    };
+    const fits = [fit([5.2, 5.43, 5.59, 5.74]), fit([5.13, 5.26, 5.4, 5.54]), fit([5.13, 5.27, 5.4, 5.55])];
+    expect(fits[0]).toBeCloseTo(0.0960652496864107, 12);
+    expect(fits[1]).toBeCloseTo(0.0735070550356365, 12);
+    expect(fits[2]).toBeCloseTo(0.0746226813181731, 12);
+    expect((fits[0] + fits[1] + fits[2]) / 3).toBeCloseTo(0.0814, 4);
+
+    // A worked batch at 4 L/kg, Table 3's thickness: 10 lb of grain in
+    // 4 x 4.53592 / 3.785411784 = 4.79305318292949 gal of mash water. A base
+    // malt measured at 5.75 on water with -100 mg/L alkalinity as CaCO3
+    // (acid beyond the alkalinity): -100 / 50.04 = -1.99840127897682 mEq/L;
+    // the published slope would give 5.75 + 0.065 x -1.99840127897682 =
+    // 5.62010391686651; the acid side gives
+    //   5.75 + 0.0814 x -1.99840127897682 = 5.58733013589129.
+    const at4 = (4 * 4.53592) / 3.785411784;
+    const base = [malt('base', 10, { distilledWaterPh: 5.75 })];
+    expect(mashPh({ malts: base, mashWaterGal: at4, water: { Alk: -100, Ca: 0, Mg: 0 } })).toBeCloseTo(
+      5.58733013589129,
+      10,
+    );
+    // With calcium and magnesium the hardness keeps the published slope
+    // (AS-S1): Ca 70 / 1.4 + Mg 17 / 1.7 = 50 + 10 = 60 mg/L =
+    // 1.19904076738609 mEq/L.
+    //   5.75 + 0.065 x -1.19904076738609 + 0.0814 x -1.99840127897682
+    //   = 5.75 - 0.0779376498800959 - 0.162669864108713 = 5.50939248601119.
+    expect(mashPh({ malts: base, mashWaterGal: at4, water: { Alk: -100, Ca: 70, Mg: 17 } })).toBeCloseTo(
+      5.50939248601119,
+      10,
+    );
+
+    // At another thickness, the 10 lb in 4 gal (R = 3.33816450378314 L/kg):
+    // the published slope 0.013 x 3.33816450378314 + 0.013 =
+    // 0.0563961385491808; scaled from 0.065 at 4 L/kg, 0.0563961385491808 /
+    // 0.065 = 0.867632900756627; the acid slope 0.0814 x 0.867632900756627 =
+    // 0.0706253181215894.
+    //   5.75 + 0.0563961385491808 x -1.19904076738609
+    //        + 0.0706253181215894 x -1.99840127897682
+    //   = 5.75 - 0.0676212692436220 - 0.141137726062329 = 5.54124100469405.
+    expect(mashPh({ malts: base, mashWaterGal: MASH_GAL, water: { Alk: -100, Ca: 70, Mg: 17 } })).toBeCloseTo(
+      5.54124100469405,
+      10,
+    );
+  });
+
+  it('water with alkalinity left over is unchanged', () => {
+    // AS-S2: the published slope alone while the treated water keeps some
+    // alkalinity, even when calcium takes its residual alkalinity below zero;
+    // at zero alkalinity the two rules meet. Item 1's pins above stand.
+    const { mashPh } = engine;
+    const base = [malt('base', 10, { distilledWaterPh: 5.75 })];
+    // Alk 20, Ca 70, Mg 17: residual alkalinity 20 - 50 - 10 = -40 mg/L =
+    // -0.799360511590727 mEq/L; 5.75 + 0.0563961385491808 x
+    // -0.799360511590727 = 5.70491915383759.
+    expect(mashPh({ malts: base, mashWaterGal: MASH_GAL, water: { Alk: 20, Ca: 70, Mg: 17 } })).toBeCloseTo(
+      5.70491915383759,
+      10,
+    );
+    // Alk 0: 5.75 + 0.0563961385491808 x -1.19904076738609 = 5.68237873075638,
+    // by either rule; a hair either side of zero lands within 1e-6 of it.
+    const at = (Alk) => mashPh({ malts: base, mashWaterGal: MASH_GAL, water: { Alk, Ca: 70, Mg: 17 } });
+    expect(at(0)).toBeCloseTo(5.68237873075638, 10);
+    expect(at(-1e-6)).toBeCloseTo(5.68237873075638, 6);
+    expect(at(1e-6)).toBeCloseTo(5.68237873075638, 6);
+  });
+
   it("the owner's logged batches", () => {
     // MP-S4, MP-Q11: each usable batch from the owner's brewing logs (his
     // Data Logs folder, kept out of the repository: S5-B11; each names its log

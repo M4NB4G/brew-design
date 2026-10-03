@@ -48,6 +48,16 @@ const BASE_PH_PER_EBC = -0.02;
 // Pilsner malt, Table 18). Kept as published (S5-B15), not adjusted.
 const SLOPE_PER_THICKNESS = 0.013;
 const SLOPE_AT_ZERO = 0.013;
+// Table 3: acid beyond the water's alkalinity (AS-1). The least-squares
+// slopes of its three grists over the four points from 0 to -5.61 mEq/L
+// (100 % Pilsner 0.0961, 50/50 Pilsner/Munich I 0.0735, 85/15
+// Pilsner/CaraMunich II 0.0746), their mean, at Table 3's 4 L/kg; scaled to
+// the mash thickness in proportion to the slope above.
+// FLAG: fitted at 4 L/kg only, its thickness scaling taken from the
+// alkalinity slope by analogy, and data only to -5.61 mEq/L.
+const ACID_SIDE_SLOPE = 0.0814;
+const ACID_SIDE_THICKNESS = 4;
+const alkalinitySlope = (r) => SLOPE_PER_THICKNESS * r + SLOPE_AT_ZERO;
 
 /** The malt types the model knows; 'none' counts as nothing in the mash (S5-B10). */
 export const MALT_TYPES = Object.freeze(['base', 'crystal', 'roast', 'acidulated', 'none']);
@@ -112,8 +122,17 @@ export function mashPh({ malts, mashWaterGal, water }) {
 
   // §3.6, §3.10: the water moves it by its residual alkalinity (the Water
   // tab's, Kolbach: S5-B15), in mEq/L.
-  const raMeq = residualAlkalinity(water?.Alk, water?.Ca, water?.Mg) / MG_CACO3_PER_MEQ;
-  return gristPh + (SLOPE_PER_THICKNESS * r + SLOPE_AT_ZERO) * raMeq;
+  const slope = alkalinitySlope(r);
+  if (!(water?.Alk < 0)) {
+    const raMeq = residualAlkalinity(water?.Alk, water?.Ca, water?.Mg) / MG_CACO3_PER_MEQ;
+    return gristPh + slope * raMeq;
+  }
+  // Acid beyond the alkalinity (AS-S1): calcium and magnesium by the
+  // published slope, the negative alkalinity by the acid side's; the two
+  // meet at zero alkalinity (AS-S2).
+  const hardnessMeq = residualAlkalinity(0, water.Ca, water.Mg) / MG_CACO3_PER_MEQ;
+  const acidSlope = (ACID_SIDE_SLOPE * slope) / alkalinitySlope(ACID_SIDE_THICKNESS);
+  return gristPh + slope * hardnessMeq + acidSlope * (water.Alk / MG_CACO3_PER_MEQ);
 }
 
 // The range a cooled sample's mash pH is checked against (MP-Q10): 5.2-5.6,

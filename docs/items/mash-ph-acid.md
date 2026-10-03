@@ -1,9 +1,13 @@
 # Mash pH and the acid — Tier A + B (three items, batch S5b)
 
-Status: agreed 2026-10-02 ("agree to all"), not started. Written by the S5
-item 2 session after the owner's far-end use of item 2 (below). Batch S5b
-builds the three items in order on the item 2 branch, `S5-item2`, so that
-item 2 and these three merge as one deploy (G3).
+Status: agreed 2026-10-02 ("agree to all"). Item A landed: "Acid beyond
+the treated mash water's alkalinity lowers the predicted mash pH by
+Troester's measured acid-side slope" (its builder's notes below). Written by
+the S5 item 2 session after the owner's far-end use of item 2 (below). The
+table planned to build the three items on the item 2 branch, `S5-item2`, and
+merge them with item 2 as one deploy (G3); the owner reversed G3 on
+2026-10-02 and item 2 went live on its own (`main`, 6e229e2), so batch S5b
+builds them on branch `S5b` from `main`.
 
 ## Why
 
@@ -36,7 +40,7 @@ most 3 %.
 |---|---|---|---|
 | G1 | Say when the treated water is past the model's tested range | Yes: a warning beside the predicted pH, the number still shown (item B) | A figure the model cannot support should not look as solid as one it can |
 | G2 | Count acid past neutral by Troester's measured acid side | Yes (item A), built next, before aiming the acid at a pH | Aiming the acid (MP-Q9) is only as good as the acid slope |
-| G3 | Merge item 2 as it is, or hold it | Hold: these three are built on the item 2 branch and merge with it, one deploy | The live site should not show a figure that invites overdosing without the guard |
+| G3 | Merge item 2 as it is, or hold it | Hold: these three are built on the item 2 branch and merge with it, one deploy. **Reversed by the owner, 2026-10-02:** item 2 merged and deployed on its own (`main`, 6e229e2); S5b branches from `main` | The live site should not show a figure that invites overdosing without the guard |
 | AS-1 | How acid past neutral counts | Table 3's acid-side slope, the mean of the three grists, 0.0814 pH·L/mEq at 4 L/kg, scaled to the mash thickness by the paper's own rule; only acid beyond the water's alkalinity; calcium and magnesium keep the published slope | Published data; no figure chosen by the builder |
 | AS-2 | Re-check against the owner's logs | Re-run the 27 batches and report every difference | MP-S4 |
 | AS-3 | Acid into the mash on its own | A choice of where the acid goes, separate from where the salts go; into the mash, no acid goes to the sparge or the kettle; the saved format stays 7 (not shipped) | The owner does not acidify his sparge (S5-B4'); no acid wasted |
@@ -58,7 +62,15 @@ Silent property: idempotence (pure, as item 1). Nothing saved changes.
 
 Scenarios (`packages/engine/test/water/mash-ph.test.js`): *acid past neutral counts by the acid-side slope* (the three Table 3 fits worked by hand from the table's points, their mean, a worked batch at 4 L/kg and at another thickness); *water with alkalinity left over is unchanged* (item 1's pins stand); *the owner's logged batches* (re-pinned by hand where they move).
 
-Builder's notes (for the inspector to check): the model's water term splits only when the treated alkalinity is below zero — the published slope times the calcium and magnesium part of the residual alkalinity (Kolbach, the engine's 1.4 and 1.7 in mg/L, over 50.04), plus the acid slope times the (negative) alkalinity in mEq/L; continuous at zero. The constant carries a `// FLAG:`: fitted at 4 L/kg only, its thickness scaling taken from the alkalinity slope by analogy, data only to −5.61 mEq/L. Item 1's batches had at most 53 mL of 10 % phosphoric in 14 gal of water with 50–70 ppm alkalinity; expect few or none to move.
+Builder's notes (agreed with the table, for the inspector to check): the model's water term splits only when the treated alkalinity is below zero — the published slope times the calcium and magnesium part of the residual alkalinity (Kolbach, the engine's 1.4 and 1.7 in mg/L, over 50.04), plus the acid slope times the (negative) alkalinity in mEq/L; continuous at zero. The constant carries a `// FLAG:`: fitted at 4 L/kg only, its thickness scaling taken from the alkalinity slope by analogy, data only to −5.61 mEq/L. Item 1's batches had at most 53 mL of 10 % phosphoric in 14 gal of water with 50–70 ppm alkalinity; expect few or none to move.
+
+Item A, builder's notes (choices the sentences did not make, for the inspector to check):
+
+- The split is on the treated water's alkalinity below zero, read from the profile the model is given (`Alk`); a blank alkalinity takes the unchanged path and blanks the pH as before. Calcium and magnesium enter through the engine's existing residual-alkalinity function at zero alkalinity, so Kolbach's 1.4 and 1.7 are not written twice.
+- The constant is 0.0814 as AS-1 states it (the unrounded mean of the three fits is 0.0813983); the test works the three fits from Table 3's points by hand and checks their mean rounds to it. Its thickness scaling divides by the published slope at 4 L/kg, 0.013 × 4 + 0.013 = 0.065, computed from the published constants rather than written as 0.065.
+- AS-S3: no batch moves (every batch keeps some alkalinity after treatment, the lowest 16.2 mg/L); recorded under item 1's table in `docs/items/mash-ph.md`. The batch scenario is unchanged.
+- The second scenario, *water with alkalinity left over is unchanged*, passes before and after by design (AS-S2 is a no-change sentence); it adds the case item 1's pins did not cover, alkalinity left over with calcium taking the residual alkalinity below zero, and the meeting at zero. The recorded failure is the first scenario's.
+- No SPEC rule changes: rule 2 covers the new constant, rule 3 its FLAG, and rule 10 already says the predicted pH comes from the engine.
 
 ## Item B — the tested range (Tier A + B)
 
@@ -89,7 +101,7 @@ Decisions:
 
 | id | Question | Decision | Rule |
 |---|---|---|---|
-| AM-Q1 | The saved format | Stays 7: format 7 has not shipped. A version-7 document without the choice (the owner's file of 2026-10-02 from the item 2 build) reads with the acid with the salts | No recipe the owner saved is refused |
+| AM-Q1 | The saved format | Stays 7: format 7 has not shipped. A version-7 document without the choice (the owner's file of 2026-10-02 from the item 2 build) reads with the acid with the salts. **Revised by the owner, 2026-10-03** (format 7 shipped with item 2): recipe format 8; a version-1 to 7 document reads with the acid with the salts and is saved back as 8 | No recipe the owner saved is refused; one shape per format, and an older page still open refuses a format-8 file rather than dropping the choice |
 | AM-Q2 | A brewery figure? | No: the recipe's alone for now; the brewery format stays 3 | One format change at a time |
 | AM-Q3 | The default | With the salts, today's behaviour | Every existing recipe unchanged (AM-S6) |
 

@@ -6,8 +6,9 @@ Troester's published model, checked against the owner's logged batches"
 (S5 decisions below). Item 2 built: "The Water tab shows the predicted mash
 pH, as a cooled sample reads, worked out from the grain bill, the treated mash
 water and its salts, and the acid in the mash" (eighth round and item 2's
-builder's notes below); held on its branch, on the owner's word (2026-10-02,
-G3), to merge with batch S5b (`docs/items/mash-ph-acid.md`). Written by the S4 session; built in
+builder's notes below); first held on its branch to merge with batch S5b
+(G3, `docs/items/mash-ph-acid.md`), then merged and live on its own on the
+owner's word (2026-10-02, G3 reversed). Written by the S4 session; built in
 batch S5 (docs/ROADMAP.md, Sessions). **Sparge acidification**
 (`docs/items/sparge-acid.md`) left S5 on 2026-10-02. Water program step 5
 (`docs/items/water-program.md`: WP8 the model, WP9 the check against the
@@ -165,6 +166,13 @@ Run 2026-10-02 on the rules above, fixed before any prediction was worked out. E
 Across the 27: mean difference +0.02, mean size of the difference 0.17, largest 0.46; 11 within 0.10, 16 within 0.20. Updated 2026-10-02 after the seventh round (flaked and raw grains as base: ten batches added). Earlier runs: 15 batches with Carafoam as crystal, −0.02 / 0.18 / 0.38; 17 batches after the sixth round, −0.02 / 0.18 / 0.38.
 
 Not checked: logs without a mash water volume or a pH reading.
+
+Re-run 2026-10-03 for S5b item A (AS-S3, `docs/items/mash-ph-acid.md`): acid
+beyond the treated water's alkalinity now counts by Troester's acid-side
+slope. No batch's prediction moves: every batch's treated water keeps some
+alkalinity (the lowest, 16.2 mg/L as CaCO3, the 2023-01-21 O'Neill Kolsch
+after 53 mL of 10 % phosphoric in 14 gal), where the model is unchanged
+(AS-S2). The table above and its pins stand.
 
 ## Sources — the archived Troester pages (S5-B2')
 
