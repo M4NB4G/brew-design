@@ -201,10 +201,15 @@ owner before building. The box records the inspector's.
   2026-10-02). The report states the session's builder model and
   advisor, and its `/usage` at the start and at the report. When a
   Tier C and D batch runs on Opus instead, the builder runs at medium
-  effort. Review after two trial batches: the owner weighs the items he
-  sent back after a report, the fixes made after a commit, and
-  `/usage` per item (no Opus Tier C and D batch was measured to compare
-  against), then keeps, widens, or ends the trial.
+  effort. Review after the first trial batch, S6a (the owner's
+  decision, 2026-10-02: the roadmap holds no second): the owner weighs
+  the items he sent back after a report, the fixes made after a commit,
+  and `/usage` per item (no Opus Tier C and D batch was measured to
+  compare against), then keeps, widens, or ends the trial. If kept, it
+  widens first to a batch of Tier B items that change neither the
+  engine nor saved data, with a named Opus inspector and the far-end
+  check's screenshots in the report; engine and saved-data items stay
+  on Opus (the owner's decision, 2026-10-02).
 - **The inspector's model is always named when it is spawned.** It
   never inherits the session's model. The box's `Inspector:` line
   confirms it.

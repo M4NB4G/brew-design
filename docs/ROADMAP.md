@@ -60,5 +60,5 @@ Shelved: the `correctVolumeToRef` identity.
 
 | Item | Sentence (draft) | Re-test | Session |
 |---|---|---|---|
-| Dev-tooling major upgrades | Five advisories remain after `npm audit fix` (S1, 2026-09-23), each needing a major version: the test runner (vitest 3 → 5; a mock path-traversal advisory), esbuild under Vite 7 (reads files through the dev server on Windows), and the workbook reader's uuid (exceljs; the fix is a breaking downgrade). None reaches the built app a visitor loads — the bundle is byte-identical — so each waits for a planned upgrade with both suites re-run | suites | unassigned |
+| Dev-tooling major upgrades | Five advisories remain after `npm audit fix` (S1, 2026-09-23), each needing a major version: the test runner (vitest 3 → 5; a mock path-traversal advisory), esbuild under Vite 7 (reads files through the dev server on Windows), and the workbook reader's uuid (exceljs; the fix is a breaking downgrade). None reaches the built app a visitor loads — the bundle is byte-identical — so each waits for a planned upgrade with both suites re-run. Built on Opus, not in the Tier C and D trial: it replaces the test runner every check relies on (the owner's decision, 2026-10-02) | suites | unassigned |
 | Notes / methodology page | Later. The print sheet and the recipe file left this row on 2026-09-22 as items of their own | — | S7 |
