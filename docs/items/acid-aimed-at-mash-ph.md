@@ -1,7 +1,7 @@
 # The acid aimed at a mash pH — Tier A + B
 
-Status: RA-1 to RA-5 agreed 2026-10-02 ("agree to all"); AA-Q1 to AA-Q6 put
-to the owner 2026-10-02, not answered; not started. Written by the S5 item 2
+Status: agreed 2026-10-02 (RA-1 to RA-5, then AA-Q1 to AA-Q6, each "agree
+to all"); not started. Written by the S5 item 2
 session. Built after batch S5b lands (AS-5, RA-3, `docs/items/mash-ph-acid.md`):
 it needs S5b's acid-side slope and, if chosen, acid into the mash.
 
@@ -29,7 +29,7 @@ and a colour proxy cannot know that pale base malt sits at 5.7–5.8.
 | RA-4 | The style's residual alkalinity | Stays on screen as information (target beside predicted), no longer setting the acid | It still describes the water |
 | RA-5 | The owner's malt measurements (AS-6) | Worth doing before relying on the aimed dose: at 5.4 the starting pH's error (±0.2 on the base-malt line) matters most | S5-B13 |
 
-## Sentences — drafted, to be confirmed with AA-Q1 to AA-Q6
+## Sentences — agreed
 
 - **AA-S1** The acid recommendation is the dose that brings the predicted mash pH (cooled sample) to the recipe's target, by the engine's model, for where the acid goes (with the salts or into the mash).
 - **AA-S2** The recipe carries a target mash pH, 5.4 by default, entered on the Water tab; a blank target is named and blanks the acid recommendation.
@@ -38,7 +38,7 @@ and a colour proxy cannot know that pale base malt sits at 5.7–5.8.
 - **AA-S5** The printed sheet prints the target beside the predicted and the measured mash pH.
 - **AA-S6** Nothing else changes: the salts, every recipe figure, and the predicted pH for the same entries.
 
-## Open questions — put to the owner 2026-10-02
+## Decisions — agreed 2026-10-02 ("agree to all")
 
 | id | Question | Recommended | Rule |
 |---|---|---|---|
