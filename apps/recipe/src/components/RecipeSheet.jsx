@@ -32,7 +32,7 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
     <div className="print-sheet" style={{ fontFamily: SS3, color: C.body, background: C.page }}>
 
       {/* Header band */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '7px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
         <img
           src={logoSrc}
           alt="Persyn Chemical Engineering and Consulting"
@@ -50,7 +50,7 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
       <hr style={{ border: 'none', borderTop: `1.5px solid ${C.border}`, margin: '0 0 7px' }} />
 
       {/* Name, style, batch volume, date */}
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: '9px' }}>
+      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: '6px' }}>
         {s.title && (
           <div style={{ fontSize: '15px', fontWeight: 700, color: C.navy, lineHeight: 1.2 }}>{s.title}</div>
         )}
@@ -182,7 +182,7 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
               </span>
               <MeasuredBox />
             </div>
-            {s.water.mashPhNote && <p style={noData}>{s.water.mashPhNote}</p>}
+            {s.water.mashPhNote && <p style={{ ...noData, flex: '0 1 200px' }}>{s.water.mashPhNote}</p>}
           </div>
           <Caption>
             {s.water.profileLabel}, against the {s.water.style} target (mg/L)
@@ -312,7 +312,7 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
 
       {/* Yeast and starter */}
       <Heading>Yeast &amp; Starter</Heading>
-      <table style={{ ...tbl, marginBottom: '5px' }}>
+      <table style={{ ...tbl, marginBottom: '3px' }}>
         <thead>
           <tr style={{ background: C.headerBg }}>
             <th style={{ ...th, textAlign: 'left', width: '44%' }}>Strain</th>
@@ -330,7 +330,7 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
           </tr>
         </tbody>
       </table>
-      <table style={{ ...tbl, marginBottom: '5px' }}>
+      <table style={{ ...tbl, marginBottom: '3px' }}>
         <thead>
           <tr style={{ background: C.headerBg }}>
             <th style={th}>Yeast character</th>
@@ -380,7 +380,7 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
       )}
 
       {/* Footer */}
-      <div style={{ marginTop: '10px', borderTop: `1px solid ${C.border}`, paddingTop: '7px' }}>
+      <div style={{ marginTop: '6px', borderTop: `1px solid ${C.border}`, paddingTop: '5px' }}>
         <p style={{ fontSize: '8px', color: C.gray, margin: '0 0 8px', lineHeight: 1.5 }}>
           For process guidance only. Verify gravities and volumes by measurement before production use.
           Persyn Chemical Engineering and Consulting assumes no liability for brewing outcomes.
@@ -406,8 +406,8 @@ function Heading({ children }) {
         color: C.navy,
         borderBottom: `1.5px solid ${C.navy}`,
         paddingBottom: '2px',
-        marginTop: '9px',
-        marginBottom: '4px',
+        marginTop: '5px',
+        marginBottom: '3px',
       }}
     >
       {children}
@@ -455,7 +455,7 @@ const tbl = {
 };
 
 const th = {
-  padding: '3px 5px',
+  padding: '2px 5px',
   textAlign: 'center',
   fontWeight: 700,
   color: C.navy,
@@ -466,7 +466,7 @@ const th = {
 };
 
 const td = {
-  padding: '3px 5px',
+  padding: '2px 5px',
   textAlign: 'center',
   border: `1px solid ${C.border}`,
   color: C.body,

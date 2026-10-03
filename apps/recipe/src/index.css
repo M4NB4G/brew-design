@@ -39,7 +39,7 @@ input[type='number'] {
 /* Printed recipe sheet (RecipeSheet.jsx). The sheet is portaled into <body>
    beside #root: never shown on screen; in print, the app root is hidden and
    the sheet alone is printed, so no interface and no blank pages appear.
-   Letter portrait at half-inch margins; content flows to a second page. */
+   Letter portrait at 0.4-inch margins; content flows to a second page. */
 @media screen {
   .print-sheet {
     display: none;
@@ -49,7 +49,7 @@ input[type='number'] {
 @media print {
   @page {
     size: Letter portrait;
-    margin: 0.5in;
+    margin: 0.4in;
   }
 
   #root {
