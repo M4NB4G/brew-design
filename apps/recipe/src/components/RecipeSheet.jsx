@@ -146,7 +146,8 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
       </Caption>
 
       {/* Water treatment: where each addition goes, the water volumes, the
-          treated water against the style target, the measured mash pH */}
+          treated water against the style target, the measured mash pH
+          box with the predicted mash pH beside it */}
       {s.water && (
         <>
           <Heading>Water Treatment</Heading>
@@ -176,7 +177,9 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
               </tbody>
             </table>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={measuredLabel}>{s.water.mashPhLabel}</span>
+              <span style={measuredLabel}>
+                {s.water.mashPhLabel}, predicted {s.water.mashPhPredicted}
+              </span>
               <MeasuredBox />
             </div>
           </div>

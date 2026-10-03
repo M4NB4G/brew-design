@@ -3,8 +3,10 @@
 Status: agreed 2026-10-02 ("agree to all"); item 1 landed: "The engine predicts the mash
 pH of a cooled sample from the grain bill and the treated mash water by
 Troester's published model, checked against the owner's logged batches"
-(S5 decisions below). Item 2 waits on the owner's judgment of the check
-(MP-Q11) and his malt types in the workbook (S5-B6). Written by the S4 session; to be built in
+(S5 decisions below). Item 2 landed: "The Water tab shows the predicted mash
+pH, as a cooled sample reads, worked out from the grain bill, the treated mash
+water and its salts, and the acid in the mash" (eighth round and item 2's
+builder's notes below). Written by the S4 session; built in
 batch S5 (docs/ROADMAP.md, Sessions). **Sparge acidification**
 (`docs/items/sparge-acid.md`) left S5 on 2026-10-02. Water program step 5
 (`docs/items/water-program.md`: WP8 the model, WP9 the check against the
@@ -114,6 +116,15 @@ Seventh round — the owner's word, 2026-10-02: "Option a as recommended".
 | S5-B28 | A correction to S5-B8's premise (the builder's error) | The 2023-03-27 Home report is not empty: its figures sit one column to the right of the others', which the builder's survey did not read (alkalinity 50, calcium hardness 30, magnesium hardness 10). S5-B8's rule — the latest Home report on or before brew day — therefore takes it for brews from 2023-03-27 to the next report (2023-05-14). No batch checked before this round falls in that window; of this round's, the 2023-04-05 Mo' Juicy Mo' Bettah takes it (the 2023-04-24 Mosaic Implications carries it in its own log). The 2023-05-14 report (file "HOME copy", no date inside) is taken by its file date, as S5-B8 says. Reported to the owner | S5-B8 |
 | S5-B29 | The 2023-05-14 Cold IPA's "Pilsner" | Rahr North Star: its folder holds the North Star lot sheet, as for the 2022 Holy Hefe (S5-B21) | S5-B21 |
 
+Eighth round — the owner's word, 2026-10-02, before item 2: "I think we can close out MP-Q11 for this", and on the three malts his review copy left blank, "go with your suggestions for the three blanks". He made the workbook edit himself (S5-B6): the Malts sheet's "Malt type", "Distilled-water pH" and "Acidity (mEq/kg)" columns, committed with item 2.
+
+| id | Question | Decision | Rule |
+|---|---|---|---|
+| S5-B30 | MP-Q11: is the check against the logs (item 1, below) good enough to build item 2? | Closed: item 2 is built on the model as item 1 landed it | The owner's word; MP-Q11 |
+| S5-B31 | Honey Malt (borderline, S5-B6) | Crystal, with no acidity figure: the crystal rule by its colour (25 °L → 66.25 − 1.2 = 65.05 EBC → 14 + 0.13 × 65.05 = 22.46 mEq/kg) | The owner's word |
+| S5-B32 | Victory (borderline, S5-B6) | Crystal, with a measured acidity of 20.2 mEq/kg: Troester's Biscuit malt (paper, Table 4, "Buiscuit", maltster and colour unknown, DI pH 5.08; the paper types it "other"). With a measured acidity its type changes no figure among the specialty types | The owner's word |
+| S5-B33 | Rice, Cereal Cooked (a cooked adjunct, S5-B6) | Base, by the line on its workbook colour (0 °L → −1.2 EBC → 5.844), as S5-B27 counts flaked and raw grains | The owner's word; S5-B27 |
+
 The builder computes no prediction for the owner's batches before these rules are fixed, so no rule is chosen by how well it fits his logs.
 
 ## Item 1 — the check against the owner's logs (MP-S4)
@@ -191,6 +202,22 @@ Item 1, builder's notes (choices the sentences did not make, for the inspector t
 - FLAGs in the engine: the water slope fitted on ground grist (S5-B15); the base-malt line's loose fit, printed rounding and fitted colour range (S5-B16); the acidulated malt's 2 % against the paper's ~3 % (S5-B14, roadmap).
 - No SPEC rule changes in item 1: the engine gains a model and no app rule moves; item 2 changes rules 8, 13 and 16.
 
+
+Item 2, builder's notes (choices the sentences did not make, for the inspector to check):
+
+- The range a cooled sample is checked against (MP-Q10) lives in the engine beside the model, as the mash-ratio ranges do: a constant 5.2–5.6 and a check that is true outside it, the ends inside, a blank pH never warning. This makes the commit Tier A + B. Pinned with the literals 5.2 and 5.6, and 5.19 and 5.61, in the app scenario.
+- A blank malt type is `''` everywhere — the workbook reader, the copy, a new row, an upgraded row — never null (a saved null is read back as a number, which would make the recipe unreadable). A blank lab figure is null in the copy and NaN in the recipe; a pick turns one into the other.
+- A pick always copies all three (type and both lab figures), so a figure of a malt picked before never stays. Choosing the type by hand clears both lab figures: a measured figure belongs to the malt it was picked as (Victory's 20.2 is not a roast malt's 40). Typing a name changes the name alone, as for FGDB and colour.
+- The built-in recipe's two malts (Pale 2-Row, Munich) are typed base, as MP-Q2 names pale and Munich; the smoke test's reference malts (Golden Promise, Carafoam) too, at values that leave every pinned number the same (SPEC 12). Other tests' fixtures gain the fields, and their older-version documents are expected back with blank types.
+- The workbook reader keys on the header the workbook has, "Malt type" (the kickoff's parenthetical lists its values, not its header). It reads the type in any capitals, accepts blank, and refuses any other text, naming the row. Each lab figure is a number or blank; text is refused. A lab figure on a type that does not use it — a distilled-water pH on anything but a base malt, an acidity on anything but a crystal, roast or acidulated malt, either on an untyped malt — is refused, since the model would silently ignore it (S5-B13). No range check on pH or acidity: it would introduce a number.
+- The predicted mash pH is blank until there is a predicted profile (all six solver ions and a treated volume), since the model takes the treated water from it (MP-Q6). It uses the profile's alkalinity, calcium and magnesium, the recipe's malts and its mash water as entered.
+- MP-S5's naming: a line at the top of the Water tab, on every screen, names each blank malt figure the pH needs — the type, the weight, and the colour of a base or crystal malt with no measured figure in its place — as "Malt type (Pale)", "Weight (Crystal 40)", "Color (Malt 3)" (an unnamed row by its place). It sits above the screens because with the mash water treated and the mash water blank the predicted profile card is not drawn. The test results and the mash water are named by the tab's existing lines.
+- MP-Q5's warning shows when a grain-bill row is typed acidulated and the Water tab's acidulated malt amount is above 0.
+- MP-S2's "cited beside each figure" is read as: each constant cited beside it in the engine (item 1); on screen, Troester's model cited under the predicted pH and Palmer & Kaminski beside the range warning.
+- The figure shows to two decimals; the printed sheet reads "Mash pH (cooled sample), predicted 5.70" before the measured box.
+- On a phone the malt type is its own labelled line under the malt's name, so the three number boxes keep their width; the desktop table has a Type column (the table's minimum width 520 → 660 px).
+- The app's scenarios render components and need the app's own test setup: run them with `npm test --workspace @brew/recipe -- test/mash-ph.test.js` (or from `apps/recipe`), not `npx vitest` from the root. The recorded failure was run from the root against the unchanged code; every scenario failed on its own assertions before any rendering.
+- No batch in item 1's check used Victory, Honey Malt or Rice, Cereal Cooked, so the eighth round changes no figure in it.
 
 - Needs from the owner before item 1: his logged batches (MP-Q11), and the
   malt-type column filled in his workbook before item 2.

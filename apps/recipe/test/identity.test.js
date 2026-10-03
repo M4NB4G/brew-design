@@ -58,15 +58,15 @@ describe('recipe identity', () => {
   });
 
   // S4
-  it('name, style and notes round-trip through save and load at version 6', () => {
+  it('name, style and notes round-trip through save and load at version 7', () => {
     const s = fakeStorage();
     const recipe = { ...defaultRecipeState(), ...FILLED };
     savePersisted(s, { recipe, mode: 'pro', proGravityUnit: 'sg' });
 
-    // One key, one document, at version 6, carrying the three as text.
+    // One key, one document, at version 7, carrying the three as text.
     expect([...s._map.keys()]).toEqual([STORAGE_KEY]);
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(6);
+    expect(doc.version).toBe(7);
     expect(doc.recipe.name).toBe('1.060');
     expect(doc.recipe.style).toBe('21A American IPA');
     expect(doc.recipe.notes).toBe(FILLED.notes);

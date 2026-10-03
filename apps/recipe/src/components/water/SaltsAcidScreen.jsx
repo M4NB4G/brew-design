@@ -17,8 +17,13 @@
 // Water Goes card in place of the Mash Volume card; the salts and acid say
 // where they go; salts in the kettle have their own card, with no acid; the
 // predicted profile is labelled as the treated water (WT-S6).
+//
+// Mash pH from the grain bill (docs/items/mash-ph.md, MP-Q12): the predicted
+// mash pH of a cooled sample at the top of the predicted profile card, the
+// model cited beside it, with a warning outside the cooled-sample range
+// (MP-Q10) and when acidulated malt is counted twice (MP-Q5).
 import { useEffect, useState } from 'react';
-import { SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS } from '@brew/engine';
+import { SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS, MASH_PH_RANGE } from '@brew/engine';
 import Card from '../shared/Card.jsx';
 import StatBox from '../shared/StatBox.jsx';
 import { colors, radii, tokens } from '../shared/styles.js';
@@ -95,7 +100,7 @@ function DraftInput({ initialValue, format, parse, onChange, style }) {
 }
 
 export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
-  const { style, target, salts, raiseSalt, acid, final } = figures;
+  const { style, target, salts, raiseSalt, acid, final, mashPh } = figures;
 
   // Grams: whole in Pro, one decimal at Home (the water app's precision).
   const gramDigits = mode === 'pro' ? 0 : 1;
@@ -369,6 +374,25 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
             </div>
             <p style={{ ...tokens.notice, marginTop: 0 }}>
               This is the water as treated, not the wort in the kettle.
+            </p>
+
+            <div style={{ ...tokens.statGrid, marginBottom: '0.5rem' }}>
+              <StatBox value={num(mashPh.ph, 2)} label="Predicted mash pH (cooled sample)" />
+            </div>
+            {mashPh.outsideRange && (
+              <p role="status" style={tokens.warning}>
+                Outside {MASH_PH_RANGE.low}–{MASH_PH_RANGE.high}, the range for a cooled sample (Palmer &amp; Kaminski,
+                Water, 2013).
+              </p>
+            )}
+            {mashPh.countedTwice && (
+              <p role="status" style={tokens.warning}>
+                Acidulated malt is in the grain bill and is the acid here too: it is counted twice.
+              </p>
+            )}
+            <p style={tokens.notice}>
+              Mash pH by Troester's model (2009, braukaiser.com): each malt from its type and color, or its measured
+              figure; the treated water's residual alkalinity; the mash water and grain as entered.
             </p>
 
             <div style={profileSectionLabel}>Mash Chemistry</div>

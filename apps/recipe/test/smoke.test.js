@@ -21,9 +21,11 @@ const referenceState = {
   name: '',
   style: '',
   notes: '',
+  // Each malt's type and lab figures (mash pH item 2): read by no recipe
+  // figure. Both base malts, as the owner's workbook types them.
   malts: [
-    { name: 'Golden Promise', weightLb: 27, fgdb: 0.8, colorL: 2.2 },
-    { name: 'Carafoam', weightLb: 2, fgdb: 0.8, colorL: 2.0 },
+    { name: 'Golden Promise', weightLb: 27, fgdb: 0.8, colorL: 2.2, type: 'base', distilledWaterPh: NaN, acidityMeqPerKg: NaN },
+    { name: 'Carafoam', weightLb: 2, fgdb: 0.8, colorL: 2.0, type: 'base', distilledWaterPh: NaN, acidityMeqPerKg: NaN },
   ],
   efficiency: 0.93,
   apparentAttenuation: 0.8,

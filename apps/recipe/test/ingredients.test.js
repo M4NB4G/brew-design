@@ -8,6 +8,11 @@
 // The app's copy is apps/recipe/src/ingredients.json; the owner's workbook is
 // data/Brew Design Ingredients.xlsx. Each number's rule is its workbook cell
 // (L5), so the pin is exact equality with that cell — no tolerance.
+//
+// Mash pH item 2 (docs/items/mash-ph.md, MP-S3): the Malts sheet's three
+// columns — "Malt type" (base, crystal, roast, acidulated, none, or blank),
+// "Distilled-water pH" and "Acidity (mEq/kg)" (optional numbers) — are
+// carried too, a blank type as "" and a blank lab figure as null.
 
 import { describe, it, expect } from 'vitest';
 import { mkdtempSync, readFileSync, existsSync, rmSync } from 'node:fs';
@@ -62,8 +67,32 @@ describe('ingredient list', () => {
       name: 'Rice Hulls',
       fgdb: 0,
       colorL: 0,
+      type: 'none',
+      distilledWaterPh: null,
+      acidityMeqPerKg: null,
     });
-    expect(copy.malts[0]).toStrictEqual({ name: '2-Row Brewers Malt', fgdb: 0.82, colorL: 2.2 });
+    expect(copy.malts[0]).toStrictEqual({
+      name: '2-Row Brewers Malt',
+      fgdb: 0.82,
+      colorL: 2.2,
+      type: 'base',
+      distilledWaterPh: null,
+      acidityMeqPerKg: null,
+    });
+    // The owner's measured stand-ins (S5-B19, S5-B24, and his 2026-10-02
+    // word for Victory: Troester's Biscuit malt, Table 4).
+    expect(copy.malts.find((m) => m.name === 'Aromatic Malt').acidityMeqPerKg).toBe(14.2);
+    expect(copy.malts.find((m) => m.name === 'Special Roast Malt').acidityMeqPerKg).toBe(25.6);
+    expect(copy.malts.find((m) => m.name === 'Victory')).toStrictEqual({
+      name: 'Victory',
+      fgdb: 0.75,
+      colorL: 28,
+      type: 'crystal',
+      distilledWaterPh: null,
+      acidityMeqPerKg: 20.2,
+    });
+    // Every malt typed, one of the five.
+    expect(copy.malts.every((m) => ['base', 'crystal', 'roast', 'acidulated', 'none'].includes(m.type))).toBe(true);
     expect(copy.yeasts[0]).toStrictEqual({
       name: 'A07 Flagship',
       lab: 'Imperial',
@@ -149,20 +178,35 @@ describe('ingredient list', () => {
       }
       return wb;
     };
-    const malt = (name, fgdb, colour) => ({ Name: name, 'FGDB (%)': fgdb, 'Colour (°L)': colour });
+    const malt = (name, fgdb, colour, type = 'base', dwPh = null, acidity = null) => ({
+      Name: name, 'FGDB (%)': fgdb, 'Colour (°L)': colour,
+      'Malt type': type, 'Distilled-water pH': dwPh, 'Acidity (mEq/kg)': acidity,
+    });
     const hop = (name, alpha) => ({ Name: name, 'Alpha acid (%)': alpha });
     const yeast = (name, type, att, low, high) => ({
       Name: name, Lab: 'Imperial', 'Product code': 'X1', 'Ale / Lager': type,
       'Attenuation (%)': att, 'Lab temp low (°F)': low, 'Lab temp high (°F)': high,
     });
     const good = {
-      malts: [malt('Rice Hulls', 0, 0), malt('Vienna', 0.8, 3.2)],
+      malts: [
+        malt('Rice Hulls', 0, 0, 'none'),
+        malt('Vienna', 0.8, 3.2),
+        malt('Measured Pils', 0.81, 1.8, 'Base', 5.75),
+        malt('Measured C20', 0.79, 20, 'crystal', null, 14.2),
+        malt('Untyped', 0.8, 2, null),
+      ],
       hops: [hop('Bravo', 0.144)],
       yeasts: [yeast('A07 Flagship', 'Ale', 0.8, 60, 72), yeast('L13 Global', 'Lager', 0.75, null, null)],
     };
 
-    // The base is usable: zero FGDB and colour, and a lab range blank as a pair.
-    expect(ingredientsFromWorkbook(build(good)).problems).toEqual([]);
+    // The base is usable: zero FGDB and colour, and a lab range blank as a pair;
+    // a malt type in any capitals, or blank; a lab figure on the type it fits.
+    const usable = ingredientsFromWorkbook(build(good));
+    expect(usable.problems).toEqual([]);
+    expect(usable.list.malts.map((m) => m.type)).toEqual(['none', 'base', 'base', 'crystal', '']);
+    expect(usable.list.malts[2].distilledWaterPh).toBe(5.75);
+    expect(usable.list.malts[3].acidityMeqPerKg).toBe(14.2);
+    expect(usable.list.malts[4].distilledWaterPh).toBe(null);
 
     const refused = (parts) => ingredientsFromWorkbook(build({ ...good, ...parts })).problems;
     const cases = [
@@ -186,6 +230,14 @@ describe('ingredient list', () => {
       ['lab range with only its low end', { yeasts: [yeast('A07 Flagship', 'Ale', 0.8, 60, null)] }, 'Yeasts', 2],
       ['lab range with only its high end', { yeasts: [yeast('A07 Flagship', 'Ale', 0.8, null, 72)] }, 'Yeasts', 2],
       ['lab temperature typed as text', { yeasts: [yeast('A07 Flagship', 'Ale', 0.8, '60F', 72)] }, 'Yeasts', 2],
+      // Mash pH item 2: a type the model does not know, a lab figure typed
+      // as text, and a lab figure on a type that does not use it.
+      ['malt type not one of the five', { malts: [malt('Vienna', 0.8, 3.2, 'kilned')] }, 'Malts', 2],
+      ['distilled-water pH typed as text', { malts: [malt('Vienna', 0.8, 3.2, 'base', '5.6 pH')] }, 'Malts', 2],
+      ['acidity typed as text', { malts: [malt('C40', 0.77, 40, 'crystal', null, 'about 25')] }, 'Malts', 2],
+      ['distilled-water pH on a crystal malt', { malts: [malt('C40', 0.77, 40, 'crystal', 5.02)] }, 'Malts', 2],
+      ['acidity on a base malt', { malts: [malt('Vienna', 0.8, 3.2, 'base', null, 1.6)] }, 'Malts', 2],
+      ['a lab figure on an untyped malt', { malts: [malt('Vienna', 0.8, 3.2, null, 5.65)] }, 'Malts', 2],
     ];
     for (const [label, parts, sheet, row] of cases) {
       const problems = refused(parts);

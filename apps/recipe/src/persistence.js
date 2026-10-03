@@ -32,6 +32,10 @@
 // Version 6 (S4b item 1): the water entries carry the typed sparge water in
 // place of the water kept in the mash tun; a version-5 document is read with
 // the sparge blank, its kept-in-tun figure dropped, and saved back as 6.
+// Version 7 (mash pH, item 2): each malt row carries its type for the mash pH
+// model and its two lab figures. A version-1 to 6 document is read with each
+// malt's type blank ('') and its lab figures blank (MP-Q8: no type the brewer
+// did not choose), and saved back as 7.
 //
 // Recipe file (2026-09-23): export hands the browser the same document the
 // autosave writes, as a file; import reads a file with the same reader as
@@ -57,7 +61,7 @@
 // found, under its own key before a new recipe replaces it; a refused file
 // is not (it is still on the brewer's disk).
 
-import { PITCH_RATES, SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS, STYLE_FAMILIES } from '@brew/engine';
+import { PITCH_RATES, SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS, STYLE_FAMILIES, MALT_TYPES } from '@brew/engine';
 import {
   defaultRecipeState,
   DEFAULT_DISPLAY,
@@ -72,8 +76,8 @@ export const STORAGE_KEY = 'brew-design.recipe';
 // The latest saved copy that could not be read, kept as found (V3); nothing
 // reads it back.
 export const UNREADABLE_KEY = 'brew-design.recipe.unreadable';
-export const SCHEMA_VERSION = 6;
-const READABLE_VERSIONS = [1, 2, 3, 4, 5, SCHEMA_VERSION];
+export const SCHEMA_VERSION = 7;
+const READABLE_VERSIONS = [1, 2, 3, 4, 5, 6, SCHEMA_VERSION];
 
 const MODES = ['home', 'pro'];
 const GRAVITY_UNITS = ['plato', 'sg'];
@@ -119,12 +123,14 @@ function hasFieldsOf(row, template) {
 
 // Saved rows checked inside (2026-09-23): every malt, kettle-hop and dry-hop
 // row, and the yeast, has all its fields, each of the right kind; ale/lager
-// and the yeast character are among the engine's pitch-rate choices. The
-// templates are the built-in recipe's own rows.
+// and the yeast character are among the engine's pitch-rate choices; a
+// malt's type is blank or one of the mash pH model's. The templates are the
+// built-in recipe's own rows.
 function hasRowsOf(recipe, template) {
   for (const field of ['malts', 'kettleAdditions', 'dryHops']) {
     if (!recipe[field].every((row) => hasFieldsOf(row, template[field][0]))) return false;
   }
+  if (!recipe.malts.every((m) => m.type === '' || MALT_TYPES.includes(m.type))) return false;
   const { yeast } = recipe;
   return (
     hasFieldsOf(yeast, template.yeast) &&
@@ -202,6 +208,16 @@ function readDocument(raw, defaults) {
     const { keptInTunGal, ...water } = recipe.water;
     recipe = { ...recipe, water: { ...water, spargeGal: NaN } };
   }
+  if (doc.version <= 6 && isRecord(recipe) && Array.isArray(recipe.malts)) {
+    // Code before version 7 never wrote a malt's type or lab figures: blank
+    // (MP-Q8), never a type the brewer did not choose.
+    recipe = {
+      ...recipe,
+      malts: recipe.malts.map((m) =>
+        isRecord(m) ? { ...m, type: '', distilledWaterPh: NaN, acidityMeqPerKg: NaN } : m,
+      ),
+    };
+  }
   if (!hasShapeOf(recipe, defaults.recipe) || !hasRowsOf(recipe, defaults.recipe)) return {};
   if (!hasWaterOf(recipe.water)) return {};
   if (!MODES.includes(doc.mode) || !GRAVITY_UNITS.includes(doc.proGravityUnit)) return {};
@@ -210,7 +226,7 @@ function readDocument(raw, defaults) {
 
 /**
  * Read the persisted document. Returns { recipe, mode, proGravityUnit } when
- * storage holds a readable document at SCHEMA_VERSION or at version 5, 4, 3, 2 or 1
+ * storage holds a readable document at SCHEMA_VERSION or at version 6, 5, 4, 3, 2 or 1
  * (read as readDocument describes, against `defaults`); otherwise
  * `fallback`, which is `defaults` unless given. A saved copy that cannot be
  * read is first kept aside, as found, under UNREADABLE_KEY, replacing any

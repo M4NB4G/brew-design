@@ -18,10 +18,14 @@ export function defaultRecipeState() {
     style: '',
     notes: '',
 
-    // Grist (malt weights in lb; fgdb fraction; color in degL).
+    // Grist (malt weights in lb; fgdb fraction; color in degL). Each malt's
+    // type for the mash pH model — base, crystal, roast, acidulated, none, or
+    // '' (blank) — and its lab figures, the distilled-water mash pH and the
+    // acidity in mEq/kg (NaN = blank), as picked from the ingredient list or
+    // chosen (mash pH, MP-S3). Pale and Munich are base malts (MP-Q2).
     malts: [
-      { name: 'Pale 2-Row', weightLb: 10, fgdb: 0.8, colorL: 2 },
-      { name: 'Munich', weightLb: 1, fgdb: 0.8, colorL: 9 },
+      { name: 'Pale 2-Row', weightLb: 10, fgdb: 0.8, colorL: 2, type: 'base', distilledWaterPh: NaN, acidityMeqPerKg: NaN },
+      { name: 'Munich', weightLb: 1, fgdb: 0.8, colorL: 9, type: 'base', distilledWaterPh: NaN, acidityMeqPerKg: NaN },
     ],
     efficiency: 0.75, // documented brewhouse (into-kettle) default
     apparentAttenuation: 0.77,

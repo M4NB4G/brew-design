@@ -112,7 +112,7 @@ describe('water saved with the recipe', () => {
     const s = fakeStorage();
     savePersisted(s, { recipe, mode: 'home', proGravityUnit: 'plato' });
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(6);
+    expect(doc.version).toBe(7);
     expect(doc.recipe.water.styleId).toBe('ipa');
     // One key: nothing else is written.
     expect([...s._map.keys()]).toEqual([STORAGE_KEY]);
@@ -224,9 +224,9 @@ describe('water saved with the recipe', () => {
     // recipe with the water left out.
     const { water, ...rest } = loaded.recipe;
     expect(computeRecipe(loaded.recipe)).toEqual(computeRecipe(rest));
-    // Saved back as version 6.
+    // Saved back as version 7.
     savePersisted(s, loaded);
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(6);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(7);
     expect(loadStartingState(s)).toEqual(loaded);
 
     // A version-4 recipe file is read the same way.

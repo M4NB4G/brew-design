@@ -103,6 +103,10 @@ describe('searchable malt and hop boxes', () => {
       weightLb: 3.5,
       fgdb: 0.77,
       colorL: 40,
+      // Mash pH item 2 (MP-S3): the type and lab figures go with the pick.
+      type: 'crystal',
+      distilledWaterPh: NaN,
+      acidityMeqPerKg: NaN,
     });
   });
 
@@ -132,7 +136,10 @@ describe('searchable malt and hop boxes', () => {
 
     // The same recipe with the workbook's numbers typed in.
     const typed = referenceState();
-    typed.malts[1] = { name: 'American Crystal 40', weightLb: 2, fgdb: 0.77, colorL: 40 };
+    typed.malts[1] = {
+      name: 'American Crystal 40', weightLb: 2, fgdb: 0.77, colorL: 40,
+      type: 'crystal', distilledWaterPh: NaN, acidityMeqPerKg: NaN,
+    };
     typed.kettleAdditions[0] = { name: 'Bravo', timeMin: 60, wortTempF: 204, weightOz: 2, alphaAcidFraction: 0.144 };
     typed.dryHops[0] = { name: 'Citra', weightOz: 2 };
 
@@ -172,14 +179,20 @@ describe('searchable malt and hop boxes', () => {
     listRow.colorL = 999;
     listRow.name = 'Renamed';
     listHop.alphaAcidFraction = 0.01;
-    expect(pickedMalt).toEqual({ name: 'American Crystal 40', weightLb: 1, fgdb: 0.77, colorL: 40 });
+    expect(pickedMalt).toEqual({
+      name: 'American Crystal 40', weightLb: 1, fgdb: 0.77, colorL: 40,
+      type: 'crystal', distilledWaterPh: NaN, acidityMeqPerKg: NaN,
+    });
     expect(pickedHop.alphaAcidFraction).toBe(0.144);
     expect(pickedHop.name).toBe('Bravo');
   });
 
   // B5
   it('a new row starts with an empty name and today\'s starting numbers', () => {
-    expect(newRow('malts')).toEqual({ name: '', weightLb: 1, fgdb: 0.8, colorL: 2 });
+    expect(newRow('malts')).toEqual({
+      name: '', weightLb: 1, fgdb: 0.8, colorL: 2,
+      type: '', distilledWaterPh: NaN, acidityMeqPerKg: NaN,
+    });
     expect(newRow('kettleAdditions')).toEqual({
       name: '',
       timeMin: 10,

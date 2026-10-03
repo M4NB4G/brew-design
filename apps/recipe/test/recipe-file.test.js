@@ -50,7 +50,7 @@ function inFile() {
     style: '21C Hazy IPA',
     notes: 'Mash 152 °F.\nDry hop day 3.',
     preBoilVolGal: 16,
-    malts: [{ name: 'Golden Promise', weightLb: 27, fgdb: 0.8, colorL: 2.2 }],
+    malts: [{ name: 'Golden Promise', weightLb: 27, fgdb: 0.8, colorL: 2.2, type: 'base', distilledWaterPh: NaN, acidityMeqPerKg: NaN }],
     measurementTempF: { preBoil: 150, postBoil: 190, ferment: 66 },
   };
   return { recipe, mode: 'pro', proGravityUnit: 'sg' };
@@ -105,7 +105,7 @@ describe('recipe file', () => {
       expect(file).toBe(s._map.get(STORAGE_KEY));
       const doc = JSON.parse(file);
       expect(doc.version).toBe(SCHEMA_VERSION);
-      expect(doc.version).toBe(6);
+      expect(doc.version).toBe(7);
       expect(doc.mode).toBe(state.mode);
       expect(doc.proGravityUnit).toBe(state.proGravityUnit);
       expect(doc.recipe.name).toBe(state.recipe.name);
@@ -179,7 +179,9 @@ describe('recipe file', () => {
     const v2 = JSON.stringify({ version: 2, recipe: v2Recipe, mode: 'pro', proGravityUnit: 'sg' });
     const fromV2 = importRecipeFile(v2, defaults(), confirmer(true));
     expect(fromV2.outcome).toBe('replaced');
-    expect(fromV2.state.recipe).toEqual({ ...v2Recipe, name: '', style: '', notes: '' });
+    // Mash pH item 2 (MP-Q8): its malts read with their type blank.
+    const untypedMalts = v2Recipe.malts.map((m) => ({ ...m, type: '', distilledWaterPh: NaN, acidityMeqPerKg: NaN }));
+    expect(fromV2.state.recipe).toEqual({ ...v2Recipe, malts: untypedMalts, name: '', style: '', notes: '' });
   });
 
   // S5
@@ -221,8 +223,8 @@ describe('recipe file', () => {
     const doc = JSON.parse(exportRecipeDocument(inFile()));
     const newer = { ...doc, version: SCHEMA_VERSION + 1 };
     const result = expectRefused(JSON.stringify(newer), /newer version of Brew Design/);
-    expect(result.message).toMatch(/file version 7/);
-    expect(result.message).toMatch(/reads up to version 6/);
+    expect(result.message).toMatch(/file version 8/);
+    expect(result.message).toMatch(/reads up to version 7/);
     // Newer is its own reason, not "damaged": a newer file whose recipe
     // this version cannot read is still reported as newer.
     const newerOddShape = { version: SCHEMA_VERSION + 2, recipe: { hopsV5: [] }, mode: 'x' };

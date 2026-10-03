@@ -5,16 +5,28 @@
 // unitless/fixed. Apparent attenuation is entered on the Yeast card. Per-malt
 // extract points shown read-only from the engine. On a phone each malt is a
 // block (IngredientBlock) holding the same boxes instead of a table row.
+// Each malt's type for the mash pH model is a choice (mash pH, MP-S3): a pick
+// from the list sets it; choosing it by hand clears the malt's lab figures.
 import NumberField from './NumberField.jsx';
 import IngredientSearch from './IngredientSearch.jsx';
 import Card from './shared/Card.jsx';
 import IngredientBlock from './shared/IngredientBlock.jsx';
 import InputRow from './shared/InputRow.jsx';
 import usePhone from './shared/usePhone.js';
+import { MALT_TYPES } from '@brew/engine';
 import { colors, tokens, radii } from './shared/styles.js';
 import { maltWeightUnit, percentUnit, fractionToPercent, percentToFraction } from '../display.js';
 import { num } from '../format.js';
-import { newRow } from '../ingredient-search.js';
+import { newRow, chooseMaltType } from '../ingredient-search.js';
+
+// The mash pH model's malt types, as the choice names them; blank until set.
+const MALT_TYPE_LABELS = {
+  base: 'Base',
+  crystal: 'Crystal',
+  roast: 'Roast',
+  acidulated: 'Acidulated',
+  none: 'None (not in the mash)',
+};
 
 const TH = {
   padding: '0.45rem 0.6rem',
@@ -30,6 +42,8 @@ const TH = {
 };
 const TD = { padding: '0.45rem 0.6rem', borderBottom: `1px solid ${colors.rowDivider}` };
 const TD_NUM = { ...TD, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
+const phoneTypeStyle = { display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.45rem' };
+const phoneTypeLabelStyle = { fontSize: '0.75rem', color: colors.textSecondary, fontWeight: 600 };
 
 export default function GristTable({
   malts,
@@ -80,6 +94,29 @@ export default function GristTable({
     },
   ];
 
+  // A malt's type for the mash pH model: a column of the table; on a phone,
+  // its own line under the name, so the number boxes keep their width.
+  const typeInput = (m, i) => (
+    <select
+      aria-label="Malt type"
+      value={m.type}
+      onChange={(e) => {
+        const next = chooseMaltType(m, e.target.value);
+        for (const key of ['type', 'distilledWaterPh', 'acidityMeqPerKg']) {
+          if (!Object.is(next[key], m[key])) setRow('malts', i, key, next[key]);
+        }
+      }}
+      style={tokens.select}
+    >
+      <option value="">—</option>
+      {MALT_TYPES.map((t) => (
+        <option key={t} value={t}>
+          {MALT_TYPE_LABELS[t]}
+        </option>
+      ))}
+    </select>
+  );
+
   const removeButton = (i) => (
     <button
       type="button"
@@ -110,7 +147,15 @@ export default function GristTable({
             <IngredientBlock
               key={i}
               striped={i % 2 === 1}
-              name={<IngredientSearch field="malts" row={m} index={i} setRow={setRow} />}
+              name={
+                <>
+                  <IngredientSearch field="malts" row={m} index={i} setRow={setRow} />
+                  <label style={phoneTypeStyle}>
+                    <span style={phoneTypeLabelStyle}>Type</span>
+                    {typeInput(m, i)}
+                  </label>
+                </>
+              }
               fields={maltInputs(m, i)}
               resultLabel="Points"
               result={
@@ -124,13 +169,14 @@ export default function GristTable({
         </div>
       ) : (
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '0.75rem', minWidth: '520px' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '0.75rem', minWidth: '660px' }}>
           <thead>
             <tr>
               <th style={{ ...TH, minWidth: '120px' }}>Malt</th>
               <th style={{ ...TH, width: '95px' }}>Weight ({maltWeightUnit()})</th>
               <th style={{ ...TH, width: '80px' }}>FGDB ({percentUnit()})</th>
               <th style={{ ...TH, width: '80px' }}>Color (°L)</th>
+              <th style={{ ...TH, width: '140px' }}>Type</th>
               <th style={{ ...TH, width: '80px', textAlign: 'right' }}>Points</th>
               <th style={{ ...TH, width: '36px' }} />
             </tr>
@@ -146,6 +192,7 @@ export default function GristTable({
                     {input}
                   </td>
                 ))}
+                <td style={TD}>{typeInput(m, i)}</td>
                 <td style={{ ...TD_NUM, color: colors.textSecondary, fontSize: '0.9rem' }}>
                   {num(grist.perMalt[i]?.perMaltPoints, 2)}
                 </td>

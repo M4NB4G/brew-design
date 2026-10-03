@@ -13,6 +13,7 @@
 // workbook's own row number, the one the owner sees in Excel.
 
 import ExcelJS from 'exceljs';
+import { MALT_TYPES } from '@brew/engine';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -23,7 +24,10 @@ export const COPY_PATH = join(HERE, '..', 'src', 'ingredients.json');
 // Per sheet: the list it fills, and each carried field in the copy's key
 // order, with its header and kind. 'percent' is a required fraction in 0–1;
 // 'colour' a required number ≥ 0; 'type' Ale or Lager; 'labTemp' the optional
-// lab range (blank as a pair, or both ends with low ≤ high); 'text' a label.
+// lab range (blank as a pair, or both ends with low ≤ high); 'text' a label;
+// 'maltType' one of the mash pH model's malt types, any capitals, or blank
+// (""); 'labFigure' an optional measured number, blank as null (mash pH
+// item 2, docs/items/mash-ph.md).
 const SHEETS = [
   {
     sheet: 'Malts',
@@ -32,6 +36,9 @@ const SHEETS = [
       { key: 'name', header: 'Name', kind: 'name' },
       { key: 'fgdb', header: 'FGDB (%)', kind: 'percent' },
       { key: 'colorL', header: 'Colour (°L)', kind: 'colour' },
+      { key: 'type', header: 'Malt type', kind: 'maltType' },
+      { key: 'distilledWaterPh', header: 'Distilled-water pH', kind: 'labFigure' },
+      { key: 'acidityMeqPerKg', header: 'Acidity (mEq/kg)', kind: 'labFigure' },
     ],
   },
   {
@@ -134,7 +141,11 @@ export function ingredientsFromWorkbook(workbook) {
           else if (!isNumber(v)) problems.push(`${at}: "${f.header}" is ${shown(v)}, not a number`);
           else if (v < 0) problems.push(`${at}: "${f.header}" is ${v}, below 0`);
           else item[f.key] = v;
-        } else if (f.kind === 'labTemp') {
+        } else if (f.kind === 'maltType') {
+          const t = asText(v).toLowerCase();
+          if (t === '' || MALT_TYPES.includes(t)) item.type = t;
+          else problems.push(`${at}: "${f.header}" is ${shown(v)}; it must be ${MALT_TYPES.join(', ')}, or blank`);
+        } else if (f.kind === 'labTemp' || f.kind === 'labFigure') {
           if (isBlank(v)) item[f.key] = null;
           else if (!isNumber(v)) problems.push(`${at}: "${f.header}" is ${shown(v)}, not a number`);
           else item[f.key] = v;
@@ -148,6 +159,18 @@ export function ingredientsFromWorkbook(workbook) {
           problems.push(`${at}: the lab temperature range has only one end; give both or neither`);
         } else if (low !== null && low > high) {
           problems.push(`${at}: the lab temperature range is inverted (low ${low} °F above high ${high} °F)`);
+        }
+      }
+
+      // A lab figure on a type the model does not read it for would be
+      // silently unused (S5-B13): the distilled-water pH is a base malt's,
+      // the acidity a crystal, roast or acidulated malt's.
+      if (listKey === 'malts' && item.type !== undefined) {
+        if (item.distilledWaterPh != null && item.type !== 'base') {
+          problems.push(`${at}: "Distilled-water pH" is given, but it is used only for a base malt (this one is ${item.type || 'untyped'})`);
+        }
+        if (item.acidityMeqPerKg != null && !['crystal', 'roast', 'acidulated'].includes(item.type)) {
+          problems.push(`${at}: "Acidity (mEq/kg)" is given, but it is used only for a crystal, roast or acidulated malt (this one is ${item.type || 'untyped'})`);
         }
       }
 

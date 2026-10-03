@@ -115,3 +115,14 @@ export function mashPh({ malts, mashWaterGal, water }) {
   const raMeq = residualAlkalinity(water?.Alk, water?.Ca, water?.Mg) / MG_CACO3_PER_MEQ;
   return gristPh + (SLOPE_PER_THICKNESS * r + SLOPE_AT_ZERO) * raMeq;
 }
+
+// The range a cooled sample's mash pH is checked against (MP-Q10): 5.2-5.6,
+// the range the owner's logs and Palmer & Kaminski, "Water: A Comprehensive
+// Guide for Brewers" (2013), give for a mash sample cooled to room
+// temperature. The ends are inside. A warning changes no number.
+export const MASH_PH_RANGE = Object.freeze({ low: 5.2, high: 5.6 });
+
+/** true when a predicted mash pH lies outside MASH_PH_RANGE; a blank (NaN) gives false. */
+export function mashPhOutsideRange(ph) {
+  return ph < MASH_PH_RANGE.low || ph > MASH_PH_RANGE.high; // NaN compares false
+}

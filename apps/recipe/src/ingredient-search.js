@@ -35,9 +35,11 @@ const SEARCHED = {
 
 // The numbers a pick copies, per kind of row. A dry hop has only its weight,
 // which a pick leaves alone. A strain sets ale/lager (item Q2), which selects
-// the pitch rate; its attenuation and lab range are never copied (Y3, Y4).
+// the pitch rate; its attenuation and lab range are never copied (Y3, Y4). A
+// malt's type and its two lab figures go with it (mash pH, MP-S3): all three
+// always, so no figure of a malt picked before stays.
 const PICKED_KEYS = {
-  malts: ['fgdb', 'colorL'],
+  malts: ['fgdb', 'colorL', 'type', 'distilledWaterPh', 'acidityMeqPerKg'],
   kettleAdditions: ['alphaAcidFraction'],
   dryHops: [],
   yeasts: ['type'],
@@ -45,9 +47,10 @@ const PICKED_KEYS = {
 
 const YEAST_TYPE = { ale: 'Ale', lager: 'Lager' };
 
-// A new row: an empty name and today's starting numbers (item B5).
+// A new row: an empty name and today's starting numbers (item B5); a malt's
+// type blank until picked or chosen, and no lab figures (mash pH, MP-S3).
 const NEW_ROW = {
-  malts: { name: '', weightLb: 1, fgdb: 0.8, colorL: 2 },
+  malts: { name: '', weightLb: 1, fgdb: 0.8, colorL: 2, type: '', distilledWaterPh: NaN, acidityMeqPerKg: NaN },
   kettleAdditions: { name: '', timeMin: 10, wortTempF: 212, weightOz: 1, alphaAcidFraction: 0.1 },
   dryHops: { name: '', weightOz: 1 },
 };
@@ -87,11 +90,19 @@ export function suggestionDetail(field, item) {
 }
 
 // The row after picking `item`: its name and the list's numbers copied in;
-// every other number of the row left as it was.
+// every other number of the row left as it was. A lab figure the list leaves
+// blank (null) is a blank figure (NaN) in the recipe (SPEC rule 8).
 export function pickIngredient(field, row, item) {
   const picked = { ...row, name: item.name };
-  for (const key of PICKED_KEYS[field]) picked[key] = item[key];
+  for (const key of PICKED_KEYS[field]) picked[key] = item[key] === null ? NaN : item[key];
   return picked;
+}
+
+// The malt row after the brewer chooses its type by hand (MP-S3): the type,
+// and no lab figures — a measured figure belongs to the malt it was picked
+// as, not to a type chosen in its place.
+export function chooseMaltType(row, type) {
+  return { ...row, type, distilledWaterPh: NaN, acidityMeqPerKg: NaN };
 }
 
 // The row after typing in its name box: the name alone changes, even when it

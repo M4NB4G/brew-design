@@ -37,6 +37,9 @@ import {
   kettleSalts,
   kettleShares,
   sumSalts,
+  MALT_TYPES,
+  mashPh,
+  mashPhOutsideRange,
 } from '@brew/engine';
 import { toReferenceVolume } from './reference-volume.js';
 import { TEST_RESULT_KEYS, effectiveSetup } from './water-state.js';
@@ -136,6 +139,15 @@ export function computeRecipe(state) {
 // draws and the kettle salts. No wort mineral figure is worked out; beside the
 // treated water's predicted profile, with kettle salts on, the kettle water
 // before the boil (S4b item 2).
+//
+// Mash pH from the grain bill (docs/items/mash-ph.md, item 2): the predicted
+// mash pH of a cooled sample, by the engine's model, from the recipe's malts
+// and mash water as entered and the treated mash water as predicted here
+// (MP-Q6); blank until there is a predicted profile. With it, whether it lies
+// outside the range a cooled sample is checked against (MP-Q10), whether
+// acidulated malt is counted twice (MP-Q5), and each malt figure it needs
+// that is blank (MP-S5) — the test results and the mash water are named by
+// the tab's own lines.
 
 const SALT_KEYS = Object.keys(SALT_CONTRIBUTIONS_PER_G_GAL);
 const ACID_KEYS = Object.keys(ACIDS);
@@ -284,6 +296,26 @@ export function computeWater(water, recipe) {
     };
   }
 
+  const mashPhNeeds = [];
+  recipe.malts.forEach((m, i) => {
+    if (m.type === 'none') return;
+    const malt = String(m.name ?? '').trim() || `Malt ${i + 1}`;
+    if (!MALT_TYPES.includes(m.type)) mashPhNeeds.push({ malt, field: 'type' });
+    if (!entered(m.weightLb)) mashPhNeeds.push({ malt, field: 'weightLb' });
+    // A base or crystal malt's colour, unless a measured figure stands in for
+    // its type's rule; roast and acidulated malts do not read it.
+    const colourRead =
+      (m.type === 'base' && !entered(m.distilledWaterPh)) || (m.type === 'crystal' && !entered(m.acidityMeqPerKg));
+    if (colourRead && !entered(m.colorL)) mashPhNeeds.push({ malt, field: 'colorL' });
+  });
+  const predictedMashPh = final ? mashPh({ malts: recipe.malts, mashWaterGal, water: final.ions }) : NaN;
+  const mashPhFigures = {
+    ph: predictedMashPh,
+    outsideRange: mashPhOutsideRange(predictedMashPh),
+    countedTwice: recipe.malts.some((m) => m.type === 'acidulated') && (amounts.acidulated_malt ?? 0) > 0,
+    needs: mashPhNeeds,
+  };
+
   // The salts that go in the treated water, as the screen shows them (the
   // brewer's own over the recommendation); none until there is one.
   const added = recommendation
@@ -393,6 +425,7 @@ export function computeWater(water, recipe) {
     acid,
     customized,
     final,
+    mashPh: mashPhFigures,
     tank,
     kettle,
     warnings: {

@@ -199,7 +199,8 @@ export function recipeSheet({ recipe, derived, water, mode, proGravityUnit, toda
 // the screen's units and precision (salts 0.1 g Home, 1 g Pro; liquid acid
 // whole mL; acidulated malt 0.01 oz or lb), only what goes in (P5); the water
 // volumes; the style target and the treated water's predicted profile; and a
-// box for the measured mash pH (P3). `water` is computeWater's output, the
+// box for the measured mash pH (P3), the predicted mash pH beside it (mash
+// pH, MP-S6). `water` is computeWater's output, the
 // figures the Water tab shows: nothing here is computed. No water entries —
 // no test result entered and no amount of the brewer's own — print no
 // section (P4); a blank figure prints "—".
@@ -282,6 +283,7 @@ function waterSection(water, mode, vol, vUnit) {
     profileLabel: 'Treated water (predicted), not the wort in the kettle',
     profile,
     mashPhLabel: 'Mash pH (cooled sample)',
+    mashPhPredicted: num(water.mashPh.ph, 2),
     // HL-S2: the acronym spelled out on the sheet, with the HLT treated.
     hltNote: tank ? 'HLT = Hot Liquor Tank' : null,
     kettle: kettleSection(water),

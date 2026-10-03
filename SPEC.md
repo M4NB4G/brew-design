@@ -36,6 +36,11 @@ pinned by the golden-master tests.
    printed sheet, names every empty number box that feeds a figure, and
    any measurement temperature the correction cannot use — read from the
    recipe's own figures, not from a range written in the app.
+   Each malt row carries its type for the mash pH model — base, crystal,
+   roast, acidulated, none, or blank (`''`) — and its two lab figures, the
+   distilled-water mash pH and the acidity in mEq/kg (NaN when blank); a
+   pick from the ingredient list sets all three, and a type chosen by hand
+   clears the lab figures. No recipe figure reads them.
    The Water tab's entries are part of the recipe, its `water` field, saved
    and reset with it and read by no recipe figure: the test results in mg/L
    (pH in SU); the style family; the salts on hand and the brewer's own salt
@@ -64,7 +69,13 @@ pinned by the golden-master tests.
     the boil: the source water plus the salts in the kettle over the pre-boil
     volume, the mash's salts reaching it at the recipe's brewhouse
     efficiency with a sparge (no sparge: the mash well mixed), each share held
-    between 0 and 1 and the card and sheet saying when one is.
+    between 0 and 1 and the card and sheet saying when one is. At the top of
+    the predicted profile, the predicted mash pH of a cooled sample, from the
+    malts, the mash water as entered and the treated mash water's predicted
+    profile, with a warning outside the engine's cooled-sample range and when
+    acidulated malt is in the grain bill and is also the acid; the tab names
+    each blank malt figure it needs. The printed sheet prints it beside the
+    measured mash pH box.
 11. `toReferenceVolume(measuredGal, kind, measurementTempF)` is the
     volume-correction slot. Pre-boil, post-boil, and ferment volumes route
     through it and reach the engine corrected to the engine's reference
@@ -82,7 +93,7 @@ pinned by the golden-master tests.
     only when the canonical state does, at the value that leaves every pinned
     number the same.
 13. Persisted state is the canonical state, under one key, in one JSON
-    document carrying a schema version (6). A version-1 document — saved
+    document carrying a schema version (7). A version-1 document — saved
     before the measurement temperatures existed — loads as the same recipe
     with the three at 60 °F; a version-1 or version-2 document — saved
     before the recipe had a name, style and notes — loads with those three
@@ -91,14 +102,17 @@ pinned by the golden-master tests.
     blank fermentation temperature; a version-1 to 4 document — saved before
     the water was part of the recipe — loads with the built-in water
     entries, never the brewery's; a version-5 document — saved with the
-    water kept in the mash tun — loads with the sparge water blank; each is
-    saved back as version 6. Unreadable data,
+    water kept in the mash tun — loads with the sparge water blank; a
+    version-1 to 6 document — saved before malt types — loads with each
+    malt's type blank and its lab figures blank; each is saved back as
+    version 7. Unreadable data,
     any other version, or unavailable storage yields a new recipe (rule 17) and never
     throws. A document is readable only if, after its upgrade, every malt,
     kettle-hop and dry-hop row and the yeast carry every field of the
     built-in recipe's, each of its kind — text as text, a number as a
     number or blank — with ale/lager and the yeast character among the
-    engine's pitch-rate choices, and the water entries carry every field,
+    engine's pitch-rate choices, each malt's type blank or one the mash pH
+    model knows, and the water entries carry every field,
     each of its kind — a number as a number or blank, a choice among the
     Water tab's, a salt, acid or style the engine knows; extra fields are
     ignored. A saved copy in
@@ -117,6 +131,10 @@ pinned by the golden-master tests.
     and never edited by hand; every name and number equals its workbook cell,
     unrounded, and `apps/recipe/test/ingredients.test.js` fails otherwise. It is
     reference data: never part of the recipe state, never saved with a recipe.
+    Each malt carries its type for the mash pH model and its two optional lab
+    figures (the workbook's "Malt type", "Distilled-water pH" and "Acidity
+    (mEq/kg)"; a blank type is `""` and a blank lab figure null), and a lab
+    figure on a type that does not use it is refused.
     Picking an ingredient copies its numbers into the recipe; the recipe never
     refers back to the list. One display reads it again: the Yeast card's
     information line and fermentation-temperature warning look the strain

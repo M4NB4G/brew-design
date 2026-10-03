@@ -111,6 +111,11 @@ function fakeStorage() {
 
 const defaults = () => ({ recipe: defaultRecipeState(), mode: 'home', proGravityUnit: 'plato' });
 
+
+// A malt row as an older document (before version 7) is read: its type and
+// lab figures blank (mash pH item 2, MP-Q8).
+const untyped = (malts) => malts.map((m) => ({ ...m, type: '', distilledWaterPh: NaN, acidityMeqPerKg: NaN }));
+
 describe('options page', () => {
   // S1, S7
   it("the default temperatures are 60 °F and leave every derived number the engine's for the uncorrected volumes, within 1e-12", () => {
@@ -208,7 +213,7 @@ describe('options page', () => {
   });
 
   // S5
-  it('the saved document carries version 6 and the temperatures; a cleared one round-trips as NaN', () => {
+  it('the saved document carries version 7 and the temperatures; a cleared one round-trips as NaN', () => {
     const s = fakeStorage();
     const recipe = {
       ...defaultRecipeState(),
@@ -217,7 +222,7 @@ describe('options page', () => {
     savePersisted(s, { recipe, mode: 'home', proGravityUnit: 'plato' });
 
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(6);
+    expect(doc.version).toBe(7);
     expect(doc.recipe.measurementTempF.preBoil).toBe(170);
     expect(doc.recipe.measurementTempF.ferment).toBe(60);
     expect('postBoil' in doc.recipe.measurementTempF).toBe(true);
@@ -229,7 +234,7 @@ describe('options page', () => {
   });
 
   // S6
-  it('a version-1 document loads as the same recipe with the reference temperatures and an empty name, style and notes, and is saved back as version 6', () => {
+  it('a version-1 document loads as the same recipe with the reference temperatures and an empty name, style and notes, and is saved back as version 7', () => {
     const s = fakeStorage();
     // What the app saved before this change: no measurement temperatures, and
     // no name, style or notes (Recipe identity, version 3).
@@ -245,6 +250,7 @@ describe('options page', () => {
     expect(loaded.recipe.measurementTempF).toEqual(AT_REFERENCE);
     expect(loaded.recipe).toEqual({
       ...v1Recipe,
+      malts: untyped(v1Recipe.malts),
       measurementTempF: AT_REFERENCE,
       name: '',
       style: '',
@@ -254,11 +260,11 @@ describe('options page', () => {
     expect(loaded.proGravityUnit).toBe('sg');
 
     savePersisted(s, loaded);
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(6);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(7);
   });
 
   // S6
-  it('a version-2 document loads with an empty name, style and notes; version-3, 4, 5 and 6 documents load; any other version yields the defaults', () => {
+  it('a version-2 document loads with an empty name, style and notes; version-3, 4, 5, 6 and 7 documents load; any other version yields the defaults', () => {
     const recipe = { ...defaultRecipeState(), measurementTempF: { preBoil: 170, postBoil: 60, ferment: 60 } };
     const docFor = (version, r = recipe) => JSON.stringify({ version, recipe: r, mode: 'home', proGravityUnit: 'plato' });
 
@@ -269,19 +275,19 @@ describe('options page', () => {
     delete v2Recipe.notes;
     const s = fakeStorage();
     s.setItem(STORAGE_KEY, docFor(2, v2Recipe));
-    expect(loadPersisted(s, defaults()).recipe).toEqual({ ...v2Recipe, name: '', style: '', notes: '' });
+    expect(loadPersisted(s, defaults()).recipe).toEqual({ ...v2Recipe, malts: untyped(v2Recipe.malts), name: '', style: '', notes: '' });
 
     const v3Recipe = { ...recipe, name: 'Big IPA', style: '21A American IPA', notes: 'Mash 152 °F.' };
     const t3 = fakeStorage();
     t3.setItem(STORAGE_KEY, docFor(3, v3Recipe));
-    expect(loadPersisted(t3, defaults()).recipe).toEqual(v3Recipe);
+    expect(loadPersisted(t3, defaults()).recipe).toEqual({ ...v3Recipe, malts: untyped(v3Recipe.malts) });
 
     const v4Recipe = { ...v3Recipe, yeast: { type: 'ale', density: 'mod', name: 'SafAle US-05', fermTempF: 66 } };
     const t4 = fakeStorage();
     t4.setItem(STORAGE_KEY, docFor(4, v4Recipe));
-    expect(loadPersisted(t4, defaults()).recipe).toEqual(v4Recipe);
+    expect(loadPersisted(t4, defaults()).recipe).toEqual({ ...v4Recipe, malts: untyped(v4Recipe.malts) });
 
-    for (const version of [0, 7, '1', '2', '3', '4', '5', '6']) {
+    for (const version of [0, 8, '1', '2', '3', '4', '5', '6', '7']) {
       const t = fakeStorage();
       t.setItem(STORAGE_KEY, docFor(version));
       expect(loadPersisted(t, defaults()), `version ${JSON.stringify(version)}`).toEqual(defaults());

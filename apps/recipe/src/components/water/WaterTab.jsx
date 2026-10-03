@@ -4,7 +4,8 @@
 // Notes, its "Recipe" renamed so there are not two (W2) — with a line naming
 // any blank test result (W5)
 // and one naming any blank figure the water sums need (water treatment,
-// WT-S9). Every figure comes from computeWater (selectors.js) as `figures`; the
+// WT-S9), and one naming any blank malt figure the predicted mash pH needs
+// (mash pH, MP-S5). Every figure comes from computeWater (selectors.js) as `figures`; the
 // entries change only through water-state.js's steps, handed to `setWater`.
 // Nothing here is computed.
 import { colors, tokens } from '../shared/styles.js';
@@ -13,6 +14,9 @@ import StyleScreen from './StyleScreen.jsx';
 import SaltsAcidScreen from './SaltsAcidScreen.jsx';
 import { SETUP_LABELS } from './WaterGoesCard.jsx';
 import NotesScreen from './NotesScreen.jsx';
+
+// The malt figures the predicted mash pH needs, as the grain bill names them.
+const MASH_PH_LABELS = { type: 'Malt type', weightLb: 'Weight', colorL: 'Color' };
 
 const SCREENS = [
   ['water', 'Water In'],
@@ -24,6 +28,7 @@ const SCREENS = [
 export default function WaterTab({ water, figures, mode, screen, onScreen, setWater }) {
   const blank = figures.missing.map((k) => REPORT_LABELS[k]);
   const blankSetup = figures.blank.map((k) => SETUP_LABELS[k]);
+  const blankMashPh = figures.mashPh.needs.map(({ malt, field }) => `${MASH_PH_LABELS[field]} (${malt})`);
   return (
     <>
       {/* The water app's tab row, one size down, inside the Water tab */}
@@ -72,6 +77,12 @@ export default function WaterTab({ water, figures, mode, screen, onScreen, setWa
       {blankSetup.length > 0 && (
         <p role="status" style={{ ...tokens.warning, margin: '0 0 0.9rem' }}>
           Blank figures the water sums need: {blankSetup.join(', ')}
+        </p>
+      )}
+
+      {blankMashPh.length > 0 && (
+        <p role="status" style={{ ...tokens.warning, margin: '0 0 0.9rem' }}>
+          Blank figures the predicted mash pH needs: {blankMashPh.join(', ')}
         </p>
       )}
 
