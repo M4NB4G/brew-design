@@ -45,7 +45,7 @@ and a colour proxy cannot know that pale base malt sits at 5.7–5.8.
 | AA-Q1 | When the mash pH cannot be predicted (a malt untyped, as in every older recipe until typed) | The acid falls back to the style's alkalinity, as today, with a note naming why ("Aimed at the style's alkalinity: the mash pH needs …") | The Water tab stays useful for an untyped recipe |
 | AA-Q2 | A target that needs acid past Troester's tested range | The dose shows, with S5b's tested-range warning; no cap | No number the brewer did not ask for; the warning says what is uncertain |
 | AA-Q3 | The predicted pH without acid is already below the target (dark grists) | No acid; the alkalinity-raising salt keeps following the style's alkalinity, as today. Raising to a target pH is a later item | The owner's concern is pale recipes; one behaviour change at a time |
-| AA-Q4 | The saved format | Recipe format 8; a format 1–7 recipe reads with the target 5.4 | Rule 13: every version reads |
+| AA-Q4 | The saved format | Recipe format 8; a format 1–7 recipe reads with the target 5.4. **Revised by the owner, 2026-10-03:** S5b took format 8; this item takes the next recipe format when it is built, and every earlier format reads with the target 5.4 | Rule 13: every version reads |
 | AA-Q5 | A brewery figure (the brewery's usual target)? | No: the recipe's alone; the brewery format stays 3 | One format change at a time |
 | AA-Q6 | Builder and inspector models | Opus at high effort builds; Opus at default effort inspects, a fresh session | The Models rule's default |
 | K | Silent properties | Schema migration (AA-Q4); ordering (AA-S4); idempotence (the dose is the model solved for the target, the same each time) | — |
