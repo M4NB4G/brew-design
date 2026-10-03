@@ -149,7 +149,9 @@ tables for the next batch (procedure step 1) and puts their questions to
 the owner. The agreed tables go on their own branch, `<next batch>-tables`,
 with their own PR — the owner approved the batch's diff, which must not
 change under him. The session that writes a table still does not build it:
-the next session does. The batch kickoff prompt, with `<batch>` and
+the next session does. A Tier C and D trial session (Models) writes no
+scope tables: the Opus session before it writes them, for the batch after
+the trial as well. The batch kickoff prompt, with `<batch>` and
 `<next batch>` filled in:
 
 > You are the builder for batch `<batch>` in Brew Design
@@ -175,6 +177,9 @@ the next session does. The batch kickoff prompt, with `<batch>` and
 > and pushed only when the owner replies "merge and push" — that push
 > deploys — and never on your own initiative.
 
+For a Tier C and D trial batch, the prompt ends at the report: it leaves
+out the scope tables for the next batch.
+
 ## Models
 
 Both the builder's and the inspector's model are decision rows in every
@@ -194,11 +199,12 @@ owner before building. The box records the inspector's.
   number its change adds, and the Opus advisor confirms none is a
   recipe value before the item is committed (the owner's decision,
   2026-10-02). The report states the session's builder model and
-  advisor. When a Tier C
-  and D batch runs on Opus instead, the builder runs at medium effort.
-  Review after two trial batches: the owner compares FAIL rounds,
-  rework, and `/usage` against an Opus batch, then keeps, widens, or
-  ends the trial.
+  advisor, and its `/usage` at the start and at the report. When a
+  Tier C and D batch runs on Opus instead, the builder runs at medium
+  effort. Review after two trial batches: the owner weighs the items he
+  sent back after a report, the fixes made after a commit, and
+  `/usage` per item (no Opus Tier C and D batch was measured to compare
+  against), then keeps, widens, or ends the trial.
 - **The inspector's model is always named when it is spawned.** It
   never inherits the session's model. The box's `Inspector:` line
   confirms it.
