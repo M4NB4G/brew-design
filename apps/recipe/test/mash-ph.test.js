@@ -279,11 +279,11 @@ describe('mash pH from the grain bill (item 2)', () => {
     expect(figures.mashPh.needs.map((n) => n.field)).toEqual(old.malts.map(() => 'type'));
     expect(tab(loaded.recipe, 'water')).toContain(`Malt type (${old.malts[0].name})`);
 
-    // Saved back at the next version, carrying the blank types.
-    expect(SCHEMA_VERSION).toBe(7);
+    // Saved back at the current version, carrying the blank types.
+    expect(SCHEMA_VERSION).toBe(8);
     savePersisted(s, loaded);
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(7);
+    expect(doc.version).toBe(8);
     expect(doc.recipe.malts[0].type).toBe('');
     expect(loadPersisted(s, defaults()).recipe.malts[0].type).toBe('');
 

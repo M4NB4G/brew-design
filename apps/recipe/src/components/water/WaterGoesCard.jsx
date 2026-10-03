@@ -41,6 +41,8 @@ export const KETTLE_BIAS_NOTE =
 export const KETTLE_HELD_NOTE =
   "A share was held at its limit: the brewhouse efficiency does not fit these volumes (it also counts the mash's conversion), so the kettle salts are an estimate.";
 export const TREATMENT_LABELS = { mash: 'The mash water', tank: 'The Hot Liquor Tank (HLT) first fill' };
+// Where the acid goes, with the tank treated (S5b item C, AM-S1).
+export const ACID_PLACE_LABELS = { salts: 'With the salts (HLT)', mash: 'Into the mash' };
 
 // The figures the sums need, named as the card names them (WaterTab.jsx's
 // line for blank figures).
@@ -168,6 +170,15 @@ export default function WaterGoesCard({ water, figures, mode, setWater }) {
           labels={TREATMENT_LABELS}
           onChange={(value) => set('treatment', value)}
         />
+        {tankTreated && (
+          <Choice
+            label="Acid"
+            value={setup.acidPlace}
+            options={setup.offered.acidPlaces}
+            labels={ACID_PLACE_LABELS}
+            onChange={(value) => set('acidPlace', value)}
+          />
+        )}
       </div>
       <label style={checkStyle}>
         <input

@@ -36,6 +36,10 @@
 // model and its two lab figures. A version-1 to 6 document is read with each
 // malt's type blank ('') and its lab figures blank (MP-Q8: no type the brewer
 // did not choose), and saved back as 7.
+// Version 8 (S5b item C, AM-Q1 as revised 2026-10-03): the water entries
+// carry where the acid goes, with the salts or into the mash. A version-1 to
+// 7 document is read with the acid with the salts (AM-S5), and saved back
+// as 8.
 //
 // Recipe file (2026-09-23): export hands the browser the same document the
 // autosave writes, as a file; import reads a file with the same reader as
@@ -70,14 +74,14 @@ import {
   BREWERY_WATER_CHOICES,
   newRecipe,
 } from './state.js';
-import { TEST_RESULT_KEYS, TREATMENTS, SPARGE_METHODS, VESSEL_COUNTS } from './water-state.js';
+import { TEST_RESULT_KEYS, TREATMENTS, ACID_PLACES, SPARGE_METHODS, VESSEL_COUNTS } from './water-state.js';
 
 export const STORAGE_KEY = 'brew-design.recipe';
 // The latest saved copy that could not be read, kept as found (V3); nothing
 // reads it back.
 export const UNREADABLE_KEY = 'brew-design.recipe.unreadable';
-export const SCHEMA_VERSION = 7;
-const READABLE_VERSIONS = [1, 2, 3, 4, 5, 6, SCHEMA_VERSION];
+export const SCHEMA_VERSION = 8;
+const READABLE_VERSIONS = [1, 2, 3, 4, 5, 6, 7, SCHEMA_VERSION];
 
 const MODES = ['home', 'pro'];
 const GRAVITY_UNITS = ['plato', 'sg'];
@@ -161,6 +165,7 @@ function hasWaterOf(water) {
     ACID_KEYS.includes(water.primaryAcid) &&
     typeof water.multiAcid === 'boolean' &&
     TREATMENTS.includes(water.treatment) &&
+    ACID_PLACES.includes(water.acidPlace) &&
     typeof water.kettleSalts === 'boolean' &&
     VESSEL_COUNTS.includes(water.vessels) &&
     SPARGE_METHODS.includes(water.spargeMethod) &&
@@ -218,6 +223,11 @@ function readDocument(raw, defaults) {
       ),
     };
   }
+  if (doc.version <= 7 && isRecord(recipe?.water)) {
+    // Code before version 8 never wrote where the acid goes: with the salts,
+    // as it always went (AM-S5).
+    recipe = { ...recipe, water: { ...recipe.water, acidPlace: 'salts' } };
+  }
   if (!hasShapeOf(recipe, defaults.recipe) || !hasRowsOf(recipe, defaults.recipe)) return {};
   if (!hasWaterOf(recipe.water)) return {};
   if (!MODES.includes(doc.mode) || !GRAVITY_UNITS.includes(doc.proGravityUnit)) return {};
@@ -226,7 +236,7 @@ function readDocument(raw, defaults) {
 
 /**
  * Read the persisted document. Returns { recipe, mode, proGravityUnit } when
- * storage holds a readable document at SCHEMA_VERSION or at version 6, 5, 4, 3, 2 or 1
+ * storage holds a readable document at SCHEMA_VERSION or at version 7, 6, 5, 4, 3, 2 or 1
  * (read as readDocument describes, against `defaults`); otherwise
  * `fallback`, which is `defaults` unless given. A saved copy that cannot be
  * read is first kept aside, as found, under UNREADABLE_KEY, replacing any

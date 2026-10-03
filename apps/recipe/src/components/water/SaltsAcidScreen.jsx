@@ -310,9 +310,14 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
               Phosphoric acid treated as monoprotic at mash pH 5.4 (pKa₁=2.15,
               pKa₂=7.20). See Troester (2009), Braukaiser.com.
             </p>
-            {tankTreated && (
+            {tankTreated && figures.setup.acidPlace === 'salts' && (
               <p style={tokens.notice}>
                 The acid goes in the HLT with the salts, so the sparge liquor's treated share carries acid too.
+              </p>
+            )}
+            {figures.setup.acidPlace === 'mash' && (
+              <p style={tokens.notice}>
+                The acid goes into the mash; the sparge and the water left in the HLT carry none.
               </p>
             )}
           </Card>
@@ -371,7 +376,11 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
           <Card>
             <div style={tokens.cardLabel}>Predicted Final Profile</div>
             <div style={tokens.cardTitle}>
-              {tankTreated ? 'The treated HLT water (first fill)' : 'The treated mash water'}
+              {figures.setup.acidPlace === 'mash'
+                ? 'The water the mash draws (the treated HLT water with the acid)'
+                : tankTreated
+                  ? 'The treated HLT water (first fill)'
+                  : 'The treated mash water'}
             </div>
             <p style={{ ...tokens.notice, marginTop: 0 }}>
               This is the water as treated, not the wort in the kettle.

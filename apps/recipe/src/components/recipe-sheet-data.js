@@ -214,6 +214,8 @@ function waterSection(water, mode, vol, vUnit) {
 
   const tank = water.setup.treatment === 'tank';
   const place = PLACES[water.setup.treatment];
+  // AM-S4: the acid's own place — into the mash, or with the salts.
+  const acidPlace = water.setup.acidPlace === 'mash' ? PLACES.mash : place;
   const grams = (g) => num(g, mode === 'pro' ? 0 : 1);
 
   const additions = [];
@@ -227,8 +229,8 @@ function waterSection(water, mode, vol, vUnit) {
       if (!(r.amount > 0)) continue;
       additions.push(
         r.solid
-          ? { place, name: r.name, amount: num(acidMaltFromCanonical(r.amount, mode), 2), unit: acidMaltUnit(mode) }
-          : { place, name: r.name, amount: num(r.amount, 0), unit: liquidAcidUnit(mode) },
+          ? { place: acidPlace, name: r.name, amount: num(acidMaltFromCanonical(r.amount, mode), 2), unit: acidMaltUnit(mode) }
+          : { place: acidPlace, name: r.name, amount: num(r.amount, 0), unit: liquidAcidUnit(mode) },
       );
     }
   }

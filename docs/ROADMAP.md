@@ -55,6 +55,7 @@ Shelved: the `correctVolumeToRef` identity.
 | Item | Sentence (draft) | Re-test | Session |
 |---|---|---|---|
 | Water Notes name the tool | The Water tab's Notes carry Brew Water Chem's validation note and both disclaimers word for word (Water tab, W8), so they call the tool "Brew Water Chem" and "this tool" inside Brew Design; decide whether they should read "the Water tab" or "Brew Design" (noticed building the Water tab, 2026-09-24) | look at it | S6a |
+| Acid shown to the tenth of a mL | Liquid acid shows and prints to whole mL, so a small dose reads well off: with the acid into the mash the West Coast Pilsner's recommendation for 8 gal is 2.42 mL of 75 % phosphoric and shows "2" (17 % low), and a brewer typing it in doses 2. Decide whether liquid acid shows one decimal (Home) as salts do (noticed building acid into the mash, S5b item C, 2026-10-03) | look at it | unassigned |
 | Printed sheet with water on one page | With the Water Treatment section the built-in recipe's sheet is 10.91 in tall against the 10 in a Letter page prints (9.16 in without it; the section is 1.75 in after compacting the volumes into one line and the mash pH box beside the additions), so a small recipe with water now prints on two pages; decide whether to tighten the whole sheet (type size, margins, row padding) or accept two pages (noticed building water on the printed sheet, 2026-10-02) | look at it | S6a |
 
 ## Tier D — config, docs, tooling, tests

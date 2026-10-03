@@ -243,8 +243,24 @@ export function computeWater(water, recipe) {
   const raiseSalt = saltRow(water.raiseAlkSource);
 
   // Acid: the solver's dose (88 % lactic) as the acid picked, same mEq.
-  const recommendedMeq = recommendation ? applyAcids(recommendation.acids, vol).total_meq : NaN;
-  const equivalent = recommendation ? equivalentAcidDose(recommendation.acids, primary) : NaN;
+  // Into the mash (S5b item C, AM-S2): the solver's dose for the recipe's
+  // mash water instead of the tank's volume — the same water, so the same
+  // alkalinity to take out — with the salts in the tank as before.
+  const acidInMash = setup.acidPlace === 'mash';
+  const acidGal = acidInMash ? mashWaterGal : vol;
+  const acidRecommendation = !acidInMash
+    ? recommendation
+    : recommendation && entered(mashWaterGal) && mashWaterGal > 0
+      ? solveAdditions({
+          source: s,
+          target,
+          volumeGallons: mashWaterGal,
+          raiseAlkSource: water.raiseAlkSource,
+          enabledSalts: new Set(water.enabledSalts),
+        })
+      : null;
+  const recommendedMeq = acidRecommendation ? applyAcids(acidRecommendation.acids, acidGal).total_meq : NaN;
+  const equivalent = acidRecommendation ? equivalentAcidDose(acidRecommendation.acids, primary) : NaN;
   const expected = { ...Object.fromEntries(ACID_KEYS.map((k) => [k, 0])), [primary]: equivalent };
   const amounts = water.acidAmounts ?? expected;
   const meqOf = (k, amount) => (Number.isNaN(amount) ? NaN : acidContribution(k, amount));
@@ -254,7 +270,7 @@ export function computeWater(water, recipe) {
     amounts,
     recommendedMeq,
     recommended: equivalent,
-    totals: recommendation ? applyAcids(amounts, vol) : { total_meq: NaN, ppm_alk_reduced: NaN },
+    totals: acidRecommendation ? applyAcids(amounts, acidGal) : { total_meq: NaN, ppm_alk_reduced: NaN },
     rows: ACID_KEYS.map((k) => {
       const amount = amounts[k] ?? 0;
       const recommended = k === primary ? equivalent : 0;
@@ -275,9 +291,23 @@ export function computeWater(water, recipe) {
     Object.keys(overrides).length > 0 ||
     ACID_KEYS.some((k) => Math.abs((amounts[k] ?? 0) - expected[k]) > 1e-6);
 
+  // The predicted profile: the treated water; into the mash (AM-S3), the
+  // water the mash draws — the tank's water with its salts, then the acid
+  // over the mash water. None without a volume to dose the acid for.
   let final = null;
-  if (recommendation) {
-    const ions = predictFinalProfile({ source: s, additions: effectiveSalts, acids: amounts, volumeGallons: vol });
+  if (recommendation && acidRecommendation) {
+    let ions;
+    if (acidInMash) {
+      const tankIons = predictFinalProfile({ source: s, additions: effectiveSalts, acids: {}, volumeGallons: vol });
+      ions = predictFinalProfile({
+        source: { ...tankIons, Alkalinity: tankIons.Alk },
+        additions: {},
+        acids: amounts,
+        volumeGallons: mashWaterGal,
+      });
+    } else {
+      ions = predictFinalProfile({ source: s, additions: effectiveSalts, acids: amounts, volumeGallons: vol });
+    }
     const ra = residualAlkalinity(ions.Alk, ions.Ca, ions.Mg);
     const ratio = sulfateChlorideRatio(ions.SO4, ions.Cl);
     final = {

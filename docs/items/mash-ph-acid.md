@@ -6,7 +6,10 @@ Troester's measured acid-side slope" (its builder's notes below). Item B
 landed: "When the water the mash draws or the mash thickness is beyond the
 range Troester's model was tested on, the predicted mash pH still shows,
 with a note naming the limit crossed, on the Water tab and the printed
-sheet" (its builder's notes below). Written by
+sheet" (its builder's notes below). Item C landed: "With the hot-liquor
+tank treated, the acid can go into the mash, dosed for the recipe's mash
+water, while the salts stay in the tank; recipe format 8" (its builder's
+notes below). Written by
 the S5 item 2 session after the owner's far-end use of item 2 (below). The
 table planned to build the three items on the item 2 branch, `S5-item2`, and
 merge them with item 2 as one deploy (G3); the owner reversed G3 on
@@ -47,7 +50,7 @@ most 3 %.
 | G3 | Merge item 2 as it is, or hold it | Hold: these three are built on the item 2 branch and merge with it, one deploy. **Reversed by the owner, 2026-10-02:** item 2 merged and deployed on its own (`main`, 6e229e2); S5b branches from `main` | The live site should not show a figure that invites overdosing without the guard |
 | AS-1 | How acid past neutral counts | Table 3's acid-side slope, the mean of the three grists, 0.0814 pH·L/mEq at 4 L/kg, scaled to the mash thickness by the paper's own rule; only acid beyond the water's alkalinity; calcium and magnesium keep the published slope | Published data; no figure chosen by the builder |
 | AS-2 | Re-check against the owner's logs | Re-run the 27 batches and report every difference | MP-S4 |
-| AS-3 | Acid into the mash on its own | A choice of where the acid goes, separate from where the salts go; into the mash, no acid goes to the sparge or the kettle; the saved format stays 7 (not shipped) | The owner does not acidify his sparge (S5-B4'); no acid wasted |
+| AS-3 | Acid into the mash on its own | A choice of where the acid goes, separate from where the salts go; into the mash, no acid goes to the sparge or the kettle; the saved format stays 7 (not shipped). **The format revised by the owner, 2026-10-03:** recipe format 8 (AM-Q1) | The owner does not acidify his sparge (S5-B4'); no acid wasted |
 | AS-4 | The tested-range warning | Beyond −5.61 or +14.3 mEq/L of residual alkalinity (Table 3), or a mash thickness outside 2–5 L/kg (Tables 15, 16) | G1 |
 | AS-5 | Aiming the acid at a target pH (MP-Q9) | Next, after these three land | One behaviour change at a time |
 | AS-6 | The owner's base malts' distilled-water pH | Optional, when he can: he measures Northstar and Weyermann Pilsner by Troester's method (12.5 g finely ground malt in 50 g distilled water, 10 min at 63–65 °C, cooled before reading) into the workbook's existing column | S5-B13; the largest error in the prediction |
@@ -123,6 +126,17 @@ Silent property: **schema** — the water entries gain one choice inside unshipp
 Scenarios (`apps/recipe/test/acid-in-mash.test.js`): *the acid can go into the mash* (the West Coast Pilsner: the recommendation for 8 gal of mash water by hand; the sparge carries no acid; the mash water's profile and pH); *with the salts nothing changes*; *a recipe saved without the choice reads with the acid with the salts*; *the printed sheet names the place*.
 
 Builder's notes: files likely touched — `apps/recipe/src/{water-state,selectors,persistence}.js`, `components/water/{SaltsAcidScreen,WaterGoesCard}.jsx`, `components/recipe-sheet-data.js`, `RecipeSheet.jsx`; possibly an engine function for a profile with salts over one volume and acid over another (then Tier A + B). SPEC rules 8, 10 and 13 change.
+
+Item C, builder's notes (choices the sentences did not make, for the inspector to check):
+
+- No engine function: Tier B. The water the mash draws is two of the engine's own profile calls in the selector — the tank's salts over the tank's volume, then that water's figures as the source with the acid over the mash water — so nothing is worked out in the app. The recommended acid is the engine's solver run for the mash water's volume: its salts are a concentration, so the alkalinity to take out is the tank's, dosed for the mash water. The salt recommendation stays the tank's.
+- The choice is `acidPlace` in the water entries, `'salts'` or `'mash'`; with the mash water treated (or one vessel) only `'salts'` is offered and used, whatever is saved. On the Water tab it is a fourth choice, "Acid", beside Vessels, Sparge and Treat, shown only with the tank treated: "With the salts (HLT)" or "Into the mash".
+- Changing where the acid goes returns the acid to the recommendation and keeps the brewer's salts (the acid is dosed for a different water); with the acid into the mash, a change to the recipe's mash water does the same for the acid alone, as the mash-water treatment does for both.
+- With the acid into the mash and the mash water blank there is no acid dose, no predicted profile and no predicted pH (the profile cannot be worked out without the volume the acid goes in); the blank mash water is named by the tab's existing line.
+- On screen into the mash: the acid card says "The acid goes into the mash; the sparge and the water left in the HLT carry none." in place of the HLT notice, and the profile card is titled "The water the mash draws (the treated HLT water with the acid)". The draws in the Where the Water Goes card list salts only, as before.
+- Format 8 (AM-Q1 revised): versions 1 to 7 read with `'salts'`; a version-8 document without the choice, or with another value, is refused like any damaged water entry. Older tests that pinned "saved back as version 7" now say 8, as item 2 moved them from 6 to 7 (identity, options, recipe-file, sparge-typed, water-saved, yeast-card, mash-ph tests: the version figures and their scenario names only).
+- Not a brewery figure (AM-Q2): the brewery's water figures are a fixed list that does not include it, so a new recipe starts with the acid with the salts; the brewery format stays 3.
+- Noticed while building, to the roadmap (Tier C): liquid acid shows to whole mL, so the West Coast Pilsner's 2.42 mL into the mash shows "2".
 
 ## The owner's case, for the scenarios
 

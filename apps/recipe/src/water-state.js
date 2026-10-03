@@ -26,6 +26,9 @@ export const RO_SOURCE = { Ca: 1, Mg: 1, Na: 1, SO4: 0, Cl: 1, Alkalinity: 5, pH
 
 // The choices, in the order the Water tab offers them.
 export const TREATMENTS = ['mash', 'tank'];
+// Where the acid goes with the tank treated (S5b item C, AM-S1): with the
+// salts in the tank's first fill, or into the mash.
+export const ACID_PLACES = ['salts', 'mash'];
 export const SPARGE_METHODS = ['none', 'batch', 'fly'];
 export const VESSEL_COUNTS = [1, 2, 3];
 
@@ -48,6 +51,8 @@ export function defaultWaterState() {
     primaryAcid: 'lactic_88',
     multiAcid: false,
     treatment: 'mash',
+    // The acid with the salts (AM-Q3).
+    acidPlace: 'salts',
     kettleSalts: false,
     vessels: 3,
     spargeMethod: 'batch',
@@ -66,13 +71,19 @@ export function defaultWaterState() {
  */
 export function effectiveSetup(water) {
   const one = water.vessels === 1;
+  const treatments = one ? ['mash'] : [...TREATMENTS];
+  const treatment = treatments.includes(water.treatment) ? water.treatment : 'mash';
   const offered = {
-    treatments: one ? ['mash'] : [...TREATMENTS],
+    treatments,
     spargeMethods: one ? ['none'] : [...SPARGE_METHODS],
+    // With the mash water treated the acid and the salts go in the same
+    // water: no choice (AM-S1).
+    acidPlaces: treatment === 'tank' ? [...ACID_PLACES] : ['salts'],
   };
   return {
     vessels: water.vessels,
-    treatment: offered.treatments.includes(water.treatment) ? water.treatment : 'mash',
+    treatment,
+    acidPlace: offered.acidPlaces.includes(water.acidPlace) ? water.acidPlace : 'salts',
     spargeMethod: offered.spargeMethods.includes(water.spargeMethod) ? water.spargeMethod : 'none',
     kettleSalts: water.kettleSalts,
     offered,
@@ -111,17 +122,23 @@ export function setWaterStyle(water, styleId) {
 // vessels (one vessel treats the mash water) and the tank's treated volume.
 const CHANGES_TREATED_VOLUME = ['treatment', 'vessels', 'tankTreatedGal'];
 
-// One of the treatment choice and setup: treatment, kettleSalts, vessels,
-// spargeMethod, tankTreatedGal, tankTopUpGal, absorptionQtPerLb, spargeGal.
+// One of the treatment choice and setup: treatment, acidPlace, kettleSalts,
+// vessels, spargeMethod, tankTreatedGal, tankTopUpGal, absorptionQtPerLb,
+// spargeGal. Moving the acid changes the water it is dosed for: the acid
+// returns to the recommendation, the brewer's salts stay.
 export function setWaterSetup(water, key, value) {
   const next = { ...water, [key]: value };
+  if (key === 'acidPlace') return { ...next, acidAmounts: null };
   return CHANGES_TREATED_VOLUME.includes(key) ? toRecommendation(next) : next;
 }
 
 // The recipe's mash water changed: when it is the treated water, the
-// brewer's own amounts return to the recommendation (water treatment K).
+// brewer's own amounts return to the recommendation (water treatment K);
+// when the acid goes into the mash, the acid does (AM-S2).
 export function mashWaterChanged(water) {
-  return effectiveSetup(water).treatment === 'mash' ? toRecommendation(water) : water;
+  const setup = effectiveSetup(water);
+  if (setup.treatment === 'mash') return toRecommendation(water);
+  return setup.acidPlace === 'mash' ? { ...water, acidAmounts: null } : water;
 }
 
 export function setRaiseAlkSource(water, raiseAlkSource) {

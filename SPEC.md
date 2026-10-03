@@ -46,7 +46,8 @@ pinned by the golden-master tests.
    (pH in SU); the style family; the salts on hand and the brewer's own salt
    and acid amounts (none while they follow the recommendation); where the
    water is treated (the mash water or the hot-liquor tank's first fill),
-   whether salts also go in the kettle, and the setup the water sums need —
+   whether salts also go in the kettle, where the acid goes with the tank
+   treated (with the salts or into the mash), and the setup the water sums need —
    vessels, sparge method, the tank's treated volume and top-up level and
    the sparge water in US gal, grain absorption in qt/lb;
    salts and acidulated malt in g, liquid acid in mL; a blank test result
@@ -78,6 +79,12 @@ pinned by the golden-master tests.
     mash thickness is beyond the range the engine's model was tested on (the
     figure still shown); the tab names each blank malt figure it needs. The
     printed sheet prints it, and that note, beside the measured mash pH box.
+    With the hot-liquor tank treated and the acid going into the mash, the
+    salts stay in the tank as before, the acid recommended is the solver's
+    dose for the recipe's mash water, the predicted profile and mash pH are
+    the water the mash draws — the tank's treated water with the acid over
+    the mash water — and the sparge, the tank's leftover and the kettle carry
+    no acid; the printed sheet names the acid's place, Mash or HLT.
 11. `toReferenceVolume(measuredGal, kind, measurementTempF)` is the
     volume-correction slot. Pre-boil, post-boil, and ferment volumes route
     through it and reach the engine corrected to the engine's reference
@@ -95,7 +102,7 @@ pinned by the golden-master tests.
     only when the canonical state does, at the value that leaves every pinned
     number the same.
 13. Persisted state is the canonical state, under one key, in one JSON
-    document carrying a schema version (7). A version-1 document — saved
+    document carrying a schema version (8). A version-1 document — saved
     before the measurement temperatures existed — loads as the same recipe
     with the three at 60 °F; a version-1 or version-2 document — saved
     before the recipe had a name, style and notes — loads with those three
@@ -106,8 +113,9 @@ pinned by the golden-master tests.
     entries, never the brewery's; a version-5 document — saved with the
     water kept in the mash tun — loads with the sparge water blank; a
     version-1 to 6 document — saved before malt types — loads with each
-    malt's type blank and its lab figures blank; each is saved back as
-    version 7. Unreadable data,
+    malt's type blank and its lab figures blank; a version-1 to 7 document
+    — saved before the acid could go into the mash — loads with the acid
+    with the salts; each is saved back as version 8. Unreadable data,
     any other version, or unavailable storage yields a new recipe (rule 17) and never
     throws. A document is readable only if, after its upgrade, every malt,
     kettle-hop and dry-hop row and the yeast carry every field of the
@@ -155,8 +163,8 @@ pinned by the golden-master tests.
     water kept in the mash tun; each is saved back as version 3. The sparge
     water is never a brewery figure.
     Unreadable data, any other version, or unavailable storage yields every
-    figure blank and never throws. The water style and the brewer's own
-    amounts are never brewery figures. While every one is blank, a banner on
+    figure blank and never throws. The water style, where the acid goes
+    and the brewer's own amounts are never brewery figures. While every one is blank, a banner on
     every tab recommends setting them up; its "Not now" is kept in this
     browser under its own key, never part of a recipe or the brewery's
     figures, and ends when a figure is set. The brewery file is the same
