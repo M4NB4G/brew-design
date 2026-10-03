@@ -54,7 +54,7 @@ Shelved: the `correctVolumeToRef` identity.
 
 | Item | Sentence (draft) | Re-test | Session |
 |---|---|---|---|
-| Water Notes name the tool | The Water tab's Notes carry Brew Water Chem's validation note and both disclaimers word for word (Water tab, W8), so they call the tool "Brew Water Chem" and "this tool" inside Brew Design; decide whether they should read "the Water tab" or "Brew Design" (noticed building the Water tab, 2026-09-24) | look at it | S6a |
+| Water Notes still say mash pH is not predicted | The Notes' Scope & Limitations says "Mash pH is not predicted yet" and the last Application Assumption says the app "does not predict mash pH"; both are untrue since S5 and S5b. Reword to say the Water tab predicts the mash pH of a cooled sample from the grain bill, within its tested range (noticed building "Water Notes name the tool", 2026-10-03). The water-tab scenario that pins the Notes' "mash pH is water program step 5" changes with it | look at it | unassigned |
 | Acid shown to the tenth of a mL | Liquid acid shows and prints to whole mL, so a small dose reads well off: with the acid into the mash the West Coast Pilsner's recommendation for 8 gal is 2.42 mL of 75 % phosphoric and shows "2" (17 % low), and a brewer typing it in doses 2. Decide whether liquid acid shows one decimal (Home) as salts do (noticed building acid into the mash, S5b item C, 2026-10-03) | look at it | unassigned |
 | Printed sheet with water on one page | With the Water Treatment section the built-in recipe's sheet is 10.91 in tall against the 10 in a Letter page prints (9.16 in without it; the section is 1.75 in after compacting the volumes into one line and the mash pH box beside the additions), so a small recipe with water now prints on two pages; decide whether to tighten the whole sheet (type size, margins, row padding) or accept two pages (noticed building water on the printed sheet, 2026-10-02) | look at it | S6a |
 
@@ -62,5 +62,6 @@ Shelved: the `correctVolumeToRef` identity.
 
 | Item | Sentence (draft) | Re-test | Session |
 |---|---|---|---|
+| Test totals in TEST_COVERAGE | The "Total: engine 205, app 153" line has drifted: the suites run 212 and 165 (before S6a) and the line is not kept per item; correct it and decide whether the line stays (noticed building "Water Notes name the tool", 2026-10-03) | suites | unassigned |
 | Dev-tooling major upgrades | Five advisories remain after `npm audit fix` (S1, 2026-09-23), each needing a major version: the test runner (vitest 3 → 5; a mock path-traversal advisory), esbuild under Vite 7 (reads files through the dev server on Windows), and the workbook reader's uuid (exceljs; the fix is a breaking downgrade). None reaches the built app a visitor loads — the bundle is byte-identical — so each waits for a planned upgrade with both suites re-run. Built on Opus, not in the Tier C and D trial: it replaces the test runner every check relies on (the owner's decision, 2026-10-02) | suites | unassigned |
 | Notes / methodology page | Later. The print sheet and the recipe file left this row on 2026-09-22 as items of their own | — | S7 |

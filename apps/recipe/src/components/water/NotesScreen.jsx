@@ -1,7 +1,9 @@
 // NotesScreen.jsx
 // "Notes": Brew Water Chem's NotesTab — its scope, references, assumptions,
-// validation and disclaimers — word for word. Only the water app's version
-// talk ("v1.2", "v2", "v1.3", "New in v1.1") is replaced by where each stands
+// validation and disclaimers — word for word, except that the disclaimers
+// call the app "Brew Design" (NT-Q1, 2026-10-03); "Brew Water Chem" stays
+// only where the text credits the chemistry's origin (NT-Q2). Only the
+// water app's version talk ("v1.2", "v2", "v1.3", "New in v1.1") is replaced by where each stands
 // in Brew Design (W8), and its "Recipe tab" is the Salts & Acid screen here
 // (W2). Static text; nothing computed.
 import Card from '../shared/Card.jsx';
@@ -171,7 +173,7 @@ export default function NotesScreen() {
             explainable deviations in chloride and alkalinity respectively.
           </p>
           <p style={{ marginBottom: 0 }}>
-            <strong>Disclaimer.</strong> Brew Water Chem is a free informational tool
+            <strong>Disclaimer.</strong> Brew Design is a free informational tool
             provided as-is, without warranty of any kind. Its calculations are estimates
             for educational and process-planning purposes and are not a substitute for
             direct analytical testing and pH measurement. Use of this tool does not
@@ -199,7 +201,7 @@ export default function NotesScreen() {
         >
           <p style={{ marginTop: 0 }}>
             <strong>THIS TOOL IS PROVIDED FOR INFORMATIONAL PURPOSES ONLY.</strong>{' '}
-            Brew Water Chem is a free, open-source calculator intended to assist
+            Brew Design is a free, open-source calculator intended to assist
             homebrewers and brewing professionals in estimating water chemistry
             additions. It is <strong>not</strong> a substitute for professional
             engineering judgment, laboratory analysis, or certified process
@@ -244,7 +246,7 @@ export default function NotesScreen() {
               Persyn Chemical Engineering and Consulting, and the
               contributors to this tool accept no liability for any direct,
               indirect, incidental, or consequential loss or damage arising
-              from reliance on outputs produced by Brew Water Chem,
+              from reliance on outputs produced by Brew Design,
               including but not limited to product quality defects,
               regulatory non-compliance, or economic loss.
             </strong>
