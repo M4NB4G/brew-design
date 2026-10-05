@@ -289,9 +289,11 @@ export default function App() {
               postBoilVolGal={derived.postBoilVolGal}
               postBoilMeasuredGal={derived.postBoilMeasuredGal}
               postBoilMeasuredShown={derived.postBoilMeasuredShown}
+              refVolumesGal={derived.refVolumesGal}
               warnings={derived.warnings}
               mode={mode}
               setField={setField}
+              setMeasurementTemp={setMeasurementTemp}
             />
 
             <GristTable
@@ -345,10 +347,7 @@ export default function App() {
 
         {tab === 'options' && (
           <OptionsSection
-            measurementTempF={recipe.measurementTempF}
-            refVolumesGal={derived.refVolumesGal}
             mode={mode}
-            setMeasurementTemp={setMeasurementTemp}
             brewery={brewery}
             setBreweryFigure={setBreweryFigure}
             setBreweryTemp={setBreweryTemp}

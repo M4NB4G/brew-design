@@ -99,8 +99,8 @@ export function computeRecipe(state) {
     postBoilVolGal: postBoilRefGal,
     postBoilMeasuredGal: postBoilRawGal,
     postBoilMeasuredShown,
-    // The three volumes as the engine received them (the Options page shows
-    // each beside its measurement temperature).
+    // The three volumes as the engine received them (the Volumes card shows
+    // each under its measurement temperature).
     refVolumesGal: { preBoil: preBoilRefGal, postBoil: postBoilRefGal, ferment: fermentRefGal },
     grist,
     hops,

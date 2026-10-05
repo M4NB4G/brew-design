@@ -4,7 +4,7 @@
 // The engine expects volumes at the 60 degF reference (see computeGrist in
 // @brew/engine). Each corrected volume kind ('preBoil' | 'postBoil' |
 // 'ferment') has a measurement temperature in the recipe state
-// (measurementTempF, degF; the Options page edits it), and the engine's
+// (measurementTempF, degF; the Volumes card edits it), and the engine's
 // correctVolumeToRef takes the measured volume to the reference by the ratio
 // of water densities. Pre-boil, post-boil, and fermentation volumes are routed
 // through this function by selectors.js.

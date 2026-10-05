@@ -4,7 +4,7 @@
 // R-S2, R-S3 and R-S4. The engine's own scenario (R-S1) is in
 // packages/engine/test/units.test.js.
 //
-// The suite has no DOM, so the screen's labels (Volumes card, Options tab)
+// The suite has no DOM, so the screen's labels (Volumes card)
 // are checked by reading the app's source: no file writes a 60 °F reference
 // of its own. The printed sheet's text is checked directly.
 

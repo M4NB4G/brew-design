@@ -24,7 +24,7 @@ import { defaultRecipeState, DEFAULT_DISPLAY } from '../src/state.js';
 import { computeRecipe } from '../src/selectors.js';
 import { savePersisted, loadPersisted, exportRecipeDocument, importRecipeFile } from '../src/persistence.js';
 import { volumeChange } from '../src/components/VolumesSection.jsx';
-import { temperatureChange } from '../src/components/OptionsSection.jsx';
+import { temperatureChange } from '../src/components/VolumesSection.jsx';
 
 const SRC = join(dirname(fileURLToPath(import.meta.url)), '..', 'src');
 
@@ -78,7 +78,7 @@ describe('empty-field handling', () => {
 
     // Every number box empty, in screen order: the Volumes card (Mash, Boil,
     // Ferment), the Grist table and its efficiency, the Yeast card's
-    // attenuation, the kettle hops, the dry hops; then the Options tab's
+    // attenuation, the kettle hops, the dry hops; then the (Volumes card's)
     // measurement temperatures. An unnamed row is named by its place.
     const r = defaultRecipeState();
     Object.assign(r, {

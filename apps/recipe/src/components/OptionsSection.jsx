@@ -1,14 +1,5 @@
 // OptionsSection.jsx
-// The Options tab: the temperature (degF) each volume was measured at, one
-// editable field per corrected kind, each followed by the volume at the
-// engine's 60 degF reference as the engine receives it (read-only, from
-// computeRecipe's refVolumesGal — nothing is computed here). A temperature is
-// stored in degF as typed: canonical and display unit are the same. An
-// emptied field is a blank temperature (NaN), never the old one; a blank
-// shows as an empty field, and its reference volume as "—", like any cleared
-// field.
-//
-// Below them, My brewery (Brewery defaults, 2026-09-23): the brewery's own
+// The Options tab: My brewery (Brewery defaults, 2026-09-23), the brewery's own
 // figures, which a new recipe starts from. They are held in the recipe's
 // units (state.js) and shown in the current mode's units through display.js;
 // an emptied field is a blank figure (null), which a new recipe fills with
@@ -17,7 +8,7 @@
 // and kettle switch, the water setup, the usual water report and the salts
 // on hand.
 import { useRef } from 'react';
-import { REFERENCE_TEMP_F, SALT_CONTRIBUTIONS_PER_G_GAL } from '@brew/engine';
+import { SALT_CONTRIBUTIONS_PER_G_GAL } from '@brew/engine';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
 import { colors, radii, tokens } from './shared/styles.js';
@@ -32,7 +23,7 @@ import {
   gravityUnitLabel,
   mashRvUnit,
 } from '../display.js';
-import { num, roundForInput } from '../format.js';
+import { roundForInput } from '../format.js';
 import { DEFAULT_DISPLAY } from '../state.js';
 import { defaultWaterState, TEST_RESULT_KEYS } from '../water-state.js';
 import { REPORT_LABELS } from './water/WaterInScreen.jsx';
@@ -45,11 +36,6 @@ const KINDS = [
 ];
 
 const MODE_LABELS = { home: 'Home', pro: 'Pro' };
-
-// A measurement temperature box's change: degF as typed; an emptied box is a
-// blank temperature (NaN).
-export const temperatureChange = (setMeasurementTemp, kind) => (e) =>
-  setMeasurementTemp(kind, parseFloat(e.target.value));
 
 // Outlined button, as "+ Add malt".
 const button = {
@@ -222,10 +208,7 @@ const saltCheckStyle = {
 };
 
 export default function OptionsSection({
-  measurementTempF,
-  refVolumesGal,
   mode,
-  setMeasurementTemp,
   brewery,
   setBreweryFigure,
   setBreweryTemp,
@@ -246,34 +229,6 @@ export default function OptionsSection({
 
   return (
     <>
-    <Card>
-      <span style={tokens.cardLabel}>This recipe — measurement temperatures</span>
-      <p style={{ ...tokens.notice, marginTop: 0, marginBottom: '0.5rem' }}>
-        Volumes are corrected to the {REFERENCE_TEMP_F} {tUnit} reference from the temperature they were
-        measured at; mash water is used as entered.
-      </p>
-
-      {KINDS.map(([kind, label]) => {
-        const tempF = measurementTempF[kind];
-        return (
-          <div key={kind}>
-            <InputRow
-              label={`${label} (${tUnit})`}
-              value={Number.isFinite(tempF) ? tempF : ''}
-              onChange={temperatureChange(setMeasurementTemp, kind)}
-              step={1}
-            />
-            <InputRow
-              label={`at ${REFERENCE_TEMP_F} ${tUnit} (${vUnit})`}
-              value={num(volumeFromCanonical(refVolumesGal[kind], mode), 3)}
-              onChange={() => {}}
-              readOnly
-            />
-          </div>
-        );
-      })}
-    </Card>
-
     <Card>
       <span style={tokens.cardLabel}>My brewery</span>
       <p style={{ ...tokens.notice, marginTop: 0, marginBottom: '0.5rem' }}>

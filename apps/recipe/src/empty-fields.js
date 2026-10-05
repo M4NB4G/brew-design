@@ -30,7 +30,8 @@ const MEASUREMENTS = [
 /**
  * The empty number boxes of `recipe`, in screen order: the Volumes card,
  * the Grist table and its efficiency, the Yeast card's attenuation, the
- * kettle and dry hops, then the Options tab's measurement temperatures.
+ * kettle and dry hops, then the three measurement temperatures (on the
+ * Volumes card; named last, as when they were on the Options tab).
  * `derived` is computeRecipe(recipe).
  */
 export function emptyFields(recipe, derived) {
