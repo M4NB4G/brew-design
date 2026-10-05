@@ -1,6 +1,9 @@
 # Printed sheet at a glance — Tier C
 
-Status: agreed 2026-10-05 ("agree to all"), not started. Written by the S6c
+Status: landed 2026-10-05 — "The printed sheet reads at a glance: text about
+20 % larger, two pages with no section split, the predicted mash pH on two
+lines to one decimal, the yeast block on one grid" (batch S6d; Sonnet 5.5 built,
+Opus advised). Agreed 2026-10-05 ("agree to all"). Written by the S6c
 session after the owner printed a recipe (Home Grown WC Pils, 12 gal) and
 found the sheet too small to read at a glance, the predicted mash pH line
 cramped and the yeast block uneven. The predicted mash pH to one decimal
@@ -51,3 +54,32 @@ Starter" heading prints alone at the foot of page 1.
 - The scenarios that pin the predicted mash pH's "5.70" (`mash-ph.test.js`) and any print-sheet test that pins "billion cells" or the old mash pH label change with this item; say so in the report.
 - The browser's own header and footer (date, page title, URL, "1/2") come from the print dialog's "Headers and footers" option, not the app; out of scope.
 - PL-2 returns to the print sheet's own rule (`docs/items/recipe-print-sheet.md`, P5 and S9: flow to a second page rather than shrink below readable size). SPEC names no page count; S6a's one-page fit is undone by design, and its far-end notes in `docs/TEST_COVERAGE.md` stay as history.
+
+## Builder's notes (S6d)
+
+- Built on the designated branch `claude/dazzling-franklin-8uv86o` at 4d727d1:
+  `main` (33ad2f7) does not yet hold this item file or the S6c work the sheet
+  now carries, so a branch from `main` would have had neither.
+- The four-column grid has one more column than the yeast character row has
+  figures (character, pitch rate, cells needed). The fourth cell of that row is
+  left open, without border or fill, so its three columns line up with the
+  strain row's and the starter row's first three. PL-5 says "the rest equal"
+  and does not say what a short row does; the choice is the builder's, easy to
+  reverse.
+- The starter table's Note column is centred with the other figures columns
+  (PL-5), where it was left-aligned.
+- "A section" is each of Predicted, Grain Bill, Water & Volumes, Water
+  Treatment, Hop Schedule, Yeast & Starter and Notes, as one block. A recipe
+  whose Water Treatment block cannot fit with the earlier blocks moves whole to
+  page 2, leaving white space at the foot of page 1; the item's sentence
+  (PL-S2) asks for that. A Notes block longer than a page flows, since a
+  browser cannot keep more than a page together.
+- Sizes are in px, 4/3 of the pt the sentences name: body 12, column headers 10,
+  section headings 11, predicted stats 16, small labels 9, notes and captions
+  11, the disclaimer 9. The signature line and the notes text take the body
+  size. The title, the brand and "Recipe Sheet" in the header band are unchanged
+  (the sentences do not name them).
+- Print preview used the fallback font (Source Sans 3 is fetched from Google
+  Fonts, which the build sandbox cannot reach), which is wider than Source
+  Sans; the owner's print will be slightly tighter.
+

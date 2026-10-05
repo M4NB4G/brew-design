@@ -67,4 +67,14 @@ input[type='number'] {
   body {
     background: white !important;
   }
+
+  /* A section (heading and its tables) is never split across the page break,
+     and a heading never prints alone at the foot of a page. */
+  .print-section {
+    break-inside: avoid;
+  }
+
+  .print-heading {
+    break-after: avoid;
+  }
 }

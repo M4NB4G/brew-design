@@ -60,96 +60,102 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
       </div>
 
       {/* The six headline numbers */}
-      <Heading>Predicted</Heading>
-      <table style={tbl}>
-        <thead>
-          <tr style={{ background: C.headerBg }}>
-            {s.headline.map((h) => (
-              <th key={h.label} style={th}>
-                {h.label}
-                {h.unit && ` (${h.unit})`}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            {s.headline.map((h) => (
-              <td key={h.label} style={{ ...td, fontSize: '13px', fontWeight: 700, color: C.navy, padding: '5px' }}>
-                {h.value}
-                {h.measuredBox && (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '4px' }}>
-                    <span style={measuredLabel}>Measured</span>
-                    <MeasuredBox />
-                  </div>
-                )}
-              </td>
-            ))}
-          </tr>
-        </tbody>
-      </table>
+      <Section>
+        <Heading>Predicted</Heading>
+        <table style={tbl}>
+          <thead>
+            <tr style={{ background: C.headerBg }}>
+              {s.headline.map((h) => (
+                <th key={h.label} style={th}>
+                  {h.label}
+                  {h.unit && ` (${h.unit})`}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              {s.headline.map((h) => (
+                <td key={h.label} style={{ ...td, fontSize: '16px', fontWeight: 700, color: C.navy, padding: '5px' }}>
+                  {h.value}
+                  {h.measuredBox && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '4px' }}>
+                      <span style={measuredLabel}>Measured</span>
+                      <MeasuredBox />
+                    </div>
+                  )}
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </Section>
 
       {/* Grain bill */}
-      <Heading>Grain Bill</Heading>
-      <table style={tbl}>
-        <thead>
-          <tr style={{ background: C.headerBg }}>
-            <th style={{ ...th, textAlign: 'left', width: '44%' }}>Malt</th>
-            <th style={th}>Weight ({s.grain.weightUnit})</th>
-            <th style={th}>Share (%)</th>
-            <th style={th}>Yield, FGDB (%)</th>
-            <th style={th}>Color (°L)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {s.grain.rows.map((r, i) => (
-            <tr key={i} style={{ background: i % 2 ? C.rowAlt : C.page }}>
-              <td style={{ ...td, textAlign: 'left' }}>{r.name}</td>
-              <td style={td}>{r.weight}</td>
-              <td style={td}>{r.share}</td>
-              <td style={td}>{r.yield}</td>
-              <td style={td}>{r.color}</td>
+      <Section>
+        <Heading>Grain Bill</Heading>
+        <table style={tbl}>
+          <thead>
+            <tr style={{ background: C.headerBg }}>
+              <th style={{ ...th, textAlign: 'left', width: '44%' }}>Malt</th>
+              <th style={th}>Weight ({s.grain.weightUnit})</th>
+              <th style={th}>Share (%)</th>
+              <th style={th}>Yield, FGDB (%)</th>
+              <th style={th}>Color (°L)</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <Caption>
-        Brewhouse efficiency {s.grain.efficiency}%
-      </Caption>
+          </thead>
+          <tbody>
+            {s.grain.rows.map((r, i) => (
+              <tr key={i} style={{ background: i % 2 ? C.rowAlt : C.page }}>
+                <td style={{ ...td, textAlign: 'left' }}>{r.name}</td>
+                <td style={td}>{r.weight}</td>
+                <td style={td}>{r.share}</td>
+                <td style={td}>{r.yield}</td>
+                <td style={td}>{r.color}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <Caption>
+          Brewhouse efficiency {s.grain.efficiency}%
+        </Caption>
+      </Section>
 
       {/* Water and volumes */}
-      <Heading>Water &amp; Volumes</Heading>
-      <table style={tbl}>
-        <thead>
-          <tr style={{ background: C.headerBg }}>
-            <th style={{ ...th, textAlign: 'left', width: '44%' }}>Volume</th>
-            <th style={th}>Predicted ({s.volumes.unit})</th>
-            <th style={th}>Measured ({s.volumes.unit})</th>
-          </tr>
-        </thead>
-        <tbody>
-          {s.volumes.rows.map((r, i) => (
-            <tr key={r.key} style={{ background: i % 2 ? C.rowAlt : C.page }}>
-              <td style={{ ...td, textAlign: 'left' }}>
-                {r.label}
-                {r.tempNote && <span style={tempNoteStyle}>{r.tempNote}</span>}
-              </td>
-              <td style={td}>{r.value}</td>
-              <td style={{ ...td, padding: '3px 5px' }}>{r.measuredBox && <MeasuredBox />}</td>
+      <Section>
+        <Heading>Water &amp; Volumes</Heading>
+        <table style={tbl}>
+          <thead>
+            <tr style={{ background: C.headerBg }}>
+              <th style={{ ...th, textAlign: 'left', width: '44%' }}>Volume</th>
+              <th style={th}>Predicted ({s.volumes.unit})</th>
+              <th style={th}>Measured ({s.volumes.unit})</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <Caption>
-        Mash ratio {s.volumes.mashRv} {s.volumes.mashRvUnit} · {s.volumes.mashR} {s.volumes.mashRUnit}
-        {' · '}Boil {s.volumes.boilTime} min at {s.volumes.boilOff} {s.volumes.unit}/hr boil-off
-      </Caption>
+          </thead>
+          <tbody>
+            {s.volumes.rows.map((r, i) => (
+              <tr key={r.key} style={{ background: i % 2 ? C.rowAlt : C.page }}>
+                <td style={{ ...td, textAlign: 'left' }}>
+                  {r.label}
+                  {r.tempNote && <span style={tempNoteStyle}>{r.tempNote}</span>}
+                </td>
+                <td style={td}>{r.value}</td>
+                <td style={{ ...td, padding: '3px 5px' }}>{r.measuredBox && <MeasuredBox />}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <Caption>
+          Mash ratio {s.volumes.mashRv} {s.volumes.mashRvUnit} · {s.volumes.mashR} {s.volumes.mashRUnit}
+          {' · '}Boil {s.volumes.boilTime} min at {s.volumes.boilOff} {s.volumes.unit}/hr boil-off
+        </Caption>
+      </Section>
 
       {/* Water treatment: where each addition goes, the water volumes, the
           treated water against the style target, the measured mash pH
           box with the predicted mash pH beside it */}
       {s.water && (
-        <>
+        <Section>
           <Heading>Water Treatment</Heading>
           <Caption>
             Treated: {s.water.treated}{s.water.hltNote && ` (${s.water.hltNote})`} · Water ({s.water.volumeUnit}):{' '}
@@ -177,9 +183,10 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
               </tbody>
             </table>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={measuredLabel}>
-                {s.water.mashPhLabel}, predicted {s.water.mashPhPredicted}
-              </span>
+              <div>
+                <div style={mashPhLine}>{s.water.mashPhLabel}</div>
+                <div style={mashPhLine}>predicted {s.water.mashPhPredicted}</div>
+              </div>
               <MeasuredBox />
             </div>
             {s.water.mashPhNote && <p style={{ ...noData, flex: '0 1 200px' }}>{s.water.mashPhNote}</p>}
@@ -250,142 +257,149 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
               </table>
             </>
           )}
-        </>
+        </Section>
       )}
 
       {/* Hops */}
-      <Heading>Hop Schedule</Heading>
-      <table style={tbl}>
-        <thead>
-          <tr style={{ background: C.headerBg }}>
-            <th style={{ ...th, textAlign: 'left', width: '36%' }}>Kettle hop</th>
-            <th style={th}>Time (min)</th>
-            <th style={th}>Temp ({s.hops.tempUnit})</th>
-            <th style={th}>Weight ({s.hops.weightUnit})</th>
-            <th style={th}>Alpha (%)</th>
-            <th style={th}>IBU</th>
-          </tr>
-        </thead>
-        <tbody>
-          {s.hops.kettle.map((r, i) => (
-            <tr key={i} style={{ background: i % 2 ? C.rowAlt : C.page }}>
-              <td style={{ ...td, textAlign: 'left' }}>{r.name}</td>
-              <td style={td}>{r.time}</td>
-              <td style={td}>{r.temp}</td>
-              <td style={td}>{r.weight}</td>
-              <td style={td}>{r.alpha}</td>
-              <td style={td}>{r.ibu}</td>
-            </tr>
-          ))}
-          <tr style={{ background: C.headerBg }}>
-            <td style={{ ...td, textAlign: 'left', fontWeight: 700 }} colSpan={5}>
-              Total IBU
-              <span style={{ fontWeight: 400, color: C.gray }}> — the rounded total of the unrounded additions</span>
-            </td>
-            <td style={{ ...td, fontWeight: 700 }}>{s.hops.totalIbu}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <table style={{ ...tbl, marginTop: '5px' }}>
-        <thead>
-          <tr style={{ background: C.headerBg }}>
-            <th style={{ ...th, textAlign: 'left', width: '72%' }}>Dry hop</th>
-            <th style={th}>Weight ({s.hops.weightUnit})</th>
-          </tr>
-        </thead>
-        <tbody>
-          {s.hops.dry.map((r, i) => (
-            <tr key={i} style={{ background: i % 2 ? C.rowAlt : C.page }}>
-              <td style={{ ...td, textAlign: 'left' }}>{r.name}</td>
-              <td style={td}>{r.weight}</td>
-            </tr>
-          ))}
-          <tr style={{ background: C.headerBg }}>
-            <td style={{ ...td, textAlign: 'left', fontWeight: 700 }}>Dry-hop rate</td>
-            <td style={{ ...td, fontWeight: 700 }}>
-              {s.hops.dryRate} {s.hops.dryRateUnit}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* Yeast and starter */}
-      <Heading>Yeast &amp; Starter</Heading>
-      <table style={{ ...tbl, marginBottom: '3px' }}>
-        <thead>
-          <tr style={{ background: C.headerBg }}>
-            <th style={{ ...th, textAlign: 'left', width: '44%' }}>Strain</th>
-            <th style={th}>Type</th>
-            <th style={th}>Apparent attenuation (%)</th>
-            <th style={th}>Fermentation temp ({s.yeast.tempUnit})</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={{ ...td, textAlign: 'left' }}>{s.yeast.strain}</td>
-            <td style={td}>{s.yeast.type}</td>
-            <td style={td}>{s.yeast.attenuation}</td>
-            <td style={td}>{s.yeast.fermTemp}</td>
-          </tr>
-        </tbody>
-      </table>
-      <table style={{ ...tbl, marginBottom: '3px' }}>
-        <thead>
-          <tr style={{ background: C.headerBg }}>
-            <th style={th}>Yeast character</th>
-            <th style={th}>Pitch rate ({s.yeast.pitchRateUnit})</th>
-            <th style={th}>Cells needed ({s.yeast.cellsUnit})</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={td}>{s.yeast.character}</td>
-            <td style={td}>{s.yeast.pitchRate}</td>
-            <td style={td}>{s.yeast.cells}</td>
-          </tr>
-        </tbody>
-      </table>
-      {s.yeast.starter.length === 0 ? (
-        <p style={noData}>No usable starter band for this cell count.</p>
-      ) : (
+      <Section>
+        <Heading>Hop Schedule</Heading>
         <table style={tbl}>
           <thead>
             <tr style={{ background: C.headerBg }}>
-              <th style={{ ...th, textAlign: 'left' }}>Beginning cell count</th>
-              <th style={th}>Starter volume ({s.yeast.starterVolumeUnit})</th>
-              <th style={th}>DME (g)</th>
-              <th style={{ ...th, textAlign: 'left' }}>Note</th>
+              <th style={{ ...th, textAlign: 'left', width: '36%' }}>Kettle hop</th>
+              <th style={th}>Time (min)</th>
+              <th style={th}>Temp ({s.hops.tempUnit})</th>
+              <th style={th}>Weight ({s.hops.weightUnit})</th>
+              <th style={th}>Alpha (%)</th>
+              <th style={th}>IBU</th>
             </tr>
           </thead>
           <tbody>
-            {s.yeast.starter.map((r, i) => (
+            {s.hops.kettle.map((r, i) => (
               <tr key={i} style={{ background: i % 2 ? C.rowAlt : C.page }}>
-                <td style={{ ...td, textAlign: 'left' }}>{r.band}</td>
-                <td style={td}>{r.volume}</td>
-                <td style={td}>{r.dme}</td>
-                <td style={{ ...td, textAlign: 'left' }}>{r.note}</td>
+                <td style={{ ...td, textAlign: 'left' }}>{r.name}</td>
+                <td style={td}>{r.time}</td>
+                <td style={td}>{r.temp}</td>
+                <td style={td}>{r.weight}</td>
+                <td style={td}>{r.alpha}</td>
+                <td style={td}>{r.ibu}</td>
               </tr>
             ))}
+            <tr style={{ background: C.headerBg }}>
+              <td style={{ ...td, textAlign: 'left', fontWeight: 700 }} colSpan={5}>
+                Total IBU
+                <span style={{ fontWeight: 400, color: C.gray }}> — the rounded total of the unrounded additions</span>
+              </td>
+              <td style={{ ...td, fontWeight: 700 }}>{s.hops.totalIbu}</td>
+            </tr>
           </tbody>
         </table>
-      )}
+
+        <table style={{ ...tbl, marginTop: '5px' }}>
+          <thead>
+            <tr style={{ background: C.headerBg }}>
+              <th style={{ ...th, textAlign: 'left', width: '72%' }}>Dry hop</th>
+              <th style={th}>Weight ({s.hops.weightUnit})</th>
+            </tr>
+          </thead>
+          <tbody>
+            {s.hops.dry.map((r, i) => (
+              <tr key={i} style={{ background: i % 2 ? C.rowAlt : C.page }}>
+                <td style={{ ...td, textAlign: 'left' }}>{r.name}</td>
+                <td style={td}>{r.weight}</td>
+              </tr>
+            ))}
+            <tr style={{ background: C.headerBg }}>
+              <td style={{ ...td, textAlign: 'left', fontWeight: 700 }}>Dry-hop rate</td>
+              <td style={{ ...td, fontWeight: 700 }}>
+                {s.hops.dryRate} {s.hops.dryRateUnit}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+      </Section>
+
+      {/* Yeast and starter */}
+      <Section>
+        <Heading>Yeast &amp; Starter</Heading>
+        <GridTable style={{ marginBottom: '3px' }}>
+          <thead>
+            <tr style={{ background: C.headerBg }}>
+              <th style={{ ...th, textAlign: 'left' }}>Strain</th>
+              <th style={th}>Type</th>
+              <th style={th}>Apparent attenuation (%)</th>
+              <th style={th}>Fermentation temp ({s.yeast.tempUnit})</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ ...td, textAlign: 'left' }}>{s.yeast.strain}</td>
+              <td style={td}>{s.yeast.type}</td>
+              <td style={td}>{s.yeast.attenuation}</td>
+              <td style={td}>{s.yeast.fermTemp}</td>
+            </tr>
+          </tbody>
+        </GridTable>
+        <GridTable style={{ marginBottom: '3px' }}>
+          <thead>
+            <tr>
+              <th style={{ ...th, ...headerFill, textAlign: 'left' }}>Yeast character</th>
+              <th style={{ ...th, ...headerFill }}>Pitch rate ({s.yeast.pitchRateUnit})</th>
+              <th style={{ ...th, ...headerFill }}>Cells needed ({s.yeast.cellsUnit})</th>
+              <th style={unusedCell} />
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ ...td, textAlign: 'left' }}>{s.yeast.character}</td>
+              <td style={td}>{s.yeast.pitchRate}</td>
+              <td style={td}>{s.yeast.cells}</td>
+              <td style={unusedCell} />
+            </tr>
+          </tbody>
+        </GridTable>
+        {s.yeast.starter.length === 0 ? (
+          <p style={noData}>No usable starter band for this cell count.</p>
+        ) : (
+          <GridTable>
+            <thead>
+              <tr style={{ background: C.headerBg }}>
+                <th style={{ ...th, textAlign: 'left' }}>Beginning cell count</th>
+                <th style={th}>Starter volume ({s.yeast.starterVolumeUnit})</th>
+                <th style={th}>DME (g)</th>
+                <th style={th}>Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              {s.yeast.starter.map((r, i) => (
+                <tr key={i} style={{ background: i % 2 ? C.rowAlt : C.page }}>
+                  <td style={{ ...td, textAlign: 'left' }}>{r.band}</td>
+                  <td style={td}>{r.volume}</td>
+                  <td style={td}>{r.dme}</td>
+                  <td style={td}>{r.note}</td>
+                </tr>
+              ))}
+            </tbody>
+          </GridTable>
+        )}
+      </Section>
 
       {/* Notes, only when there are any */}
       {s.notes && (
-        <>
+        <Section>
           <Heading>Notes</Heading>
-          <div style={{ fontSize: '10px', lineHeight: 1.45, whiteSpace: 'pre-wrap', color: C.body }}>{s.notes}</div>
-        </>
+          <div style={{ fontSize: '12px', lineHeight: 1.45, whiteSpace: 'pre-wrap', color: C.body }}>{s.notes}</div>
+        </Section>
       )}
 
       {/* Footer */}
       <div style={{ marginTop: '6px', borderTop: `1px solid ${C.border}`, paddingTop: '5px' }}>
-        <p style={{ fontSize: '8px', color: C.gray, margin: '0 0 8px', lineHeight: 1.5 }}>
+        <p style={{ fontSize: '9px', color: C.gray, margin: '0 0 8px', lineHeight: 1.5 }}>
           For process guidance only. Verify gravities and volumes by measurement before production use.
           Persyn Chemical Engineering and Consulting assumes no liability for brewing outcomes.
         </p>
-        <div style={{ fontSize: '10px', color: C.signature, borderTop: `1px dashed ${C.border}`, paddingTop: '6px' }}>
+        <div style={{ fontSize: '12px', color: C.signature, borderTop: `1px dashed ${C.border}`, paddingTop: '6px' }}>
           Brewer:&#x2003;____________________________&#x2003;&#x2003;
           Date brewed:&#x2003;____________________________
         </div>
@@ -395,11 +409,17 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
   );
 }
 
+// One heading and its tables: kept whole on one page (index.css, print).
+function Section({ children }) {
+  return <section className="print-section">{children}</section>;
+}
+
 function Heading({ children }) {
   return (
     <div
+      className="print-heading"
       style={{
-        fontSize: '9px',
+        fontSize: '11px',
         fontWeight: 700,
         letterSpacing: '0.14em',
         textTransform: 'uppercase',
@@ -418,16 +438,33 @@ function Heading({ children }) {
 function Meta({ label, value }) {
   return (
     <div>
-      <div style={{ fontSize: '7px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: C.gray }}>
+      <div style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: C.gray }}>
         {label}
       </div>
-      <div style={{ fontSize: '10px', fontWeight: 600, color: C.navy }}>{value}</div>
+      <div style={{ fontSize: '12px', fontWeight: 600, color: C.navy }}>{value}</div>
     </div>
   );
 }
 
 function Caption({ children }) {
-  return <p style={{ fontSize: '9px', color: C.navy, margin: '3px 0 2px' }}>{children}</p>;
+  return <p style={{ fontSize: '11px', color: C.navy, margin: '3px 0 2px' }}>{children}</p>;
+}
+
+// The yeast block's three tables share one column grid: the text column 40 %,
+// the other three equal, so the figures line up down the block.
+const YEAST_COLUMNS = ['40%', '20%', '20%', '20%'];
+
+function GridTable({ style, children }) {
+  return (
+    <table style={{ ...tbl, tableLayout: 'fixed', ...style }}>
+      <colgroup>
+        {YEAST_COLUMNS.map((width, i) => (
+          <col key={i} style={{ width }} />
+        ))}
+      </colgroup>
+      {children}
+    </table>
+  );
 }
 
 // A blank box to write a measured value in, sized for handwriting.
@@ -450,8 +487,19 @@ function MeasuredBox() {
 const tbl = {
   width: '100%',
   borderCollapse: 'collapse',
-  fontSize: '10px',
+  fontSize: '12px',
   marginBottom: '2px',
+};
+
+// The yeast character row has three figures on a four-column grid: the fourth
+// cell is left open, without border or fill.
+const headerFill = { background: C.headerBg };
+
+const unusedCell = {
+  padding: 0,
+  textAlign: 'center',
+  border: 'none',
+  background: 'transparent',
 };
 
 const th = {
@@ -460,7 +508,7 @@ const th = {
   fontWeight: 700,
   color: C.navy,
   border: `1px solid ${C.border}`,
-  fontSize: '8px',
+  fontSize: '10px',
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
 };
@@ -474,22 +522,27 @@ const td = {
 };
 
 const measuredLabel = {
-  fontSize: '7px',
+  fontSize: '9px',
   fontWeight: 700,
   textTransform: 'uppercase',
   letterSpacing: '0.1em',
   color: C.gray,
 };
 
+const mashPhLine = {
+  fontSize: '12px',
+  color: C.body,
+};
+
 const tempNoteStyle = {
   marginLeft: '6px',
-  fontSize: '9px',
+  fontSize: '11px',
   fontStyle: 'italic',
   color: C.navy,
 };
 
 const noData = {
-  fontSize: '9px',
+  fontSize: '11px',
   fontStyle: 'italic',
   color: C.gray,
   margin: '2px 0 4px',

@@ -387,7 +387,7 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
             </p>
 
             <div style={{ ...tokens.statGrid, marginBottom: '0.5rem' }}>
-              <StatBox value={num(mashPh.ph, 2)} label="Predicted mash pH (cooled sample)" />
+              <StatBox value={num(mashPh.ph, 1)} label="Predicted mash pH (cooled sample)" />
             </div>
             {mashPh.outsideRange && (
               <p role="status" style={tokens.warning}>

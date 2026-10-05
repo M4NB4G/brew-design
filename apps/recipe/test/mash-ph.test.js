@@ -181,7 +181,7 @@ describe('mash pH from the grain bill (item 2)', () => {
     // MP-Q12: at the top of the predicted profile card, labelled, cited.
     const html = tab(recipe);
     expect(html).toContain('Predicted mash pH (cooled sample)');
-    expect(html).toContain('5.70');
+    expect(html).toMatch(/>5\.7<\/div><div[^>]*>Predicted mash pH \(cooled sample\)</); // one decimal (PL-S4)
     expect(html).toContain('Troester');
     const at = html.indexOf('Predicted mash pH (cooled sample)');
     expect(at).toBeGreaterThan(html.indexOf('Predicted Final Profile'));
@@ -246,7 +246,7 @@ describe('mash pH from the grain bill (item 2)', () => {
     expect(blankHtml).toContain('Blank figures the predicted mash pH needs: Malt type (Pale), Weight (Crystal 40), Color (Malt 3)');
     // The tile shows "—" as its figure (the figure above its label).
     expect(tab(blanks)).toMatch(/>—<\/div><div[^>]*>Predicted mash pH \(cooled sample\)</);
-    expect(tab(recipe)).toMatch(/>5\.70<\/div><div[^>]*>Predicted mash pH \(cooled sample\)</);
+    expect(tab(recipe)).toMatch(/>5\.7<\/div><div[^>]*>Predicted mash pH \(cooled sample\)</);
     // A measured figure stands in for the colour: nothing named.
     const measured = { ...blanks, malts: [{ ...malt('Pale', 'base', 10, NaN), distilledWaterPh: 5.7 }] };
     expect(computeWater(measured.water, measured).mashPh.needs).toEqual([]);
@@ -307,12 +307,12 @@ describe('mash pH from the grain bill (item 2)', () => {
     const water = computeWater(recipe.water, recipe);
     const derived = computeRecipe(recipe);
     const sheet = recipeSheet({ recipe, derived, water, mode: 'home', proGravityUnit: 'plato', today: new Date(2026, 9, 2) });
-    expect(sheet.water.mashPhLabel).toBe('Mash pH (cooled sample)');
-    expect(sheet.water.mashPhPredicted).toBe('5.70');
+    expect(sheet.water.mashPhLabel).toBe('Mash pH (cooled sample),');
+    expect(sheet.water.mashPhPredicted).toBe('5.7');
     const html = renderToStaticMarkup(
       createElement(RecipeSheet, { recipe, derived, water, mode: 'home', proGravityUnit: 'plato' }),
     );
-    expect(html).toMatch(/Mash pH \(cooled sample\)[\s\S]*?predicted 5\.70/);
+    expect(html).toMatch(/Mash pH \(cooled sample\),[\s\S]*?predicted 5\.7</);
     // A blank prints "—".
     const blank = { ...recipe, malts: [malt('Pale', '', 10, 2)] };
     const blankSheet = recipeSheet({
@@ -417,7 +417,7 @@ describe('the tested range', () => {
     expect(figures.mashPh.ph).toBeCloseTo(5.20169740720538, 6);
     expect(figures.mashPh.testedRange).toEqual([{ figure: 'residualAlkalinity', side: 'below', limit: RA_LOW }]);
     const html = tab(recipe);
-    expect(html).toMatch(/>5\.20<\/div><div[^>]*>Predicted mash pH \(cooled sample\)</);
+    expect(html).toMatch(/>5\.2<\/div><div[^>]*>Predicted mash pH \(cooled sample\)</);
     expect(html).toContain(`${NOTE_START}residual alkalinity below −5.61 mEq/L${NOTE_END}`);
 
     // At the recommendation the water is inside: no note.
@@ -478,9 +478,9 @@ describe('the tested range', () => {
     };
     const note = `${NOTE_START}residual alkalinity below −5.61 mEq/L${NOTE_END}`;
     const beyond = sheetOf(wcPils(35));
-    expect(beyond.data.water.mashPhPredicted).toBe('5.20');
+    expect(beyond.data.water.mashPhPredicted).toBe('5.2');
     expect(beyond.data.water.mashPhNote).toBe(note);
-    expect(beyond.html).toMatch(/predicted 5\.20[\s\S]*?Beyond the range the model was tested on/);
+    expect(beyond.html).toMatch(/predicted 5\.2<[\s\S]*?Beyond the range the model was tested on/);
     expect(beyond.html).toContain(note);
     const inside = sheetOf(wcPils());
     expect(inside.data.water.mashPhNote).toBeNull();

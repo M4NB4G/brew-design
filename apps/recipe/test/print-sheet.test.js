@@ -256,9 +256,10 @@ describe('printed recipe sheet', () => {
     expect(pro.hops.dryRateUnit).toBe('lb/bbl');
     expect(pro.hops.dryRate).toBe('2.42');
 
-    // Cells: billion at home, trillion in Pro.
-    expect(headline(home, 'Cells').unit).toBe('billion cells');
-    expect(headline(pro, 'Cells').unit).toBe('trillion cells');
+    // Cells: billion at home, trillion in Pro; the sheet says "cells" once,
+    // in the label (print-sheet-legibility.test.js).
+    expect(headline(home, 'Cells').unit).toBe('billion');
+    expect(headline(pro, 'Cells').unit).toBe('trillion');
 
     // Gravity follows the Pro gravity setting: SG at home, °P or SG in Pro.
     expect(headline(home, 'OG').unit).toBe('SG');
@@ -373,7 +374,7 @@ describe('water on the printed sheet', () => {
     expect(mash.water.volumeUnit).toBe('gal');
     expect(sheetOf(waterRecipe(), 'pro').s.water.volumes.find((v) => v.label === 'Total water').value).toBe('0.500');
     // WP-S3, P3: the measured mash pH box.
-    expect(mash.water.mashPhLabel).toBe('Mash pH (cooled sample)');
+    expect(mash.water.mashPhLabel).toBe('Mash pH (cooled sample),');
   });
 
   it('the sheet prints the treated water\'s profile against the target', () => {

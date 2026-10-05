@@ -49,6 +49,10 @@ import {
 const YEAST_TYPE = { ale: 'Ale', lager: 'Lager' };
 const YEAST_CHARACTER = { high: 'High', mod: 'Moderate', low: 'Low' };
 
+// The sheet says "cells" once, in the label ("Cells (billion)"): the unit is
+// the display file's first word. The screen's labels keep the whole.
+const sheetCellsUnit = (mode) => cellsUnit(mode).split(' ')[0];
+
 // Free text that is empty or only blanks prints nothing.
 function text(value) {
   return typeof value === 'string' && value.trim() !== '' ? value : null;
@@ -95,7 +99,7 @@ export function recipeSheet({ recipe, derived, water, mode, proGravityUnit, toda
       {
         label: 'Cells',
         value: num(cellsFromCanonical(cells, mode), mode === 'pro' ? 2 : 0),
-        unit: cellsUnit(mode),
+        unit: sheetCellsUnit(mode),
         measuredBox: false,
       },
     ],
@@ -166,7 +170,8 @@ export function recipeSheet({ recipe, derived, water, mode, proGravityUnit, toda
     },
 
     // The Yeast card's four (strain, ale/lager, attenuation, fermentation
-    // temperature), then the Pitch & Starter card's figures. A blank prints "—".
+    // temperature), then the Pitch & Starter card's figures. A blank prints "—",
+    // except the starter's note, which prints blank (PL-S6).
     yeast: {
       strain: text(recipe.yeast.name) ?? '—',
       type: YEAST_TYPE[recipe.yeast.type] ?? recipe.yeast.type,
@@ -177,13 +182,13 @@ export function recipeSheet({ recipe, derived, water, mode, proGravityUnit, toda
       pitchRate: num(pitchRate, 2),
       pitchRateUnit: pitchRateUnit(),
       cells: num(cellsFromCanonical(cells, mode), mode === 'pro' ? 2 : 0),
-      cellsUnit: cellsUnit(mode),
+      cellsUnit: sheetCellsUnit(mode),
       starterVolumeUnit: starterVolumeUnit(),
       starter: starter.map((o) => ({
         band: o.band,
         volume: num(o.volumeL, 2),
         dme: num(o.dmeGrams, 0),
-        note: o.packNote || '—',
+        note: o.packNote,
       })),
     },
 
@@ -285,8 +290,10 @@ function waterSection(water, mode, vol, vUnit) {
     style: water.style.name,
     profileLabel: 'Treated water (predicted), not the wort in the kettle',
     profile,
-    mashPhLabel: 'Mash pH (cooled sample)',
-    mashPhPredicted: num(water.mashPh.ph, 2),
+    // PL-S3, PL-S4: the label ends at the comma, where the sheet breaks the
+    // line; the figure to one decimal.
+    mashPhLabel: 'Mash pH (cooled sample),',
+    mashPhPredicted: num(water.mashPh.ph, 1),
     // TR-S2: the Water tab's tested-range note, or null.
     mashPhNote: testedRangeNote(water.mashPh.testedRange),
     // HL-S2: the acronym spelled out on the sheet, with the HLT treated.
