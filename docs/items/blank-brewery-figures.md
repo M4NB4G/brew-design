@@ -1,6 +1,6 @@
 # Blank brewery figures name the built-in one — Tier B
 
-Status: agreed 2026-10-05 ("agree to all"), not started. Written by the S6a
+Status: landed 2026-10-05 in batch S6c on branch `claude/charming-curie-zilruw`, as "A blank number box in My brewery shows, greyed, the figure a new recipe gets in its place"; agreed 2026-10-05 ("agree to all"). Written by the S6a
 session (on Opus, after the owner widened the trial); built in batch S6c,
 the widened trial, second of its two items, after "Measurement temperatures
 beside their volumes" (docs/ROADMAP.md, Sessions; moved up from S8, WT-1).
@@ -44,3 +44,13 @@ absorption); the inspector ties each to its source.
 - The greyed colour comes from `components/shared/styles.js` (SPEC 14); if no muted input-placeholder colour exists there, add it there, not in the component.
 - After item 1 of S6c the recipe's own measurement temperatures are on the Volumes card; the brewery's three stay in My brewery and are the ones this item greys.
 - The rendering scenarios run with `npm test --workspace @brew/recipe -- test/brewery-placeholders.test.js`, not `npx vitest` from the root.
+
+## Builder's notes (S6c, 2026-10-05)
+
+Claims for the inspector to verify; none is a decision the sentences made.
+
+- The shared input row gained an optional `placeholder`; `OptionsSection.jsx`'s figure row passes it only while its figure is blank (null) and the built-in figure is a number. A set figure carries no placeholder attribute.
+- The built-in figures are read from `defaultRecipeState()` and `defaultWaterState()` (its grain absorption is the engine's `GRAIN_ABSORPTION_QT_PER_LB`), and shown through the same conversion and rounding as the box's own value (the figure row's `toShown`, from `display.js`), so Pro shows barrels and efficiency shows as a percentage (BB-Q3).
+- The grey is the browser's own placeholder grey (`::placeholder` cannot be set inline and no style sheet rule was added); the far end measured it at rgb 117 against the typed text's dark. Nothing was added to `styles.js`.
+- SPEC rule 17 gained one sentence stating the invariant (BB-S3); no other rule changes.
+- Numbers introduced: none. No literal was added to the component; the scenario's literals are the sentence's figures, with the Pro conversion worked by hand.

@@ -24,7 +24,7 @@ import {
   mashRvUnit,
 } from '../display.js';
 import { roundForInput } from '../format.js';
-import { DEFAULT_DISPLAY } from '../state.js';
+import { DEFAULT_DISPLAY, defaultRecipeState } from '../state.js';
 import { defaultWaterState, TEST_RESULT_KEYS } from '../water-state.js';
 import { REPORT_LABELS } from './water/WaterInScreen.jsx';
 import { VESSEL_LABELS, SPARGE_LABELS, TREATMENT_LABELS } from './water/WaterGoesCard.jsx';
@@ -52,12 +52,17 @@ const button = {
 
 // A brewery figure's field: blank shows empty; emptying the field blanks the
 // figure (null); an entry that is not a number is ignored. `toShown` and
-// `fromShown` convert through display.js.
-function FigureRow({ label, value, onChange, toShown = (v) => v, fromShown = (v) => v, step = 0.1 }) {
+// `fromShown` convert through display.js. A blank box names, greyed, the
+// built-in figure a new recipe gets in its place (`builtIn`, canonical, shown
+// as the box's own value is; none when the built-in figure is itself blank).
+function FigureRow({ label, value, onChange, builtIn, toShown = (v) => v, fromShown = (v) => v, step = 0.1 }) {
   return (
     <InputRow
       label={label}
       value={value === null ? '' : roundForInput(toShown(value))}
+      placeholder={
+        value === null && Number.isFinite(builtIn) ? String(roundForInput(toShown(builtIn))) : undefined
+      }
       onChange={(e) => {
         if (e.target.value === '') return onChange(null);
         const v = parseFloat(e.target.value);
@@ -146,18 +151,21 @@ function BreweryWater({ water, mode, setBreweryWater, volume }) {
       <FigureRow
         label={`Treated volume (${vUnit})`}
         value={water.tankTreatedGal}
+        builtIn={built.tankTreatedGal}
         onChange={(v) => setBreweryWater('tankTreatedGal', v)}
         {...volume}
       />
       <FigureRow
         label={`Top-up level (${vUnit})`}
         value={water.tankTopUpGal}
+        builtIn={built.tankTopUpGal}
         onChange={(v) => setBreweryWater('tankTopUpGal', v)}
         {...volume}
       />
       <FigureRow
         label={`Grain absorption (${mashRvUnit()})`}
         value={water.absorptionQtPerLb}
+        builtIn={built.absorptionQtPerLb}
         onChange={(v) => setBreweryWater('absorptionQtPerLb', v)}
         step={0.01}
       />
@@ -166,6 +174,7 @@ function BreweryWater({ water, mode, setBreweryWater, volume }) {
           key={k}
           label={`${REPORT_LABELS[k]} (${k === 'pH' ? 'SU' : 'ppm'})`}
           value={water.source[k]}
+          builtIn={built.source[k]}
           onChange={(v) => setBreweryWater('source', { ...water.source, [k]: v })}
         />
       ))}
@@ -222,6 +231,7 @@ export default function OptionsSection({
   const breweryFile = useRef(null); // the brewery file's picker (S4b item 5)
   const vUnit = volumeUnit(mode);
   const tUnit = tempUnit();
+  const built = defaultRecipeState(); // the figures a new recipe gets in place of a blank one
   const volume = {
     toShown: (gal) => volumeFromCanonical(gal, mode),
     fromShown: (v) => volumeToCanonical(v, mode),
@@ -242,24 +252,28 @@ export default function OptionsSection({
       <FigureRow
         label={`Batch (fermentation) volume (${vUnit})`}
         value={brewery.fermentVolGal}
+        builtIn={built.fermentVolGal}
         onChange={(v) => setBreweryFigure('fermentVolGal', v)}
         {...volume}
       />
       <FigureRow
         label={`Pre-boil volume (${vUnit})`}
         value={brewery.preBoilVolGal}
+        builtIn={built.preBoilVolGal}
         onChange={(v) => setBreweryFigure('preBoilVolGal', v)}
         {...volume}
       />
       <FigureRow
         label={`Boil-off rate (${vUnit}/hr)`}
         value={brewery.boilOffRateGalPerHr}
+        builtIn={built.boilOffRateGalPerHr}
         onChange={(v) => setBreweryFigure('boilOffRateGalPerHr', v)}
         {...volume}
       />
       <FigureRow
         label="Boil time (min)"
         value={brewery.boilTimeMin}
+        builtIn={built.boilTimeMin}
         onChange={(v) => setBreweryFigure('boilTimeMin', v)}
         step={1}
       />
@@ -268,6 +282,7 @@ export default function OptionsSection({
           key={kind}
           label={`${label} (${tUnit})`}
           value={brewery.measurementTempF[kind]}
+          builtIn={built.measurementTempF[kind]}
           onChange={(v) => setBreweryTemp(kind, v)}
           step={1}
         />
@@ -275,6 +290,7 @@ export default function OptionsSection({
       <FigureRow
         label={`Brewhouse efficiency (${percentUnit()})`}
         value={brewery.efficiency}
+        builtIn={built.efficiency}
         onChange={(v) => setBreweryFigure('efficiency', v)}
         toShown={(f) => Number(fractionToPercent(f).toFixed(4))}
         fromShown={percentToFraction}

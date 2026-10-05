@@ -4,7 +4,9 @@
 //
 // Use this for any number entry inside a card. The optional `hint` prop
 // renders small grey text under the input — used by the Recipe tab to show
-// the solver's recommended value beneath each editable salt amount.
+// the solver's recommended value beneath each editable salt amount. The
+// optional `placeholder` is the figure shown greyed inside an empty box (the
+// browser's own placeholder grey); it is never a value.
 
 import { colors, tokens } from './styles.js';
 
@@ -19,6 +21,7 @@ export default function InputRow({
   readOnly = false,
   highlight = false, // tints the input bg when the user has overridden it
   hint,
+  placeholder,
   rightAdornment, // optional element rendered to the right of the input (e.g. unit picker)
 }) {
   const rowStyle = {
@@ -87,6 +90,7 @@ export default function InputRow({
             min={min}
             max={max}
             value={value}
+            placeholder={placeholder}
             onChange={onChange}
             style={inputStyle}
           />

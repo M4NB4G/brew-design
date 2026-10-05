@@ -179,6 +179,10 @@ pinned by the golden-master tests.
     changing them never changes a recipe, its saved document or a recipe
     file, and an older saved recipe is upgraded and checked against the
     built-in recipe, never against them.
+    In My brewery an empty number box shows, greyed, the figure a new recipe
+    gets in its place, in the screen's units (none where the built-in figure
+    is itself blank): a placeholder, never a value, so never saved, never
+    exported and never ending the banner.
 
 ### Display units
 
