@@ -52,8 +52,8 @@ function throwingStorage() {
   return { getItem: boom, setItem: boom, removeItem: boom };
 }
 
-// Today's new recipe: the built-in recipe, Home, °P (App.jsx before this item).
-const builtIn = () => ({ recipe: defaultRecipeState(), mode: 'home', proGravityUnit: 'plato' });
+// Today's new recipe: the built-in recipe, Home, °P, °F (App.jsx before this item; °F since the °C display toggle).
+const builtIn = () => ({ recipe: defaultRecipeState(), mode: 'home', proGravityUnit: 'plato', temperatureUnit: 'F' });
 
 // A brewery with every figure set, in the recipe's own units (gal, °F,
 // fraction): the reference brewery of the far end, Pro and °P.
@@ -66,6 +66,7 @@ const BREWERY = {
   efficiency: 0.93,
   mode: 'pro',
   proGravityUnit: 'plato',
+  temperatureUnit: null, // °C display toggle: not set
   // Water saved with the recipe: no water figure set.
   water: emptyBreweryWater(),
 };
@@ -94,6 +95,7 @@ describe('brewery defaults', () => {
       },
       mode: 'pro',
       proGravityUnit: 'plato',
+      temperatureUnit: 'F',
     };
     expect(newRecipe(BREWERY)).toEqual(expected);
 
@@ -199,17 +201,17 @@ describe('brewery defaults', () => {
   });
 
   // S5, K6
-  it('the brewery figures round-trip through their own saved document at version 3; unreadable, another version or blocked storage gives the built-in figures and nothing throws', () => {
+  it('the brewery figures round-trip through their own saved document at version 4; unreadable, another version or blocked storage gives the built-in figures and nothing throws', () => {
     const s = fakeStorage();
     const withBlank = { ...BREWERY, boilTimeMin: null, measurementTempF: { ...BREWERY.measurementTempF, postBoil: null } };
     saveBrewery(s, withBlank);
 
     // Their own key, apart from the recipe, in one document carrying version 3.
     expect(BREWERY_KEY).not.toBe(STORAGE_KEY);
-    expect(BREWERY_VERSION).toBe(3);
+    expect(BREWERY_VERSION).toBe(4);
     expect([...s._map.keys()]).toEqual([BREWERY_KEY]);
     const doc = JSON.parse(s._map.get(BREWERY_KEY));
-    expect(doc.version).toBe(3);
+    expect(doc.version).toBe(4);
     expect(doc.brewery.preBoilVolGal).toBe(16); // gallons, not bbl
 
     // A reload reads them back, blanks as blanks.
@@ -223,7 +225,7 @@ describe('brewery defaults', () => {
       return loadBrewery(b);
     };
     expect(bad('{not json')).toEqual(emptyBreweryFigures());
-    expect(bad(JSON.stringify({ version: 4, brewery: BREWERY }))).toEqual(emptyBreweryFigures());
+    expect(bad(JSON.stringify({ version: 5, brewery: BREWERY }))).toEqual(emptyBreweryFigures());
     expect(bad(JSON.stringify({ version: 1, brewery: { ...BREWERY, efficiency: '93' } }))).toEqual(emptyBreweryFigures());
     expect(bad(JSON.stringify({ version: 1, brewery: { ...BREWERY, mode: 'metric' } }))).toEqual(emptyBreweryFigures());
     expect(bad(JSON.stringify({ version: 1 }))).toEqual(emptyBreweryFigures());
@@ -240,6 +242,7 @@ describe('brewery defaults', () => {
       recipe: { ...defaultRecipeState(), name: 'Saved', preBoilVolGal: 8, fermentVolGal: 5 },
       mode: 'home',
       proGravityUnit: 'sg',
+      temperatureUnit: 'F',
     };
     savePersisted(s, saved);
     const docBefore = s.getItem(STORAGE_KEY);

@@ -161,7 +161,7 @@ describe('sparge water typed', () => {
     expect('keptInTunGal' in loaded.recipe.water).toBe(false);
     expect(loaded.recipe.water.styleId).toBe('ipa');
     savePersisted(s, loaded);
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(8);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(9);
     expect(importRecipeFile(JSON.stringify(v5), { recipe: defaultRecipeState(), ...DEFAULT_DISPLAY }, () => true).outcome).toBe(
       'replaced',
     );
@@ -174,7 +174,7 @@ describe('sparge water typed', () => {
     expect(brewery.water.vessels).toBe(2);
     expect('keptInTunGal' in brewery.water).toBe(false);
     expect('spargeGal' in brewery.water).toBe(false);
-    expect(JSON.parse(b._map.get(BREWERY_KEY)).version).toBe(3);
+    expect(JSON.parse(b._map.get(BREWERY_KEY)).version).toBe(4);
     expect(newRecipe(brewery).recipe.water.spargeGal).toBeNaN();
 
     // My brewery no longer asks for it.

@@ -1,13 +1,15 @@
 // Header.jsx
 // Product header for the Recipe Designer, adapted from the Brew Water Chem
 // header.  Same stack order: brand row → 3 px accent strip → toggle row.
-// The Pro/Home toggle and (Pro-only) gravity-unit toggle both live here,
-// matching the water app's convention of keeping unit controls in the header.
+// The Pro/Home toggle, the °F/°C toggle beside it (°C display toggle, CT-S1)
+// and the (Pro-only) gravity-unit toggle live here, matching the water app's
+// convention of keeping unit controls in the header.
 
 import { useRef } from 'react';
 import markSrc from '../assets/persyn-header-mark.png';
 import { colors, radii, shadows } from './shared/styles.js';
 import usePhone from './shared/usePhone.js';
+import { TEMPERATURE_UNITS, tempUnit } from '../display.js';
 
 const SS3 = "'Source Sans 3', system-ui, sans-serif";
 
@@ -25,10 +27,13 @@ const actionButton = {
   fontFamily: 'inherit',
 };
 
+// The °F/°C choice's two buttons.
+const TEMPERATURE_OPTIONS = TEMPERATURE_UNITS.map((u) => [u, tempUnit(u)]);
+
 // On a phone the four actions fill two rows of two equal buttons.
 const phoneActionButton = { ...actionButton, width: '100%', padding: '0.5rem 0.6rem' };
 
-// Small pill-button toggle shared by both the Pro/Home and gravity selectors.
+// Small pill-button toggle shared by the Pro/Home, °F/°C and gravity selectors.
 // Compact (phone): narrower buttons, so Home/Pro fits beside the brand.
 function PillToggle({ value, onChange, options, compact = false }) {
   return (
@@ -75,6 +80,8 @@ export default function Header({
   onMode,
   proGravityUnit,
   onProGravityUnit,
+  temperatureUnit,
+  onTemperatureUnit,
   onReset,
   onExport,
   onImportFile,
@@ -139,7 +146,7 @@ export default function Header({
             </div>
           </div>
 
-          {/* Phone: Home/Pro on the brand row, and Pro's gravity unit under it */}
+          {/* Phone: Home/Pro on the brand row, °F/°C under it, then Pro's gravity unit */}
           {phone && (
             <div
               style={{
@@ -155,6 +162,12 @@ export default function Header({
                 value={mode}
                 onChange={onMode}
                 options={[['pro', 'Pro'], ['home', 'Home']]}
+                compact
+              />
+              <PillToggle
+                value={temperatureUnit}
+                onChange={onTemperatureUnit}
+                options={TEMPERATURE_OPTIONS}
                 compact
               />
               {mode === 'pro' && (
@@ -174,7 +187,7 @@ export default function Header({
       {/* Accent gradient strip */}
       <div style={{ height: '3px', background: colors.accent, marginTop: '1rem' }} />
 
-      {/* Toggle row — right-aligned: recipe actions and Print, then gravity (Pro only), then Pro/Home.
+      {/* Toggle row — right-aligned: recipe actions and Print, then gravity (Pro only), then °F/°C, then Pro/Home.
           Phone: the four actions alone, two by two. */}
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0.55rem 1.25rem 0.5rem' }}>
         {phone ? (
@@ -224,6 +237,11 @@ export default function Header({
               options={[['plato', '°P'], ['sg', 'SG']]}
             />
           )}
+          <PillToggle
+            value={temperatureUnit}
+            onChange={onTemperatureUnit}
+            options={TEMPERATURE_OPTIONS}
+          />
           <PillToggle
             value={mode}
             onChange={onMode}

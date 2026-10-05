@@ -8,17 +8,18 @@
 // When the post-boil volume is measured at another temperature, the volume as
 // it will read there shows above its 60 degF figure (computeRecipe's
 // postBoilMeasuredGal and postBoilMeasuredShown).
-// Each volume the engine corrects has its measurement temperature (degF, as
-// typed: canonical and display unit are the same) under it, with the volume at
-// the engine's 60 degF reference as the engine receives it (read-only, from
-// computeRecipe's refVolumesGal; nothing is computed here). An emptied
-// temperature is a blank one (NaN), never the old one: it shows as an empty
-// box and its reference volume as "—", like any cleared field.
+// Each volume the engine corrects has its measurement temperature under it,
+// in the header's unit (°F as stored, or °C converted at the boundary,
+// display.js), with the volume at the engine's 60 degF reference as the
+// engine receives it (read-only, from computeRecipe's refVolumesGal; nothing
+// is computed here). An emptied temperature is a blank one (NaN), never the
+// old one: it shows as an empty box and its reference volume as "—", like
+// any cleared field.
 // Design warnings (computeRecipe's `warnings`) show as an amber line under
 // the value they are about: a mash ratio outside the owner's recommended
 // range (text from the engine's range constants), and less wort after the
 // boil than the fermenter volume. They change no number and block nothing.
-import { MASH_RV_RANGE_QT_PER_LB, MASH_R_RANGE_LB_PER_LB, REFERENCE_TEMP_F } from '@brew/engine';
+import { MASH_RV_RANGE_QT_PER_LB, MASH_R_RANGE_LB_PER_LB } from '@brew/engine';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
 import { tokens } from './shared/styles.js';
@@ -30,6 +31,10 @@ import {
   mashRvUnit,
   mashRUnit,
   tempUnit,
+  tempToCanonical,
+  tempBoxValue,
+  tempReadout,
+  referenceTemp,
 } from '../display.js';
 import { num } from '../format.js';
 
@@ -55,13 +60,10 @@ export const volumeChange = (setField, field, mode) => (e) =>
 const volumeShown = (gal, mode) =>
   Number.isFinite(gal) ? Number(volumeFromCanonical(gal, mode).toFixed(6)) : '';
 
-// A measurement temperature box's change: degF as typed; an emptied box is a
-// blank temperature (NaN).
-export const temperatureChange = (setMeasurementTemp, kind) => (e) =>
-  setMeasurementTemp(kind, parseFloat(e.target.value));
-
-// A temperature as typed: whole degrees as whole, otherwise one decimal.
-const temperature = (tempF) => num(tempF, Number.isInteger(tempF) ? 0 : 1);
+// A measurement temperature box's change: the entry in the header's unit,
+// converted to degF; an emptied box is a blank temperature (NaN).
+export const temperatureChange = (setMeasurementTemp, kind, temperatureUnit) => (e) =>
+  setMeasurementTemp(kind, tempToCanonical(parseFloat(e.target.value), temperatureUnit));
 
 export default function VolumesSection({
   recipe,
@@ -72,12 +74,14 @@ export default function VolumesSection({
   refVolumesGal,
   warnings,
   mode,
+  temperatureUnit,
   setField,
   setMeasurementTemp,
 }) {
   const phone = usePhone();
   const vUnit = volumeUnit(mode);
-  const tUnit = tempUnit();
+  const tUnit = tempUnit(temperatureUnit);
+  const refTemp = referenceTemp(temperatureUnit);
 
   // A volume's measurement temperature box, and that volume at the reference.
   const tempRow = (kind, label) => {
@@ -85,15 +89,15 @@ export default function VolumesSection({
     return (
       <InputRow
         label={`${label} measured at (${tUnit})`}
-        value={Number.isFinite(tempF) ? tempF : ''}
-        onChange={temperatureChange(setMeasurementTemp, kind)}
-        step={1}
+        value={Number.isFinite(tempF) ? tempBoxValue(tempF, temperatureUnit) : ''}
+        onChange={temperatureChange(setMeasurementTemp, kind, temperatureUnit)}
+        step={temperatureUnit === 'C' ? 0.1 : 1}
       />
     );
   };
   const refRow = (kind, label) => (
     <InputRow
-      label={`${label} at ${REFERENCE_TEMP_F} ${tUnit} (${vUnit})`}
+      label={`${label} at ${refTemp} ${tUnit} (${vUnit})`}
       value={num(volumeFromCanonical(refVolumesGal[kind], mode), 3)}
       onChange={() => {}}
       readOnly
@@ -111,7 +115,7 @@ export default function VolumesSection({
     <Card>
       <span style={tokens.cardLabel}>Volumes</span>
       <p style={{ ...tokens.notice, marginTop: 0, marginBottom: '0.5rem' }}>
-        Volumes are corrected to the {REFERENCE_TEMP_F} {tUnit} reference from the temperature they were
+        Volumes are corrected to the {refTemp} {tUnit} reference from the temperature they were
         measured at; mash water is used as entered.
       </p>
 
@@ -156,14 +160,14 @@ export default function VolumesSection({
           />
           {postBoilMeasuredShown && (
             <InputRow
-              label={`Post-boil volume at ${temperature(recipe.measurementTempF.postBoil)} ${tempUnit()} (${vUnit})`}
+              label={`Post-boil volume at ${tempReadout(recipe.measurementTempF.postBoil, temperatureUnit)} ${tUnit} (${vUnit})`}
               value={Number(volumeFromCanonical(postBoilMeasuredGal, mode).toFixed(3))}
               onChange={() => {}}
               readOnly
             />
           )}
           <InputRow
-            label={`Post-boil volume at ${REFERENCE_TEMP_F} ${tempUnit()} (${vUnit})`}
+            label={`Post-boil volume at ${refTemp} ${tUnit} (${vUnit})`}
             value={Number(volumeFromCanonical(postBoilVolGal, mode).toFixed(3))}
             onChange={() => {}}
             readOnly

@@ -56,8 +56,13 @@ pinned by the golden-master tests.
    in the mash tun is worked out.
 9. **Convert only at the edges.** `display.js` is the only place that converts
    between canonical and display units, using engine constants and functions
-   (`GALLONS_PER_BBL`, `OZ_PER_LB`, `G_PER_OZ`, `sgToPlato`, `platoToSg`, …).
-   No new conversion constants anywhere in the app.
+   (`GALLONS_PER_BBL`, `OZ_PER_LB`, `G_PER_OZ`, `sgToPlato`, `platoToSg`,
+   `fToC`, `cToF`, …). No new conversion constants anywhere in the app.
+   Temperatures are stored in °F and shown in the header's choice, °F or
+   °C: a °C entry is stored as the engine's `cToF` of it and shows back as
+   typed; boxes take tenths of a degree, readouts show whole degrees, except
+   the reference, shown in °C as 15.6. The printed sheet uses the screen's
+   unit. Switching the unit changes no stored figure.
 10. `selectors.js` is the only place the app calls engine compute functions.
     The UI renders from `computeRecipe(state)`; tests assert through it.
     The Water tab renders from `computeWater(water, recipe)` beside it: every
@@ -92,8 +97,8 @@ pinned by the golden-master tests.
     temperature of their kind (`measurementTempF[kind]`, °F, held in the
     recipe state, the reference by default); mash water does not. Every
     "at 60 °F" the app shows or prints, and the printed sheet's rule for
-    when to note a measurement temperature, read `REFERENCE_TEMP_F`; no app
-    file writes the figure itself. A temperature the engine cannot correct — cleared
+    when to note a measurement temperature, read `REFERENCE_TEMP_F` (in °C
+    shown as its `fToC`, 15.6); no app file writes the figure itself. A temperature the engine cannot correct — cleared
     (NaN) or outside its density table (0–100 °C) — yields a NaN volume;
     nothing throws, and no clamping or fallback to the measured volume.
 12. The smoke test (`apps/recipe/test/smoke.test.js`) pins the reference
@@ -102,7 +107,7 @@ pinned by the golden-master tests.
     only when the canonical state does, at the value that leaves every pinned
     number the same.
 13. Persisted state is the canonical state, under one key, in one JSON
-    document carrying a schema version (8). A version-1 document — saved
+    document carrying a schema version (9). A version-1 document — saved
     before the measurement temperatures existed — loads as the same recipe
     with the three at 60 °F; a version-1 or version-2 document — saved
     before the recipe had a name, style and notes — loads with those three
@@ -115,7 +120,9 @@ pinned by the golden-master tests.
     version-1 to 6 document — saved before malt types — loads with each
     malt's type blank and its lab figures blank; a version-1 to 7 document
     — saved before the acid could go into the mash — loads with the acid
-    with the salts; each is saved back as version 8. Unreadable data,
+    with the salts; a version-1 to 8 document — saved before the temperature
+    unit was a display setting — loads in °F; each is saved back as
+    version 9. Unreadable data,
     any other version, or unavailable storage yields a new recipe (rule 17) and never
     throws. A document is readable only if, after its upgrade, every malt,
     kettle-hop and dry-hop row and the yeast carry every field of the
@@ -152,15 +159,16 @@ pinned by the golden-master tests.
     figures; they are never stored and never feed a number.
 17. **The brewery's figures are not a recipe.** The brewery's batch
     (fermentation) volume, pre-boil volume, boil-off rate, boil time, three
-    measurement temperatures, brewhouse efficiency, Home/Pro and Pro gravity
-    unit, and their water — the usual water report, the salts on hand, the
+    measurement temperatures, brewhouse efficiency, Home/Pro, Pro gravity
+    unit and temperature unit (°F/°C), and their water — the usual water report, the salts on hand, the
     usual treatment choice and kettle switch, and the water setup (vessels,
     sparge, the tank's treated volume and top-up level, grain absorption)
     — are kept in their own JSON document, under
-    their own key, carrying their own version (3), in the recipe's units; a
+    their own key, carrying their own version (4), in the recipe's units; a
     blank figure is null. A version-1 document — saved before the water —
-    loads with every water figure blank, and a version-2 one without the
-    water kept in the mash tun; each is saved back as version 3. The sparge
+    loads with every water figure blank, a version-2 one without the
+    water kept in the mash tun, and a version-1 to 3 one with the
+    temperature unit blank; each is saved back as version 4. The sparge
     water is never a brewery figure.
     Unreadable data, any other version, or unavailable storage yields every
     figure blank and never throws. The water style, where the acid goes
@@ -197,7 +205,7 @@ pinned by the golden-master tests.
 | Cells per batch | billion | trillion (= billion / 1000) |
 | Starter volume | L | L |
 | Dry-hop rate | oz/gal | lb/bbl |
-| Temperature | °F | °F |
+| Temperature | °F, or °C by the header's choice (state holds °F) | same |
 | Water volume | gal | bbl |
 | Grain absorption | qt/lb | same |
 | Water test results | mg/L (ppm); pH in SU | same |

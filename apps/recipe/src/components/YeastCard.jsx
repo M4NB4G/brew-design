@@ -12,7 +12,14 @@ import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
 import { colors, tokens } from './shared/styles.js';
 import usePhone from './shared/usePhone.js';
-import { percentUnit, fractionToPercent, percentToFraction, tempUnit } from '../display.js';
+import {
+  percentUnit,
+  fractionToPercent,
+  percentToFraction,
+  tempUnit,
+  tempToCanonical,
+  tempBoxValue,
+} from '../display.js';
 import { strainInfo, fermTempWarning } from '../ingredient-search.js';
 
 const LABEL = {
@@ -23,11 +30,11 @@ const LABEL = {
   textTransform: 'uppercase',
 };
 
-export default function YeastCard({ yeast, apparentAttenuation, setYeast, setField }) {
+export default function YeastCard({ yeast, apparentAttenuation, temperatureUnit, setYeast, setField }) {
   const phone = usePhone();
-  const info = strainInfo(yeast.name);
+  const info = strainInfo(yeast.name, temperatureUnit);
   const named = String(yeast.name ?? '').trim() !== '';
-  const warning = fermTempWarning(yeast.name, yeast.fermTempF);
+  const warning = fermTempWarning(yeast.name, yeast.fermTempF, temperatureUnit);
 
   return (
     <Card>
@@ -81,10 +88,10 @@ export default function YeastCard({ yeast, apparentAttenuation, setYeast, setFie
         />
         <InputRow
           label="Fermentation temperature"
-          unit={tempUnit()}
-          value={Number.isFinite(yeast.fermTempF) ? yeast.fermTempF : ''}
-          onChange={(e) => setYeast('fermTempF', parseFloat(e.target.value))}
-          step={1}
+          unit={tempUnit(temperatureUnit)}
+          value={Number.isFinite(yeast.fermTempF) ? tempBoxValue(yeast.fermTempF, temperatureUnit) : ''}
+          onChange={(e) => setYeast('fermTempF', tempToCanonical(parseFloat(e.target.value), temperatureUnit))}
+          step={temperatureUnit === 'C' ? 0.1 : 1}
         />
         {warning && (
           <p role="status" style={tokens.warning}>

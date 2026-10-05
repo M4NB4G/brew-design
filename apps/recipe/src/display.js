@@ -16,7 +16,11 @@ import {
   platoToSg,
   volumeToGallons,
   volumeUnit,
+  fToC,
+  cToF,
+  REFERENCE_TEMP_F,
 } from '@brew/engine';
+import { num, roundForInput } from './format.js';
 
 // Display modes.
 export const MODES = ['home', 'pro'];
@@ -133,10 +137,47 @@ export function acidMaltToCanonical(displayValue, mode) {
   return mode === 'pro' ? displayValue * G_PER_LB : displayValue * G_PER_OZ;
 }
 
-// --- Quantities identical in both modes (label only) ------------------------
-export function tempUnit() {
-  return '°F'; // degC is a later Options item
+// --- Temperature: canonical °F; shown °F or °C, the header's choice ---------
+// temperatureUnit is 'F' | 'C' (°C display toggle, CT-S1); anything else is
+// °F, as every temperature was before the choice. The recipe stores °F: a °C
+// entry is stored as the engine's cToF of it (CT-S2).
+export const TEMPERATURE_UNITS = ['F', 'C'];
+
+export function tempUnit(temperatureUnit) {
+  return temperatureUnit === 'C' ? '°C' : '°F';
 }
+
+// FLAG: the °C entry is stored as typed, converted (CT-S2), so re-typing a
+// shown °C figure can move the stored °F: the 60 °F reference shows as 15.6,
+// and 15.6 typed stores 60.08 °F, which is not the reference — the post-boil
+// volume then shows a second row "at 16 °C" and the sheet notes "measured at
+// 16 °C"; each volume moves in its sixth figure. Kept as specified; the
+// question is on the roadmap ("15.6 °C typed is not the reference").
+export function tempToCanonical(displayValue, temperatureUnit) {
+  // -> °F
+  return temperatureUnit === 'C' ? cToF(displayValue) : displayValue;
+}
+
+// A temperature box's value: °F as stored; °C to tenths, the precision the
+// box takes (CT-S3). A blank figure stays blank (NaN).
+export function tempBoxValue(tempF, temperatureUnit) {
+  return temperatureUnit === 'C' ? roundForInput(fToC(tempF), 1) : tempF;
+}
+
+// A temperature as a readout: °F whole degrees as whole, otherwise one
+// decimal, as before; °C whole degrees (CT-S3). A blank prints "—".
+export function tempReadout(tempF, temperatureUnit) {
+  if (temperatureUnit === 'C') return num(fToC(tempF), 0);
+  return num(tempF, Number.isInteger(tempF) ? 0 : 1);
+}
+
+// The engine's reference temperature as text: "60" in °F, "15.6" in °C — one
+// decimal, as 60 °F is not a whole °C (C-Q3).
+export function referenceTemp(temperatureUnit) {
+  return temperatureUnit === 'C' ? num(fToC(REFERENCE_TEMP_F), 1) : String(REFERENCE_TEMP_F);
+}
+
+// --- Quantities identical in both modes (label only) ------------------------
 
 export function pitchRateUnit() {
   return 'billion/L/°P';

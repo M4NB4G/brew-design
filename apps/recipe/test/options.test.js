@@ -213,7 +213,7 @@ describe('options page', () => {
   });
 
   // S5
-  it('the saved document carries version 8 and the temperatures; a cleared one round-trips as NaN', () => {
+  it('the saved document carries version 9 and the temperatures; a cleared one round-trips as NaN', () => {
     const s = fakeStorage();
     const recipe = {
       ...defaultRecipeState(),
@@ -222,7 +222,7 @@ describe('options page', () => {
     savePersisted(s, { recipe, mode: 'home', proGravityUnit: 'plato' });
 
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(8);
+    expect(doc.version).toBe(9);
     expect(doc.recipe.measurementTempF.preBoil).toBe(170);
     expect(doc.recipe.measurementTempF.ferment).toBe(60);
     expect('postBoil' in doc.recipe.measurementTempF).toBe(true);
@@ -234,7 +234,7 @@ describe('options page', () => {
   });
 
   // S6
-  it('a version-1 document loads as the same recipe with the reference temperatures and an empty name, style and notes, and is saved back as version 8', () => {
+  it('a version-1 document loads as the same recipe with the reference temperatures and an empty name, style and notes, and is saved back as version 9', () => {
     const s = fakeStorage();
     // What the app saved before this change: no measurement temperatures, and
     // no name, style or notes (Recipe identity, version 3).
@@ -260,7 +260,7 @@ describe('options page', () => {
     expect(loaded.proGravityUnit).toBe('sg');
 
     savePersisted(s, loaded);
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(8);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(9);
   });
 
   // S6

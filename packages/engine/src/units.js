@@ -53,6 +53,11 @@ export function fToC(f) {
   return ((f - 32) * 5) / 9;
 }
 
+/** Celsius to Fahrenheit: the inverse of fToC. */
+export function cToF(c) {
+  return (c * 9) / 5 + 32;
+}
+
 /** US gallons to liters. */
 export function galToL(gal) {
   return gal * LITERS_PER_GALLON;

@@ -1,0 +1,337 @@
+{
+ "volumes-home": "<div style=\"background:#ffffff;border-radius:14px;padding:1.25rem 1.1rem;margin-bottom:1rem;box-shadow:0 1px 2px rgba(31, 49, 71, 0.04), 0 4px 12px rgba(31, 49, 71, 0.04)\"><span style=\"font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a7390;font-weight:600;display:block;margin-bottom:0.6rem\">Volumes</span><p style=\"font-size:0.8rem;color:#7c8fa6;font-style:italic;margin-top:0;line-height:1.5;margin-bottom:0.5rem\">Volumes are corrected to the 60 °F reference from the temperature they were measured at; mash water is used as entered.</p><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:0 1.5rem\"><div><span style=\"font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a7390;font-weight:600;display:block;margin-bottom:0.3rem\">Mash</span><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Mash water (gal)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"5\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Mash Rv (qt/lb)</span></div><div style=\"padding-top:0.45rem;text-align:right\"><span style=\"font-size:0.95rem;font-weight:600;color:#5a7390;font-variant-numeric:tabular-nums;letter-spacing:-0.01em\">1.818</span></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Mash R (lb/lb)</span></div><div style=\"padding-top:0.45rem;text-align:right\"><span style=\"font-size:0.95rem;font-weight:600;color:#5a7390;font-variant-numeric:tabular-nums;letter-spacing:-0.01em\">3.736</span></div></div></div><div><span style=\"font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a7390;font-weight:600;display:block;margin-bottom:0.3rem\">Boil</span><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Pre-boil volume (gal)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"7\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Pre-boil volume measured at (°F)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"150\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Pre-boil volume at 60 °F (gal)</span></div><div style=\"padding-top:0.45rem;text-align:right\"><span style=\"font-size:0.95rem;font-weight:600;color:#5a7390;font-variant-numeric:tabular-nums;letter-spacing:-0.01em\">6.869</span></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Boil-off rate (gal/hr)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"1.5\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Boil time (min)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"60\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Post-boil volume at 180 °F (gal)</span></div><div style=\"padding-top:0.45rem;text-align:right\"><span style=\"font-size:0.95rem;font-weight:600;color:#5a7390;font-variant-numeric:tabular-nums;letter-spacing:-0.01em\">5.5</span></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Post-boil volume at 60 °F (gal)</span></div><div style=\"padding-top:0.45rem;text-align:right\"><span style=\"font-size:0.95rem;font-weight:600;color:#5a7390;font-variant-numeric:tabular-nums;letter-spacing:-0.01em\">5.342</span></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Post-boil volume measured at (°F)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"180\"/></div></div></div><span style=\"font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a7390;font-weight:600;display:block;margin-bottom:0.3rem;margin-top:0.85rem\">Ferment</span><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Fermentation volume (gal)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"5.5\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Fermentation volume measured at (°F)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"68\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Fermentation volume at 60 °F (gal)</span></div><div style=\"padding-top:0.45rem;text-align:right\"><span style=\"font-size:0.95rem;font-weight:600;color:#5a7390;font-variant-numeric:tabular-nums;letter-spacing:-0.01em\">5.496</span></div></div><p role=\"status\" style=\"margin:0.1rem 0 0.4rem;padding:0.35rem 0.6rem;background:#fff8ec;border-left:3px solid #c8841f;border-radius:8px;color:#a04835;font-size:0.82rem;font-weight:600\">Less wort after the boil than the fermenter volume</p></div></div></div>",
+ "sheet-data-home": {
+  "title": null,
+  "meta": [
+   {
+    "label": "Batch volume",
+    "value": "5.50 gal"
+   },
+   {
+    "label": "Date",
+    "value": "October 5, 2026"
+   }
+  ],
+  "headline": [
+   {
+    "label": "OG",
+    "value": "1.057",
+    "unit": "SG",
+    "measuredBox": true
+   },
+   {
+    "label": "FG",
+    "value": "1.013",
+    "unit": "SG",
+    "measuredBox": true
+   },
+   {
+    "label": "ABV",
+    "value": "5.9",
+    "unit": "%",
+    "measuredBox": false
+   },
+   {
+    "label": "SRM",
+    "value": "4.8",
+    "unit": "",
+    "measuredBox": false
+   },
+   {
+    "label": "IBU",
+    "value": "43",
+    "unit": "",
+    "measuredBox": false
+   },
+   {
+    "label": "Cells",
+    "value": "220",
+    "unit": "billion",
+    "measuredBox": false
+   }
+  ],
+  "grain": {
+   "weightUnit": "lb",
+   "rows": [
+    {
+     "name": "Pale 2-Row",
+     "weight": "10.00",
+     "share": "90.9",
+     "yield": "80.0",
+     "color": "2.0"
+    },
+    {
+     "name": "Munich",
+     "weight": "1.00",
+     "share": "9.1",
+     "yield": "80.0",
+     "color": "9.0"
+    }
+   ],
+   "efficiency": "75.0"
+  },
+  "volumes": {
+   "unit": "gal",
+   "rows": [
+    {
+     "key": "mashWater",
+     "label": "Mash water",
+     "value": "5.00",
+     "tempNote": null,
+     "measuredBox": true
+    },
+    {
+     "key": "spargeWater",
+     "label": "Sparge water",
+     "value": "—",
+     "tempNote": null,
+     "measuredBox": true
+    },
+    {
+     "key": "preBoil",
+     "label": "Pre-boil volume",
+     "value": "7.00",
+     "tempNote": "measured at 150 °F",
+     "measuredBox": true
+    },
+    {
+     "key": "postBoil",
+     "label": "Post-boil volume",
+     "value": "5.50 (5.34 at 60 °F)",
+     "tempNote": "measured at 180 °F",
+     "measuredBox": true
+    },
+    {
+     "key": "ferment",
+     "label": "Fermentation volume",
+     "value": "5.50",
+     "tempNote": "measured at 68 °F",
+     "measuredBox": true
+    }
+   ],
+   "boilTime": "60",
+   "boilOff": "1.50",
+   "mashRv": "1.82",
+   "mashRvUnit": "qt/lb",
+   "mashR": "3.74",
+   "mashRUnit": "lb/lb"
+  },
+  "hops": {
+   "weightUnit": "oz",
+   "tempUnit": "°F",
+   "kettle": [
+    {
+     "name": "Magnum",
+     "time": "60",
+     "temp": "212",
+     "weight": "1.00",
+     "alpha": "12.0",
+     "ibu": "40.9"
+    },
+    {
+     "name": "Cascade",
+     "time": "10",
+     "temp": "180",
+     "weight": "1.00",
+     "alpha": "6.0",
+     "ibu": "2.1"
+    }
+   ],
+   "totalIbu": "43",
+   "dry": [
+    {
+     "name": "Citra",
+     "weight": "2.00"
+    }
+   ],
+   "dryRate": "0.36",
+   "dryRateUnit": "oz/gal"
+  },
+  "yeast": {
+   "strain": "A07 Flagship",
+   "type": "Ale",
+   "attenuation": "77.0",
+   "fermTemp": "77",
+   "tempUnit": "°F",
+   "character": "Moderate",
+   "pitchRate": "0.75",
+   "pitchRateUnit": "billion/L/°P",
+   "cells": "220",
+   "cellsUnit": "billion",
+   "starterVolumeUnit": "L",
+   "starter": []
+  },
+  "water": null,
+  "notes": null
+ },
+ "volumes-pro": "<div style=\"background:#ffffff;border-radius:14px;padding:1.25rem 1.1rem;margin-bottom:1rem;box-shadow:0 1px 2px rgba(31, 49, 71, 0.04), 0 4px 12px rgba(31, 49, 71, 0.04)\"><span style=\"font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a7390;font-weight:600;display:block;margin-bottom:0.6rem\">Volumes</span><p style=\"font-size:0.8rem;color:#7c8fa6;font-style:italic;margin-top:0;line-height:1.5;margin-bottom:0.5rem\">Volumes are corrected to the 60 °F reference from the temperature they were measured at; mash water is used as entered.</p><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:0 1.5rem\"><div><span style=\"font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a7390;font-weight:600;display:block;margin-bottom:0.3rem\">Mash</span><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Mash water (bbl)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"0.16129\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Mash Rv (qt/lb)</span></div><div style=\"padding-top:0.45rem;text-align:right\"><span style=\"font-size:0.95rem;font-weight:600;color:#5a7390;font-variant-numeric:tabular-nums;letter-spacing:-0.01em\">1.818</span></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Mash R (lb/lb)</span></div><div style=\"padding-top:0.45rem;text-align:right\"><span style=\"font-size:0.95rem;font-weight:600;color:#5a7390;font-variant-numeric:tabular-nums;letter-spacing:-0.01em\">3.736</span></div></div></div><div><span style=\"font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a7390;font-weight:600;display:block;margin-bottom:0.3rem\">Boil</span><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Pre-boil volume (bbl)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"0.225806\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Pre-boil volume measured at (°F)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"150\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Pre-boil volume at 60 °F (bbl)</span></div><div style=\"padding-top:0.45rem;text-align:right\"><span style=\"font-size:0.95rem;font-weight:600;color:#5a7390;font-variant-numeric:tabular-nums;letter-spacing:-0.01em\">0.222</span></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Boil-off rate (bbl/hr)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"0.048387\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Boil time (min)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"60\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Post-boil volume at 180 °F (bbl)</span></div><div style=\"padding-top:0.45rem;text-align:right\"><span style=\"font-size:0.95rem;font-weight:600;color:#5a7390;font-variant-numeric:tabular-nums;letter-spacing:-0.01em\">0.177</span></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Post-boil volume at 60 °F (bbl)</span></div><div style=\"padding-top:0.45rem;text-align:right\"><span style=\"font-size:0.95rem;font-weight:600;color:#5a7390;font-variant-numeric:tabular-nums;letter-spacing:-0.01em\">0.172</span></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Post-boil volume measured at (°F)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"180\"/></div></div></div><span style=\"font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a7390;font-weight:600;display:block;margin-bottom:0.3rem;margin-top:0.85rem\">Ferment</span><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Fermentation volume (bbl)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"0.177419\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Fermentation volume measured at (°F)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"68\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Fermentation volume at 60 °F (bbl)</span></div><div style=\"padding-top:0.45rem;text-align:right\"><span style=\"font-size:0.95rem;font-weight:600;color:#5a7390;font-variant-numeric:tabular-nums;letter-spacing:-0.01em\">0.177</span></div></div><p role=\"status\" style=\"margin:0.1rem 0 0.4rem;padding:0.35rem 0.6rem;background:#fff8ec;border-left:3px solid #c8841f;border-radius:8px;color:#a04835;font-size:0.82rem;font-weight:600\">Less wort after the boil than the fermenter volume</p></div></div></div>",
+ "sheet-data-pro": {
+  "title": null,
+  "meta": [
+   {
+    "label": "Batch volume",
+    "value": "0.177 bbl"
+   },
+   {
+    "label": "Date",
+    "value": "October 5, 2026"
+   }
+  ],
+  "headline": [
+   {
+    "label": "OG",
+    "value": "14.01",
+    "unit": "°P",
+    "measuredBox": true
+   },
+   {
+    "label": "FG",
+    "value": "3.34",
+    "unit": "°P",
+    "measuredBox": true
+   },
+   {
+    "label": "ABV",
+    "value": "5.9",
+    "unit": "%",
+    "measuredBox": false
+   },
+   {
+    "label": "SRM",
+    "value": "4.8",
+    "unit": "",
+    "measuredBox": false
+   },
+   {
+    "label": "IBU",
+    "value": "43",
+    "unit": "",
+    "measuredBox": false
+   },
+   {
+    "label": "Cells",
+    "value": "0.22",
+    "unit": "trillion",
+    "measuredBox": false
+   }
+  ],
+  "grain": {
+   "weightUnit": "lb",
+   "rows": [
+    {
+     "name": "Pale 2-Row",
+     "weight": "10.00",
+     "share": "90.9",
+     "yield": "80.0",
+     "color": "2.0"
+    },
+    {
+     "name": "Munich",
+     "weight": "1.00",
+     "share": "9.1",
+     "yield": "80.0",
+     "color": "9.0"
+    }
+   ],
+   "efficiency": "75.0"
+  },
+  "volumes": {
+   "unit": "bbl",
+   "rows": [
+    {
+     "key": "mashWater",
+     "label": "Mash water",
+     "value": "0.161",
+     "tempNote": null,
+     "measuredBox": true
+    },
+    {
+     "key": "spargeWater",
+     "label": "Sparge water",
+     "value": "—",
+     "tempNote": null,
+     "measuredBox": true
+    },
+    {
+     "key": "preBoil",
+     "label": "Pre-boil volume",
+     "value": "0.226",
+     "tempNote": "measured at 150 °F",
+     "measuredBox": true
+    },
+    {
+     "key": "postBoil",
+     "label": "Post-boil volume",
+     "value": "0.177 (0.172 at 60 °F)",
+     "tempNote": "measured at 180 °F",
+     "measuredBox": true
+    },
+    {
+     "key": "ferment",
+     "label": "Fermentation volume",
+     "value": "0.177",
+     "tempNote": "measured at 68 °F",
+     "measuredBox": true
+    }
+   ],
+   "boilTime": "60",
+   "boilOff": "0.048",
+   "mashRv": "1.82",
+   "mashRvUnit": "qt/lb",
+   "mashR": "3.74",
+   "mashRUnit": "lb/lb"
+  },
+  "hops": {
+   "weightUnit": "lb",
+   "tempUnit": "°F",
+   "kettle": [
+    {
+     "name": "Magnum",
+     "time": "60",
+     "temp": "212",
+     "weight": "0.063",
+     "alpha": "12.0",
+     "ibu": "40.9"
+    },
+    {
+     "name": "Cascade",
+     "time": "10",
+     "temp": "180",
+     "weight": "0.063",
+     "alpha": "6.0",
+     "ibu": "2.1"
+    }
+   ],
+   "totalIbu": "43",
+   "dry": [
+    {
+     "name": "Citra",
+     "weight": "0.125"
+    }
+   ],
+   "dryRate": "0.71",
+   "dryRateUnit": "lb/bbl"
+  },
+  "yeast": {
+   "strain": "A07 Flagship",
+   "type": "Ale",
+   "attenuation": "77.0",
+   "fermTemp": "77",
+   "tempUnit": "°F",
+   "character": "Moderate",
+   "pitchRate": "0.75",
+   "pitchRateUnit": "billion/L/°P",
+   "cells": "0.22",
+   "cellsUnit": "trillion",
+   "starterVolumeUnit": "L",
+   "starter": []
+  },
+  "water": null,
+  "notes": null
+ },
+ "hops": "<div style=\"background:#ffffff;border-radius:14px;padding:1.25rem 1.1rem;margin-bottom:1rem;box-shadow:0 1px 2px rgba(31, 49, 71, 0.04), 0 4px 12px rgba(31, 49, 71, 0.04)\"><span style=\"font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a7390;font-weight:600;display:block;margin-bottom:0.6rem\">Hops</span><div style=\"display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.5rem\"><span style=\"font-size:0.8rem;color:#5a7390;font-weight:600;letter-spacing:0.06em;text-transform:uppercase\">Kettle</span><span style=\"font-size:1.1rem;font-weight:700;color:#1f3147;font-variant-numeric:tabular-nums\">43 IBU</span></div><div style=\"overflow-x:auto;margin-bottom:0.75rem\"><table style=\"width:100%;border-collapse:collapse;min-width:560px\"><thead><tr><th style=\"padding:0.45rem 0.6rem;background:linear-gradient(135deg, #e8eef6 0%, #dfe9f2 100%);color:#5a7390;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid #dde6ef;white-space:nowrap;text-align:left;min-width:110px\">Hop</th><th style=\"padding:0.45rem 0.6rem;background:linear-gradient(135deg, #e8eef6 0%, #dfe9f2 100%);color:#5a7390;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid #dde6ef;white-space:nowrap;text-align:left;width:72px\">Time (min)</th><th style=\"padding:0.45rem 0.6rem;background:linear-gradient(135deg, #e8eef6 0%, #dfe9f2 100%);color:#5a7390;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid #dde6ef;white-space:nowrap;text-align:left;width:88px\">Temp (°F)</th><th style=\"padding:0.45rem 0.6rem;background:linear-gradient(135deg, #e8eef6 0%, #dfe9f2 100%);color:#5a7390;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid #dde6ef;white-space:nowrap;text-align:left;width:90px\">Wt (oz)</th><th style=\"padding:0.45rem 0.6rem;background:linear-gradient(135deg, #e8eef6 0%, #dfe9f2 100%);color:#5a7390;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid #dde6ef;white-space:nowrap;text-align:left;width:76px\">Alpha (%)</th><th style=\"padding:0.45rem 0.6rem;background:linear-gradient(135deg, #e8eef6 0%, #dfe9f2 100%);color:#5a7390;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid #dde6ef;white-space:nowrap;text-align:right;width:68px\">IBU</th><th style=\"padding:0.45rem 0.6rem;background:linear-gradient(135deg, #e8eef6 0%, #dfe9f2 100%);color:#5a7390;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid #dde6ef;white-space:nowrap;text-align:left;width:36px\"></th></tr></thead><tbody><tr style=\"background:transparent\"><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7\"><input placeholder=\"Type to search\" autoComplete=\"off\" role=\"combobox\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-controls=\"_R_b3_\" style=\"width:100%;border:1px solid #d8e0e9;border-radius:8px;padding:0.4rem 0.55rem;font-size:0.92rem;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"Magnum\"/></td><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7;text-align:right;font-variant-numeric:tabular-nums\"><input type=\"number\" style=\"width:100%;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd;min-width:60px;max-width:110px\" step=\"1\" min=\"0\" value=\"60\"/></td><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7;text-align:right;font-variant-numeric:tabular-nums\"><input type=\"number\" style=\"width:100%;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd;min-width:60px;max-width:110px\" step=\"1\" value=\"212\"/></td><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7;text-align:right;font-variant-numeric:tabular-nums\"><input type=\"number\" style=\"width:100%;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd;min-width:60px;max-width:110px\" step=\"0.1\" min=\"0\" value=\"1\"/></td><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7;text-align:right;font-variant-numeric:tabular-nums\"><input type=\"number\" style=\"width:100%;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd;min-width:60px;max-width:110px\" step=\"0.1\" min=\"0\" max=\"100\" value=\"12\"/></td><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7;text-align:right\"><span style=\"display:inline-block;background:linear-gradient(135deg, #e8eef6 0%, #dfe9f2 100%);color:#1f3147;border-radius:999px;font-size:0.8rem;font-weight:700;padding:0.15rem 0.55rem;font-variant-numeric:tabular-nums;white-space:nowrap\">40.9</span></td><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7;text-align:center\"><button type=\"button\" aria-label=\"Remove\" style=\"background:none;border:none;color:#7c8fa6;cursor:pointer;font-size:0.9rem;padding:0.2rem 0.4rem;border-radius:8px;line-height:1\">✕</button></td></tr><tr style=\"background:#f0f5fa\"><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7\"><input placeholder=\"Type to search\" autoComplete=\"off\" role=\"combobox\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-controls=\"_R_d3_\" style=\"width:100%;border:1px solid #d8e0e9;border-radius:8px;padding:0.4rem 0.55rem;font-size:0.92rem;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"Cascade\"/></td><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7;text-align:right;font-variant-numeric:tabular-nums\"><input type=\"number\" style=\"width:100%;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd;min-width:60px;max-width:110px\" step=\"1\" min=\"0\" value=\"10\"/></td><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7;text-align:right;font-variant-numeric:tabular-nums\"><input type=\"number\" style=\"width:100%;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd;min-width:60px;max-width:110px\" step=\"1\" value=\"180\"/></td><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7;text-align:right;font-variant-numeric:tabular-nums\"><input type=\"number\" style=\"width:100%;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd;min-width:60px;max-width:110px\" step=\"0.1\" min=\"0\" value=\"1\"/></td><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7;text-align:right;font-variant-numeric:tabular-nums\"><input type=\"number\" style=\"width:100%;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd;min-width:60px;max-width:110px\" step=\"0.1\" min=\"0\" max=\"100\" value=\"6\"/></td><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7;text-align:right\"><span style=\"display:inline-block;background:linear-gradient(135deg, #e8eef6 0%, #dfe9f2 100%);color:#1f3147;border-radius:999px;font-size:0.8rem;font-weight:700;padding:0.15rem 0.55rem;font-variant-numeric:tabular-nums;white-space:nowrap\">2.1</span></td><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7;text-align:center\"><button type=\"button\" aria-label=\"Remove\" style=\"background:none;border:none;color:#7c8fa6;cursor:pointer;font-size:0.9rem;padding:0.2rem 0.4rem;border-radius:8px;line-height:1\">✕</button></td></tr></tbody></table></div><button type=\"button\" style=\"padding:0.38rem 0.9rem;background:transparent;border:1px solid #d8e0e9;border-radius:8px;color:#5a7390;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit\">+ Add kettle hop</button><div style=\"height:1px;background:#dde6ef;margin:1.1rem 0 0.85rem\"></div><div style=\"display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.5rem\"><span style=\"font-size:0.8rem;color:#5a7390;font-weight:600;letter-spacing:0.06em;text-transform:uppercase\">Dry hops</span><span style=\"font-size:1.1rem;font-weight:700;color:#1f3147;font-variant-numeric:tabular-nums\">0.36 oz/gal</span></div><div style=\"overflow-x:auto;margin-bottom:0.75rem\"><table style=\"width:100%;border-collapse:collapse;min-width:280px\"><thead><tr><th style=\"padding:0.45rem 0.6rem;background:linear-gradient(135deg, #e8eef6 0%, #dfe9f2 100%);color:#5a7390;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid #dde6ef;white-space:nowrap;text-align:left\">Hop</th><th style=\"padding:0.45rem 0.6rem;background:linear-gradient(135deg, #e8eef6 0%, #dfe9f2 100%);color:#5a7390;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid #dde6ef;white-space:nowrap;text-align:left;width:100px\">Wt (oz)</th><th style=\"padding:0.45rem 0.6rem;background:linear-gradient(135deg, #e8eef6 0%, #dfe9f2 100%);color:#5a7390;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid #dde6ef;white-space:nowrap;text-align:left;width:36px\"></th></tr></thead><tbody><tr style=\"background:transparent\"><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7\"><input placeholder=\"Type to search\" autoComplete=\"off\" role=\"combobox\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-controls=\"_R_77_\" style=\"width:100%;border:1px solid #d8e0e9;border-radius:8px;padding:0.4rem 0.55rem;font-size:0.92rem;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"Citra\"/></td><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7;text-align:right;font-variant-numeric:tabular-nums\"><input type=\"number\" style=\"width:100%;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd;min-width:60px;max-width:110px\" step=\"0.1\" min=\"0\" value=\"2\"/></td><td style=\"padding:0.45rem 0.6rem;border-bottom:1px solid #eef2f7;text-align:center\"><button type=\"button\" aria-label=\"Remove\" style=\"background:none;border:none;color:#7c8fa6;cursor:pointer;font-size:0.9rem;padding:0.2rem 0.4rem;border-radius:8px;line-height:1\">✕</button></td></tr></tbody></table></div><button type=\"button\" style=\"padding:0.38rem 0.9rem;background:transparent;border:1px solid #d8e0e9;border-radius:8px;color:#5a7390;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit\">+ Add dry hop</button></div>",
+ "yeast": "<div style=\"background:#ffffff;border-radius:14px;padding:1.25rem 1.1rem;margin-bottom:1rem;box-shadow:0 1px 2px rgba(31, 49, 71, 0.04), 0 4px 12px rgba(31, 49, 71, 0.04)\"><span style=\"font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a7390;font-weight:600;display:block;margin-bottom:0.6rem\">Yeast</span><div style=\"display:grid;grid-template-columns:2fr 1fr;gap:0.75rem;margin-bottom:0.4rem\"><div style=\"display:flex;flex-direction:column;gap:0.3rem;min-width:0\"><span style=\"font-size:0.78rem;color:#7c8fa6;font-weight:600;letter-spacing:0.06em;text-transform:uppercase\">Strain</span><input placeholder=\"Type to search\" autoComplete=\"off\" role=\"combobox\" aria-autocomplete=\"list\" aria-expanded=\"false\" aria-controls=\"_R_2a_\" style=\"width:100%;border:1px solid #d8e0e9;border-radius:8px;padding:0.4rem 0.55rem;font-size:0.92rem;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"A07 Flagship\"/></div><div style=\"display:flex;flex-direction:column;gap:0.3rem\"><label style=\"font-size:0.78rem;color:#7c8fa6;font-weight:600;letter-spacing:0.06em;text-transform:uppercase\">Type</label><select style=\"width:100%;padding:0.4rem 0.55rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.92rem;color:#1f3147;background:#fafbfd;font-family:inherit\"><option value=\"ale\" selected=\"\">Ale</option><option value=\"lager\">Lager</option></select></div></div><p style=\"margin:0 0 0.4rem;font-size:0.85rem;color:#5a7390;line-height:1.5\">Imperial · A07 · Ale · lab range 60–72 °F · attenuation 80 %</p><div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Apparent attenuation</span><span style=\"font-size:0.78rem;color:#7c8fa6;margin-left:0.4rem\">%</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" min=\"0\" max=\"100\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"77\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Fermentation temperature</span><span style=\"font-size:0.78rem;color:#7c8fa6;margin-left:0.4rem\">°F</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"77\"/></div></div></div><p role=\"status\" style=\"margin:0.1rem 0 0.4rem;padding:0.35rem 0.6rem;background:#fff8ec;border-left:3px solid #c8841f;border-radius:8px;color:#a04835;font-size:0.82rem;font-weight:600\">Outside this strain&#x27;s lab range, 60–72 °F</p></div></div>",
+ "options": "<div style=\"background:#ffffff;border-radius:14px;padding:1.25rem 1.1rem;margin-bottom:1rem;box-shadow:0 1px 2px rgba(31, 49, 71, 0.04), 0 4px 12px rgba(31, 49, 71, 0.04)\"><span style=\"font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a7390;font-weight:600;display:block;margin-bottom:0.6rem\">My brewery</span><p style=\"font-size:0.8rem;color:#7c8fa6;font-style:italic;margin-top:0;line-height:1.5;margin-bottom:0.5rem\">Your brewery&#x27;s figures, kept in this browser. A new recipe — Reset to defaults, or a first visit — starts from them; a blank one uses the built-in figure. Changing these does not change the recipe above, a saved recipe or a recipe file.</p><span style=\"font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a7390;font-weight:600;display:block;margin-bottom:0.3rem\">New recipes start from</span><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Batch (fermentation) volume (gal)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" placeholder=\"5.5\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Pre-boil volume (gal)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" placeholder=\"7\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Boil-off rate (gal/hr)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" placeholder=\"1.5\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Boil time (min)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" min=\"0\" placeholder=\"60\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Pre-boil volume measured at (°F)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"150\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Post-boil volume measured at (°F)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" min=\"0\" placeholder=\"60\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Fermentation volume measured at (°F)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" min=\"0\" placeholder=\"60\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Brewhouse efficiency (%)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"1\" min=\"0\" placeholder=\"75\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Home / Pro</span><select style=\"width:auto;padding:0.4rem 0.55rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.92rem;color:#1f3147;background:#fafbfd;font-family:inherit\"><option value=\"\" selected=\"\">Built-in (Home)</option><option value=\"home\">Home</option><option value=\"pro\">Pro</option></select></div><div style=\"display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Pro gravity unit</span><select style=\"width:auto;padding:0.4rem 0.55rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.92rem;color:#1f3147;background:#fafbfd;font-family:inherit\"><option value=\"\" selected=\"\">Built-in (°P)</option><option value=\"plato\">°P</option><option value=\"sg\">SG</option></select></div><span style=\"font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a7390;font-weight:600;display:block;margin-bottom:0.3rem;margin-top:0.85rem\">Water</span><div style=\"display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Vessels</span><select style=\"width:auto;padding:0.4rem 0.55rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.92rem;color:#1f3147;background:#fafbfd;font-family:inherit\"><option value=\"\" selected=\"\">Built-in (Three vessels)</option><option value=\"1\">One vessel</option><option value=\"2\">Two vessels</option><option value=\"3\">Three vessels</option></select></div><div style=\"display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Sparge</span><select style=\"width:auto;padding:0.4rem 0.55rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.92rem;color:#1f3147;background:#fafbfd;font-family:inherit\"><option value=\"\" selected=\"\">Built-in (Batch sparge)</option><option value=\"none\">No sparge (full volume)</option><option value=\"batch\">Batch sparge</option><option value=\"fly\">Fly sparge</option></select></div><div style=\"display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Treat</span><select style=\"width:auto;padding:0.4rem 0.55rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.92rem;color:#1f3147;background:#fafbfd;font-family:inherit\"><option value=\"\" selected=\"\">Built-in (The mash water)</option><option value=\"mash\">The mash water</option><option value=\"tank\">The Hot Liquor Tank (HLT) first fill</option></select></div><div style=\"display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Salts also go in the kettle</span><select style=\"width:auto;padding:0.4rem 0.55rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.92rem;color:#1f3147;background:#fafbfd;font-family:inherit\"><option value=\"\" selected=\"\">Built-in (No)</option><option value=\"true\">Yes</option><option value=\"false\">No</option></select></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Treated volume (gal)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Top-up level (gal)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Grain absorption (qt/lb)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.01\" min=\"0\" placeholder=\"0.1\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Calcium Ion (ppm)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Magnesium Ion (ppm)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Sodium Ion (ppm)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Sulfate Ion (SO₄²⁻) (ppm)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Chloride Ion (ppm)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Total Alkalinity (ppm)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"display:flex;justify-content:space-between;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #eef2f7;gap:0.75rem\"><div style=\"padding-top:0.45rem\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">pH (SU)</span></div><div style=\"text-align:right\"><div style=\"display:flex;align-items:center;gap:0.3rem;justify-content:flex-end\"><input type=\"number\" step=\"0.1\" min=\"0\" style=\"width:90px;padding:0.45rem 0.6rem;border:1px solid #d8e0e9;border-radius:8px;font-size:0.95rem;text-align:right;font-family:inherit;color:#1f3147;background:#fafbfd\" value=\"\"/></div></div></div><div style=\"padding:0.6rem 0;border-bottom:1px solid #eef2f7\"><span style=\"font-size:0.92rem;color:#1f3147;font-weight:500\">Salts on hand</span><span style=\"font-size:0.78rem;color:#7c8fa6;margin-left:0.4rem\">Built-in (all)</span><div style=\"display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:0.4rem 1rem;margin-top:0.5rem\"><label style=\"display:flex;align-items:center;font-size:0.82rem;color:#1f3147;cursor:pointer\"><input type=\"checkbox\" style=\"margin-right:0.4rem;accent-color:linear-gradient(90deg, #e8a89c 0%, #b8c2d4 50%, #8eaad0 100%)\" checked=\"\"/>Gypsum (CaSO₄·2H₂O)</label><label style=\"display:flex;align-items:center;font-size:0.82rem;color:#1f3147;cursor:pointer\"><input type=\"checkbox\" style=\"margin-right:0.4rem;accent-color:linear-gradient(90deg, #e8a89c 0%, #b8c2d4 50%, #8eaad0 100%)\" checked=\"\"/>Calcium Chloride (CaCl₂·2H₂O)</label><label style=\"display:flex;align-items:center;font-size:0.82rem;color:#1f3147;cursor:pointer\"><input type=\"checkbox\" style=\"margin-right:0.4rem;accent-color:linear-gradient(90deg, #e8a89c 0%, #b8c2d4 50%, #8eaad0 100%)\" checked=\"\"/>Epsom Salt (MgSO₄·7H₂O)</label><label style=\"display:flex;align-items:center;font-size:0.82rem;color:#1f3147;cursor:pointer\"><input type=\"checkbox\" style=\"margin-right:0.4rem;accent-color:linear-gradient(90deg, #e8a89c 0%, #b8c2d4 50%, #8eaad0 100%)\" checked=\"\"/>Table Salt (NaCl, non-iodized)</label><label style=\"display:flex;align-items:center;font-size:0.82rem;color:#1f3147;cursor:pointer\"><input type=\"checkbox\" style=\"margin-right:0.4rem;accent-color:linear-gradient(90deg, #e8a89c 0%, #b8c2d4 50%, #8eaad0 100%)\" checked=\"\"/>Baking Soda (NaHCO₃)</label><label style=\"display:flex;align-items:center;font-size:0.82rem;color:#1f3147;cursor:pointer\"><input type=\"checkbox\" style=\"margin-right:0.4rem;accent-color:linear-gradient(90deg, #e8a89c 0%, #b8c2d4 50%, #8eaad0 100%)\" checked=\"\"/>Chalk (CaCO₃) — see solubility note</label><label style=\"display:flex;align-items:center;font-size:0.82rem;color:#1f3147;cursor:pointer\"><input type=\"checkbox\" style=\"margin-right:0.4rem;accent-color:linear-gradient(90deg, #e8a89c 0%, #b8c2d4 50%, #8eaad0 100%)\" checked=\"\"/>Pickling Lime (Ca(OH)₂) — strong base</label><label style=\"display:flex;align-items:center;font-size:0.82rem;color:#1f3147;cursor:pointer\"><input type=\"checkbox\" style=\"margin-right:0.4rem;accent-color:linear-gradient(90deg, #e8a89c 0%, #b8c2d4 50%, #8eaad0 100%)\" checked=\"\"/>Magnesium Chloride (MgCl₂·6H₂O)</label></div></div><div style=\"display:flex;flex-wrap:wrap;gap:0.6rem;margin-top:0.85rem\"><button type=\"button\" style=\"padding:0.38rem 0.9rem;background:transparent;border:1px solid #d8e0e9;border-radius:8px;color:#5a7390;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit\">Use this recipe&#x27;s figures</button><button type=\"button\" style=\"padding:0.38rem 0.9rem;background:transparent;border:1px solid #d8e0e9;border-radius:8px;color:#5a7390;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit\">Forget my brewery figures</button><button type=\"button\" style=\"padding:0.38rem 0.9rem;background:transparent;border:1px solid #d8e0e9;border-radius:8px;color:#5a7390;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit\">Export my brewery figures</button><button type=\"button\" style=\"padding:0.38rem 0.9rem;background:transparent;border:1px solid #d8e0e9;border-radius:8px;color:#5a7390;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit\">Import my brewery figures</button><input type=\"file\" style=\"display:none\"/></div></div>",
+ "recipe-document": "{\"version\":8,\"recipe\":{\"name\":\"\",\"style\":\"\",\"notes\":\"\",\"malts\":[{\"name\":\"Pale 2-Row\",\"weightLb\":10,\"fgdb\":0.8,\"colorL\":2,\"type\":\"base\",\"distilledWaterPh\":null,\"acidityMeqPerKg\":null},{\"name\":\"Munich\",\"weightLb\":1,\"fgdb\":0.8,\"colorL\":9,\"type\":\"base\",\"distilledWaterPh\":null,\"acidityMeqPerKg\":null}],\"efficiency\":0.75,\"apparentAttenuation\":0.77,\"preBoilVolGal\":7,\"boilOffRateGalPerHr\":1.5,\"boilTimeMin\":60,\"mashWaterGal\":5,\"kettleAdditions\":[{\"name\":\"Magnum\",\"timeMin\":60,\"wortTempF\":212,\"weightOz\":1,\"alphaAcidFraction\":0.12},{\"name\":\"Cascade\",\"timeMin\":10,\"wortTempF\":180,\"weightOz\":1,\"alphaAcidFraction\":0.06}],\"dryHops\":[{\"name\":\"Citra\",\"weightOz\":2}],\"fermentVolGal\":5.5,\"yeast\":{\"type\":\"ale\",\"density\":\"mod\",\"name\":\"A07 Flagship\",\"fermTempF\":77},\"measurementTempF\":{\"preBoil\":150,\"postBoil\":180,\"ferment\":68},\"water\":{\"source\":{\"Ca\":null,\"Mg\":null,\"Na\":null,\"SO4\":null,\"Cl\":null,\"Alkalinity\":null,\"pH\":null},\"styleId\":\"hoppy_ale\",\"raiseAlkSource\":\"baking_soda\",\"enabledSalts\":[\"gypsum\",\"calcium_chloride\",\"epsom\",\"table_salt\",\"baking_soda\",\"chalk\",\"pickling_lime\",\"magnesium_chloride\"],\"saltOverrides\":{},\"acidAmounts\":null,\"primaryAcid\":\"lactic_88\",\"multiAcid\":false,\"treatment\":\"mash\",\"acidPlace\":\"salts\",\"kettleSalts\":false,\"vessels\":3,\"spargeMethod\":\"batch\",\"tankTreatedGal\":null,\"tankTopUpGal\":null,\"absorptionQtPerLb\":0.1,\"spargeGal\":null}},\"mode\":\"home\",\"proGravityUnit\":\"plato\"}",
+ "brewery-document": "{\"version\":3,\"brewery\":{\"fermentVolGal\":null,\"preBoilVolGal\":null,\"boilOffRateGalPerHr\":null,\"boilTimeMin\":null,\"measurementTempF\":{\"preBoil\":150,\"postBoil\":null,\"ferment\":null},\"efficiency\":null,\"mode\":null,\"proGravityUnit\":null,\"water\":{\"source\":{\"Ca\":null,\"Mg\":null,\"Na\":null,\"SO4\":null,\"Cl\":null,\"Alkalinity\":null,\"pH\":null},\"enabledSalts\":null,\"treatment\":null,\"kettleSalts\":null,\"vessels\":null,\"spargeMethod\":null,\"tankTreatedGal\":null,\"tankTopUpGal\":null,\"absorptionQtPerLb\":null}}}"
+}

@@ -26,6 +26,8 @@ import {
   percentUnit,
   fractionToPercent,
   tempUnit,
+  tempReadout,
+  referenceTemp,
   mashRvUnit,
   mashRUnit,
   pitchRateUnit,
@@ -58,18 +60,17 @@ function text(value) {
   return typeof value === 'string' && value.trim() !== '' ? value : null;
 }
 
-// A temperature as typed: whole degrees as whole, otherwise one decimal.
-function temperature(tempF) {
-  return num(tempF, Number.isInteger(tempF) ? 0 : 1);
+// A volume measured at the engine's reference temperature needs no note (P11);
+// the note is in the screen's temperature unit (CT-S4).
+function tempNote(tempF, temperatureUnit) {
+  return tempF === REFERENCE_TEMP_F ? null : `measured at ${tempReadout(tempF, temperatureUnit)} ${tempUnit(temperatureUnit)}`;
 }
 
-// A volume measured at the engine's reference temperature needs no note (P11).
-function tempNote(tempF) {
-  return tempF === REFERENCE_TEMP_F ? null : `measured at ${temperature(tempF)} ${tempUnit()}`;
-}
-
-export function recipeSheet({ recipe, derived, water, mode, proGravityUnit, today }) {
+export function recipeSheet({ recipe, derived, water, mode, proGravityUnit, temperatureUnit, today }) {
   const { grist, hops, pitchRate, cells, starter } = derived;
+  const tUnit = tempUnit(temperatureUnit);
+  const refTemp = referenceTemp(temperatureUnit);
+  const temperature = (tempF) => tempReadout(tempF, temperatureUnit);
   const gu = resolveGravityUnit(mode, proGravityUnit);
   const vUnit = volumeUnit(mode);
   const vol = (gal) => num(volumeFromCanonical(gal, mode), mode === 'pro' ? 3 : 2);
@@ -129,23 +130,23 @@ export function recipeSheet({ recipe, derived, water, mode, proGravityUnit, toda
         ...(water && water.setup.spargeMethod !== 'none'
           ? [{ key: 'spargeWater', label: 'Sparge water', value: vol(water.volumes.spargeGal), tempNote: null, measuredBox: true }]
           : []),
-        { key: 'preBoil', label: 'Pre-boil volume', value: vol(recipe.preBoilVolGal), tempNote: tempNote(temps?.preBoil), measuredBox: true },
+        { key: 'preBoil', label: 'Pre-boil volume', value: vol(recipe.preBoilVolGal), tempNote: tempNote(temps?.preBoil, temperatureUnit), measuredBox: true },
         derived.postBoilMeasuredShown
           ? {
               key: 'postBoil',
               label: 'Post-boil volume',
-              value: `${vol(derived.postBoilMeasuredGal)} (${vol(derived.postBoilVolGal)} at ${REFERENCE_TEMP_F} ${tempUnit()})`,
-              tempNote: tempNote(temps?.postBoil),
+              value: `${vol(derived.postBoilMeasuredGal)} (${vol(derived.postBoilVolGal)} at ${refTemp} ${tUnit})`,
+              tempNote: tempNote(temps?.postBoil, temperatureUnit),
               measuredBox: true,
             }
           : {
               key: 'postBoil',
-              label: `Post-boil volume at ${REFERENCE_TEMP_F} ${tempUnit()}`,
+              label: `Post-boil volume at ${refTemp} ${tUnit}`,
               value: vol(derived.postBoilVolGal),
-              tempNote: tempNote(temps?.postBoil),
+              tempNote: tempNote(temps?.postBoil, temperatureUnit),
               measuredBox: true,
             },
-        { key: 'ferment', label: 'Fermentation volume', value: vol(recipe.fermentVolGal), tempNote: tempNote(temps?.ferment), measuredBox: true },
+        { key: 'ferment', label: 'Fermentation volume', value: vol(recipe.fermentVolGal), tempNote: tempNote(temps?.ferment, temperatureUnit), measuredBox: true },
       ],
       boilTime: num(recipe.boilTimeMin, 0),
       boilOff: vol(recipe.boilOffRateGalPerHr),
@@ -157,7 +158,7 @@ export function recipeSheet({ recipe, derived, water, mode, proGravityUnit, toda
 
     hops: {
       weightUnit: hopWeightUnit(mode),
-      tempUnit: tempUnit(),
+      tempUnit: tUnit,
       kettle: recipe.kettleAdditions.map((a, i) => ({
         name: a.name,
         time: num(a.timeMin, 0),
@@ -182,7 +183,7 @@ export function recipeSheet({ recipe, derived, water, mode, proGravityUnit, toda
       type: YEAST_TYPE[recipe.yeast.type] ?? recipe.yeast.type,
       attenuation: pct(recipe.apparentAttenuation),
       fermTemp: temperature(recipe.yeast.fermTempF),
-      tempUnit: tempUnit(),
+      tempUnit: tUnit,
       character: YEAST_CHARACTER[recipe.yeast.density] ?? recipe.yeast.density,
       pitchRate: num(pitchRate, 2),
       pitchRateUnit: pitchRateUnit(),

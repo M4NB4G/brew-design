@@ -11,9 +11,9 @@
 // copies only ale/lager: the Yeast card shows the strain's lab figures as
 // information (strainInfo), looked up by name each time it is drawn, and never
 // writes them into the recipe. No brewing math and no unit conversion here:
-// percent comes from display.js.
+// percent and the °C readouts come from display.js.
 import ingredients from './ingredients.json';
-import { fractionToPercent, percentUnit, tempUnit } from './display.js';
+import { fractionToPercent, percentUnit, tempUnit, tempReadout } from './display.js';
 import { roundForInput } from './format.js';
 
 // Which list each kind of row searches; both hop rows search the hops.
@@ -123,35 +123,39 @@ function findStrain(name) {
   return ingredients.yeasts.find((y) => y.name.trim().toLowerCase() === wanted);
 }
 
-// A strain's lab range as text, "60–72 °F"; null when the list gives none.
-function labRange(item) {
+// A strain's lab range as text in the header's unit, "60–72 °F" or
+// "16–22 °C" (whole degrees, CT-S3); null when the list gives none.
+function labRange(item, temperatureUnit) {
   if (!Number.isFinite(item.labTempLowF) || !Number.isFinite(item.labTempHighF)) return null;
-  return `${roundForInput(item.labTempLowF)}–${roundForInput(item.labTempHighF)} ${tempUnit()}`;
+  const end = (tempF) => (temperatureUnit === 'C' ? tempReadout(tempF, 'C') : roundForInput(tempF));
+  return `${end(item.labTempLowF)}–${end(item.labTempHighF)} ${tempUnit(temperatureUnit)}`;
 }
 
 // What the Yeast card shows for a strain on the list, as text: its lab,
 // product code, ale/lager, lab range and attenuation, the list's current
-// figures (item Q5). null for a blank strain or one not on the list (Q4).
-export function strainInfo(name) {
+// figures (item Q5), its range in the header's unit. null for a blank strain
+// or one not on the list (Q4).
+export function strainInfo(name, temperatureUnit) {
   const item = findStrain(name);
   if (!item) return null;
   return {
     lab: item.lab,
     productCode: item.productCode,
     type: YEAST_TYPE[item.type],
-    labRange: labRange(item),
+    labRange: labRange(item, temperatureUnit),
     attenuation: pct(item.apparentAttenuation),
   };
 }
 
 // The Yeast card's warning (item Y8): text naming the strain's lab range when
 // the fermentation temperature (degF) lies outside it, both ends inside;
-// otherwise null. A comparison against the list's cells, not brewing math: a
-// blank temperature, a strain not on the list, or one with no lab range gives
-// none. It changes no number and blocks nothing.
-export function fermTempWarning(name, fermTempF) {
+// otherwise null. A comparison against the list's cells in degF, not brewing
+// math; the range it names is in the header's unit. A blank temperature, a
+// strain not on the list, or one with no lab range gives none. It changes no
+// number and blocks nothing.
+export function fermTempWarning(name, fermTempF, temperatureUnit) {
   const item = findStrain(name);
   if (!item || !Number.isFinite(fermTempF) || labRange(item) === null) return null;
   if (fermTempF >= item.labTempLowF && fermTempF <= item.labTempHighF) return null;
-  return `Outside this strain's lab range, ${labRange(item)}`;
+  return `Outside this strain's lab range, ${labRange(item, temperatureUnit)}`;
 }

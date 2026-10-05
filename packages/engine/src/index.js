@@ -6,6 +6,7 @@ export {
   LITERS_PER_GALLON,
   WATER_DENSITY_TABLE_C,
   fToC,
+  cToF,
   galToL,
   sgToPlato,
   platoToSg,

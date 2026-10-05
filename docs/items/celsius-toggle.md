@@ -1,8 +1,10 @@
 # °C display toggle — Tier A + B
 
-Status: agreed 2026-10-03 ("agree to all"), not started. Written by the S5b
-session; built in batch S6b, second of its three items (docs/ROADMAP.md,
-Sessions), after measurement temperatures beside their volumes.
+Status: landed 2026-10-05, "A °F/°C choice in the header switches every
+temperature the app shows, takes and prints; the recipe stores °F (recipe
+format 9, brewery format 4)". Written by the S5b session; built in batch S6b,
+first of its two items (measurement temperatures beside their volumes went
+to S6c).
 
 ## Why
 
@@ -41,3 +43,18 @@ Engine (`packages/engine/test/units.test.js`): *°C converts to °F* (hand pins:
 
 - The format numbers assume this item is the next to move each format. The acid aimed at a mash pH (`docs/items/acid-aimed-at-mash-ph.md`, AA-Q4) also plans a recipe format; whichever lands first takes the next number, and the other follows.
 - Files likely touched: `packages/engine/src/units.js`, `index.js`; `apps/recipe/src/{display,state,persistence}.js`, `App.jsx`, `components/Header.jsx` and every component that shows a temperature (`VolumesSection`, `OptionsSection`, `HopsSection`, `YeastCard`, `recipe-sheet-data.js`, `ingredient-search.js`); SPEC rules 9, 13 and 17 and the display-units table.
+
+## Builder's notes (S6b, 2026-10-05)
+
+Choices the sentences did not make, as built:
+
+- The choice is the display setting `temperatureUnit`, `'F'` or `'C'` (`display.js` `TEMPERATURE_UNITS`), beside `mode` and `proGravityUnit` in App, in the recipe document's top level and in the brewery figures. Anything other than `'C'` shows °F, so a component or the sheet given no unit is as before.
+- Boxes in °C show the stored °F's conversion rounded to tenths (15.6 for the 60 °F default, `tempBoxValue`); the stored figure changes only when the brewer types. In °F a box shows the stored figure as before. The spinner step is 0.1 in °C and 1 in °F (unchanged in °F, CT-S6).
+- Readouts in °C are whole degrees (`tempReadout`); in °F they keep today's rule (whole as whole, else one decimal), and the strain's lab range keeps its own (`roundForInput`). The reference is "60" or "15.6" (`referenceTemp`, `fToC(REFERENCE_TEMP_F)` to one decimal).
+- The strain warning still compares the stored °F with the list's °F cells; only the range it names changes unit.
+- A caller of the recipe document writer that names no unit writes °F; App always names it.
+- The Water Notes' "standard aqueous acid solution densities at 25 °C" is reference text about the acids, not a recipe temperature: unchanged.
+- Header: desktop order is the gravity unit (Pro), °F/°C, then Pro/Home; on a phone Home/Pro, °F/°C and the gravity unit stack under each other at the right of the brand row. My brewery gains a "Temperature unit" choice whose blank names "Built-in (°F)".
+- Existing tests that pinned recipe format 8 or brewery format 3 now pin 9 and 4 (their newer-version cases 10 and 5), their display-setting fixtures carry `temperatureUnit`, and their titles name the current versions; `spec-rules.test.js` lets `display.js` call `cToF` (rule 9's conversions).
+- Noticed: a brewer who types 15.6 °C stores 60.08 °F, not the reference (roadmap, Tier B, "15.6 °C typed is not the reference").
+- Numbers: `cToF` is C × 9/5 + 32, the definition of the Fahrenheit scale, pinned by hand in the engine scenario; the rest are display precision (0 and 1 decimals) and an input step (0.1), excluded by the catch-all.

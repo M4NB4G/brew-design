@@ -4,6 +4,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   fToC,
+  cToF,
   galToL,
   sgToPlato,
   platoToSg,
@@ -34,6 +35,22 @@ describe('basic conversions', () => {
     // round-trip residual is real and is the source of the solver.js FLAG.
     const p = 16.6222661;
     expect(sgToPlato(platoToSg(p)) - p).toBeCloseTo(0.0034347, 5);
+  });
+});
+
+describe('°C converts to °F', () => {
+  // °C display toggle (docs/items/celsius-toggle.md, CT-S2): F = C x 9/5 + 32,
+  // pinned by hand: 0 x 1.8 + 32 = 32; 100 x 1.8 + 32 = 180 + 32 = 212;
+  // 15.5555... = 140/9, x 9/5 = 28, + 32 = 60; 19 x 1.8 = 34.2, + 32 = 66.2;
+  // -40 x 1.8 = -72, + 32 = -40.
+  it('°C converts to °F', () => {
+    expect(cToF(0)).toBe(32);
+    expect(cToF(100)).toBe(212);
+    expect(cToF(140 / 9)).toBeCloseTo(60, 12);
+    expect(cToF(19)).toBeCloseTo(66.2, 12);
+    expect(cToF(-40)).toBe(-40);
+    // Idempotence (K): back and forth within the display's precision.
+    for (const f of [32, 60, 66.2, 68, 150, 180, 212]) expect(cToF(fToC(f))).toBeCloseTo(f, 9);
   });
 });
 

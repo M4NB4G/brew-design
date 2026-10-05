@@ -17,6 +17,9 @@ import {
   volumeFromCanonical,
   volumeUnit,
   tempUnit,
+  tempToCanonical,
+  tempBoxValue,
+  TEMPERATURE_UNITS,
   percentUnit,
   fractionToPercent,
   percentToFraction,
@@ -218,6 +221,7 @@ const saltCheckStyle = {
 
 export default function OptionsSection({
   mode,
+  temperatureUnit,
   brewery,
   setBreweryFigure,
   setBreweryTemp,
@@ -230,11 +234,16 @@ export default function OptionsSection({
 }) {
   const breweryFile = useRef(null); // the brewery file's picker (S4b item 5)
   const vUnit = volumeUnit(mode);
-  const tUnit = tempUnit();
+  const tUnit = tempUnit(temperatureUnit);
   const built = defaultRecipeState(); // the figures a new recipe gets in place of a blank one
   const volume = {
     toShown: (gal) => volumeFromCanonical(gal, mode),
     fromShown: (v) => volumeToCanonical(v, mode),
+  };
+  const temperature = {
+    toShown: (tempF) => tempBoxValue(tempF, temperatureUnit),
+    fromShown: (v) => tempToCanonical(v, temperatureUnit),
+    step: temperatureUnit === 'C' ? 0.1 : 1,
   };
 
   return (
@@ -284,7 +293,7 @@ export default function OptionsSection({
           value={brewery.measurementTempF[kind]}
           builtIn={built.measurementTempF[kind]}
           onChange={(v) => setBreweryTemp(kind, v)}
-          step={1}
+          {...temperature}
         />
       ))}
       <FigureRow
@@ -309,6 +318,13 @@ export default function OptionsSection({
         onChange={(v) => setBreweryFigure('proGravityUnit', v)}
         options={['plato', 'sg'].map((u) => [u, gravityUnitLabel(u)])}
         builtIn={gravityUnitLabel(DEFAULT_DISPLAY.proGravityUnit)}
+      />
+      <ChoiceRow
+        label="Temperature unit"
+        value={brewery.temperatureUnit}
+        onChange={(v) => setBreweryFigure('temperatureUnit', v)}
+        options={TEMPERATURE_UNITS.map((u) => [u, tempUnit(u)])}
+        builtIn={tempUnit(DEFAULT_DISPLAY.temperatureUnit)}
       />
 
       <BreweryWater water={brewery.water} mode={mode} setBreweryWater={setBreweryWater} volume={volume} />

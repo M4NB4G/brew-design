@@ -1,7 +1,8 @@
 // HopsSection.jsx
 // Kettle additions (with per-addition IBU shown read-only) and the dry-hop
 // list; each name box searches the owner's ingredient list (IngredientSearch). Hop weight is oz in Home and lb in Pro, converted at the boundary;
-// time (min), wort temp (degF), and alpha acid (fraction) are fixed-unit.
+// the wort temperature is in the header's unit (stored degF, converted at the
+// boundary); time (min) and alpha acid (fraction) are fixed-unit.
 // Total IBU and the dry-hop rate come from the engine. On a phone each hop is
 // a block (IngredientBlock) holding the same boxes instead of a table row.
 import NumberField from './NumberField.jsx';
@@ -17,6 +18,8 @@ import {
   dryHopRateFromCanonical,
   dryHopRateUnit,
   tempUnit,
+  tempToCanonical,
+  tempBoxValue,
   percentUnit,
   fractionToPercent,
   percentToFraction,
@@ -104,7 +107,7 @@ function IbuBadge({ ibu }) {
   );
 }
 
-export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setRow, addRow, removeRow }) {
+export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temperatureUnit, setRow, addRow, removeRow }) {
   const phone = usePhone();
   const wUnit = hopWeightUnit(mode);
 
@@ -122,12 +125,12 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
       ),
     },
     {
-      label: `Temp (${tempUnit()})`,
+      label: `Temp (${tempUnit(temperatureUnit)})`,
       input: (
         <NumberField
-          value={a.wortTempF}
-          step="1"
-          onChange={(v) => setRow('kettleAdditions', i, 'wortTempF', v)}
+          value={tempBoxValue(a.wortTempF, temperatureUnit)}
+          step={temperatureUnit === 'C' ? '0.1' : '1'}
+          onChange={(v) => setRow('kettleAdditions', i, 'wortTempF', tempToCanonical(v, temperatureUnit))}
         />
       ),
     },
@@ -228,7 +231,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, setR
             <tr>
               <th style={{ ...TH, minWidth: '110px' }}>Hop</th>
               <th style={{ ...TH, width: '72px' }}>Time (min)</th>
-              <th style={{ ...TH, width: '88px' }}>Temp ({tempUnit()})</th>
+              <th style={{ ...TH, width: '88px' }}>Temp ({tempUnit(temperatureUnit)})</th>
               <th style={{ ...TH, width: '90px' }}>Wt ({wUnit})</th>
               <th style={{ ...TH, width: '76px' }}>Alpha ({percentUnit()})</th>
               <th style={{ ...TH, width: '68px', textAlign: 'right' }}>IBU</th>

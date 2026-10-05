@@ -198,12 +198,12 @@ describe('acid into the mash (S5b item C)', () => {
 
   it('a recipe saved without the choice reads with the acid with the salts', () => {
     // AM-S5, AM-Q1 (revised 2026-10-03): recipe format 8.
-    expect(SCHEMA_VERSION).toBe(8);
+    expect(SCHEMA_VERSION).toBe(9);
     const s = fakeStorage();
     const recipe = wcPils({ acidPlace: 'mash' });
     savePersisted(s, { recipe, ...DEFAULT_DISPLAY });
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(8);
+    expect(doc.version).toBe(9);
     expect(doc.recipe.water.acidPlace).toBe('mash');
     const defaults = { recipe: defaultRecipeState(), ...DEFAULT_DISPLAY };
     expect(loadPersisted(s, defaults).recipe.water.acidPlace).toBe('mash');
@@ -217,7 +217,7 @@ describe('acid into the mash (S5b item C)', () => {
     expect(read.recipe.water.acidPlace).toBe('salts');
     expect(read.recipe.mashWaterGal).toBe(8);
     savePersisted(s, read);
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(8);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(9);
     // A version-4 document (before the water entries) reads with the built-in ones.
     const { water, ...v4recipe } = doc.recipe;
     s.setItem(
