@@ -351,20 +351,19 @@ describe('water on the printed sheet', () => {
     // Pro grams whole, as on screen: 8.4 g prints as 8.
     expect(additionsAt(sheetOf(waterRecipe(), 'pro').s, 'Mash')[0].amount).toBe('8');
 
-    // The water volumes: mash water, absorbed by the grain, sparge, total —
-    // 7.00, 0.50, 8.50, 15.50 gal by hand; the tank's figures with the tank.
+    // The water volumes: mash water, absorbed by the grain, total — 7.00,
+    // 0.50, 15.50 gal by hand (7 + 8.5 sparge); the tank's figures with the
+    // tank. The sparge water is in the volumes table, not here (SV-S4).
     expect(mash.water.volumes.map((v) => [v.label, v.value])).toEqual([
       ['Mash water', '7.00'],
       ['Water absorbed by the grain', '0.50'],
       ['Water left in the mash tun', '1.00'],
-      ['Sparge water (untreated)', '8.50'],
       ['Total water', '15.50'],
     ]);
     expect(tank.s.water.volumes.map((v) => [v.label, v.value])).toEqual([
       ['Mash water', '7.00'],
       ['Water absorbed by the grain', '0.50'],
       ['Water left in the mash tun', '1.00'],
-      ['Sparge water (from the HLT)', '8.50'],
       ['Total water', '15.50'],
       ['HLT first fill, treated', '12.00'],
       ['HLT topped up to', '12.00'],

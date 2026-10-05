@@ -1,6 +1,6 @@
 # Sparge water in the printed sheet's volumes — Tier C
 
-Status: agreed 2026-10-05 ("agree to all"), not started. Written after the
+Status: landed 2026-10-05, "The printed sheet's volumes table has a Sparge water row after the mash water, and the Water Treatment line no longer lists it" (Sonnet 5.5 builder, Opus advisor). Agreed 2026-10-05 ("agree to all"). Written after the
 owner asked for the sparge water in the volumes section of the printed sheet.
 Today it prints only in the Water Treatment section's caption, and that
 section is left out when no water entries are typed.
@@ -35,3 +35,15 @@ section is left out when no water entries are typed.
 - Consequence to check, not to decide: a new recipe's default sparge method is batch with the amount blank, so the volumes table of a recipe with no water entries prints "Sparge water —" until the brewer picks "none" or types an amount. That follows SV-2b as agreed; the report says so and shows it.
 - The caption's label wording ("untreated", "from the HLT") is lost with the line; the Water Treatment section keeps saying where the sparge comes from through "Treated" and the HLT figures. If the builder judges the row's label should carry it ("Sparge water (from the HLT)"), that returns to the owner as a question, not a change.
 - The existing test that pins the sparge water line (`apps/recipe/test/print-sheet.test.js`, the water-volumes expectations) changes with this item; say so in the report.
+
+## Builder's notes (filled at landing)
+
+- Built on the designated session branch `claude/youthful-mayer-2ates9`, which already carries the unmerged earlier batches (S6b, S6c, the sheet at a glance) and this item file; `main` does not have them, so a branch `sparge-in-volumes` from `main` could not hold this item's file or the sheet it changes.
+- Files changed: `recipe-sheet-data.js` only in `src`; `RecipeSheet.jsx` needed nothing, the table renders every row alike.
+- The row shows for `water.setup.spargeMethod !== 'none'` (the Water tab's own effective method, so a one-vessel setup that forces "none" shows no row), and the figure is `water.volumes.spargeGal` through the same `vol()` as the other rows.
+- Consequence shown, as the notes asked: a new recipe (batch sparge, amount blank, no water entries) prints "Sparge water —" until the brewer types an amount or picks "none" (screenshot c). That follows SV-2b as agreed.
+- Tests that changed with this item, beyond the new file: `print-sheet.test.js` (the water-volumes expectations lose the sparge entries, as the notes said), `hlt-wording.test.js` (its volume-label list loses 'Sparge water (from the HLT)'), and `print-sheet-legibility.test.js` scenario "nothing else changes" (the item file did not list it: its reference recipe carries the default batch sparge with a blank amount, which now prints the dash row; the scenario removes that one row and keeps every other comparison).
+- The label stays "Sparge water" with no "(untreated)" or "(from the HLT)", as agreed; the Water Treatment section still says where the sparge comes from through "Treated" and the HLT figures. Not changed, not asked.
+- `apps/recipe/test/sparge-in-volumes.before.json` is the sheet data captured from the unchanged code (fly and no sparge, Home and Pro, and a sheet given no water), the baseline for "nothing else changes".
+- Numbers added to the change: none in `src`. The test pins are hand-worked: 8.5 gal; 8.5 / 31 = 0.274 bbl; 7 + 8.5 = 15.5, 0.5 absorbed, 1.0 left in the tun.
+

@@ -124,6 +124,11 @@ export function recipeSheet({ recipe, derived, water, mode, proGravityUnit, toda
       unit: vUnit,
       rows: [
         { key: 'mashWater', label: 'Mash water', value: vol(recipe.mashWaterGal), tempNote: null, measuredBox: true },
+        // The Water tab's sparge water (SV-S1), as it shows it; no row with
+        // no sparge (SV-S2) or when the sheet is given no water.
+        ...(water && water.setup.spargeMethod !== 'none'
+          ? [{ key: 'spargeWater', label: 'Sparge water', value: vol(water.volumes.spargeGal), tempNote: null, measuredBox: true }]
+          : []),
         { key: 'preBoil', label: 'Pre-boil volume', value: vol(recipe.preBoilVolGal), tempNote: tempNote(temps?.preBoil), measuredBox: true },
         derived.postBoilMeasuredShown
           ? {
@@ -248,7 +253,6 @@ function waterSection(water, mode, vol, vUnit) {
     { label: 'Mash water', value: vol(v.mashWaterGal) },
     { label: 'Water absorbed by the grain', value: vol(v.absorptionGal) },
     { label: 'Water left in the mash tun', value: vol(v.mashTunLeftGal) },
-    { label: tank ? 'Sparge water (from the HLT)' : 'Sparge water (untreated)', value: vol(v.spargeGal) },
     { label: 'Total water', value: vol(v.totalGal) },
   ];
   if (tank) {

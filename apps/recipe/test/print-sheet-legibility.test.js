@@ -221,12 +221,16 @@ describe('printed sheet at a glance (docs/items/print-sheet-legibility.md)', () 
     // PL-S8: the reference recipe's sheet, captured from the code before this
     // item, equal after it — every figure, every label — except the three
     // texts the item changes: the predicted row's cells unit, the yeast
-    // block's cells unit and the starter's blank note.
+    // block's cells unit and the starter's blank note. (And, since the sparge
+    // water in the volumes, docs/items/sparge-in-volumes.md: the reference
+    // recipe's default batch sparge with no amount typed prints one row
+    // there, "Sparge water —" — SV-S3; removed here, the rest is as before.)
     const BEFORE = {"title":"Reference IPA","meta":[{"label":"Style","value":"21A American IPA"},{"label":"Batch volume","value":"12.00 gal"},{"label":"Date","value":"September 23, 2026"}],"headline":[{"label":"OG","value":"1.068","unit":"SG","measuredBox":true},{"label":"FG","value":"1.014","unit":"SG","measuredBox":true},{"label":"ABV","value":"7.5","unit":"%","measuredBox":false},{"label":"SRM","value":"4.1","unit":"","measuredBox":false},{"label":"IBU","value":"46","unit":"","measuredBox":false},{"label":"Cells","value":"570","measuredBox":false}],"grain":{"weightUnit":"lb","rows":[{"name":"Golden Promise","weight":"27.00","share":"93.1","yield":"80.0","color":"2.2"},{"name":"Carafoam","weight":"2.00","share":"6.9","yield":"80.0","color":"2.0"}],"efficiency":"93.0"},"volumes":{"unit":"gal","rows":[{"key":"mashWater","label":"Mash water","value":"13.00","tempNote":null,"measuredBox":true},{"key":"preBoil","label":"Pre-boil volume","value":"16.00","tempNote":null,"measuredBox":true},{"key":"postBoil","label":"Post-boil volume at 60 °F","value":"14.50","tempNote":null,"measuredBox":true},{"key":"ferment","label":"Fermentation volume","value":"12.00","tempNote":null,"measuredBox":true}],"boilTime":"60","boilOff":"1.50","mashRv":"1.79","mashRvUnit":"qt/lb","mashR":"3.68","mashRUnit":"lb/lb"},"hops":{"weightUnit":"oz","tempUnit":"°F","kettle":[{"name":"Bravo","time":"60","temp":"204","weight":"2.00","alpha":"14.7","ibu":"23.5"},{"name":"Helios","time":"30","temp":"204","weight":"1.00","alpha":"19.0","ibu":"11.7"},{"name":"Citra LupoMAX","time":"20","temp":"175","weight":"2.00","alpha":"18.0","ibu":"5.7"},{"name":"Hopstiener 9326","time":"20","temp":"175","weight":"2.00","alpha":"6.0","ibu":"1.9"},{"name":"Helios","time":"20","temp":"175","weight":"1.00","alpha":"19.0","ibu":"3.0"}],"totalIbu":"46","dry":[{"name":"DH1","weight":"2.00"},{"name":"DH2","weight":"2.00"},{"name":"DH3","weight":"2.00"},{"name":"DH4","weight":"2.00"},{"name":"DH5","weight":"1.00"},{"name":"DH6","weight":"1.00"},{"name":"DH7","weight":"2.00"},{"name":"DH8","weight":"2.00"},{"name":"DH9","weight":"1.00"}],"dryRate":"1.25","dryRateUnit":"oz/gal"},"yeast":{"strain":"—","type":"Ale","attenuation":"80.0","fermTemp":"—","tempUnit":"°F","character":"Moderate","pitchRate":"0.75","pitchRateUnit":"billion/L/°P","cells":"570","starterVolumeUnit":"L","starter":[{"band":"200B","volume":"3.00","dme":"345"}]},"water":null,"notes":null};
     const after = JSON.parse(JSON.stringify(sheetData(referenceState())));
     delete after.headline[5].unit;
     delete after.yeast.cellsUnit;
     delete after.yeast.starter[0].note;
+    after.volumes.rows = after.volumes.rows.filter((r) => r.key !== 'spargeWater');
     expect(after).toEqual(BEFORE);
   });
 });

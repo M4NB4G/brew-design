@@ -1,0 +1,1115 @@
+{
+  "fly-home": {
+    "title": null,
+    "meta": [
+      {
+        "label": "Batch volume",
+        "value": "5.50 gal"
+      },
+      {
+        "label": "Date",
+        "value": "October 5, 2026"
+      }
+    ],
+    "headline": [
+      {
+        "label": "OG",
+        "value": "1.044",
+        "unit": "SG",
+        "measuredBox": true
+      },
+      {
+        "label": "FG",
+        "value": "1.010",
+        "unit": "SG",
+        "measuredBox": true
+      },
+      {
+        "label": "ABV",
+        "value": "4.5",
+        "unit": "%",
+        "measuredBox": false
+      },
+      {
+        "label": "SRM",
+        "value": "5.1",
+        "unit": "",
+        "measuredBox": false
+      },
+      {
+        "label": "IBU",
+        "value": "22",
+        "unit": "",
+        "measuredBox": false
+      },
+      {
+        "label": "Cells",
+        "value": "170",
+        "unit": "billion",
+        "measuredBox": false
+      }
+    ],
+    "grain": {
+      "weightUnit": "lb",
+      "rows": [
+        {
+          "name": "Pale 2-Row",
+          "weight": "15.00",
+          "share": "75.0",
+          "yield": "80.0",
+          "color": "2.0"
+        },
+        {
+          "name": "Munich",
+          "weight": "5.00",
+          "share": "25.0",
+          "yield": "80.0",
+          "color": "9.0"
+        }
+      ],
+      "efficiency": "75.0"
+    },
+    "volumes": {
+      "unit": "gal",
+      "rows": [
+        {
+          "key": "mashWater",
+          "label": "Mash water",
+          "value": "7.00",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "preBoil",
+          "label": "Pre-boil volume",
+          "value": "14.00",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "postBoil",
+          "label": "Post-boil volume at 60 °F",
+          "value": "12.50",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "ferment",
+          "label": "Fermentation volume",
+          "value": "5.50",
+          "tempNote": null,
+          "measuredBox": true
+        }
+      ],
+      "boilTime": "60",
+      "boilOff": "1.50",
+      "mashRv": "1.40",
+      "mashRvUnit": "qt/lb",
+      "mashR": "2.88",
+      "mashRUnit": "lb/lb"
+    },
+    "hops": {
+      "weightUnit": "oz",
+      "tempUnit": "°F",
+      "kettle": [
+        {
+          "name": "Magnum",
+          "time": "60",
+          "temp": "212",
+          "weight": "1.00",
+          "alpha": "12.0",
+          "ibu": "18.3"
+        },
+        {
+          "name": "Cascade",
+          "time": "10",
+          "temp": "212",
+          "weight": "1.00",
+          "alpha": "6.0",
+          "ibu": "3.3"
+        }
+      ],
+      "totalIbu": "22",
+      "dry": [
+        {
+          "name": "Citra",
+          "weight": "2.00"
+        }
+      ],
+      "dryRate": "0.36",
+      "dryRateUnit": "oz/gal"
+    },
+    "yeast": {
+      "strain": "—",
+      "type": "Ale",
+      "attenuation": "77.0",
+      "fermTemp": "—",
+      "tempUnit": "°F",
+      "character": "Moderate",
+      "pitchRate": "0.75",
+      "pitchRateUnit": "billion/L/°P",
+      "cells": "170",
+      "cellsUnit": "billion",
+      "starterVolumeUnit": "L",
+      "starter": []
+    },
+    "water": {
+      "treated": "The mash water",
+      "additions": [
+        {
+          "place": "Mash",
+          "name": "Gypsum (CaSO₄·2H₂O)",
+          "amount": "8.4",
+          "unit": "g"
+        }
+      ],
+      "volumeUnit": "gal",
+      "volumes": [
+        {
+          "label": "Mash water",
+          "value": "7.00"
+        },
+        {
+          "label": "Water absorbed by the grain",
+          "value": "0.50"
+        },
+        {
+          "label": "Water left in the mash tun",
+          "value": "1.00"
+        },
+        {
+          "label": "Sparge water (untreated)",
+          "value": "8.50"
+        },
+        {
+          "label": "Total water",
+          "value": "15.50"
+        }
+      ],
+      "style": "IPA (American/English)",
+      "profileLabel": "Treated water (predicted), not the wort in the kettle",
+      "profile": [
+        {
+          "label": "Calcium",
+          "predicted": "74",
+          "target": "120"
+        },
+        {
+          "label": "Magnesium",
+          "predicted": "0",
+          "target": "18"
+        },
+        {
+          "label": "Sodium",
+          "predicted": "0",
+          "target": "15"
+        },
+        {
+          "label": "Sulfate",
+          "predicted": "225",
+          "target": "225"
+        },
+        {
+          "label": "Chloride",
+          "predicted": "0",
+          "target": "75"
+        },
+        {
+          "label": "Alkalinity",
+          "predicted": "0",
+          "target": "66"
+        },
+        {
+          "label": "Residual alkalinity",
+          "predicted": "-53",
+          "target": "-30"
+        },
+        {
+          "label": "SO₄:Cl ratio",
+          "predicted": "∞",
+          "target": "3.00"
+        }
+      ],
+      "mashPhLabel": "Mash pH (cooled sample),",
+      "mashPhPredicted": "5.6",
+      "mashPhNote": null,
+      "hltNote": null,
+      "kettle": null
+    },
+    "notes": null
+  },
+  "fly-pro": {
+    "title": null,
+    "meta": [
+      {
+        "label": "Batch volume",
+        "value": "0.177 bbl"
+      },
+      {
+        "label": "Date",
+        "value": "October 5, 2026"
+      }
+    ],
+    "headline": [
+      {
+        "label": "OG",
+        "value": "10.93",
+        "unit": "°P",
+        "measuredBox": true
+      },
+      {
+        "label": "FG",
+        "value": "2.59",
+        "unit": "°P",
+        "measuredBox": true
+      },
+      {
+        "label": "ABV",
+        "value": "4.5",
+        "unit": "%",
+        "measuredBox": false
+      },
+      {
+        "label": "SRM",
+        "value": "5.1",
+        "unit": "",
+        "measuredBox": false
+      },
+      {
+        "label": "IBU",
+        "value": "22",
+        "unit": "",
+        "measuredBox": false
+      },
+      {
+        "label": "Cells",
+        "value": "0.17",
+        "unit": "trillion",
+        "measuredBox": false
+      }
+    ],
+    "grain": {
+      "weightUnit": "lb",
+      "rows": [
+        {
+          "name": "Pale 2-Row",
+          "weight": "15.00",
+          "share": "75.0",
+          "yield": "80.0",
+          "color": "2.0"
+        },
+        {
+          "name": "Munich",
+          "weight": "5.00",
+          "share": "25.0",
+          "yield": "80.0",
+          "color": "9.0"
+        }
+      ],
+      "efficiency": "75.0"
+    },
+    "volumes": {
+      "unit": "bbl",
+      "rows": [
+        {
+          "key": "mashWater",
+          "label": "Mash water",
+          "value": "0.226",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "preBoil",
+          "label": "Pre-boil volume",
+          "value": "0.452",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "postBoil",
+          "label": "Post-boil volume at 60 °F",
+          "value": "0.403",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "ferment",
+          "label": "Fermentation volume",
+          "value": "0.177",
+          "tempNote": null,
+          "measuredBox": true
+        }
+      ],
+      "boilTime": "60",
+      "boilOff": "0.048",
+      "mashRv": "1.40",
+      "mashRvUnit": "qt/lb",
+      "mashR": "2.88",
+      "mashRUnit": "lb/lb"
+    },
+    "hops": {
+      "weightUnit": "lb",
+      "tempUnit": "°F",
+      "kettle": [
+        {
+          "name": "Magnum",
+          "time": "60",
+          "temp": "212",
+          "weight": "0.063",
+          "alpha": "12.0",
+          "ibu": "18.3"
+        },
+        {
+          "name": "Cascade",
+          "time": "10",
+          "temp": "212",
+          "weight": "0.063",
+          "alpha": "6.0",
+          "ibu": "3.3"
+        }
+      ],
+      "totalIbu": "22",
+      "dry": [
+        {
+          "name": "Citra",
+          "weight": "0.125"
+        }
+      ],
+      "dryRate": "0.70",
+      "dryRateUnit": "lb/bbl"
+    },
+    "yeast": {
+      "strain": "—",
+      "type": "Ale",
+      "attenuation": "77.0",
+      "fermTemp": "—",
+      "tempUnit": "°F",
+      "character": "Moderate",
+      "pitchRate": "0.75",
+      "pitchRateUnit": "billion/L/°P",
+      "cells": "0.17",
+      "cellsUnit": "trillion",
+      "starterVolumeUnit": "L",
+      "starter": []
+    },
+    "water": {
+      "treated": "The mash water",
+      "additions": [
+        {
+          "place": "Mash",
+          "name": "Gypsum (CaSO₄·2H₂O)",
+          "amount": "8",
+          "unit": "g"
+        }
+      ],
+      "volumeUnit": "bbl",
+      "volumes": [
+        {
+          "label": "Mash water",
+          "value": "0.226"
+        },
+        {
+          "label": "Water absorbed by the grain",
+          "value": "0.016"
+        },
+        {
+          "label": "Water left in the mash tun",
+          "value": "0.032"
+        },
+        {
+          "label": "Sparge water (untreated)",
+          "value": "0.274"
+        },
+        {
+          "label": "Total water",
+          "value": "0.500"
+        }
+      ],
+      "style": "IPA (American/English)",
+      "profileLabel": "Treated water (predicted), not the wort in the kettle",
+      "profile": [
+        {
+          "label": "Calcium",
+          "predicted": "74",
+          "target": "120"
+        },
+        {
+          "label": "Magnesium",
+          "predicted": "0",
+          "target": "18"
+        },
+        {
+          "label": "Sodium",
+          "predicted": "0",
+          "target": "15"
+        },
+        {
+          "label": "Sulfate",
+          "predicted": "225",
+          "target": "225"
+        },
+        {
+          "label": "Chloride",
+          "predicted": "0",
+          "target": "75"
+        },
+        {
+          "label": "Alkalinity",
+          "predicted": "0",
+          "target": "66"
+        },
+        {
+          "label": "Residual alkalinity",
+          "predicted": "-53",
+          "target": "-30"
+        },
+        {
+          "label": "SO₄:Cl ratio",
+          "predicted": "∞",
+          "target": "3.00"
+        }
+      ],
+      "mashPhLabel": "Mash pH (cooled sample),",
+      "mashPhPredicted": "5.6",
+      "mashPhNote": null,
+      "hltNote": null,
+      "kettle": null
+    },
+    "notes": null
+  },
+  "none-home": {
+    "title": null,
+    "meta": [
+      {
+        "label": "Batch volume",
+        "value": "5.50 gal"
+      },
+      {
+        "label": "Date",
+        "value": "October 5, 2026"
+      }
+    ],
+    "headline": [
+      {
+        "label": "OG",
+        "value": "1.044",
+        "unit": "SG",
+        "measuredBox": true
+      },
+      {
+        "label": "FG",
+        "value": "1.010",
+        "unit": "SG",
+        "measuredBox": true
+      },
+      {
+        "label": "ABV",
+        "value": "4.5",
+        "unit": "%",
+        "measuredBox": false
+      },
+      {
+        "label": "SRM",
+        "value": "5.1",
+        "unit": "",
+        "measuredBox": false
+      },
+      {
+        "label": "IBU",
+        "value": "22",
+        "unit": "",
+        "measuredBox": false
+      },
+      {
+        "label": "Cells",
+        "value": "170",
+        "unit": "billion",
+        "measuredBox": false
+      }
+    ],
+    "grain": {
+      "weightUnit": "lb",
+      "rows": [
+        {
+          "name": "Pale 2-Row",
+          "weight": "15.00",
+          "share": "75.0",
+          "yield": "80.0",
+          "color": "2.0"
+        },
+        {
+          "name": "Munich",
+          "weight": "5.00",
+          "share": "25.0",
+          "yield": "80.0",
+          "color": "9.0"
+        }
+      ],
+      "efficiency": "75.0"
+    },
+    "volumes": {
+      "unit": "gal",
+      "rows": [
+        {
+          "key": "mashWater",
+          "label": "Mash water",
+          "value": "7.00",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "preBoil",
+          "label": "Pre-boil volume",
+          "value": "14.00",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "postBoil",
+          "label": "Post-boil volume at 60 °F",
+          "value": "12.50",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "ferment",
+          "label": "Fermentation volume",
+          "value": "5.50",
+          "tempNote": null,
+          "measuredBox": true
+        }
+      ],
+      "boilTime": "60",
+      "boilOff": "1.50",
+      "mashRv": "1.40",
+      "mashRvUnit": "qt/lb",
+      "mashR": "2.88",
+      "mashRUnit": "lb/lb"
+    },
+    "hops": {
+      "weightUnit": "oz",
+      "tempUnit": "°F",
+      "kettle": [
+        {
+          "name": "Magnum",
+          "time": "60",
+          "temp": "212",
+          "weight": "1.00",
+          "alpha": "12.0",
+          "ibu": "18.3"
+        },
+        {
+          "name": "Cascade",
+          "time": "10",
+          "temp": "212",
+          "weight": "1.00",
+          "alpha": "6.0",
+          "ibu": "3.3"
+        }
+      ],
+      "totalIbu": "22",
+      "dry": [
+        {
+          "name": "Citra",
+          "weight": "2.00"
+        }
+      ],
+      "dryRate": "0.36",
+      "dryRateUnit": "oz/gal"
+    },
+    "yeast": {
+      "strain": "—",
+      "type": "Ale",
+      "attenuation": "77.0",
+      "fermTemp": "—",
+      "tempUnit": "°F",
+      "character": "Moderate",
+      "pitchRate": "0.75",
+      "pitchRateUnit": "billion/L/°P",
+      "cells": "170",
+      "cellsUnit": "billion",
+      "starterVolumeUnit": "L",
+      "starter": []
+    },
+    "water": {
+      "treated": "The mash water",
+      "additions": [
+        {
+          "place": "Mash",
+          "name": "Gypsum (CaSO₄·2H₂O)",
+          "amount": "8.4",
+          "unit": "g"
+        }
+      ],
+      "volumeUnit": "gal",
+      "volumes": [
+        {
+          "label": "Mash water",
+          "value": "7.00"
+        },
+        {
+          "label": "Water absorbed by the grain",
+          "value": "0.50"
+        },
+        {
+          "label": "Water left in the mash tun",
+          "value": "-7.50"
+        },
+        {
+          "label": "Sparge water (untreated)",
+          "value": "0.00"
+        },
+        {
+          "label": "Total water",
+          "value": "7.00"
+        }
+      ],
+      "style": "IPA (American/English)",
+      "profileLabel": "Treated water (predicted), not the wort in the kettle",
+      "profile": [
+        {
+          "label": "Calcium",
+          "predicted": "74",
+          "target": "120"
+        },
+        {
+          "label": "Magnesium",
+          "predicted": "0",
+          "target": "18"
+        },
+        {
+          "label": "Sodium",
+          "predicted": "0",
+          "target": "15"
+        },
+        {
+          "label": "Sulfate",
+          "predicted": "225",
+          "target": "225"
+        },
+        {
+          "label": "Chloride",
+          "predicted": "0",
+          "target": "75"
+        },
+        {
+          "label": "Alkalinity",
+          "predicted": "0",
+          "target": "66"
+        },
+        {
+          "label": "Residual alkalinity",
+          "predicted": "-53",
+          "target": "-30"
+        },
+        {
+          "label": "SO₄:Cl ratio",
+          "predicted": "∞",
+          "target": "3.00"
+        }
+      ],
+      "mashPhLabel": "Mash pH (cooled sample),",
+      "mashPhPredicted": "5.6",
+      "mashPhNote": null,
+      "hltNote": null,
+      "kettle": null
+    },
+    "notes": null
+  },
+  "none-pro": {
+    "title": null,
+    "meta": [
+      {
+        "label": "Batch volume",
+        "value": "0.177 bbl"
+      },
+      {
+        "label": "Date",
+        "value": "October 5, 2026"
+      }
+    ],
+    "headline": [
+      {
+        "label": "OG",
+        "value": "10.93",
+        "unit": "°P",
+        "measuredBox": true
+      },
+      {
+        "label": "FG",
+        "value": "2.59",
+        "unit": "°P",
+        "measuredBox": true
+      },
+      {
+        "label": "ABV",
+        "value": "4.5",
+        "unit": "%",
+        "measuredBox": false
+      },
+      {
+        "label": "SRM",
+        "value": "5.1",
+        "unit": "",
+        "measuredBox": false
+      },
+      {
+        "label": "IBU",
+        "value": "22",
+        "unit": "",
+        "measuredBox": false
+      },
+      {
+        "label": "Cells",
+        "value": "0.17",
+        "unit": "trillion",
+        "measuredBox": false
+      }
+    ],
+    "grain": {
+      "weightUnit": "lb",
+      "rows": [
+        {
+          "name": "Pale 2-Row",
+          "weight": "15.00",
+          "share": "75.0",
+          "yield": "80.0",
+          "color": "2.0"
+        },
+        {
+          "name": "Munich",
+          "weight": "5.00",
+          "share": "25.0",
+          "yield": "80.0",
+          "color": "9.0"
+        }
+      ],
+      "efficiency": "75.0"
+    },
+    "volumes": {
+      "unit": "bbl",
+      "rows": [
+        {
+          "key": "mashWater",
+          "label": "Mash water",
+          "value": "0.226",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "preBoil",
+          "label": "Pre-boil volume",
+          "value": "0.452",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "postBoil",
+          "label": "Post-boil volume at 60 °F",
+          "value": "0.403",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "ferment",
+          "label": "Fermentation volume",
+          "value": "0.177",
+          "tempNote": null,
+          "measuredBox": true
+        }
+      ],
+      "boilTime": "60",
+      "boilOff": "0.048",
+      "mashRv": "1.40",
+      "mashRvUnit": "qt/lb",
+      "mashR": "2.88",
+      "mashRUnit": "lb/lb"
+    },
+    "hops": {
+      "weightUnit": "lb",
+      "tempUnit": "°F",
+      "kettle": [
+        {
+          "name": "Magnum",
+          "time": "60",
+          "temp": "212",
+          "weight": "0.063",
+          "alpha": "12.0",
+          "ibu": "18.3"
+        },
+        {
+          "name": "Cascade",
+          "time": "10",
+          "temp": "212",
+          "weight": "0.063",
+          "alpha": "6.0",
+          "ibu": "3.3"
+        }
+      ],
+      "totalIbu": "22",
+      "dry": [
+        {
+          "name": "Citra",
+          "weight": "0.125"
+        }
+      ],
+      "dryRate": "0.70",
+      "dryRateUnit": "lb/bbl"
+    },
+    "yeast": {
+      "strain": "—",
+      "type": "Ale",
+      "attenuation": "77.0",
+      "fermTemp": "—",
+      "tempUnit": "°F",
+      "character": "Moderate",
+      "pitchRate": "0.75",
+      "pitchRateUnit": "billion/L/°P",
+      "cells": "0.17",
+      "cellsUnit": "trillion",
+      "starterVolumeUnit": "L",
+      "starter": []
+    },
+    "water": {
+      "treated": "The mash water",
+      "additions": [
+        {
+          "place": "Mash",
+          "name": "Gypsum (CaSO₄·2H₂O)",
+          "amount": "8",
+          "unit": "g"
+        }
+      ],
+      "volumeUnit": "bbl",
+      "volumes": [
+        {
+          "label": "Mash water",
+          "value": "0.226"
+        },
+        {
+          "label": "Water absorbed by the grain",
+          "value": "0.016"
+        },
+        {
+          "label": "Water left in the mash tun",
+          "value": "-0.242"
+        },
+        {
+          "label": "Sparge water (untreated)",
+          "value": "0.000"
+        },
+        {
+          "label": "Total water",
+          "value": "0.226"
+        }
+      ],
+      "style": "IPA (American/English)",
+      "profileLabel": "Treated water (predicted), not the wort in the kettle",
+      "profile": [
+        {
+          "label": "Calcium",
+          "predicted": "74",
+          "target": "120"
+        },
+        {
+          "label": "Magnesium",
+          "predicted": "0",
+          "target": "18"
+        },
+        {
+          "label": "Sodium",
+          "predicted": "0",
+          "target": "15"
+        },
+        {
+          "label": "Sulfate",
+          "predicted": "225",
+          "target": "225"
+        },
+        {
+          "label": "Chloride",
+          "predicted": "0",
+          "target": "75"
+        },
+        {
+          "label": "Alkalinity",
+          "predicted": "0",
+          "target": "66"
+        },
+        {
+          "label": "Residual alkalinity",
+          "predicted": "-53",
+          "target": "-30"
+        },
+        {
+          "label": "SO₄:Cl ratio",
+          "predicted": "∞",
+          "target": "3.00"
+        }
+      ],
+      "mashPhLabel": "Mash pH (cooled sample),",
+      "mashPhPredicted": "5.6",
+      "mashPhNote": null,
+      "hltNote": null,
+      "kettle": null
+    },
+    "notes": null
+  },
+  "no-water-arg": {
+    "title": null,
+    "meta": [
+      {
+        "label": "Batch volume",
+        "value": "5.50 gal"
+      },
+      {
+        "label": "Date",
+        "value": "October 5, 2026"
+      }
+    ],
+    "headline": [
+      {
+        "label": "OG",
+        "value": "1.055",
+        "unit": "SG",
+        "measuredBox": true
+      },
+      {
+        "label": "FG",
+        "value": "1.013",
+        "unit": "SG",
+        "measuredBox": true
+      },
+      {
+        "label": "ABV",
+        "value": "5.7",
+        "unit": "%",
+        "measuredBox": false
+      },
+      {
+        "label": "SRM",
+        "value": "4.7",
+        "unit": "",
+        "measuredBox": false
+      },
+      {
+        "label": "IBU",
+        "value": "47",
+        "unit": "",
+        "measuredBox": false
+      },
+      {
+        "label": "Cells",
+        "value": "210",
+        "unit": "billion",
+        "measuredBox": false
+      }
+    ],
+    "grain": {
+      "weightUnit": "lb",
+      "rows": [
+        {
+          "name": "Pale 2-Row",
+          "weight": "10.00",
+          "share": "90.9",
+          "yield": "80.0",
+          "color": "2.0"
+        },
+        {
+          "name": "Munich",
+          "weight": "1.00",
+          "share": "9.1",
+          "yield": "80.0",
+          "color": "9.0"
+        }
+      ],
+      "efficiency": "75.0"
+    },
+    "volumes": {
+      "unit": "gal",
+      "rows": [
+        {
+          "key": "mashWater",
+          "label": "Mash water",
+          "value": "5.00",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "preBoil",
+          "label": "Pre-boil volume",
+          "value": "7.00",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "postBoil",
+          "label": "Post-boil volume at 60 °F",
+          "value": "5.50",
+          "tempNote": null,
+          "measuredBox": true
+        },
+        {
+          "key": "ferment",
+          "label": "Fermentation volume",
+          "value": "5.50",
+          "tempNote": null,
+          "measuredBox": true
+        }
+      ],
+      "boilTime": "60",
+      "boilOff": "1.50",
+      "mashRv": "1.82",
+      "mashRvUnit": "qt/lb",
+      "mashR": "3.74",
+      "mashRUnit": "lb/lb"
+    },
+    "hops": {
+      "weightUnit": "oz",
+      "tempUnit": "°F",
+      "kettle": [
+        {
+          "name": "Magnum",
+          "time": "60",
+          "temp": "212",
+          "weight": "1.00",
+          "alpha": "12.0",
+          "ibu": "40.1"
+        },
+        {
+          "name": "Cascade",
+          "time": "10",
+          "temp": "212",
+          "weight": "1.00",
+          "alpha": "6.0",
+          "ibu": "7.3"
+        }
+      ],
+      "totalIbu": "47",
+      "dry": [
+        {
+          "name": "Citra",
+          "weight": "2.00"
+        }
+      ],
+      "dryRate": "0.36",
+      "dryRateUnit": "oz/gal"
+    },
+    "yeast": {
+      "strain": "—",
+      "type": "Ale",
+      "attenuation": "77.0",
+      "fermTemp": "—",
+      "tempUnit": "°F",
+      "character": "Moderate",
+      "pitchRate": "0.75",
+      "pitchRateUnit": "billion/L/°P",
+      "cells": "210",
+      "cellsUnit": "billion",
+      "starterVolumeUnit": "L",
+      "starter": []
+    },
+    "water": null,
+    "notes": null
+  }
+}

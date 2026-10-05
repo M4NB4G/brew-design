@@ -104,7 +104,7 @@ describe('HLT wording', () => {
     expect(s.water.hltNote).toBe('HLT = Hot Liquor Tank');
     expect(s.water.additions.map((a) => a.place)).toContain('HLT');
     expect(s.water.volumes.map((v) => v.label)).toEqual(
-      expect.arrayContaining(['Sparge water (from the HLT)', 'HLT first fill, treated', 'HLT topped up to', 'Left in the HLT, not used']),
+      expect.arrayContaining(['HLT first fill, treated', 'HLT topped up to', 'Left in the HLT, not used']),
     );
     expect(tankWords(JSON.stringify(s.water))).toEqual([]);
   });
