@@ -213,7 +213,7 @@ owner before building. The box records the inspector's.
 - **Widened trial: Sonnet 5.5 builds Tier B, Opus advises and inspects**
   (the owner's decision after S6a, 2026-10-05: widen). Batch S6c holds
   the Tier B items that change neither the engine nor saved data. Sonnet
-  5.5 builds; the Opus advisor (`/advisor opus`) checks the approach
+  5.5 builds at high effort, as an Opus Tier B builder does (WT-6); the Opus advisor (`/advisor opus`) checks the approach
   before building and confirms every number before each commit; a fresh
   Opus inspector, default effort, returns each item's box as for any
   Tier B item. The report carries per item the box, the advisor's

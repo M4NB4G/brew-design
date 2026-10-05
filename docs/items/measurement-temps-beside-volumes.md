@@ -26,7 +26,7 @@ it belongs beside it.
 |---|---|---|---|
 | MT-Q1 | Where each temperature goes | On the Volumes card, under the volume it corrects: pre-boil, post-boil and fermentation, each with its volume at 60 °F beside it. The Options tab keeps only the brewery's figures | The temperature belongs to the reading it corrects |
 | MT-Q2 | Does the printed sheet change? | Only as much as S6a's one-page sheet leaves room for; it already notes "measured at X °F". S6a goes first | The one-page sheet settles the layout |
-| M1 | Builder model | Sonnet 5.5, with the Opus advisor (`/advisor opus`) checking the approach and confirming every number before commit (WT-3', the owner, 2026-10-05; was Opus, high effort, S6-M1) | The widened trial (CLAUDE.md, Models): this item changes neither the engine nor saved data |
+| M1 | Builder model | Sonnet 5.5 at high effort (WT-6, the owner, 2026-10-05), with the Opus advisor (`/advisor opus`) checking the approach and confirming every number before commit (WT-3', the owner, 2026-10-05; was Opus, high effort, S6-M1) | The widened trial (CLAUDE.md, Models): this item changes neither the engine nor saved data |
 | M2 | Inspector model | Opus, default effort, a fresh session | The Models rule's default |
 | K | Silent properties | None new: nothing saved changes (the temperatures are already in the recipe); ordering, multi-tab and storage disabled as today | — |
 

@@ -26,7 +26,7 @@ recipe will get in its place. The choices already name theirs ("Built-in
 | BB-Q1 | A built-in figure that is itself blank (the water report, Ca to pH; the HLT treated volume; the top-up level) | The box stays empty, as today | There is no built-in figure to name; a "—" in a box reads as a value |
 | BB-Q2 | The figure alone, or with a word | The figure alone, greyed; the unit stays in the row's label | Number boxes are narrow; grey in a box is the usual sign for "not set". The choices say "Built-in (…)" because their option text has room |
 | BB-Q3 | Decimals | As the recipe's own box for that figure shows it | The greyed figure matches what typing it would show |
-| M1 | Builder model | Sonnet 5.5, with the Opus advisor (`/advisor opus`) checking the approach and confirming every number before commit | WT-3' (CLAUDE.md, Models: the widened trial) |
+| M1 | Builder model | Sonnet 5.5 at high effort (WT-6, the owner, 2026-10-05), with the Opus advisor (`/advisor opus`) checking the approach and confirming every number before commit | WT-3' (CLAUDE.md, Models: the widened trial) |
 | M2 | Inspector model | Opus, default effort, a fresh session | WT-3' |
 | SP | Silent properties (durability, atomicity, idempotence, ordering, storage disabled, schema migration, multi-tab) | None new. The figures are read from the built-in recipe, so they show with storage blocked; nothing is stored, so no format change and no migration; a second tab shows the same built-in figures | The greyed figure is display only (BB-S3) |
 
