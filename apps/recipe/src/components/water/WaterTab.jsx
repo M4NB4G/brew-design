@@ -25,7 +25,7 @@ const SCREENS = [
   ['notes', 'Notes'],
 ];
 
-export default function WaterTab({ water, figures, mode, screen, onScreen, setWater }) {
+export default function WaterTab({ water, figures, mode, proVolumeUnit, screen, onScreen, setWater }) {
   const blank = figures.missing.map((k) => REPORT_LABELS[k]);
   const blankSetup = figures.blank.map((k) => SETUP_LABELS[k]);
   const blankMashPh = figures.mashPh.needs.map(({ malt, field }) => `${MASH_PH_LABELS[field]} (${malt})`);
@@ -89,7 +89,7 @@ export default function WaterTab({ water, figures, mode, screen, onScreen, setWa
       {screen === 'water' && <WaterInScreen source={water.source} figures={figures} setWater={setWater} />}
       {screen === 'style' && <StyleScreen styleId={water.styleId} figures={figures} setWater={setWater} />}
       {screen === 'salts' && (
-        <SaltsAcidScreen water={water} figures={figures} mode={mode} setWater={setWater} />
+        <SaltsAcidScreen water={water} figures={figures} mode={mode} proVolumeUnit={proVolumeUnit} setWater={setWater} />
       )}
       {screen === 'notes' && <NotesScreen />}
     </>

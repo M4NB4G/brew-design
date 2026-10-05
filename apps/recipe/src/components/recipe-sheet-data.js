@@ -16,7 +16,11 @@ import {
   gravityFromCanonical,
   volumeUnit,
   volumeFromCanonical,
+  volumesInBarrels,
   maltWeightUnit,
+  maltInSacks,
+  sackSplitText,
+  sackUnit,
   hopWeightUnit,
   hopWeightFromCanonical,
   dryHopRateUnit,
@@ -66,14 +70,37 @@ function tempNote(tempF, temperatureUnit) {
   return tempF === REFERENCE_TEMP_F ? null : `measured at ${tempReadout(tempF, temperatureUnit)} ${tempUnit(temperatureUnit)}`;
 }
 
-export function recipeSheet({ recipe, derived, water, mode, proGravityUnit, temperatureUnit, today }) {
+// Pro's volume and malt weight units on the sheet (PU-S4): the brewery's set
+// unit for each, or where the brewery has set none, the screen's. Home prints
+// gallons and pounds whatever they are.
+function sheetProUnits(brewery, proVolumeUnit, proMaltUnit) {
+  return {
+    volume: brewery?.proVolumeUnit ?? proVolumeUnit,
+    malt: brewery?.proMaltUnit ?? proMaltUnit,
+  };
+}
+
+export function recipeSheet({
+  recipe,
+  derived,
+  water,
+  mode,
+  proGravityUnit,
+  temperatureUnit,
+  proVolumeUnit,
+  proMaltUnit,
+  brewery,
+  today,
+}) {
   const { grist, hops, pitchRate, cells, starter } = derived;
+  const pro = sheetProUnits(brewery, proVolumeUnit, proMaltUnit);
+  const sacks = maltInSacks(mode, pro.malt);
   const tUnit = tempUnit(temperatureUnit);
   const refTemp = referenceTemp(temperatureUnit);
   const temperature = (tempF) => tempReadout(tempF, temperatureUnit);
   const gu = resolveGravityUnit(mode, proGravityUnit);
-  const vUnit = volumeUnit(mode);
-  const vol = (gal) => num(volumeFromCanonical(gal, mode), mode === 'pro' ? 3 : 2);
+  const vUnit = volumeUnit(mode, pro.volume);
+  const vol = (gal) => num(volumeFromCanonical(gal, mode, pro.volume), volumesInBarrels(mode, pro.volume) ? 3 : 2);
   const hopWt = (oz) => num(hopWeightFromCanonical(oz, mode), mode === 'pro' ? 3 : 2);
   const pct = (fraction) => num(fractionToPercent(fraction), 1);
   const temps = recipe.measurementTempF;
@@ -106,10 +133,11 @@ export function recipeSheet({ recipe, derived, water, mode, proGravityUnit, temp
     ],
 
     grain: {
-      weightUnit: maltWeightUnit(),
+      // In sacks, the split that is weighed on brew day, not the decimal (PU-Q1b).
+      weightUnit: sacks ? sackUnit() : maltWeightUnit(),
       rows: recipe.malts.map((m, i) => ({
         name: m.name,
-        weight: num(m.weightLb, 2),
+        weight: sacks ? (sackSplitText(m.weightLb, (lb) => num(lb, 2)) ?? num(m.weightLb, 2)) : num(m.weightLb, 2),
         share: pct(grist.perMalt[i]?.perMaltWeightFraction),
         yield: pct(m.fgdb),
         color: num(m.colorL, 1),

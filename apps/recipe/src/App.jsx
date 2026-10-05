@@ -1,6 +1,7 @@
 // App.jsx
 // Owns the single canonical recipe-state object plus the display settings
-// (mode, Pro-mode gravity unit, temperature unit) and the active tab (Recipe · Water · Options;
+// (mode, Pro-mode gravity, volume and malt weight units, temperature unit)
+// and the active tab (Recipe · Water · Options;
 // not persisted). The Water tab's entries are the recipe's own (`recipe.water`,
 // water-state.js), saved and reset with it (Water saved with the recipe). Derives all stats once via computeRecipe and passes plain props
 // down to cleanly separated section components. No brewing math and no unit
@@ -36,6 +37,7 @@ import {
   importBreweryFile,
   saveBrewery,
   clearBrewery,
+  BREWERY_KEY,
 } from './persistence.js';
 import Header from './components/Header.jsx';
 import TabBar from './components/TabBar.jsx';
@@ -76,11 +78,22 @@ export default function App() {
   const [mode, setMode] = useState(initial.mode); // 'home' | 'pro'
   const [proGravityUnit, setProGravityUnit] = useState(initial.proGravityUnit); // Pro: 'plato' | 'sg'
   const [temperatureUnit, setTemperatureUnit] = useState(initial.temperatureUnit); // 'F' | 'C'
+  const [proVolumeUnit, setProVolumeUnit] = useState(initial.proVolumeUnit); // Pro: 'bbl' | 'gal'
+  const [proMaltUnit, setProMaltUnit] = useState(initial.proMaltUnit); // Pro: 'lb' | 'sack'
   const [tab, setTab] = useState('recipe'); // 'recipe' | 'water' | 'options'; every load opens on Recipe
   const [fileMessage, setFileMessage] = useState(''); // an import refusal, shown under the header controls
   // The brewery's figures (Options tab, My brewery): kept apart from the
   // recipe, and read only when a new recipe is made.
   const [brewery, setBrewery] = useState(() => loadBrewery(browserStorage()));
+  // The printed sheet reads the brewery's figures (Pro unit choices, K): a
+  // change saved in another tab of this browser is read here too.
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === BREWERY_KEY || e.key === null) setBrewery(loadBrewery(browserStorage()));
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
   // The Water tab's entries are the recipe's (saved by the autosave below),
   // changed only through water-state.js's steps; its open screen is not saved.
   const water = recipe.water;
@@ -95,19 +108,19 @@ export default function App() {
 
   // Autosave on every change (scope table P6: synchronous, no debounce).
   useEffect(() => {
-    savePersisted(browserStorage(), { recipe, mode, proGravityUnit, temperatureUnit });
-  }, [recipe, mode, proGravityUnit, temperatureUnit]);
+    savePersisted(browserStorage(), { recipe, mode, proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit });
+  }, [recipe, mode, proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit]);
 
   // A refusal message lasts until the next action: an edit, or a header action below.
   useEffect(() => {
     setFileMessage('');
-  }, [recipe, mode, proGravityUnit, temperatureUnit]);
+  }, [recipe, mode, proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit]);
 
   // Export (recipe file S1, S2, S7): the saved document, handed to the browser
   // as a download named from the recipe name and today's date. Reads only.
   const exportRecipe = () => {
     setFileMessage('');
-    const blob = new Blob([exportRecipeDocument({ recipe, mode, proGravityUnit, temperatureUnit })], {
+    const blob = new Blob([exportRecipeDocument({ recipe, mode, proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit })], {
       type: 'application/json',
     });
     const url = URL.createObjectURL(blob);
@@ -142,6 +155,8 @@ export default function App() {
     setMode(result.state.mode);
     setProGravityUnit(result.state.proGravityUnit);
     setTemperatureUnit(result.state.temperatureUnit);
+    setProVolumeUnit(result.state.proVolumeUnit);
+    setProMaltUnit(result.state.proMaltUnit);
   };
 
   // Reset to defaults (P9): confirm, remove the saved copy, start a new
@@ -157,6 +172,8 @@ export default function App() {
     setMode(fresh.mode);
     setProGravityUnit(fresh.proGravityUnit);
     setTemperatureUnit(fresh.temperatureUnit);
+    setProVolumeUnit(fresh.proVolumeUnit);
+    setProMaltUnit(fresh.proMaltUnit);
   };
 
   // The brewery's figures: each change is saved at once, and never touches
@@ -178,7 +195,7 @@ export default function App() {
     changeBrewery({ ...brewery, measurementTempF: { ...brewery.measurementTempF, [kind]: tempF } });
   const setBreweryWater = (key, value) => changeBrewery({ ...brewery, water: { ...brewery.water, [key]: value } });
   const useRecipeFigures = () =>
-    changeBrewery(breweryFiguresFromRecipe(recipe, mode, proGravityUnit, temperatureUnit));
+    changeBrewery(breweryFiguresFromRecipe(recipe, mode, proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit));
   const forgetBrewery = () => {
     if (!window.confirm("Forget your brewery's figures? A new recipe will start from the built-in figures; the recipe on screen is unchanged.")) return;
     clearBrewery(browserStorage());
@@ -246,7 +263,7 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', paddingBottom: '4rem' }}>
 
-      {/* Header with the recipe actions (Export, Import, Reset, Print) and the Pro/Home, °F/°C and Pro-gravity toggles */}
+      {/* Header with the recipe actions (Export, Import, Reset, Print) and the Pro/Home, °F/°C and Pro unit toggles */}
       <Header
         mode={mode}
         onMode={setMode}
@@ -254,6 +271,10 @@ export default function App() {
         onProGravityUnit={setProGravityUnit}
         temperatureUnit={temperatureUnit}
         onTemperatureUnit={setTemperatureUnit}
+        proVolumeUnit={proVolumeUnit}
+        onProVolumeUnit={setProVolumeUnit}
+        proMaltUnit={proMaltUnit}
+        onProMaltUnit={setProMaltUnit}
         onReset={resetToDefaults}
         onExport={exportRecipe}
         onImportFile={importRecipe}
@@ -298,6 +319,7 @@ export default function App() {
               refVolumesGal={derived.refVolumesGal}
               warnings={derived.warnings}
               mode={mode}
+              proVolumeUnit={proVolumeUnit}
               temperatureUnit={temperatureUnit}
               setField={setField}
               setMeasurementTemp={setMeasurementTemp}
@@ -311,6 +333,8 @@ export default function App() {
               addRow={addRow}
               removeRow={removeRow}
               setField={setField}
+              mode={mode}
+              proMaltUnit={proMaltUnit}
             />
 
             <YeastCard
@@ -348,6 +372,7 @@ export default function App() {
             water={water}
             figures={waterFigures}
             mode={mode}
+            proVolumeUnit={proVolumeUnit}
             screen={waterScreen}
             onScreen={setWaterScreen}
             setWater={setWater}
@@ -357,6 +382,7 @@ export default function App() {
         {tab === 'options' && (
           <OptionsSection
             mode={mode}
+            proVolumeUnit={proVolumeUnit}
             temperatureUnit={temperatureUnit}
             brewery={brewery}
             setBreweryFigure={setBreweryFigure}
@@ -384,6 +410,9 @@ export default function App() {
           mode={mode}
           proGravityUnit={proGravityUnit}
           temperatureUnit={temperatureUnit}
+          proVolumeUnit={proVolumeUnit}
+          proMaltUnit={proMaltUnit}
+          brewery={brewery}
         />,
         document.body,
       )}

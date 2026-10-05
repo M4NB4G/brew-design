@@ -150,6 +150,18 @@ export const LITERS_PER_BBL = GALLONS_PER_BBL * LITERS_PER_GALLON;
 // Quarts per US gallon (exact, by definition).
 export const QT_PER_GAL = 4;
 
+// A malt sack (Pro unit choices, 2026-10-02: the owner's decision, PU-Q3).
+export const LB_PER_SACK = 55;
+
+/**
+ * A malt weight (lb) as whole sacks and the pounds left over: 177 lb is
+ * { sacks: 3, lb: 12 }. A blank weight (NaN) splits into blanks.
+ */
+export function splitSacks(lb) {
+  const sacks = Math.floor(lb / LB_PER_SACK);
+  return { sacks, lb: lb - sacks * LB_PER_SACK };
+}
+
 export const G_PER_OZ = 28.3495;
 export const OZ_PER_LB = 16;
 export const G_PER_LB = OZ_PER_LB * G_PER_OZ; // 453.592

@@ -15,6 +15,7 @@ import {
   volumeToCanonical,
   volumeFromCanonical,
   volumeUnit,
+  volumesInBarrels,
   saltUnit,
   mashRvUnit,
   fractionToPercent,
@@ -56,12 +57,14 @@ export const SETUP_LABELS = {
   tankTopUpGal: 'Top-up level',
 };
 
-// A canonical-gal figure in the mode's unit: gal to 0.01, bbl to 0.001.
-export const volumeText = (gal, mode) => num(volumeFromCanonical(gal, mode), mode === 'pro' ? 3 : 2);
+// A canonical-gal figure in the screen's volume unit (Home gal; Pro bbl, or
+// gal by Pro's volume choice): gal to 0.01, bbl to 0.001.
+export const volumeText = (gal, mode, proVolumeUnit) =>
+  num(volumeFromCanonical(gal, mode, proVolumeUnit), volumesInBarrels(mode, proVolumeUnit) ? 3 : 2);
 
 // A canonical-gal figure as a number box shows it: blank shows empty.
-const volumeShown = (gal, mode) =>
-  Number.isFinite(gal) ? Number(volumeFromCanonical(gal, mode).toFixed(6)) : '';
+const volumeShown = (gal, mode, proVolumeUnit) =>
+  Number.isFinite(gal) ? Number(volumeFromCanonical(gal, mode, proVolumeUnit).toFixed(6)) : '';
 
 function Warning({ children }) {
   return (
@@ -102,22 +105,22 @@ function Choice({ label, value, options, labels, onChange }) {
   );
 }
 
-export default function WaterGoesCard({ water, figures, mode, setWater }) {
+export default function WaterGoesCard({ water, figures, mode, proVolumeUnit, setWater }) {
   const { setup, volumes, tank, warnings } = figures;
-  const unit = volumeUnit(mode);
+  const unit = volumeUnit(mode, proVolumeUnit);
   const set = (key, value) => setWater((w) => setWaterSetup(w, key, value));
   const volumeRow = (key, label, hint) => (
     <InputRow
       label={label}
       unit={unit}
-      value={volumeShown(water[key], mode)}
-      onChange={(e) => set(key, volumeToCanonical(parseFloat(e.target.value), mode))}
+      value={volumeShown(water[key], mode, proVolumeUnit)}
+      onChange={(e) => set(key, volumeToCanonical(parseFloat(e.target.value), mode, proVolumeUnit))}
       step={0.1}
       min={0}
       hint={hint}
     />
   );
-  const v = (gal) => volumeText(gal, mode);
+  const v = (gal) => volumeText(gal, mode, proVolumeUnit);
   const tankTreated = setup.treatment === 'tank';
 
   // One line per salt in a share of the tank: "Gypsum (CaSO₄·2H₂O) 8.4 g".

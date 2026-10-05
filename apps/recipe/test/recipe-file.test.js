@@ -53,7 +53,7 @@ function inFile() {
     malts: [{ name: 'Golden Promise', weightLb: 27, fgdb: 0.8, colorL: 2.2, type: 'base', distilledWaterPh: NaN, acidityMeqPerKg: NaN }],
     measurementTempF: { preBoil: 150, postBoil: 190, ferment: 66 },
   };
-  return { recipe, mode: 'pro', proGravityUnit: 'sg', temperatureUnit: 'F' };
+  return { recipe, mode: 'pro', proGravityUnit: 'sg', temperatureUnit: 'F', proVolumeUnit: 'bbl', proMaltUnit: 'lb' };
 }
 
 // Storage holding the working copy of what is on screen.
@@ -105,7 +105,7 @@ describe('recipe file', () => {
       expect(file).toBe(s._map.get(STORAGE_KEY));
       const doc = JSON.parse(file);
       expect(doc.version).toBe(SCHEMA_VERSION);
-      expect(doc.version).toBe(9);
+      expect(doc.version).toBe(10);
       expect(doc.mode).toBe(state.mode);
       expect(doc.proGravityUnit).toBe(state.proGravityUnit);
       expect(doc.recipe.name).toBe(state.recipe.name);
@@ -223,8 +223,8 @@ describe('recipe file', () => {
     const doc = JSON.parse(exportRecipeDocument(inFile()));
     const newer = { ...doc, version: SCHEMA_VERSION + 1 };
     const result = expectRefused(JSON.stringify(newer), /newer version of Brew Design/);
-    expect(result.message).toMatch(/file version 10/);
-    expect(result.message).toMatch(/reads up to version 9/);
+    expect(result.message).toMatch(/file version 11/);
+    expect(result.message).toMatch(/reads up to version 10/);
     // Newer is its own reason, not "damaged": a newer file whose recipe
     // this version cannot read is still reported as newer.
     const newerOddShape = { version: SCHEMA_VERSION + 2, recipe: { hopsV5: [] }, mode: 'x' };

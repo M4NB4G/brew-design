@@ -112,7 +112,7 @@ describe('water saved with the recipe', () => {
     const s = fakeStorage();
     savePersisted(s, { recipe, mode: 'home', proGravityUnit: 'plato' });
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(9);
+    expect(doc.version).toBe(10);
     expect(doc.recipe.water.styleId).toBe('ipa');
     // One key: nothing else is written.
     expect([...s._map.keys()]).toEqual([STORAGE_KEY]);
@@ -204,7 +204,7 @@ describe('water saved with the recipe', () => {
     // Saved with the brewery's figures (version 3), read back as saved.
     const s = fakeStorage();
     saveBrewery(s, brewery);
-    expect(JSON.parse(s._map.get(BREWERY_KEY)).version).toBe(4);
+    expect(JSON.parse(s._map.get(BREWERY_KEY)).version).toBe(5);
     expect(loadBrewery(s)).toEqual(brewery);
     // A first visit starts from them.
     expect(loadStartingState(s).recipe.water).toEqual(w);
@@ -226,7 +226,7 @@ describe('water saved with the recipe', () => {
     expect(computeRecipe(loaded.recipe)).toEqual(computeRecipe(rest));
     // Saved back as version 7.
     savePersisted(s, loaded);
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(9);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(10);
     expect(loadStartingState(s)).toEqual(loaded);
 
     // A version-4 recipe file is read the same way.
@@ -251,9 +251,9 @@ describe('water saved with the recipe', () => {
     s.setItem(BREWERY_KEY, JSON.stringify({ version: 1, brewery: v1 }));
     const loaded = loadBrewery(s);
     expect(loaded).toEqual({ ...v1, water: emptyBreweryFigures().water });
-    // Saved back as version 4, the same figures.
+    // Saved back as version 5, the same figures.
     const doc = JSON.parse(s._map.get(BREWERY_KEY));
-    expect(doc.version).toBe(4);
+    expect(doc.version).toBe(5);
     expect(loadBrewery(s)).toEqual(loaded);
     // A new recipe from them has the built-in water.
     expect(newRecipe(loaded).recipe.water).toEqual(defaultWaterState());
@@ -266,7 +266,7 @@ describe('water saved with the recipe', () => {
       return loadBrewery(b);
     };
     expect(bad(JSON.stringify({ version: 1, brewery: { ...v1, efficiency: '90' } }))).toEqual(emptyBreweryFigures());
-    expect(bad(JSON.stringify({ version: 5, brewery: { ...v1, water: BREWERY_WATER } }))).toEqual(emptyBreweryFigures());
+    expect(bad(JSON.stringify({ version: 6, brewery: { ...v1, water: BREWERY_WATER } }))).toEqual(emptyBreweryFigures());
   });
 
   it('damaged water entries make a recipe unreadable', () => {

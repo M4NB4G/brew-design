@@ -5,6 +5,8 @@ import { describe, it, expect } from 'vitest';
 import {
   fToC,
   cToF,
+  LB_PER_SACK,
+  splitSacks,
   galToL,
   sgToPlato,
   platoToSg,
@@ -51,6 +53,25 @@ describe('°C converts to °F', () => {
     expect(cToF(-40)).toBe(-40);
     // Idempotence (K): back and forth within the display's precision.
     for (const f of [32, 60, 66.2, 68, 150, 180, 212]) expect(cToF(fToC(f))).toBeCloseTo(f, 9);
+  });
+});
+
+describe('a weight splits into 55 lb sacks', () => {
+  // Pro unit choices (docs/items/pro-unit-choices.md, PU-S3, PU-Q3): the sack
+  // is 55 lb; a weight splits into whole sacks and the pounds left, by hand:
+  // 177 = 3 x 55 + 12 (165 + 12); 55 = 1 x 55 + 0; 54.9 < 55, so 0 + 54.9;
+  // 3.22 sacks = 3.22 x 55 = 177.1 lb = 3 sacks + 12.1 lb.
+  it('a weight splits into 55 lb sacks', () => {
+    expect(LB_PER_SACK).toBe(55);
+    expect(splitSacks(177)).toEqual({ sacks: 3, lb: 12 });
+    expect(splitSacks(55)).toEqual({ sacks: 1, lb: 0 });
+    expect(splitSacks(54.9)).toEqual({ sacks: 0, lb: 54.9 });
+    const typed = splitSacks(3.22 * 55);
+    expect(typed.sacks).toBe(3);
+    expect(typed.lb).toBeCloseTo(12.1, 9);
+    // A blank weight splits into blanks.
+    const blank = splitSacks(NaN);
+    expect(Number.isNaN(blank.sacks) && Number.isNaN(blank.lb)).toBe(true);
   });
 });
 

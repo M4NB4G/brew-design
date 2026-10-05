@@ -100,7 +100,7 @@ function DraftInput({ initialValue, format, parse, onChange, style }) {
   );
 }
 
-export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
+export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, setWater }) {
   const { style, target, salts, raiseSalt, acid, final, mashPh } = figures;
 
   // Grams: whole in Pro, one decimal at Home (the water app's precision).
@@ -113,7 +113,7 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
 
   // Where the treated water's additions go (water treatment, WT-S1).
   const tankTreated = figures.setup.treatment === 'tank';
-  const treatedVolume = `${volumeText(figures.volumes.treatedGal, mode)} ${volumeUnit(mode)}`;
+  const treatedVolume = `${volumeText(figures.volumes.treatedGal, mode, proVolumeUnit)} ${volumeUnit(mode, proVolumeUnit)}`;
 
   const saltRow = (row, warnings) => (
     <div key={row.key} style={editableRowStyle}>
@@ -171,7 +171,7 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
 
   return (
     <>
-      <WaterGoesCard water={water} figures={figures} mode={mode} setWater={setWater} />
+      <WaterGoesCard water={water} figures={figures} mode={mode} proVolumeUnit={proVolumeUnit} setWater={setWater} />
 
       <Card>
         <div style={tokens.cardLabel}>Available Salts</div>
@@ -351,7 +351,7 @@ export default function SaltsAcidScreen({ water, figures, mode, setWater }) {
             <Card>
               <div style={tokens.cardLabel}>Kettle Salts</div>
               <div style={{ fontSize: '0.8rem', color: colors.textMuted, marginBottom: '0.4rem' }}>
-                These bring the kettle water ({volumeText(figures.kettle.volumeGal, mode)} {volumeUnit(mode)}) to the{' '}
+                These bring the kettle water ({volumeText(figures.kettle.volumeGal, mode, proVolumeUnit)} {volumeUnit(mode, proVolumeUnit)}) to the{' '}
                 {style.name} target.
               </div>
               {figures.kettle.overTarget.length > 0 && (

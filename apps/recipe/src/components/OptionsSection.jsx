@@ -20,6 +20,9 @@ import {
   tempToCanonical,
   tempBoxValue,
   TEMPERATURE_UNITS,
+  PRO_VOLUME_UNITS,
+  PRO_MALT_UNITS,
+  maltWeightUnit,
   percentUnit,
   fractionToPercent,
   percentToFraction,
@@ -111,9 +114,8 @@ function ChoiceRow({ label, value, onChange, options, builtIn }) {
 // and kettle switch, the water setup, the usual water report and the salts on
 // hand, each blank until set — a new recipe then takes the built-in one,
 // named in each choice and in the salts' line.
-function BreweryWater({ water, mode, setBreweryWater, volume }) {
+function BreweryWater({ water, setBreweryWater, volume, vUnit }) {
   const built = defaultWaterState();
-  const vUnit = volumeUnit(mode);
   const onHand = water.enabledSalts;
   const toggleSalt = (key) => {
     const now = onHand ?? built.enabledSalts;
@@ -221,6 +223,7 @@ const saltCheckStyle = {
 
 export default function OptionsSection({
   mode,
+  proVolumeUnit,
   temperatureUnit,
   brewery,
   setBreweryFigure,
@@ -233,12 +236,12 @@ export default function OptionsSection({
   breweryFileMessage,
 }) {
   const breweryFile = useRef(null); // the brewery file's picker (S4b item 5)
-  const vUnit = volumeUnit(mode);
+  const vUnit = volumeUnit(mode, proVolumeUnit);
   const tUnit = tempUnit(temperatureUnit);
   const built = defaultRecipeState(); // the figures a new recipe gets in place of a blank one
   const volume = {
-    toShown: (gal) => volumeFromCanonical(gal, mode),
-    fromShown: (v) => volumeToCanonical(v, mode),
+    toShown: (gal) => volumeFromCanonical(gal, mode, proVolumeUnit),
+    fromShown: (v) => volumeToCanonical(v, mode, proVolumeUnit),
   };
   const temperature = {
     toShown: (tempF) => tempBoxValue(tempF, temperatureUnit),
@@ -320,6 +323,20 @@ export default function OptionsSection({
         builtIn={gravityUnitLabel(DEFAULT_DISPLAY.proGravityUnit)}
       />
       <ChoiceRow
+        label="Pro volume unit"
+        value={brewery.proVolumeUnit}
+        onChange={(v) => setBreweryFigure('proVolumeUnit', v)}
+        options={PRO_VOLUME_UNITS.map((u) => [u, volumeUnit('pro', u)])}
+        builtIn={volumeUnit('pro', DEFAULT_DISPLAY.proVolumeUnit)}
+      />
+      <ChoiceRow
+        label="Pro malt weight unit"
+        value={brewery.proMaltUnit}
+        onChange={(v) => setBreweryFigure('proMaltUnit', v)}
+        options={PRO_MALT_UNITS.map((u) => [u, maltWeightUnit('pro', u)])}
+        builtIn={maltWeightUnit('pro', DEFAULT_DISPLAY.proMaltUnit)}
+      />
+      <ChoiceRow
         label="Temperature unit"
         value={brewery.temperatureUnit}
         onChange={(v) => setBreweryFigure('temperatureUnit', v)}
@@ -327,7 +344,7 @@ export default function OptionsSection({
         builtIn={tempUnit(DEFAULT_DISPLAY.temperatureUnit)}
       />
 
-      <BreweryWater water={brewery.water} mode={mode} setBreweryWater={setBreweryWater} volume={volume} />
+      <BreweryWater water={brewery.water} setBreweryWater={setBreweryWater} volume={volume} vUnit={vUnit} />
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginTop: '0.85rem' }}>
         <button type="button" onClick={onUseRecipeFigures} style={button}>

@@ -1,7 +1,9 @@
 // GristTable.jsx
 // Editable malt bill (add/remove rows; the name box searches the owner's
 // ingredient list, IngredientSearch) plus the brewhouse efficiency. Malt
-// weight is lb in both modes; fgdb, color (degL) and efficiency are
+// weight is lb, or in Pro 55 lb sacks by Pro's malt choice (PU-S3: entered as
+// decimal sacks, stored in lb, whole sacks and pounds shown beside the box);
+// fgdb, color (degL) and efficiency are
 // unitless/fixed. Apparent attenuation is entered on the Yeast card. Per-malt
 // extract points shown read-only from the engine. On a phone each malt is a
 // block (IngredientBlock) holding the same boxes instead of a table row.
@@ -15,8 +17,17 @@ import InputRow from './shared/InputRow.jsx';
 import usePhone from './shared/usePhone.js';
 import { MALT_TYPES } from '@brew/engine';
 import { colors, tokens, radii } from './shared/styles.js';
-import { maltWeightUnit, percentUnit, fractionToPercent, percentToFraction } from '../display.js';
-import { num } from '../format.js';
+import {
+  maltWeightUnit,
+  maltInSacks,
+  maltWeightBoxValue,
+  maltWeightToCanonical,
+  sackSplitText,
+  percentUnit,
+  fractionToPercent,
+  percentToFraction,
+} from '../display.js';
+import { num, roundForInput } from '../format.js';
 import { newRow, chooseMaltType } from '../ingredient-search.js';
 
 // The mash pH model's malt types, as the choice names them; blank until set.
@@ -44,6 +55,7 @@ const TD = { padding: '0.45rem 0.6rem', borderBottom: `1px solid ${colors.rowDiv
 const TD_NUM = { ...TD, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
 const phoneTypeStyle = { display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.45rem' };
 const phoneTypeLabelStyle = { fontSize: '0.75rem', color: colors.textSecondary, fontWeight: 600 };
+const sackSplitStyle = { fontSize: '0.72rem', color: colors.textMuted, marginTop: '0.2rem', whiteSpace: 'nowrap' };
 
 export default function GristTable({
   malts,
@@ -53,20 +65,29 @@ export default function GristTable({
   addRow,
   removeRow,
   setField,
+  mode,
+  proMaltUnit,
 }) {
   const phone = usePhone();
+  const sacks = maltInSacks(mode, proMaltUnit);
+  const wUnit = maltWeightUnit(mode, proMaltUnit);
 
   // A malt's number boxes, shared by the table's cells and the phone's blocks.
   const maltInputs = (m, i) => [
     {
-      label: `Weight (${maltWeightUnit()})`,
+      label: `Weight (${wUnit})`,
       input: (
-        <NumberField
-          value={m.weightLb}
-          step="0.1"
-          min="0"
-          onChange={(v) => setRow('malts', i, 'weightLb', v)}
-        />
+        <>
+          <NumberField
+            value={maltWeightBoxValue(m.weightLb, mode, proMaltUnit)}
+            step={sacks ? '0.01' : '0.1'}
+            min="0"
+            onChange={(v) => setRow('malts', i, 'weightLb', maltWeightToCanonical(v, mode, proMaltUnit))}
+          />
+          {sacks && Number.isFinite(m.weightLb) && (
+            <div style={sackSplitStyle}>{sackSplitText(m.weightLb, (lb) => roundForInput(lb))}</div>
+          )}
+        </>
       ),
     },
     {
@@ -173,7 +194,7 @@ export default function GristTable({
           <thead>
             <tr>
               <th style={{ ...TH, minWidth: '120px' }}>Malt</th>
-              <th style={{ ...TH, width: '95px' }}>Weight ({maltWeightUnit()})</th>
+              <th style={{ ...TH, width: '95px' }}>Weight ({wUnit})</th>
               <th style={{ ...TH, width: '80px' }}>FGDB ({percentUnit()})</th>
               <th style={{ ...TH, width: '80px' }}>Color (°L)</th>
               <th style={{ ...TH, width: '140px' }}>Type</th>

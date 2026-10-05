@@ -47,7 +47,7 @@ function engineImports(text) {
 }
 
 // The engine functions each file other than selectors.js may call.
-const UNIT_CONVERSIONS = ['sgToPlato', 'platoToSg', 'volumeToGallons', 'volumeUnit', 'galToL', 'fToC', 'cToF'];
+const UNIT_CONVERSIONS = ['sgToPlato', 'platoToSg', 'volumeToGallons', 'volumeUnit', 'galToL', 'fToC', 'cToF', 'splitSacks'];
 const ALLOWED = {
   'reference-volume.js': ['correctVolumeToRef'],
   'display.js': UNIT_CONVERSIONS,

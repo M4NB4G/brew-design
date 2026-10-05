@@ -57,12 +57,22 @@ pinned by the golden-master tests.
 9. **Convert only at the edges.** `display.js` is the only place that converts
    between canonical and display units, using engine constants and functions
    (`GALLONS_PER_BBL`, `OZ_PER_LB`, `G_PER_OZ`, `sgToPlato`, `platoToSg`,
-   `fToC`, `cToF`, …). No new conversion constants anywhere in the app.
+   `fToC`, `cToF`, `LB_PER_SACK`, `splitSacks`, …). No new conversion
+   constants anywhere in the app.
    Temperatures are stored in °F and shown in the header's choice, °F or
    °C: a °C entry is stored as the engine's `cToF` of it and shows back as
    typed; boxes take tenths of a degree, readouts show whole degrees, except
    the reference, shown in °C as 15.6. The printed sheet uses the screen's
    unit. Switching the unit changes no stored figure.
+   In Pro two more choices sit beside the gravity unit: liquid volumes in
+   barrels or gallons — gallons covers every volume except the dry-hop
+   rate, which stays lb/bbl, and shows to 0.01 as at Home — and malt weights
+   in pounds or 55 lb sacks, entered as decimal sacks to two decimals and
+   stored in pounds, the whole sacks and the pounds left shown beside each
+   box; hops stay in pounds. Home shows neither. The printed sheet prints
+   these two in the brewery's set units, each where set (else the screen's),
+   and malt in sacks as the split ("3 sacks + 12.10 lb"); Home prints
+   gallons and pounds.
 10. `selectors.js` is the only place the app calls engine compute functions.
     The UI renders from `computeRecipe(state)`; tests assert through it.
     The Water tab renders from `computeWater(water, recipe)` beside it: every
@@ -107,7 +117,7 @@ pinned by the golden-master tests.
     only when the canonical state does, at the value that leaves every pinned
     number the same.
 13. Persisted state is the canonical state, under one key, in one JSON
-    document carrying a schema version (9). A version-1 document — saved
+    document carrying a schema version (10). A version-1 document — saved
     before the measurement temperatures existed — loads as the same recipe
     with the three at 60 °F; a version-1 or version-2 document — saved
     before the recipe had a name, style and notes — loads with those three
@@ -121,8 +131,9 @@ pinned by the golden-master tests.
     malt's type blank and its lab figures blank; a version-1 to 7 document
     — saved before the acid could go into the mash — loads with the acid
     with the salts; a version-1 to 8 document — saved before the temperature
-    unit was a display setting — loads in °F; each is saved back as
-    version 9. Unreadable data,
+    unit was a display setting — loads in °F; a version-1 to 9 document —
+    saved before Pro's volume and malt weight choices — loads in barrels and
+    pounds; each is saved back as version 10. Unreadable data,
     any other version, or unavailable storage yields a new recipe (rule 17) and never
     throws. A document is readable only if, after its upgrade, every malt,
     kettle-hop and dry-hop row and the yeast carry every field of the
@@ -159,16 +170,17 @@ pinned by the golden-master tests.
     figures; they are never stored and never feed a number.
 17. **The brewery's figures are not a recipe.** The brewery's batch
     (fermentation) volume, pre-boil volume, boil-off rate, boil time, three
-    measurement temperatures, brewhouse efficiency, Home/Pro, Pro gravity
-    unit and temperature unit (°F/°C), and their water — the usual water report, the salts on hand, the
+    measurement temperatures, brewhouse efficiency, Home/Pro, Pro gravity,
+    volume and malt weight units, temperature unit (°F/°C), and their water — the usual water report, the salts on hand, the
     usual treatment choice and kettle switch, and the water setup (vessels,
     sparge, the tank's treated volume and top-up level, grain absorption)
     — are kept in their own JSON document, under
-    their own key, carrying their own version (4), in the recipe's units; a
+    their own key, carrying their own version (5), in the recipe's units; a
     blank figure is null. A version-1 document — saved before the water —
     loads with every water figure blank, a version-2 one without the
-    water kept in the mash tun, and a version-1 to 3 one with the
-    temperature unit blank; each is saved back as version 4. The sparge
+    water kept in the mash tun, a version-1 to 3 one with the temperature
+    unit blank, and a version-1 to 4 one with Pro's volume and malt weight
+    units blank; each is saved back as version 5. The sparge
     water is never a brewery figure.
     Unreadable data, any other version, or unavailable storage yields every
     figure blank and never throws. The water style, where the acid goes
@@ -196,8 +208,8 @@ pinned by the golden-master tests.
 
 | Quantity | Home | Pro |
 |---|---|---|
-| Volume | gal | bbl (1 bbl = 31 gal) |
-| Malt weight | lb | lb |
+| Volume | gal | bbl (1 bbl = 31 gal), or gal by Pro's choice |
+| Malt weight | lb | lb, or 55 lb sacks by Pro's choice (state holds lb) |
 | Hop weight | oz | lb |
 | Gravity | SG | °P default, SG optional |
 | Mash Rv / Mash R | qt/lb · lb/lb | same |
@@ -206,7 +218,7 @@ pinned by the golden-master tests.
 | Starter volume | L | L |
 | Dry-hop rate | oz/gal | lb/bbl |
 | Temperature | °F, or °C by the header's choice (state holds °F) | same |
-| Water volume | gal | bbl |
+| Water volume | gal | bbl, or gal by Pro's choice |
 | Grain absorption | qt/lb | same |
 | Water test results | mg/L (ppm); pH in SU | same |
 | Salts | g | g |

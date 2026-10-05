@@ -2,14 +2,22 @@
 // Product header for the Recipe Designer, adapted from the Brew Water Chem
 // header.  Same stack order: brand row → 3 px accent strip → toggle row.
 // The Pro/Home toggle, the °F/°C toggle beside it (°C display toggle, CT-S1)
-// and the (Pro-only) gravity-unit toggle live here, matching the water app's
-// convention of keeping unit controls in the header.
+// and the Pro-only gravity-unit, volume-unit and malt-weight-unit toggles
+// (Pro unit choices, PU-S1) live here, matching the water app's convention of
+// keeping unit controls in the header.
 
 import { useRef } from 'react';
 import markSrc from '../assets/persyn-header-mark.png';
 import { colors, radii, shadows } from './shared/styles.js';
 import usePhone from './shared/usePhone.js';
-import { TEMPERATURE_UNITS, tempUnit } from '../display.js';
+import {
+  TEMPERATURE_UNITS,
+  tempUnit,
+  PRO_VOLUME_UNITS,
+  volumeUnit,
+  PRO_MALT_UNITS,
+  maltWeightUnit,
+} from '../display.js';
 
 const SS3 = "'Source Sans 3', system-ui, sans-serif";
 
@@ -27,8 +35,10 @@ const actionButton = {
   fontFamily: 'inherit',
 };
 
-// The °F/°C choice's two buttons.
+// The °F/°C choice's two buttons, and Pro's bbl/gal and lb/sacks.
 const TEMPERATURE_OPTIONS = TEMPERATURE_UNITS.map((u) => [u, tempUnit(u)]);
+const VOLUME_OPTIONS = PRO_VOLUME_UNITS.map((u) => [u, volumeUnit('pro', u)]);
+const MALT_OPTIONS = PRO_MALT_UNITS.map((u) => [u, maltWeightUnit('pro', u)]);
 
 // On a phone the four actions fill two rows of two equal buttons.
 const phoneActionButton = { ...actionButton, width: '100%', padding: '0.5rem 0.6rem' };
@@ -82,6 +92,10 @@ export default function Header({
   onProGravityUnit,
   temperatureUnit,
   onTemperatureUnit,
+  proVolumeUnit,
+  onProVolumeUnit,
+  proMaltUnit,
+  onProMaltUnit,
   onReset,
   onExport,
   onImportFile,
@@ -146,7 +160,7 @@ export default function Header({
             </div>
           </div>
 
-          {/* Phone: Home/Pro on the brand row, °F/°C under it, then Pro's gravity unit */}
+          {/* Phone: Home/Pro on the brand row, °F/°C under it, then Pro's gravity, volume and malt units */}
           {phone && (
             <div
               style={{
@@ -171,12 +185,16 @@ export default function Header({
                 compact
               />
               {mode === 'pro' && (
-                <PillToggle
-                  value={proGravityUnit}
-                  onChange={onProGravityUnit}
-                  options={[['plato', '°P'], ['sg', 'SG']]}
-                  compact
-                />
+                <>
+                  <PillToggle
+                    value={proGravityUnit}
+                    onChange={onProGravityUnit}
+                    options={[['plato', '°P'], ['sg', 'SG']]}
+                    compact
+                  />
+                  <PillToggle value={proVolumeUnit} onChange={onProVolumeUnit} options={VOLUME_OPTIONS} compact />
+                  <PillToggle value={proMaltUnit} onChange={onProMaltUnit} options={MALT_OPTIONS} compact />
+                </>
               )}
             </div>
           )}
@@ -187,7 +205,7 @@ export default function Header({
       {/* Accent gradient strip */}
       <div style={{ height: '3px', background: colors.accent, marginTop: '1rem' }} />
 
-      {/* Toggle row — right-aligned: recipe actions and Print, then gravity (Pro only), then °F/°C, then Pro/Home.
+      {/* Toggle row — right-aligned: recipe actions and Print, then gravity, volume and malt units (Pro only), then °F/°C, then Pro/Home.
           Phone: the four actions alone, two by two. */}
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0.55rem 1.25rem 0.5rem' }}>
         {phone ? (
@@ -231,11 +249,15 @@ export default function Header({
             Print recipe
           </button>
           {mode === 'pro' && (
-            <PillToggle
-              value={proGravityUnit}
-              onChange={onProGravityUnit}
-              options={[['plato', '°P'], ['sg', 'SG']]}
-            />
+            <>
+              <PillToggle
+                value={proGravityUnit}
+                onChange={onProGravityUnit}
+                options={[['plato', '°P'], ['sg', 'SG']]}
+              />
+              <PillToggle value={proVolumeUnit} onChange={onProVolumeUnit} options={VOLUME_OPTIONS} />
+              <PillToggle value={proMaltUnit} onChange={onProMaltUnit} options={MALT_OPTIONS} />
+            </>
           )}
           <PillToggle
             value={temperatureUnit}

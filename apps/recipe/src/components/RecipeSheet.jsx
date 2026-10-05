@@ -18,7 +18,17 @@ import { recipeSheet } from './recipe-sheet-data.js';
 
 const SS3 = "'Source Sans 3', system-ui, sans-serif";
 
-export default function RecipeSheet({ recipe, derived, water, mode, proGravityUnit, temperatureUnit }) {
+export default function RecipeSheet({
+  recipe,
+  derived,
+  water,
+  mode,
+  proGravityUnit,
+  temperatureUnit,
+  proVolumeUnit,
+  proMaltUnit,
+  brewery,
+}) {
   const [today, setToday] = useState(() => new Date());
   useEffect(() => {
     const refresh = () => flushSync(() => setToday(new Date()));
@@ -26,7 +36,18 @@ export default function RecipeSheet({ recipe, derived, water, mode, proGravityUn
     return () => window.removeEventListener('beforeprint', refresh);
   }, []);
 
-  const s = recipeSheet({ recipe, derived, water, mode, proGravityUnit, temperatureUnit, today });
+  const s = recipeSheet({
+    recipe,
+    derived,
+    water,
+    mode,
+    proGravityUnit,
+    temperatureUnit,
+    proVolumeUnit,
+    proMaltUnit,
+    brewery,
+    today,
+  });
 
   return (
     <div className="print-sheet" style={{ fontFamily: SS3, color: C.body, background: C.page }}>

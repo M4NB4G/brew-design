@@ -9,7 +9,7 @@
 
 import { REFERENCE_TEMP_F } from '@brew/engine';
 import { defaultWaterState, TEST_RESULT_KEYS, TREATMENTS, SPARGE_METHODS, VESSEL_COUNTS } from './water-state.js';
-import { TEMPERATURE_UNITS } from './display.js';
+import { TEMPERATURE_UNITS, PRO_VOLUME_UNITS, PRO_MALT_UNITS } from './display.js';
 
 export function defaultRecipeState() {
   return {
@@ -66,13 +66,21 @@ export function defaultRecipeState() {
   };
 }
 
-// Display-setting defaults: Home, °P as the Pro gravity unit, and °F.
-export const DEFAULT_DISPLAY = { mode: 'home', proGravityUnit: 'plato', temperatureUnit: 'F' };
+// Display-setting defaults: Home, °P as the Pro gravity unit, °F, and Pro's
+// volumes in barrels and malt weights in pounds.
+export const DEFAULT_DISPLAY = {
+  mode: 'home',
+  proGravityUnit: 'plato',
+  temperatureUnit: 'F',
+  proVolumeUnit: 'bbl',
+  proMaltUnit: 'lb',
+};
 
 // --- The brewery's figures (Brewery defaults, 2026-09-23) --------------------
 // The brewery's own figures, kept apart from any recipe: a new recipe starts
 // from them. Held in the recipe's own units (gal, degF, fraction) plus the
-// three display settings (the temperature unit: °C display toggle, CT-S5). null is a blank figure: the new recipe takes the built-in
+// five display settings (the temperature unit: °C display toggle, CT-S5; Pro's
+// volume and malt weight units: Pro unit choices, PU-S5). null is a blank figure: the new recipe takes the built-in
 // one. They are copied into a recipe only when it is created; a recipe never
 // refers back to them.
 //
@@ -115,6 +123,8 @@ export function emptyBreweryFigures() {
     mode: null,
     proGravityUnit: null,
     temperatureUnit: null,
+    proVolumeUnit: null,
+    proMaltUnit: null,
     water: emptyBreweryWater(),
   };
 }
@@ -138,6 +148,8 @@ export function hasBreweryFigures(brewery) {
     b.mode != null ||
     b.proGravityUnit != null ||
     b.temperatureUnit != null ||
+    b.proVolumeUnit != null ||
+    b.proMaltUnit != null ||
     TEST_RESULT_KEYS.some((k) => w.source?.[k] != null) ||
     w.enabledSalts != null ||
     Object.keys(BREWERY_WATER_CHOICES).some((k) => w[k] != null) ||
@@ -154,13 +166,15 @@ const figure = (v) => (Number.isFinite(v) ? v : null);
  * and display settings on screen, and nothing else. A cleared field is taken
  * as a blank figure.
  */
-export function breweryFiguresFromRecipe(recipe, mode, proGravityUnit, temperatureUnit) {
+export function breweryFiguresFromRecipe(recipe, mode, proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit) {
   const out = emptyBreweryFigures();
   for (const k of BREWERY_NUMBERS) out[k] = figure(recipe[k]);
   for (const k of MEASUREMENT_KINDS) out.measurementTempF[k] = figure(recipe.measurementTempF?.[k]);
   out.mode = MODES.includes(mode) ? mode : null;
   out.proGravityUnit = GRAVITY_UNITS.includes(proGravityUnit) ? proGravityUnit : null;
   out.temperatureUnit = TEMPERATURE_UNITS.includes(temperatureUnit) ? temperatureUnit : null;
+  out.proVolumeUnit = PRO_VOLUME_UNITS.includes(proVolumeUnit) ? proVolumeUnit : null;
+  out.proMaltUnit = PRO_MALT_UNITS.includes(proMaltUnit) ? proMaltUnit : null;
   const w = recipe.water;
   if (w) {
     for (const k of TEST_RESULT_KEYS) out.water.source[k] = figure(w.source?.[k]);
@@ -204,6 +218,8 @@ export function newRecipe(brewery) {
     mode: MODES.includes(b.mode) ? b.mode : DEFAULT_DISPLAY.mode,
     proGravityUnit: GRAVITY_UNITS.includes(b.proGravityUnit) ? b.proGravityUnit : DEFAULT_DISPLAY.proGravityUnit,
     temperatureUnit: TEMPERATURE_UNITS.includes(b.temperatureUnit) ? b.temperatureUnit : DEFAULT_DISPLAY.temperatureUnit,
+    proVolumeUnit: PRO_VOLUME_UNITS.includes(b.proVolumeUnit) ? b.proVolumeUnit : DEFAULT_DISPLAY.proVolumeUnit,
+    proMaltUnit: PRO_MALT_UNITS.includes(b.proMaltUnit) ? b.proMaltUnit : DEFAULT_DISPLAY.proMaltUnit,
   };
 }
 

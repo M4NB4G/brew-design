@@ -15,7 +15,9 @@ import {
   sgToPlato,
   platoToSg,
   volumeToGallons,
-  volumeUnit,
+  volumeUnit as engineVolumeUnit,
+  LB_PER_SACK,
+  splitSacks,
   fToC,
   cToF,
   REFERENCE_TEMP_F,
@@ -25,22 +27,74 @@ import { num, roundForInput } from './format.js';
 // Display modes.
 export const MODES = ['home', 'pro'];
 
-// --- Volume: Home gal, Pro bbl (1 bbl = 31 gal) -----------------------------
-// volumeUnit(mode) -> 'gal' | 'bbl' (re-exported from the engine).
-export { volumeUnit };
+// --- Volume: Home gal, Pro bbl (1 bbl = 31 gal) or gal ---------------------
+// proVolumeUnit is Pro's choice, 'bbl' | 'gal' (Pro unit choices, PU-S1); Home
+// is always gallons, and Pro without a choice is barrels, as before. Pro in
+// gallons shows every volume as Home does (PU-S2); the dry-hop rate is not a
+// volume here and stays lb/bbl in Pro.
+export const PRO_VOLUME_UNITS = ['bbl', 'gal'];
 
-export function volumeToCanonical(displayValue, mode) {
-  // -> US gallons. volumeToGallons handles the bbl->gal factor for Pro.
-  return volumeToGallons(displayValue, mode);
+export function volumesInBarrels(mode, proVolumeUnit) {
+  return mode === 'pro' && proVolumeUnit !== 'gal';
 }
 
-export function volumeFromCanonical(gal, mode) {
-  return mode === 'pro' ? gal / GALLONS_PER_BBL : gal;
+// The mode whose volume unit applies.
+const volumeMode = (mode, proVolumeUnit) => (volumesInBarrels(mode, proVolumeUnit) ? 'pro' : 'home');
+
+// -> 'gal' | 'bbl', by the engine's volumeUnit.
+export function volumeUnit(mode, proVolumeUnit) {
+  return engineVolumeUnit(volumeMode(mode, proVolumeUnit));
 }
 
-// --- Malt weight: lb in both modes ------------------------------------------
-export function maltWeightUnit() {
-  return 'lb';
+export function volumeToCanonical(displayValue, mode, proVolumeUnit) {
+  // -> US gallons. volumeToGallons handles the bbl->gal factor.
+  return volumeToGallons(displayValue, volumeMode(mode, proVolumeUnit));
+}
+
+export function volumeFromCanonical(gal, mode, proVolumeUnit) {
+  return volumesInBarrels(mode, proVolumeUnit) ? gal / GALLONS_PER_BBL : gal;
+}
+
+// --- Malt weight: lb; Pro may choose 55 lb sacks -----------------------------
+// proMaltUnit is Pro's choice, 'lb' | 'sack' (PU-S3); Home is always pounds.
+// A malt in sacks is entered as decimal sacks and stored in pounds, by the
+// engine's LB_PER_SACK; the whole sacks and the pounds left show beside it.
+export const PRO_MALT_UNITS = ['lb', 'sack'];
+
+export function maltInSacks(mode, proMaltUnit) {
+  return mode === 'pro' && proMaltUnit === 'sack';
+}
+
+export function maltWeightUnit(mode, proMaltUnit) {
+  return maltInSacks(mode, proMaltUnit) ? 'sacks' : 'lb';
+}
+
+export function maltWeightToCanonical(displayValue, mode, proMaltUnit) {
+  // -> lb
+  return maltInSacks(mode, proMaltUnit) ? displayValue * LB_PER_SACK : displayValue;
+}
+
+export function maltWeightFromCanonical(lb, mode, proMaltUnit) {
+  return maltInSacks(mode, proMaltUnit) ? lb / LB_PER_SACK : lb;
+}
+
+// A malt weight box's value: pounds as stored; sacks to two decimals, the
+// precision the box takes (PU-Q1a). A blank stays blank (NaN).
+export function maltWeightBoxValue(lb, mode, proMaltUnit) {
+  return maltInSacks(mode, proMaltUnit) ? roundForInput(lb / LB_PER_SACK, 2) : lb;
+}
+
+// A weight as whole sacks and the pounds left, "3 sacks + 12.1 lb", the
+// pounds by `lbText`; null for a blank weight.
+export function sackSplitText(lb, lbText) {
+  if (!Number.isFinite(lb)) return null;
+  const split = splitSacks(lb);
+  return `${split.sacks} ${split.sacks === 1 ? 'sack' : 'sacks'} + ${lbText(split.lb)} lb`;
+}
+
+// The unit a printed sheet names for a weight in sacks: "55 lb sacks".
+export function sackUnit() {
+  return `${LB_PER_SACK} lb sacks`;
 }
 
 // --- Hop weight: Home oz, Pro lb (canonical is oz) --------------------------

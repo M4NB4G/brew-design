@@ -17,6 +17,8 @@ export {
   GALLONS_PER_BBL,
   LITERS_PER_BBL,
   QT_PER_GAL,
+  LB_PER_SACK,
+  splitSacks,
   G_PER_OZ,
   OZ_PER_LB,
   G_PER_LB,

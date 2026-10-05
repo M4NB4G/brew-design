@@ -44,6 +44,11 @@
 // temperature unit, °F or °C, beside Home/Pro and the gravity unit. A
 // version-1 to 8 document is read as °F, and saved back as 9. The recipe's
 // temperatures are °F in every version.
+// Version 10 (Pro unit choices, PU-S5): the display settings carry Pro's
+// volume unit (barrels or gallons) and malt weight unit (pounds or 55 lb
+// sacks). A version-1 to 9 document is read as barrels and pounds, and saved
+// back as 10. The recipe's volumes are gallons and its weights pounds in
+// every version.
 //
 // Recipe file (2026-09-23): export hands the browser the same document the
 // autosave writes, as a file; import reads a file with the same reader as
@@ -62,7 +67,10 @@
 // version 2. Their version 3 (S4b item 1) drops the water kept in the mash
 // tun (it is worked out now); a version-1 or 2 document is saved back as 3.
 // Their version 4 (°C display toggle, CT-S5) adds the temperature unit; a
-// version-1 to 3 document is read with it blank and saved back as 4.
+// version-1 to 3 document is read with it blank and saved back as 4. Their
+// version 5 (Pro unit choices, PU-S5) adds Pro's volume and malt weight
+// units; a version-1 to 4 document is read with them blank and saved back
+// as 5.
 //
 // Saved rows checked inside (2026-09-23): a document is readable only if its
 // every malt, kettle-hop and dry-hop row, and its yeast, carry every field of
@@ -80,15 +88,15 @@ import {
   BREWERY_WATER_CHOICES,
   newRecipe,
 } from './state.js';
-import { TEMPERATURE_UNITS } from './display.js';
+import { TEMPERATURE_UNITS, PRO_VOLUME_UNITS, PRO_MALT_UNITS } from './display.js';
 import { TEST_RESULT_KEYS, TREATMENTS, ACID_PLACES, SPARGE_METHODS, VESSEL_COUNTS } from './water-state.js';
 
 export const STORAGE_KEY = 'brew-design.recipe';
 // The latest saved copy that could not be read, kept as found (V3); nothing
 // reads it back.
 export const UNREADABLE_KEY = 'brew-design.recipe.unreadable';
-export const SCHEMA_VERSION = 9;
-const READABLE_VERSIONS = [1, 2, 3, 4, 5, 6, 7, 8, SCHEMA_VERSION];
+export const SCHEMA_VERSION = 10;
+const READABLE_VERSIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, SCHEMA_VERSION];
 
 const MODES = ['home', 'pro'];
 const GRAVITY_UNITS = ['plato', 'sg'];
@@ -242,13 +250,20 @@ function readDocument(raw, defaults) {
   // temperature was shown (CT-S5).
   const temperatureUnit = doc.version <= 8 ? 'F' : doc.temperatureUnit;
   if (!TEMPERATURE_UNITS.includes(temperatureUnit)) return {};
-  return { state: { recipe, mode: doc.mode, proGravityUnit: doc.proGravityUnit, temperatureUnit } };
+  // Code before version 10 never wrote Pro's volume and malt weight units:
+  // barrels and pounds, as Pro always showed them (PU-S5).
+  const proVolumeUnit = doc.version <= 9 ? 'bbl' : doc.proVolumeUnit;
+  const proMaltUnit = doc.version <= 9 ? 'lb' : doc.proMaltUnit;
+  if (!PRO_VOLUME_UNITS.includes(proVolumeUnit) || !PRO_MALT_UNITS.includes(proMaltUnit)) return {};
+  return {
+    state: { recipe, mode: doc.mode, proGravityUnit: doc.proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit },
+  };
 }
 
 /**
  * Read the persisted document. Returns { recipe, mode, proGravityUnit,
- * temperatureUnit } when storage holds a readable document at SCHEMA_VERSION
- * or at version 8, 7, 6, 5, 4, 3, 2 or 1
+ * temperatureUnit, proVolumeUnit, proMaltUnit } when storage holds a readable
+ * document at SCHEMA_VERSION or at version 9, 8, 7, 6, 5, 4, 3, 2 or 1
  * (read as readDocument describes, against `defaults`); otherwise
  * `fallback`, which is `defaults` unless given. A saved copy that cannot be
  * read is first kept aside, as found, under UNREADABLE_KEY, replacing any
@@ -292,23 +307,31 @@ export function loadStartingState(storage) {
 }
 
 /**
- * The document for { recipe, mode, proGravityUnit, temperatureUnit }, as
- * text: what the autosave writes to storage and what an export writes to a
- * file. A caller that names no temperature unit writes °F, the unit every
- * temperature was shown in before the choice.
+ * The document for { recipe, mode, proGravityUnit, temperatureUnit,
+ * proVolumeUnit, proMaltUnit }, as text: what the autosave writes to storage
+ * and what an export writes to a file. A caller that names no temperature
+ * unit writes °F, and none of Pro's units barrels and pounds: the units shown
+ * before the choices.
  */
-export function exportRecipeDocument({ recipe, mode, proGravityUnit, temperatureUnit = DEFAULT_DISPLAY.temperatureUnit }) {
-  return JSON.stringify({ version: SCHEMA_VERSION, recipe, mode, proGravityUnit, temperatureUnit });
+export function exportRecipeDocument({
+  recipe,
+  mode,
+  proGravityUnit,
+  temperatureUnit = DEFAULT_DISPLAY.temperatureUnit,
+  proVolumeUnit = DEFAULT_DISPLAY.proVolumeUnit,
+  proMaltUnit = DEFAULT_DISPLAY.proMaltUnit,
+}) {
+  return JSON.stringify({ version: SCHEMA_VERSION, recipe, mode, proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit });
 }
 
 /**
- * Write { recipe, mode, proGravityUnit, temperatureUnit } as one JSON
- * document under one key. Never throws: quota, disabled storage, and private
- * mode all degrade to a no-op.
+ * Write the recipe and its display settings as one JSON document under one
+ * key (exportRecipeDocument). Never throws: quota, disabled storage, and
+ * private mode all degrade to a no-op.
  */
-export function savePersisted(storage, { recipe, mode, proGravityUnit, temperatureUnit }) {
+export function savePersisted(storage, state) {
   try {
-    storage.setItem(STORAGE_KEY, exportRecipeDocument({ recipe, mode, proGravityUnit, temperatureUnit }));
+    storage.setItem(STORAGE_KEY, exportRecipeDocument(state));
   } catch {
     // Storage unavailable: behave as if there is none.
   }
@@ -324,7 +347,7 @@ export function clearPersisted(storage) {
 }
 
 export const BREWERY_KEY = 'brew-design.brewery';
-export const BREWERY_VERSION = 4;
+export const BREWERY_VERSION = 5;
 
 // A saved figure: a finite number, or null (blank).
 const isFigure = (v) => v === null || Number.isFinite(v);
@@ -358,7 +381,8 @@ function readBreweryWater(w) {
 // a figure: every key of the blank figures, each blank or of its kind. A
 // version-1 document, saved before the water setup, has every water figure
 // blank (WS-S4); a version-1 to 3 document, saved before the temperature
-// unit, has it blank (CT-S5).
+// unit, has it blank (CT-S5); a version-1 to 4 document, saved before Pro's
+// volume and malt weight units, has them blank (PU-S5).
 function readBrewery(b, version) {
   const isObject = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
   if (!isObject(b) || !isObject(b.measurementTempF)) return null;
@@ -366,6 +390,7 @@ function readBrewery(b, version) {
   for (const k of Object.keys(out)) {
     if (k === 'measurementTempF' || k === 'water') continue;
     if (k === 'temperatureUnit' && version < 4) continue;
+    if ((k === 'proVolumeUnit' || k === 'proMaltUnit') && version < 5) continue;
     if (!(k in b)) return null;
     out[k] = b[k];
   }
@@ -373,11 +398,13 @@ function readBrewery(b, version) {
     if (!isFigure(b.measurementTempF[k])) return null;
     out.measurementTempF[k] = b.measurementTempF[k];
   }
-  const { mode, proGravityUnit, temperatureUnit, measurementTempF, water, ...numbers } = out;
+  const { mode, proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit, measurementTempF, water, ...numbers } = out;
   if (!Object.values(numbers).every(isFigure)) return null;
   if (mode !== null && !MODES.includes(mode)) return null;
   if (proGravityUnit !== null && !GRAVITY_UNITS.includes(proGravityUnit)) return null;
   if (temperatureUnit !== null && !TEMPERATURE_UNITS.includes(temperatureUnit)) return null;
+  if (proVolumeUnit !== null && !PRO_VOLUME_UNITS.includes(proVolumeUnit)) return null;
+  if (proMaltUnit !== null && !PRO_MALT_UNITS.includes(proMaltUnit)) return null;
   if (version > 1) {
     out.water = readBreweryWater(b.water);
     if (out.water === null) return null;
@@ -387,11 +414,12 @@ function readBrewery(b, version) {
 
 /**
  * Read the brewery's figures. Nothing saved, unreadable data, a version
- * other than 1, 2, 3 or BREWERY_VERSION, or unavailable storage yields every
+ * other than 1 to 4 or BREWERY_VERSION, or unavailable storage yields every
  * figure blank (the built-in figures). A readable version-1 document is read
  * with the water figures blank, a version-2 one without the water kept in
- * the mash tun, a version-1 to 3 one with the temperature unit blank; each
- * is saved back at BREWERY_VERSION (best-effort).
+ * the mash tun, a version-1 to 3 one with the temperature unit blank, a
+ * version-1 to 4 one with Pro's volume and malt weight units blank; each is
+ * saved back at BREWERY_VERSION (best-effort).
  * Never throws.
  */
 export function loadBrewery(storage) {
@@ -408,15 +436,15 @@ export function loadBrewery(storage) {
 }
 
 // One brewery document's text, read as storage and the brewery file both
-// read it (S4b item 5, K): { brewery, version } when readable at version 1,
-// 2, 3 or BREWERY_VERSION (upgraded as loadBrewery says); { newer: version } for a
+// read it (S4b item 5, K): { brewery, version } when readable at version 1
+// to 4 or BREWERY_VERSION (upgraded as loadBrewery says); { newer: version } for a
 // later version; otherwise {}. Throws on text that is not JSON.
 function readBreweryDocument(raw) {
   const doc = JSON.parse(raw);
   // A document without the brewery's figures (a recipe file, say) is not one.
   if (!doc || typeof doc !== 'object' || !('brewery' in doc)) return {};
   if (Number.isInteger(doc.version) && doc.version > BREWERY_VERSION) return { newer: doc.version };
-  if (![1, 2, 3, BREWERY_VERSION].includes(doc.version)) return {};
+  if (![1, 2, 3, 4, BREWERY_VERSION].includes(doc.version)) return {};
   const brewery = readBrewery(doc.brewery, doc.version);
   return brewery ? { brewery, version: doc.version } : {};
 }

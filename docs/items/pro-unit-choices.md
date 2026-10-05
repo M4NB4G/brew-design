@@ -1,8 +1,10 @@
 # Pro unit choices — Tier A + B
 
-Status: agreed 2026-10-03 ("agree to all"), not started. Written by the S5b
-session; built in batch S6b, third of its three items (docs/ROADMAP.md,
-Sessions). The owner's decisions of 2026-10-02 (the roadmap line) stand.
+Status: landed 2026-10-05, "In Pro, liquid volumes in barrels or gallons and
+malt weights in pounds or 55 lb sacks; the printed sheet in the brewery's set
+units (recipe format 10, brewery format 5)". Written by the S5b session;
+built in batch S6b, second of its two items, after the °C display toggle.
+The owner's decisions of 2026-10-02 (the roadmap line) stand.
 
 ## Why
 
@@ -46,3 +48,18 @@ Engine (`packages/engine/test/units.test.js`): *a weight splits into 55 lb sacks
 
 - The format numbers assume the °C toggle lands first and no other item moves a format between them (see `docs/items/celsius-toggle.md`'s note on the acid aimed at a mash pH).
 - Files likely touched: `packages/engine/src/units.js`, `index.js`; `apps/recipe/src/{display,state,persistence}.js`, `App.jsx`, `components/Header.jsx` or `OptionsSection.jsx` (the choices), `GristTable.jsx`, `VolumesSection.jsx`, the water components that show volumes, `recipe-sheet-data.js`; SPEC rules 9, 13 and 17 and the display-units table.
+
+## Builder's notes (S6b, 2026-10-05)
+
+Choices the sentences did not make, as built:
+
+- The choices are the display settings `proVolumeUnit` (`'bbl'` | `'gal'`) and `proMaltUnit` (`'lb'` | `'sack'`), beside `mode`, `proGravityUnit` and `temperatureUnit` in App, at the recipe document's top level and in the brewery figures (blank `null`). Anything other than gallons is barrels, and anything other than sacks pounds, so a component given neither is as before.
+- `display.js`'s volume functions take Pro's choice as a third argument (`volumeUnit`, `volumeToCanonical`, `volumeFromCanonical`; `volumesInBarrels` for the 0.001/0.01 precision); with it absent they are as before, so the smoke test's calls are unchanged. The dry-hop rate keeps `dryHopRateFromCanonical(…, mode)`: lb/bbl in Pro whatever the volume choice.
+- Malt in sacks: the box shows the stored pounds ÷ 55 rounded to two decimals (`maltWeightBoxValue`), steps by 0.01, and stores the typed sacks × 55; the split under the box is `splitSacks` (engine) with the pounds at the box's precision (`roundForInput`), "1 sack" singular. The sheet names the column "55 lb sacks" and prints the split with the pounds to two decimals, today's sheet precision; a blank weight prints "—".
+- PU-S4 is read per choice: the sheet uses the brewery's volume choice where set and the screen's where not, and the same for malt, each on its own. In Home the sheet prints gallons and pounds whatever the brewery's Pro choices, since the choices exist only in Pro (PU-S1).
+- K: App listens for the brewery's key changing in another tab of this browser and reads the brewery's figures again, so the sheet (and My brewery) follow; nothing is saved back on that read but an upgrade of an older document. Proved at the far end with two tabs.
+- The header shows the two toggles after °P/SG in Pro (desktop: °P/SG, bbl/gal, lb/sacks, °F/°C, Pro/Home; phone: stacked). My brewery gains "Pro volume unit" (Built-in (bbl)) and "Pro malt weight unit" (Built-in (lb)).
+- A caller of the recipe document writer that names neither choice writes barrels and pounds; App always names them. `savePersisted` now passes its state object through to the writer.
+- Existing tests that pinned recipe format 9 or brewery format 4 now pin 10 and 5 (their newer cases 11 and 6), their display-setting fixtures carry the two choices, their titles name the current versions; `celsius-toggle.test.js`'s "nothing else changes in °F" leaves out My brewery's two new rows as it does its own; `spec-rules.test.js` lets `display.js` call `splitSacks`.
+- Noticed: the header's toggles wrap on a 1200 px screen in Pro and stack five deep on a phone (roadmap, Tier C).
+- Numbers: `LB_PER_SACK` = 55, the owner's decision (PU-Q3), an engine constant; `splitSacks` is whole sacks = floor(lb ÷ 55), pounds = lb − sacks × 55, pinned by hand (177 → 3 + 12; 55 → 1 + 0; 54.9 → 0 + 54.9; 3.22 × 55 → 3 + 12.1); the rest are display precision (2 and 3 decimals) and an input step (0.01).

@@ -1,6 +1,7 @@
 // VolumesSection.jsx
 // Mash thickness and every volume: mash water, the boil rows, and the
-// fermentation volume. Volumes are entered in the current display unit and
+// fermentation volume. Volumes are entered in the current display unit (Home
+// gal; Pro bbl, or gal by Pro's volume choice, PU-S2) and
 // converted to canonical gallons at the boundary. Mash water is the one volume
 // the engine wants as entered; it is still entered in display units here and
 // converted for storage. Boil time is in minutes. Post-boil volume (already at
@@ -53,12 +54,12 @@ function Warning({ children }) {
 
 // A volume box's change: the entry in the display unit, converted to
 // canonical gal. An emptied box is a blank figure (NaN), never the old number.
-export const volumeChange = (setField, field, mode) => (e) =>
-  setField(field, volumeToCanonical(parseFloat(e.target.value), mode));
+export const volumeChange = (setField, field, mode, proVolumeUnit) => (e) =>
+  setField(field, volumeToCanonical(parseFloat(e.target.value), mode, proVolumeUnit));
 
 // A canonical-gal figure as a volume box shows it: blank shows empty.
-const volumeShown = (gal, mode) =>
-  Number.isFinite(gal) ? Number(volumeFromCanonical(gal, mode).toFixed(6)) : '';
+const volumeShown = (gal, mode, proVolumeUnit) =>
+  Number.isFinite(gal) ? Number(volumeFromCanonical(gal, mode, proVolumeUnit).toFixed(6)) : '';
 
 // A measurement temperature box's change: the entry in the header's unit,
 // converted to degF; an emptied box is a blank temperature (NaN).
@@ -74,12 +75,14 @@ export default function VolumesSection({
   refVolumesGal,
   warnings,
   mode,
+  proVolumeUnit,
   temperatureUnit,
   setField,
   setMeasurementTemp,
 }) {
   const phone = usePhone();
-  const vUnit = volumeUnit(mode);
+  const vUnit = volumeUnit(mode, proVolumeUnit);
+  const fromGal = (gal) => volumeFromCanonical(gal, mode, proVolumeUnit);
   const tUnit = tempUnit(temperatureUnit);
   const refTemp = referenceTemp(temperatureUnit);
 
@@ -98,7 +101,7 @@ export default function VolumesSection({
   const refRow = (kind, label) => (
     <InputRow
       label={`${label} at ${refTemp} ${tUnit} (${vUnit})`}
-      value={num(volumeFromCanonical(refVolumesGal[kind], mode), 3)}
+      value={num(fromGal(refVolumesGal[kind]), 3)}
       onChange={() => {}}
       readOnly
     />
@@ -107,8 +110,8 @@ export default function VolumesSection({
   // Convert a canonical-gal state field through the display boundary for InputRow.
   // InputRow passes the native event; we parse and convert the value back.
   const volRow = (field) => ({
-    value: volumeShown(recipe[field], mode),
-    onChange: volumeChange(setField, field, mode),
+    value: volumeShown(recipe[field], mode, proVolumeUnit),
+    onChange: volumeChange(setField, field, mode, proVolumeUnit),
   });
 
   return (
@@ -161,14 +164,14 @@ export default function VolumesSection({
           {postBoilMeasuredShown && (
             <InputRow
               label={`Post-boil volume at ${tempReadout(recipe.measurementTempF.postBoil, temperatureUnit)} ${tUnit} (${vUnit})`}
-              value={Number(volumeFromCanonical(postBoilMeasuredGal, mode).toFixed(3))}
+              value={Number(fromGal(postBoilMeasuredGal).toFixed(3))}
               onChange={() => {}}
               readOnly
             />
           )}
           <InputRow
             label={`Post-boil volume at ${refTemp} ${tUnit} (${vUnit})`}
-            value={Number(volumeFromCanonical(postBoilVolGal, mode).toFixed(3))}
+            value={Number(fromGal(postBoilVolGal).toFixed(3))}
             onChange={() => {}}
             readOnly
           />

@@ -280,10 +280,10 @@ describe('mash pH from the grain bill (item 2)', () => {
     expect(tab(loaded.recipe, 'water')).toContain(`Malt type (${old.malts[0].name})`);
 
     // Saved back at the current version, carrying the blank types.
-    expect(SCHEMA_VERSION).toBe(9);
+    expect(SCHEMA_VERSION).toBe(10);
     savePersisted(s, loaded);
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(9);
+    expect(doc.version).toBe(10);
     expect(doc.recipe.malts[0].type).toBe('');
     expect(loadPersisted(s, defaults()).recipe.malts[0].type).toBe('');
 
