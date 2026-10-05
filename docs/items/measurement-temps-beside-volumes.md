@@ -1,8 +1,8 @@
 # Measurement temperatures beside their volumes — Tier B
 
 Status: agreed 2026-10-03 ("agree to all"), not started. Written by the S5b
-session; built in batch S6b, first of its three items (docs/ROADMAP.md,
-Sessions). S6a's one-page printed sheet lands first (MT-Q2).
+session; built in batch S6c, the widened trial, first of its two items
+(docs/ROADMAP.md, Sessions; moved from S6b, WT-1, 2026-10-05). S6a's one-page printed sheet lands first (MT-Q2).
 
 ## Why
 
@@ -26,7 +26,7 @@ it belongs beside it.
 |---|---|---|---|
 | MT-Q1 | Where each temperature goes | On the Volumes card, under the volume it corrects: pre-boil, post-boil and fermentation, each with its volume at 60 °F beside it. The Options tab keeps only the brewery's figures | The temperature belongs to the reading it corrects |
 | MT-Q2 | Does the printed sheet change? | Only as much as S6a's one-page sheet leaves room for; it already notes "measured at X °F". S6a goes first | The one-page sheet settles the layout |
-| M1 | Builder model | Opus, high effort. This item changes neither the engine nor saved data, so it could join the Sonnet trial if the owner widens it after reviewing S6a; until then, Opus (S6-M1) | The Models rule's default; the trial is not yet reviewed |
+| M1 | Builder model | Sonnet 5.5, with the Opus advisor (`/advisor opus`) checking the approach and confirming every number before commit (WT-3', the owner, 2026-10-05; was Opus, high effort, S6-M1) | The widened trial (CLAUDE.md, Models): this item changes neither the engine nor saved data |
 | M2 | Inspector model | Opus, default effort, a fresh session | The Models rule's default |
 | K | Silent properties | None new: nothing saved changes (the temperatures are already in the recipe); ordering, multi-tab and storage disabled as today | — |
 

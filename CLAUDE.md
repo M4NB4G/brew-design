@@ -210,6 +210,16 @@ owner before building. The box records the inspector's.
   engine nor saved data, with a named Opus inspector and the far-end
   check's screenshots in the report; engine and saved-data items stay
   on Opus (the owner's decision, 2026-10-02).
+- **Widened trial: Sonnet 5.5 builds Tier B, Opus advises and inspects**
+  (the owner's decision after S6a, 2026-10-05: widen). Batch S6c holds
+  the Tier B items that change neither the engine nor saved data. Sonnet
+  5.5 builds; the Opus advisor (`/advisor opus`) checks the approach
+  before building and confirms every number before each commit; a fresh
+  Opus inspector, default effort, returns each item's box as for any
+  Tier B item. The report carries per item the box, the advisor's
+  confirmation, the owner's send-backs, fixes after a commit, `/usage`
+  at the start and at the report, and the far-end check's screenshots.
+  The owner reviews again after S6c.
 - **The inspector's model is always named when it is spawned.** It
   never inherits the session's model. The box's `Inspector:` line
   confirms it.
