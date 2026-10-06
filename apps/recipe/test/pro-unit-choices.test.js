@@ -40,6 +40,9 @@ import {
 import { maltWeightToCanonical, maltWeightFromCanonical } from '../src/display.js';
 import Header from '../src/components/Header.jsx';
 import * as f from './pro-unit-choices.fixture.js';
+// The Grist card gained its % of total and "Design to target OG" after this
+// capture (docs/items/inverse-solver-ui.md, IS-S7): compared without them.
+import { withoutTargetOgDesign } from './inverse-solver.fixture.js';
 
 const BEFORE = JSON.parse(readFileSync(new URL('./pro-unit-choices.before.json', import.meta.url), 'utf8'));
 
@@ -164,7 +167,7 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
 
     // Home ignores the choice; hops stay in pounds.
     const plain = f.recipe();
-    expect(f.gristHtml(plain, 'home', SACK)).toBe(BEFORE['grist-home']);
+    expect(withoutTargetOgDesign(f.gristHtml(plain, 'home', SACK))).toBe(BEFORE['grist-home']);
     expect(f.hopsHtml(plain, 'pro', SACK)).toBe(BEFORE.hops);
 
     // The sheet prints the split, not the decimal.
@@ -278,7 +281,7 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     for (const units of [BBL_LB, {}]) {
       for (const mode of ['home', 'pro']) {
         expect(f.volumesHtml(r, mode, units), `volumes ${mode}`).toBe(BEFORE[`volumes-${mode}`]);
-        expect(f.gristHtml(r, mode, units), `grist ${mode}`).toBe(BEFORE[`grist-${mode}`]);
+        expect(withoutTargetOgDesign(f.gristHtml(r, mode, units)), `grist ${mode}`).toBe(BEFORE[`grist-${mode}`]);
         expect(f.sheetData(r, mode, units), `sheet ${mode}`).toEqual(BEFORE[`sheet-data-${mode}`]);
       }
       expect(f.hopsHtml(r, 'pro', units)).toBe(BEFORE.hops);

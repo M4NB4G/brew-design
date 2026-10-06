@@ -42,8 +42,11 @@ import {
   mashPhOutsideRange,
   mashPhTestedRange,
   scaleRecipe,
+  solveGrist,
 } from '@brew/engine';
 import { toReferenceVolume } from './reference-volume.js';
+import { fractionToPercent } from './display.js';
+import { num } from './format.js';
 import { TEST_RESULT_KEYS, effectiveSetup } from './water-state.js';
 
 // Scale the recipe when switching Home and Pro (docs/items/pro-recipe-default.md):
@@ -51,6 +54,65 @@ import { TEST_RESULT_KEYS, effectiveSetup } from './water-state.js';
 // volume, by the engine (PD-S4).
 export function scaleRecipeTo(recipe, batchGal) {
   return scaleRecipe(recipe, batchGal);
+}
+
+// The % boxes' total, in percent: the shares' sum (blank while one is).
+export function percentTotal(shares) {
+  return fractionToPercent(shares.reduce((s, p) => s + p, 0));
+}
+
+// Design to a target OG (docs/items/inverse-solver-ui.md): every malt's
+// weight from a target OG (SG), one share per malt (a fraction, as typed in
+// its % box) and the recipe's brewhouse efficiency, pre-boil volume at 60 degF,
+// boil-off rate and boil time, by the engine's solveGrist (IS-S3). The mash
+// water is not touched: the solver's own mash water for a target Rv is unused.
+// Refused, with no weights, when the shares do not total 100 % as shown to
+// one decimal (IS-Q7), or when a figure it needs is blank (IS-S4), each named
+// in the card's order. -> { ok: true, weightsLb } | { ok: false, totalPercent, blank }
+// FLAG: the engine takes the pre-boil volume at 60 degF and boils it off there
+// (ref pre-boil - boil-off), while the recipe boils off the measured volume and
+// corrects the post-boil volume at its own temperature. At the reference
+// temperatures the two agree; with the volumes measured hot the predicted OG
+// after Solve sits further from the target than the gravity conversions alone
+// explain. Kept as specified (IS-S3, the item's notes); on the roadmap.
+export function solveTargetOG(recipe, targetOG, shares) {
+  const preBoilRefGal = toReferenceVolume(recipe.preBoilVolGal, 'preBoil', recipe.measurementTempF);
+  const maltName = (m, i) => String(m.name ?? '').trim() || `Malt ${i + 1}`;
+  const blank = [];
+  if (!entered(targetOG)) blank.push({ field: 'targetOG' });
+  shares.forEach((p, i) => {
+    if (!entered(p)) blank.push({ field: 'percent', malt: maltName(recipe.malts[i], i) });
+  });
+  recipe.malts.forEach((m, i) => {
+    if (!entered(m.fgdb)) blank.push({ field: 'fgdb', malt: maltName(m, i) });
+  });
+  if (!entered(recipe.efficiency)) blank.push({ field: 'efficiency' });
+  if (!entered(recipe.preBoilVolGal)) blank.push({ field: 'preBoilVolGal' });
+  else if (!entered(preBoilRefGal)) blank.push({ field: 'preBoilTemp' });
+  if (!entered(recipe.boilOffRateGalPerHr)) blank.push({ field: 'boilOffRateGalPerHr' });
+  if (!entered(recipe.boilTimeMin)) blank.push({ field: 'boilTimeMin' });
+
+  // The boxes total 100 when their total, shown to one decimal, reads 100.0
+  // (IS-Q7); blank while a box is.
+  const totalPercent = percentTotal(shares);
+  const totalOff = num(totalPercent, 1) !== num(100, 1);
+  if (blank.length > 0 || totalOff) return { ok: false, totalPercent, totalOff, blank };
+
+  const { weights } = solveGrist({
+    malts: recipe.malts.map((m, i) => ({ fgdb: m.fgdb, percent: shares[i] })),
+    targetOG,
+    efficiency: recipe.efficiency,
+    preBoilVolGal: preBoilRefGal,
+    boilOffRateGalPerHr: recipe.boilOffRateGalPerHr,
+    boilTimeMin: recipe.boilTimeMin,
+  });
+  const weightsLb = weights.map((w) => w.weightLb);
+  // FLAG: figures that are entered but give no usable bill (a zero efficiency
+  // or FGDB, a boil that leaves no wort, a negative %) give weights that are
+  // not numbers or are below zero; the sentences do not say, so Solve changes
+  // nothing then, as for a blank (IS-S4's rule: nothing the brewer did not enter).
+  if (!weightsLb.every((w) => entered(w) && w >= 0)) return { ok: false, totalPercent, totalOff, blank, unusable: true };
+  return { ok: true, weightsLb };
 }
 
 export function computeRecipe(state) {

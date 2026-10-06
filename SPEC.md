@@ -114,6 +114,15 @@ pinned by the golden-master tests.
     the water the mash draws — the tank's treated water with the acid over
     the mash water — and the sparge, the tank's leftover and the kettle carry
     no acid; the printed sheet names the acid's place, Mash or HLT.
+    The Grist card shows each malt's % of total grain weight, the engine's
+    share ("—" where blank). "Design to target OG" sets every malt's weight,
+    in one step, by the engine's `solveGrist` from a target OG in the screen's
+    gravity unit, one % per malt (filled from the shares) and the recipe's
+    brewhouse efficiency, pre-boil volume at 60 °F, boil-off rate and boil
+    time; it changes nothing, and says why, when the percents' total, shown
+    to one decimal, is not 100.0 or a figure it needs is blank. The mash water
+    is not touched. The target and the percents are never saved; "Undo solve"
+    restores the weights until the next edit.
 11. `toReferenceVolume(measuredGal, kind, measurementTempF)` is the
     volume-correction slot. Pre-boil, post-boil, and ferment volumes route
     through it and reach the engine corrected to the engine's reference

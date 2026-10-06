@@ -1,7 +1,10 @@
 # Design to a target OG — Tier B
 
 Status: agreed 2026-10-05 ("agree to all"; IS-Q2 replaced by IS-Q2', option
-A, the same day; IS-Q7 agreed 2026-10-06, "agree to all"), not started. Written by the S6b
+A, the same day; IS-Q7 agreed 2026-10-06, "agree to all"); landed 2026-10-06
+on branch `S7` as "The Grist card shows each malt's % of total, and Design to
+target OG sets every malt's weight from a target OG and the percents";
+awaiting the owner's "merge and push". Written by the S6b
 session; built in batch S7, first of its three items (docs/ROADMAP.md,
 Sessions). Follows S6b on its branch (recipe format 10).
 
@@ -51,3 +54,18 @@ malt's percent of total on the Grist card at all times (2026-10-05).
 - Selectors only (SPEC rule 10): a selector wraps `solveGrist`; the component calls it.
 - In Pro with sacks (S6b), the weights Solve writes show in sacks as any weight does.
 - Files likely touched: `apps/recipe/src/selectors.js`, `display.js` (if a helper is needed), `components/GristTable.jsx`, `App.jsx` (undo state); SPEC rule 10; `docs/TEST_COVERAGE.md`.
+
+## Builder's notes (S7, 2026-10-06)
+
+Claims for the inspector to verify; none is a decision the sentences made.
+
+- The Solve step is `selectors.js`'s `solveTargetOG(recipe, targetOG, shares)`: the only caller of `solveGrist` (SPEC 10). It passes the pre-boil volume corrected to 60 °F by `toReferenceVolume`, as `computeRecipe` does, and no target mash Rv (the solver's mash water is unused). It returns the weights, or no weights and why. `state.js`'s `withMaltWeights` writes them (and Undo's) in one step; `solveUndoable` offers Undo while the recipe is the very object the solve wrote, so any edit ends it. App.jsx holds the solve (`{ before, after, target, unit }`) in page state, never saved.
+- The boxes "total 100 %" when the sum of the shares, as a percent shown to one decimal, reads 100.0 (IS-Q7). The total is the selector's `percentTotal` (the shares' sum × 100 by `fractionToPercent`), used by the card and the check alike. A box not typed in holds its malt's exact share, so an untouched bill always totals 100.0. The boxes typed in are kept while the card is open and the rows are the same; closing the card or adding or removing a row refills them from the shares.
+- The refusal names, in the card's order: the target, each blank %, each blank FGDB (a malt by its name, or "Malt n" when unnamed, as the Water tab does), the efficiency, the pre-boil volume, the boil-off rate, the boil time. While a % is blank the total is not named (a blank has no total). Two cases the sentences do not list, each with a `// FLAG:` or a line: a pre-boil volume entered but not correctable at its measurement temperature (the volume at 60 °F blank) is refused with "The pre-boil volume cannot be corrected at its measurement temperature."; entered figures that give weights that are not numbers or are below zero (a zero efficiency or FGDB, a boil that leaves no wort, a negative %) are refused with "These figures give no usable weights." Both change nothing, by IS-S4's rule.
+- The predicted OG is the stats bar's OG (`computeRecipe`), shown in the unit the target was typed in: SG to four decimals, °P to three (one more than the stats bar, so the small difference shows); the target exactly as typed (the box's text: "1.050" stays "1.050"). It and Undo show until the next edit.
+- The engine's share is each weight over the bill's total, so one blank weight blanks every share: every % of total reads "—" and every % box opens blank, not only the blank malt's (a `// FLAG:` in `TargetOgSolver.jsx`). Kept as IS-S1 reads it; Solve works once each % is typed (IS-Q2').
+- The pre-boil volume at 60 °F is pinned with the volume measured at 212 °F: the weights equal the engine's `solveGrist` given `correctVolumeToRef(16, 212)`, and differ from those for the measured 16 gal (inspector's FAIL, round 1).
+- The % of total readout is a column after the weight (desktop) and "% of total 90.9 · Points 39.43" under each malt (phone); to one decimal, as the shares are shown elsewhere.
+- `pro-unit-choices.test.js` pinned the Grist card byte for byte against its own capture; it now compares through `withoutTargetOgDesign`, which removes only this item's column and the closed control (IS-S7), so the capture is unchanged.
+- Numbers introduced: none that is a recipe value. The weights are the engine's `solveGrist` (pinned in `solver.test.js` and here within its 2e-2 residual, 27 and 2 lb by hand from the reference recipe); the total is fraction × 100 (a definitional unit factor); 100.0 is IS-Q7's rule; one, three and four decimals are display precision; the boxes' `step`, `min`, `max` are input attributes.
+- Noticed and put on the roadmap: Solve with volumes measured hot (Tier A/B: the engine boils off the corrected pre-boil volume while the recipe corrects the post-boil volume, so at 212 °F a 1.050 target predicts 1.0494); solved malt weights cut off in their box (Tier C).

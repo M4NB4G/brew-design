@@ -19,8 +19,10 @@ import {
   breweryFiguresFromRecipe,
   newRecipe,
   switchMode,
+  withMaltWeights,
+  solveUndoable,
 } from './state.js';
-import { computeRecipe, computeWater } from './selectors.js';
+import { computeRecipe, computeWater, solveTargetOG } from './selectors.js';
 import { mashWaterChanged } from './water-state.js';
 import { emptyFields, emptyFieldsLine } from './empty-fields.js';
 import {
@@ -244,6 +246,25 @@ export default function App() {
     setMode(out.mode);
   };
 
+  // Design to a target OG (IS-S3, IS-S6): Solve writes every malt's weight in
+  // one step (one autosave) and keeps the weights from before; "Undo solve"
+  // puts them back, offered until the next edit. Neither is saved.
+  const [solved, setSolved] = useState(null); // { before, after, target, unit }
+  const solve = (targetOG, shares, typed) => {
+    const out = solveTargetOG(recipe, targetOG, shares);
+    if (out.ok) {
+      const next = withMaltWeights(recipe, out.weightsLb);
+      setRecipe(next);
+      setSolved({ before: recipe.malts.map((m) => m.weightLb), after: next, ...typed });
+    }
+    return out;
+  };
+  const undoSolve = () => {
+    if (!solveUndoable(solved, recipe)) return;
+    setRecipe(withMaltWeights(recipe, solved.before));
+    setSolved(null);
+  };
+
   // Top-level scalar field setter.
   // A new mash water, when it is the treated water, returns the brewer's own
   // salt and acid amounts to the recommendation (water treatment K).
@@ -344,6 +365,10 @@ export default function App() {
               setField={setField}
               mode={mode}
               proMaltUnit={proMaltUnit}
+              proGravityUnit={proGravityUnit}
+              solved={solveUndoable(solved, recipe) ? solved : null}
+              onSolve={solve}
+              onUndoSolve={undoSolve}
             />
 
             <YeastCard

@@ -9,8 +9,12 @@
 // block (IngredientBlock) holding the same boxes instead of a table row.
 // Each malt's type for the mash pH model is a choice (mash pH, MP-S3): a pick
 // from the list sets it; choosing it by hand clears the malt's lab figures.
+// Each malt's % of total grain weight is always shown, read from the engine's
+// share, and "Design to target OG" sits at the card's foot (design to a target
+// OG, IS-S1, IS-S2).
 import NumberField from './NumberField.jsx';
 import IngredientSearch from './IngredientSearch.jsx';
+import TargetOgSolver from './TargetOgSolver.jsx';
 import Card from './shared/Card.jsx';
 import IngredientBlock from './shared/IngredientBlock.jsx';
 import InputRow from './shared/InputRow.jsx';
@@ -67,8 +71,14 @@ export default function GristTable({
   setField,
   mode,
   proMaltUnit,
+  proGravityUnit,
+  solved,
+  onSolve,
+  onUndoSolve,
 }) {
   const phone = usePhone();
+  // A malt's share of the grain weight, in percent to one decimal; "—" where blank.
+  const shareText = (i) => num(fractionToPercent(grist.perMalt[i]?.perMaltWeightFraction), 1);
   const sacks = maltInSacks(mode, proMaltUnit);
   const wUnit = maltWeightUnit(mode, proMaltUnit);
 
@@ -178,10 +188,10 @@ export default function GristTable({
                 </>
               }
               fields={maltInputs(m, i)}
-              resultLabel="Points"
+              resultLabel="% of total"
               result={
                 <span style={{ color: colors.textSecondary, fontSize: '0.9rem', fontVariantNumeric: 'tabular-nums' }}>
-                  {num(grist.perMalt[i]?.perMaltPoints, 2)}
+                  {shareText(i)} · Points {num(grist.perMalt[i]?.perMaltPoints, 2)}
                 </span>
               }
               remove={removeButton(i)}
@@ -195,6 +205,7 @@ export default function GristTable({
             <tr>
               <th style={{ ...TH, minWidth: '120px' }}>Malt</th>
               <th style={{ ...TH, width: '95px' }}>Weight ({wUnit})</th>
+              <th style={{ ...TH, width: '80px', textAlign: 'right' }}>% of total</th>
               <th style={{ ...TH, width: '80px' }}>FGDB ({percentUnit()})</th>
               <th style={{ ...TH, width: '80px' }}>Color (°L)</th>
               <th style={{ ...TH, width: '140px' }}>Type</th>
@@ -208,11 +219,16 @@ export default function GristTable({
                 <td style={TD}>
                   <IngredientSearch field="malts" row={m} index={i} setRow={setRow} />
                 </td>
-                {maltInputs(m, i).map(({ label, input }) => (
+                {maltInputs(m, i).map(({ label, input }, k) => [
                   <td key={label} style={TD_NUM}>
                     {input}
-                  </td>
-                ))}
+                  </td>,
+                  k === 0 && (
+                    <td key="share" data-share="" style={{ ...TD_NUM, color: colors.textSecondary, fontSize: '0.9rem' }}>
+                      {shareText(i)}
+                    </td>
+                  ),
+                ])}
                 <td style={TD}>{typeInput(m, i)}</td>
                 <td style={{ ...TD_NUM, color: colors.textSecondary, fontSize: '0.9rem' }}>
                   {num(grist.perMalt[i]?.perMaltPoints, 2)}
@@ -256,6 +272,16 @@ export default function GristTable({
           max={100}
         />
       </div>
+
+      <TargetOgSolver
+        malts={malts}
+        grist={grist}
+        mode={mode}
+        proGravityUnit={proGravityUnit}
+        solved={solved}
+        onSolve={onSolve}
+        onUndoSolve={onUndoSolve}
+      />
     </Card>
   );
 }

@@ -271,6 +271,21 @@ export function switchMode({ recipe, mode, proVolumeUnit }, next, brewery, ask) 
   return { recipe: yes ? scaleRecipeTo(recipe, batchGal) : recipe, mode: next };
 }
 
+// --- Design to a target OG (docs/items/inverse-solver-ui.md) -----------------
+// The recipe with each malt's weight replaced, in order, and nothing else
+// changed: Solve writes the solved weights, "Undo solve" the weights from
+// before, each in one step (IS-S3, IS-S6).
+export function withMaltWeights(recipe, weightsLb) {
+  return { ...recipe, malts: recipe.malts.map((m, i) => ({ ...m, weightLb: weightsLb[i] })) };
+}
+
+// "Undo solve" lasts until the next edit (IS-S6, K): while the recipe is the
+// very one the solve wrote. `solved` is { before, after, target } or null; it
+// is held by the page, never saved.
+export function solveUndoable(solved, recipe) {
+  return solved != null && solved.after === recipe;
+}
+
 // --- My brewery banner (S4b item 4) -------------------------------------------
 // While every brewery figure is blank, a banner recommends setting them up,
 // unless the brewer said "Not now" in this browser (BB-S1, BB-S2).
