@@ -44,6 +44,7 @@ import * as f from './pro-unit-choices.fixture.js';
 // capture (docs/items/inverse-solver-ui.md, IS-S7): compared without them.
 import { withoutTargetOgDesign } from './inverse-solver.fixture.js';
 import { docWithBlankPrices } from './blank-prices.js';
+import { withoutBoxNames as noNames } from './box-names.fixture.js';
 
 const BEFORE = JSON.parse(readFileSync(new URL('./pro-unit-choices.before.json', import.meta.url), 'utf8'));
 
@@ -113,7 +114,7 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     // The Volumes card in Pro gallons is the card at Home: every volume and
     // readout in gallons, to Home's precision.
     expect(f.volumesHtml(r, 'pro', GAL)).toBe(f.volumesHtml(r, 'home', GAL));
-    expect(f.volumesHtml(r, 'pro', GAL)).toBe(BEFORE['volumes-home']);
+    expect(noNames(f.volumesHtml(r, 'pro', GAL))).toBe(noNames(BEFORE['volumes-home']));
     expect(text(f.volumesHtml(r, 'pro', GAL))).not.toContain('bbl');
 
     // My brewery's volumes and water setup in gallons, as at Home.
@@ -132,7 +133,7 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     expect(waterBbl).toContain('14.839 bbl'); // 460 / 31 = 14.839
 
     // The dry-hop rate stays lb/bbl and hop weights stay in pounds.
-    expect(f.hopsHtml(r, 'pro', GAL)).toBe(BEFORE.hops);
+    expect(noNames(f.hopsHtml(r, 'pro', GAL))).toBe(noNames(BEFORE.hops));
     expect(text(f.hopsHtml(r, 'pro', GAL))).toContain('lb/bbl');
 
     // The sheet: every volume as Home prints it; the dry-hop rate lb/bbl.
@@ -168,8 +169,8 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
 
     // Home ignores the choice; hops stay in pounds.
     const plain = f.recipe();
-    expect(withoutTargetOgDesign(f.gristHtml(plain, 'home', SACK))).toBe(BEFORE['grist-home']);
-    expect(f.hopsHtml(plain, 'pro', SACK)).toBe(BEFORE.hops);
+    expect(noNames(withoutTargetOgDesign(f.gristHtml(plain, 'home', SACK)))).toBe(noNames(BEFORE['grist-home']));
+    expect(noNames(f.hopsHtml(plain, 'pro', SACK))).toBe(noNames(BEFORE.hops));
 
     // The sheet prints the split, not the decimal.
     const s = f.sheetData(plain, 'pro', SACK);
@@ -281,13 +282,13 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     const r = f.recipe();
     for (const units of [BBL_LB, {}]) {
       for (const mode of ['home', 'pro']) {
-        expect(f.volumesHtml(r, mode, units), `volumes ${mode}`).toBe(BEFORE[`volumes-${mode}`]);
-        expect(withoutTargetOgDesign(f.gristHtml(r, mode, units)), `grist ${mode}`).toBe(BEFORE[`grist-${mode}`]);
+        expect(noNames(f.volumesHtml(r, mode, units)), `volumes ${mode}`).toBe(noNames(BEFORE[`volumes-${mode}`]));
+        expect(noNames(withoutTargetOgDesign(f.gristHtml(r, mode, units))), `grist ${mode}`).toBe(noNames(BEFORE[`grist-${mode}`]));
         expect(f.sheetData(r, mode, units), `sheet ${mode}`).toEqual(BEFORE[`sheet-data-${mode}`]);
       }
-      expect(f.hopsHtml(r, 'pro', units)).toBe(BEFORE.hops);
-      expect(f.waterHtml(r, 'pro', units)).toBe(BEFORE.water);
-      expect(withoutNewChoices(f.optionsHtml(f.brewery(), 'pro', units))).toBe(BEFORE.options);
+      expect(noNames(f.hopsHtml(r, 'pro', units))).toBe(noNames(BEFORE.hops));
+      expect(noNames(f.waterHtml(r, 'pro', units))).toBe(noNames(BEFORE.water));
+      expect(noNames(withoutNewChoices(f.optionsHtml(f.brewery(), 'pro', units)))).toBe(noNames(BEFORE.options));
     }
 
     // The saved documents: as before, at the new versions, with the choices.

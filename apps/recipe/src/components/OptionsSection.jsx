@@ -95,6 +95,7 @@ function ChoiceRow({ label, value, onChange, options, builtIn }) {
     >
       <span style={{ fontSize: '0.92rem', color: colors.textPrimary, fontWeight: 500 }}>{label}</span>
       <select
+        aria-label={label}
         value={value ?? ''}
         onChange={(e) => onChange(e.target.value === '' ? null : e.target.value)}
         style={{ ...tokens.select, width: 'auto', padding: '0.4rem 0.55rem', fontSize: '0.92rem' }}

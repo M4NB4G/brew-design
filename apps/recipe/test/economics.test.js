@@ -39,6 +39,7 @@ import {
 import { emptyFields, emptyFieldsLine } from '../src/empty-fields.js';
 import { newRow, pickIngredient } from '../src/ingredient-search.js';
 import * as f from './economics.fixture.js';
+import { withoutBoxNames as noNames } from './box-names.fixture.js';
 
 const BEFORE = JSON.parse(readFileSync(new URL('./economics.before.json', import.meta.url), 'utf8'));
 const computeCost = (...a) => selectors.computeCost(...a);
@@ -279,8 +280,8 @@ describe('cost of a batch', () => {
     const r = priced();
     const sack = { proVolumeUnit: 'bbl', proMaltUnit: 'sack' };
     // The Recipe tab's other cards, with every price set, as before.
-    expect(f.recipeTabHtml(r, 'home')).toEqual(BEFORE['recipe-tab-home']);
-    expect(f.recipeTabHtml(r, 'pro', sack)).toEqual(BEFORE['recipe-tab-pro']);
+    expect(noNames(f.recipeTabHtml(r, 'home'))).toEqual(noNames(BEFORE['recipe-tab-home']));
+    expect(noNames(f.recipeTabHtml(r, 'pro', sack))).toEqual(noNames(BEFORE['recipe-tab-pro']));
     // The printed sheet as before, with no cost on it.
     const sheet = JSON.parse(JSON.stringify(f.sheetData(r, 'home')));
     expect(sheet).toEqual(BEFORE['sheet-home']);

@@ -14,6 +14,7 @@
 // OG, IS-S1, IS-S2).
 import NumberField from './NumberField.jsx';
 import IngredientSearch from './IngredientSearch.jsx';
+import { rowName } from './shared/rowName.js';
 import TargetOgSolver from './TargetOgSolver.jsx';
 import Card from './shared/Card.jsx';
 import IngredientBlock from './shared/IngredientBlock.jsx';
@@ -89,6 +90,7 @@ export default function GristTable({
       input: (
         <>
           <NumberField
+            aria-label={`Weight (${wUnit}), ${rowName(m, 'Malt', i)}`}
             value={maltWeightBoxValue(m.weightLb, mode, proMaltUnit)}
             step={sacks ? '0.01' : '0.1'}
             min="0"
@@ -104,6 +106,7 @@ export default function GristTable({
       label: `FGDB (${percentUnit()})`,
       input: (
         <NumberField
+          aria-label={`FGDB (${percentUnit()}), ${rowName(m, 'Malt', i)}`}
           value={fractionToPercent(m.fgdb)}
           step="1"
           min="0"
@@ -116,6 +119,7 @@ export default function GristTable({
       label: 'Color (°L)',
       input: (
         <NumberField
+          aria-label={`Color (°L), ${rowName(m, 'Malt', i)}`}
           value={m.colorL}
           step="0.1"
           min="0"
@@ -129,7 +133,7 @@ export default function GristTable({
   // its own line under the name, so the number boxes keep their width.
   const typeInput = (m, i) => (
     <select
-      aria-label="Malt type"
+      aria-label={`Malt type, ${rowName(m, 'Malt', i)}`}
       value={m.type}
       onChange={(e) => {
         const next = chooseMaltType(m, e.target.value);
@@ -180,7 +184,7 @@ export default function GristTable({
               striped={i % 2 === 1}
               name={
                 <>
-                  <IngredientSearch field="malts" row={m} index={i} setRow={setRow} />
+                  <IngredientSearch field="malts" row={m} index={i} setRow={setRow} label={`Malt ${i + 1} name`} />
                   <label style={phoneTypeStyle}>
                     <span style={phoneTypeLabelStyle}>Type</span>
                     {typeInput(m, i)}
@@ -217,7 +221,7 @@ export default function GristTable({
             {malts.map((m, i) => (
               <tr key={i} style={{ background: i % 2 === 1 ? colors.noticeBg : 'transparent' }}>
                 <td style={TD}>
-                  <IngredientSearch field="malts" row={m} index={i} setRow={setRow} />
+                  <IngredientSearch field="malts" row={m} index={i} setRow={setRow} label={`Malt ${i + 1} name`} />
                 </td>
                 {maltInputs(m, i).map(({ label, input }, k) => [
                   <td key={label} style={TD_NUM}>

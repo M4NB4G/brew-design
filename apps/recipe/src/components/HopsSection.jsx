@@ -7,6 +7,7 @@
 // a block (IngredientBlock) holding the same boxes instead of a table row.
 import NumberField from './NumberField.jsx';
 import IngredientSearch from './IngredientSearch.jsx';
+import { rowName } from './shared/rowName.js';
 import Card from './shared/Card.jsx';
 import IngredientBlock from './shared/IngredientBlock.jsx';
 import usePhone from './shared/usePhone.js';
@@ -117,6 +118,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temp
       label: 'Time (min)',
       input: (
         <NumberField
+          aria-label={`Time (min), ${rowName(a, 'Kettle hop', i)}`}
           value={a.timeMin}
           step="1"
           min="0"
@@ -128,6 +130,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temp
       label: `Temp (${tempUnit(temperatureUnit)})`,
       input: (
         <NumberField
+          aria-label={`Temp (${tempUnit(temperatureUnit)}), ${rowName(a, 'Kettle hop', i)}`}
           value={tempBoxValue(a.wortTempF, temperatureUnit)}
           step={temperatureUnit === 'C' ? '0.1' : '1'}
           onChange={(v) => setRow('kettleAdditions', i, 'wortTempF', tempToCanonical(v, temperatureUnit))}
@@ -138,6 +141,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temp
       label: `Wt (${wUnit})`,
       input: (
         <NumberField
+          aria-label={`Wt (${wUnit}), ${rowName(a, 'Kettle hop', i)}`}
           value={hopWeightFromCanonical(a.weightOz, mode)}
           step="0.1"
           min="0"
@@ -149,6 +153,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temp
       label: `Alpha (${percentUnit()})`,
       input: (
         <NumberField
+          aria-label={`Alpha (${percentUnit()}), ${rowName(a, 'Kettle hop', i)}`}
           value={fractionToPercent(a.alphaAcidFraction)}
           step="0.1"
           min="0"
@@ -165,6 +170,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temp
       label: `Wt (${wUnit})`,
       input: (
         <NumberField
+          aria-label={`Wt (${wUnit}), ${rowName(d, 'Dry hop', i)}`}
           value={hopWeightFromCanonical(d.weightOz, mode)}
           step="0.1"
           min="0"
@@ -216,7 +222,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temp
             <IngredientBlock
               key={i}
               striped={i % 2 === 1}
-              name={<IngredientSearch field="kettleAdditions" row={a} index={i} setRow={setRow} />}
+              name={<IngredientSearch field="kettleAdditions" row={a} index={i} setRow={setRow} label={`Kettle hop ${i + 1} name`} />}
               fields={kettleInputs(a, i)}
               resultLabel="IBU"
               result={<IbuBadge ibu={hops.additions[i]?.ibu} />}
@@ -242,7 +248,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temp
             {kettleAdditions.map((a, i) => (
               <tr key={i} style={{ background: i % 2 === 1 ? colors.noticeBg : 'transparent' }}>
                 <td style={TD}>
-                  <IngredientSearch field="kettleAdditions" row={a} index={i} setRow={setRow} />
+                  <IngredientSearch field="kettleAdditions" row={a} index={i} setRow={setRow} label={`Kettle hop ${i + 1} name`} />
                 </td>
                 {kettleInputs(a, i).map(({ label, input }) => (
                   <td key={label} style={TD_NUM}>
@@ -307,7 +313,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temp
             <IngredientBlock
               key={i}
               striped={i % 2 === 1}
-              name={<IngredientSearch field="dryHops" row={d} index={i} setRow={setRow} />}
+              name={<IngredientSearch field="dryHops" row={d} index={i} setRow={setRow} label={`Dry hop ${i + 1} name`} />}
               fields={dryInputs(d, i)}
               remove={<RemoveBtn onClick={() => removeRow('dryHops', i)} />}
             />
@@ -327,7 +333,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temp
             {dryHops.map((d, i) => (
               <tr key={i} style={{ background: i % 2 === 1 ? colors.noticeBg : 'transparent' }}>
                 <td style={TD}>
-                  <IngredientSearch field="dryHops" row={d} index={i} setRow={setRow} />
+                  <IngredientSearch field="dryHops" row={d} index={i} setRow={setRow} label={`Dry hop ${i + 1} name`} />
                 </td>
                 {dryInputs(d, i).map(({ label, input }) => (
                   <td key={label} style={TD_NUM}>

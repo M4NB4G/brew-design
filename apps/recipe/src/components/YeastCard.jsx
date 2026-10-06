@@ -49,12 +49,14 @@ export default function YeastCard({ yeast, apparentAttenuation, temperatureUnit,
             field="yeasts"
             row={yeast}
             index={0}
+            label="Strain"
             setRow={(field, index, key, value) => setYeast(key, value)}
           />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
           <label style={LABEL}>Type</label>
           <select
+            aria-label="Type"
             value={yeast.type}
             onChange={(e) => setYeast('type', e.target.value)}
             style={{ ...tokens.select, padding: '0.4rem 0.55rem', fontSize: '0.92rem' }}

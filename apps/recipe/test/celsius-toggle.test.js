@@ -42,6 +42,7 @@ import { temperatureChange } from '../src/components/VolumesSection.jsx';
 import Header from '../src/components/Header.jsx';
 import * as f from './celsius-toggle.fixture.js';
 import { docWithBlankPrices } from './blank-prices.js';
+import { withoutBoxNames as noNames } from './box-names.fixture.js';
 
 const BEFORE = JSON.parse(readFileSync(new URL('./celsius-toggle.before.json', import.meta.url), 'utf8'));
 
@@ -300,12 +301,12 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
   it('nothing else changes in °F', () => {
     const r = f.recipe();
     for (const mode of ['home', 'pro']) {
-      expect(f.volumesHtml(r, mode, 'F'), `volumes ${mode}`).toBe(BEFORE[`volumes-${mode}`]);
+      expect(noNames(f.volumesHtml(r, mode, 'F')), `volumes ${mode}`).toBe(noNames(BEFORE[`volumes-${mode}`]));
       expect(f.sheetData(r, mode, 'F'), `sheet ${mode}`).toEqual(BEFORE[`sheet-data-${mode}`]);
     }
-    expect(f.hopsHtml(r, 'home', 'F')).toBe(BEFORE.hops);
-    expect(f.yeastHtml(r, 'F')).toBe(BEFORE.yeast);
-    expect(withoutUnitChoice(f.optionsHtml(f.brewery(), 'home', 'F'))).toBe(BEFORE.options);
+    expect(noNames(f.hopsHtml(r, 'home', 'F'))).toBe(noNames(BEFORE.hops));
+    expect(noNames(f.yeastHtml(r, 'F'))).toBe(noNames(BEFORE.yeast));
+    expect(noNames(withoutUnitChoice(f.optionsHtml(f.brewery(), 'home', 'F')))).toBe(noNames(BEFORE.options));
 
     // The saved documents: as before, at the new versions, with the choice.
     const before = JSON.parse(BEFORE['recipe-document']);

@@ -40,4 +40,9 @@ export default [
     files: ['apps/recipe/src/**/*.{js,jsx}'],
     languageOptions: { globals: globals.browser },
   },
+  // The one test that draws the whole app in jsdom reads the browser's globals.
+  {
+    files: ['apps/recipe/test/accessible-names.test.js'],
+    languageOptions: { globals: globals.browser },
+  },
 ];

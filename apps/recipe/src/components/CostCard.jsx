@@ -129,7 +129,7 @@ export default function CostCard({ recipe, cost, mode, proVolumeUnit, proMaltUni
                     {other ? (
                       <input
                         type="text"
-                        aria-label="Line name"
+                        aria-label={`Line ${line.index + 1} name`}
                         value={recipe.otherCosts[line.index].name}
                         onChange={(e) => setRow('otherCosts', line.index, 'name', e.target.value)}
                         style={{ ...tokens.select, padding: '0.45rem 0.6rem' }}

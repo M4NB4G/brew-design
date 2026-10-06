@@ -62,7 +62,7 @@ const ACID_KEYS = Object.keys(ACIDS);
 // When the value changes from outside (a reset, a new recommendation) the
 // draft follows it, unless the brewer is mid-way through typing (the draft
 // does not parse). A blank value shows an empty box.
-function DraftInput({ initialValue, format, parse, onChange, style }) {
+function DraftInput({ initialValue, format, parse, onChange, style, label }) {
   const [draft, setDraft] = useState(() => format(initialValue));
 
   useEffect(() => {
@@ -82,6 +82,7 @@ function DraftInput({ initialValue, format, parse, onChange, style }) {
     <input
       type="text"
       inputMode="decimal"
+      aria-label={label}
       value={draft}
       onChange={(e) => {
         setDraft(e.target.value);
@@ -126,6 +127,7 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', justifyContent: 'flex-end' }}>
           <DraftInput
             key={`${row.key}-${mode}`}
+            label={`${row.name} (${saltUnit(mode)})`}
             initialValue={row.amount}
             format={formatGrams}
             parse={parseGrams}
@@ -327,6 +329,7 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
             <div style={{ marginBottom: '0.6rem' }}>
               <div style={{ ...tokens.cardLabel, marginBottom: '0.4rem' }}>Source (if needed)</div>
               <select
+                aria-label="Alkalinity Raise, source (if needed)"
                 value={water.raiseAlkSource}
                 onChange={(e) => {
                   const key = e.target.value;
@@ -531,6 +534,7 @@ function AcidRow({ row, mode, onChangeAmount, primary = false, single = false, p
       <div style={{ flex: 1, minWidth: 0 }}>
         {primary ? (
           <select
+            aria-label="Acid"
             value={primaryAcidType}
             onChange={(e) => onSetPrimaryAcid(e.target.value)}
             style={{ ...tokens.select, marginBottom: '0.2rem' }}
@@ -550,6 +554,7 @@ function AcidRow({ row, mode, onChangeAmount, primary = false, single = false, p
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', justifyContent: 'flex-end' }}>
           <DraftInput
             key={`${row.key}-${mode}`}
+            label={`${row.name} (${unit})`}
             initialValue={row.amount}
             format={format}
             parse={parse}

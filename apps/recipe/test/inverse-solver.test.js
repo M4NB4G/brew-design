@@ -31,6 +31,7 @@ import { defaultWaterState } from '../src/water-state.js';
 import { solveGrist, correctVolumeToRef } from '@brew/engine';
 import * as f from './inverse-solver.fixture.js';
 import { docWithBlankPrices } from './blank-prices.js';
+import { withoutBoxNames as noNames } from './box-names.fixture.js';
 
 const { computeRecipe } = selectors;
 const solveTargetOG = (...a) => selectors.solveTargetOG(...a);
@@ -84,7 +85,7 @@ async function panelHtml(r, { mode = 'home', proGravityUnit = 'plato', solved = 
   );
 }
 
-const withoutNew = f.withoutTargetOgDesign;
+const withoutNew = (html) => noNames(f.withoutTargetOgDesign(html));
 
 describe('design to a target OG', () => {
   // IS-S1
@@ -295,9 +296,9 @@ describe('design to a target OG', () => {
     const home = f.gristHtml(r);
     expect(home).toContain('% of total');
     expect(home).toContain('Design to target OG');
-    expect(withoutNew(home)).toBe(BEFORE['grist-home']);
-    expect(withoutNew(f.gristHtml(r, { mode: 'pro' }))).toBe(BEFORE['grist-pro-lb']);
-    expect(withoutNew(f.gristHtml(r, { mode: 'pro', proMaltUnit: 'sack' }))).toBe(BEFORE['grist-pro-sack']);
+    expect(withoutNew(home)).toBe(noNames(BEFORE['grist-home']));
+    expect(withoutNew(f.gristHtml(r, { mode: 'pro' }))).toBe(noNames(BEFORE['grist-pro-lb']));
+    expect(withoutNew(f.gristHtml(r, { mode: 'pro', proMaltUnit: 'sack' }))).toBe(noNames(BEFORE['grist-pro-sack']));
     // Since cost of a batch: version 11, with blank prices (economics EC-S3).
     const before = JSON.parse(BEFORE.document);
     expect(JSON.parse(exportRecipeDocument({ recipe: r, ...DEFAULT_DISPLAY }))).toEqual({

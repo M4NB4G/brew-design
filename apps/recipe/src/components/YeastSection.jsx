@@ -24,6 +24,7 @@ function Select({ label, value, onChange, children }) {
         {label}
       </label>
       <select
+        aria-label={label}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         style={{ ...tokens.select }}

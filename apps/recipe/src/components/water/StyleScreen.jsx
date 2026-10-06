@@ -48,6 +48,7 @@ export default function StyleScreen({ styleId, figures, setWater }) {
       <Card>
         <div style={tokens.cardLabel}>BJCP 2021 Style Family</div>
         <select
+          aria-label="BJCP 2021 Style Family"
           value={styleId}
           onChange={(e) => {
             const id = e.target.value;

@@ -6,7 +6,8 @@
 // renders small grey text under the input — used by the Recipe tab to show
 // the solver's recommended value beneath each editable salt amount. The
 // optional `placeholder` is the figure shown greyed inside an empty box (the
-// browser's own placeholder grey); it is never a value.
+// browser's own placeholder grey); it is never a value. The box's accessible
+// name is the label the brewer sees, with its unit (guard-rails item 3, F-Q5).
 
 import { colors, tokens } from './styles.js';
 
@@ -32,6 +33,8 @@ export default function InputRow({
     borderBottom: `1px solid ${colors.rowDivider}`,
     gap: '0.75rem',
   };
+
+  const name = typeof label === 'string' ? (unit ? `${label} ${unit}` : label) : undefined;
 
   const inputStyle = {
     ...tokens.numberInput,
@@ -86,6 +89,7 @@ export default function InputRow({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', justifyContent: 'flex-end' }}>
           <input
             type="number"
+            aria-label={name}
             step={step}
             min={min}
             max={max}

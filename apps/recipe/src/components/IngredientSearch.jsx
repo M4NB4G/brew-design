@@ -37,7 +37,7 @@ function listPlacement(rect) {
   return { left, width, bottom: window.innerHeight - rect.top + gap, maxHeight: Math.min(280, above) };
 }
 
-export default function IngredientSearch({ field, row, index, setRow }) {
+export default function IngredientSearch({ field, row, index, setRow, label }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const [place, setPlace] = useState(null);
@@ -103,6 +103,7 @@ export default function IngredientSearch({ field, row, index, setRow }) {
       <input
         ref={inputRef}
         value={row.name}
+        aria-label={label}
         placeholder="Type to search"
         autoComplete="off"
         role="combobox"
