@@ -30,6 +30,7 @@ import {
   fermTempWarning,
 } from '../src/ingredient-search.js';
 import { recipeSheet } from '../src/components/recipe-sheet-data.js';
+import { withBlankPrices } from './blank-prices.js';
 
 const names = (list) => list.map((i) => i.name);
 const strain = (name) => ingredients.yeasts.find((y) => y.name === name);
@@ -203,15 +204,15 @@ describe('yeast card', () => {
     const s = fakeStorage();
     const recipe = {
       ...defaultRecipeState(),
-      yeast: { type: 'lager', density: 'high', name: 'Hausstamm Kölner ÄLE', fermTempF: 52.5 },
+      yeast: { type: 'lager', density: 'high', name: 'Hausstamm Kölner ÄLE', fermTempF: 52.5, pricePerBatch: NaN },
     };
     const state = { recipe, mode: 'pro', proGravityUnit: 'sg', temperatureUnit: 'F', proVolumeUnit: 'bbl', proMaltUnit: 'lb' };
     savePersisted(s, state);
 
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(SCHEMA_VERSION).toBe(10);
-    expect(doc.version).toBe(10);
-    expect(doc.recipe.yeast).toEqual({ type: 'lager', density: 'high', name: 'Hausstamm Kölner ÄLE', fermTempF: 52.5 });
+    expect(SCHEMA_VERSION).toBe(11);
+    expect(doc.version).toBe(11);
+    expect(doc.recipe.yeast).toEqual({ type: 'lager', density: 'high', name: 'Hausstamm Kölner ÄLE', fermTempF: 52.5, pricePerBatch: null });
     expect(loadPersisted(s, defaults())).toEqual(state);
     // The recipe file is the same document, and imports as the same recipe.
     expect(exportRecipeDocument(state)).toBe(s._map.get(STORAGE_KEY));
@@ -258,7 +259,8 @@ describe('yeast card', () => {
     for (const { version, recipe, expected: before5 } of cases) {
       // Water saved with the recipe (WS-S3): read with the built-in water.
       // Mash pH item 2 (MP-Q8): read with each malt's type blank.
-      const expected = { ...before5, water: defaultWaterState(), malts: untyped(before5.malts) };
+      // Cost of a batch (EC-S3): read with every price blank.
+      const expected = withBlankPrices({ ...before5, water: defaultWaterState(), malts: untyped(before5.malts) });
       const text = JSON.stringify({ version, recipe, mode: 'pro', proGravityUnit: 'sg' });
       const s = fakeStorage();
       s.setItem(STORAGE_KEY, text);
@@ -275,7 +277,7 @@ describe('yeast card', () => {
       expect(importRecipeFile(text, defaults(), () => true).state.recipe, `version ${version}`).toEqual(expected);
 
       savePersisted(s, loaded);
-      expect(JSON.parse(s._map.get(STORAGE_KEY)).version, `version ${version}`).toBe(10);
+      expect(JSON.parse(s._map.get(STORAGE_KEY)).version, `version ${version}`).toBe(11);
     }
   });
 

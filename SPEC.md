@@ -36,6 +36,11 @@ pinned by the golden-master tests.
    printed sheet, names every empty number box that feeds a figure, and
    any measurement temperature the correction cannot use — read from the
    recipe's own figures, not from a range written in the app.
+   The recipe carries prices, typed by the brewer and read by no recipe
+   figure: each malt's per lb, each kettle and dry hop's per oz, the yeast's
+   per batch, and the Cost card's other lines, each a name and a cost per
+   batch; a blank price is NaN, and a pick from the ingredient list leaves
+   it as it was.
    Each malt row carries its type for the mash pH model — base, crystal,
    roast, acidulated, none, or blank (`''`) — and its two lab figures, the
    distilled-water mash pH and the acidity in mEq/kg (NaN when blank); a
@@ -114,6 +119,11 @@ pinned by the golden-master tests.
     the water the mash draws — the tank's treated water with the acid over
     the mash water — and the sparge, the tank's leftover and the kettle carry
     no acid; the printed sheet names the acid's place, Mash or HLT.
+    The Cost card renders from `computeCost(recipe)`: each line's cost, the
+    total of the priced lines (counting the rest) and the cost per gal at the
+    fermentation volume at 60 °F, by the engine's `rollupCost` and
+    `costPerUnit`, blank for a zero, negative or blank volume. It is not on
+    the printed sheet.
     The Grist card shows each malt's % of total grain weight, the engine's
     share ("—" where blank). "Design to target OG" sets every malt's weight,
     in one step, by the engine's `solveGrist` from a target OG in the screen's
@@ -140,7 +150,7 @@ pinned by the golden-master tests.
     only when the canonical state does, at the value that leaves every pinned
     number the same.
 13. Persisted state is the canonical state, under one key, in one JSON
-    document carrying a schema version (10). A version-1 document — saved
+    document carrying a schema version (11). A version-1 document — saved
     before the measurement temperatures existed — loads as the same recipe
     with the three at 60 °F; a version-1 or version-2 document — saved
     before the recipe had a name, style and notes — loads with those three
@@ -156,14 +166,16 @@ pinned by the golden-master tests.
     with the salts; a version-1 to 8 document — saved before the temperature
     unit was a display setting — loads in °F; a version-1 to 9 document —
     saved before Pro's volume and malt weight choices — loads in barrels and
-    pounds; each is saved back as version 10. Unreadable data,
+    pounds; a version-1 to 10 document — saved before prices — loads with
+    every price blank and no other cost lines; each is saved back as version
+    11. Unreadable data,
     any other version, or unavailable storage yields a new recipe (rule 17) and never
     throws. A document is readable only if, after its upgrade, every malt,
     kettle-hop and dry-hop row and the yeast carry every field of the
     built-in recipe's, each of its kind — text as text, a number as a
     number or blank — with ale/lager and the yeast character among the
     engine's pitch-rate choices, each malt's type blank or one the mash pH
-    model knows, and the water entries carry every field,
+    model knows, each other cost line a name and a cost (a number or blank), and the water entries carry every field,
     each of its kind — a number as a number or blank, a choice among the
     Water tab's, a salt, acid or style the engine knows; extra fields are
     ignored. A saved copy in
@@ -206,8 +218,8 @@ pinned by the golden-master tests.
     units blank; each is saved back as version 5. The sparge
     water is never a brewery figure.
     Unreadable data, any other version, or unavailable storage yields every
-    figure blank and never throws. The water style, where the acid goes
-    and the brewer's own amounts are never brewery figures. While every one is blank, a banner on
+    figure blank and never throws. The water style, where the acid goes,
+    the brewer's own amounts and the prices are never brewery figures. While every one is blank, a banner on
     every tab recommends setting them up; its "Not now" is kept in this
     browser under its own key, never part of a recipe or the brewery's
     figures, and ends when a figure is set. The brewery file is the same
@@ -251,6 +263,10 @@ pinned by the golden-master tests.
 | Liquid acid | mL | mL |
 | Acidulated malt | oz | lb (state holds g) |
 | FGDB, efficiency, attenuation, hop alpha | shown as %; state holds the fraction | same |
+| Malt price | $/lb | $/lb, or $/sack with sacks (state holds $/lb) |
+| Hop price (kettle and dry) | $/oz | $/lb (state holds $/oz) |
+| Yeast and other cost lines | $/batch | $/batch |
+| Cost per unit | $/gal | $/bbl, or $/gal by Pro's choice (worked out per gal) |
 
 ## 3. Design
 

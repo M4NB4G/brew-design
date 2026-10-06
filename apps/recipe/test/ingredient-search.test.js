@@ -192,6 +192,7 @@ describe('searchable malt and hop boxes', () => {
     expect(newRow('malts')).toEqual({
       name: '', weightLb: 1, fgdb: 0.8, colorL: 2,
       type: '', distilledWaterPh: NaN, acidityMeqPerKg: NaN,
+      pricePerLb: NaN, // cost of a batch (EC-S3): a new row's price is blank
     });
     expect(newRow('kettleAdditions')).toEqual({
       name: '',
@@ -199,8 +200,9 @@ describe('searchable malt and hop boxes', () => {
       wortTempF: 212,
       weightOz: 1,
       alphaAcidFraction: 0.1,
+      pricePerOz: NaN,
     });
-    expect(newRow('dryHops')).toEqual({ name: '', weightOz: 1 });
+    expect(newRow('dryHops')).toEqual({ name: '', weightOz: 1, pricePerOz: NaN });
     // Each call is a fresh row, never a shared object.
     expect(newRow('malts')).not.toBe(newRow('malts'));
   });

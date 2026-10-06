@@ -43,6 +43,8 @@ import {
   mashPhTestedRange,
   scaleRecipe,
   solveGrist,
+  rollupCost,
+  costPerUnit,
 } from '@brew/engine';
 import { toReferenceVolume } from './reference-volume.js';
 import { fractionToPercent } from './display.js';
@@ -113,6 +115,41 @@ export function solveTargetOG(recipe, targetOG, shares) {
   // nothing then, as for a blank (IS-S4's rule: nothing the brewer did not enter).
   if (!weightsLb.every((w) => entered(w) && w >= 0)) return { ok: false, totalPercent, totalOff, blank, unusable: true };
   return { ok: true, weightsLb };
+}
+
+// Cost of a batch (docs/items/economics.md): one line per malt, kettle hop
+// and dry hop, the yeast and each other line, in the card's order, each its
+// quantity (lb, oz, or 1 batch) times its price, by the engine's rollupCost
+// (EC-S2). The total adds the priced lines only and counts the rest (EC-Q6);
+// a priced line whose quantity is blank blanks the total, as any blank figure
+// blanks what needs it. The cost per gal is the total over the fermentation
+// volume at 60 degF (SPEC 11), by the engine's costPerUnit: blank for a zero,
+// negative or blank volume (EC-S4).
+// FLAG: with no line priced (every new recipe, every older one read) the
+// priced lines add to $0.00 and so does the cost per gal, beside "6 lines
+// unpriced": EC-Q6's sum of the priced lines, kept as specified; on the
+// roadmap whether the total shows "—" until a line is priced.
+// -> { lines: [{ kind, index, name, quantity, unitPrice, cost }], total, unpriced, perGal }
+export function computeCost(recipe) {
+  const line = (kind, index, name, quantity, unitPrice) => ({ kind, index, name, label: name, quantity, unitPrice });
+  const named = (row, kind, i) => String(row.name ?? '').trim() || `${kind} ${i + 1}`;
+  const lineItems = [
+    ...recipe.malts.map((m, i) => line('malts', i, named(m, 'Malt', i), m.weightLb, m.pricePerLb)),
+    ...recipe.kettleAdditions.map((a, i) => line('kettleAdditions', i, named(a, 'Kettle hop', i), a.weightOz, a.pricePerOz)),
+    ...recipe.dryHops.map((d, i) => line('dryHops', i, named(d, 'Dry hop', i), d.weightOz, d.pricePerOz)),
+    line('yeast', 0, String(recipe.yeast.name ?? '').trim() || 'Yeast', 1, recipe.yeast.pricePerBatch),
+    ...recipe.otherCosts.map((o, i) => line('otherCosts', i, o.name, 1, o.costPerBatch)),
+  ];
+  const { items } = rollupCost(lineItems);
+  const priced = lineItems.filter((li) => entered(li.unitPrice));
+  const { total } = rollupCost(priced);
+  const fermentRefGal = toReferenceVolume(recipe.fermentVolGal, 'ferment', recipe.measurementTempF);
+  return {
+    lines: items.map(({ label, ...li }) => li),
+    total,
+    unpriced: lineItems.length - priced.length,
+    perGal: costPerUnit(total, fermentRefGal),
+  };
 }
 
 export function computeRecipe(state) {

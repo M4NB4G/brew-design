@@ -19,3 +19,9 @@ export function roundForInput(value, digits = 6) {
   if (!Number.isFinite(value)) return value;
   return Number(value.toFixed(digits));
 }
+
+// A cost in dollars to the cent: "$12.00"; a blank prints "—" (cost of a batch).
+export function dollars(value) {
+  const shown = num(value, 2);
+  return shown === '—' ? shown : `$${shown}`;
+}

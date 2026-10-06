@@ -36,7 +36,7 @@ export function recipe() {
     fermentVolGal: 380,
     mashWaterGal: 150,
     kettleAdditions: r.kettleAdditions.map((a) => ({ ...a, weightOz: 80 })),
-    dryHops: [{ name: 'Citra', weightOz: 240 }],
+    dryHops: [{ name: 'Citra', weightOz: 240, pricePerOz: NaN }],
     measurementTempF: { preBoil: 150, postBoil: 180, ferment: 68 },
     water: {
       ...r.water,

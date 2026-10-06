@@ -20,6 +20,7 @@ import { defaultRecipeState } from '../src/state.js';
 import { computeRecipe } from '../src/selectors.js';
 import { toReferenceVolume } from '../src/reference-volume.js';
 import { loadPersisted, savePersisted, STORAGE_KEY } from '../src/persistence.js';
+import { withBlankPrices } from './blank-prices.js';
 
 // The reference recipe (smoke.test.js) in canonical units, measured at the
 // engine's 60 °F reference: pre-boil 16 gal, post-boil 14.5 gal, ferment 12 gal.
@@ -222,7 +223,7 @@ describe('options page', () => {
     savePersisted(s, { recipe, mode: 'home', proGravityUnit: 'plato' });
 
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(10);
+    expect(doc.version).toBe(11);
     expect(doc.recipe.measurementTempF.preBoil).toBe(170);
     expect(doc.recipe.measurementTempF.ferment).toBe(60);
     expect('postBoil' in doc.recipe.measurementTempF).toBe(true);
@@ -260,7 +261,7 @@ describe('options page', () => {
     expect(loaded.proGravityUnit).toBe('sg');
 
     savePersisted(s, loaded);
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(10);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(11);
   });
 
   // S6
@@ -285,7 +286,8 @@ describe('options page', () => {
     const v4Recipe = { ...v3Recipe, yeast: { type: 'ale', density: 'mod', name: 'SafAle US-05', fermTempF: 66 } };
     const t4 = fakeStorage();
     t4.setItem(STORAGE_KEY, docFor(4, v4Recipe));
-    expect(loadPersisted(t4, defaults()).recipe).toEqual({ ...v4Recipe, malts: untyped(v4Recipe.malts) });
+    // Cost of a batch (EC-S3): read with every price blank.
+    expect(loadPersisted(t4, defaults()).recipe).toEqual(withBlankPrices({ ...v4Recipe, malts: untyped(v4Recipe.malts) }));
 
     for (const version of [0, 9, '1', '2', '3', '4', '5', '6', '7', '8']) {
       const t = fakeStorage();

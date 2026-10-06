@@ -22,7 +22,7 @@ import {
   withMaltWeights,
   solveUndoable,
 } from './state.js';
-import { computeRecipe, computeWater, solveTargetOG } from './selectors.js';
+import { computeRecipe, computeWater, solveTargetOG, computeCost } from './selectors.js';
 import { mashWaterChanged } from './water-state.js';
 import { emptyFields, emptyFieldsLine } from './empty-fields.js';
 import {
@@ -52,6 +52,7 @@ import VolumesSection from './components/VolumesSection.jsx';
 import HopsSection from './components/HopsSection.jsx';
 import YeastCard from './components/YeastCard.jsx';
 import YeastSection from './components/YeastSection.jsx';
+import CostCard from './components/CostCard.jsx';
 import OptionsSection from './components/OptionsSection.jsx';
 import WaterTab from './components/water/WaterTab.jsx';
 import BreweryBanner from './components/BreweryBanner.jsx';
@@ -108,6 +109,8 @@ export default function App() {
   const emptyLine = useMemo(() => emptyFieldsLine(emptyFields(recipe, derived)), [recipe, derived]);
   // The water figures read the recipe's grain, mash water and pre-boil volume.
   const waterFigures = useMemo(() => computeWater(recipe.water, recipe), [recipe]);
+  // The Cost card's figures (cost of a batch): read by no other figure.
+  const cost = useMemo(() => computeCost(recipe), [recipe]);
 
   // Autosave on every change (scope table P6: synchronous, no debounce).
   useEffect(() => {
@@ -395,6 +398,18 @@ export default function App() {
               derived={derived}
               mode={mode}
               setYeast={setYeast}
+            />
+
+            <CostCard
+              recipe={recipe}
+              cost={cost}
+              mode={mode}
+              proVolumeUnit={proVolumeUnit}
+              proMaltUnit={proMaltUnit}
+              setRow={setRow}
+              setYeast={setYeast}
+              addRow={addRow}
+              removeRow={removeRow}
             />
 
             <NotesSection notes={recipe.notes} setField={setField} />

@@ -26,9 +26,12 @@ export function defaultRecipeState() {
     // '' (blank) — and its lab figures, the distilled-water mash pH and the
     // acidity in mEq/kg (NaN = blank), as picked from the ingredient list or
     // chosen (mash pH, MP-S3). Pale and Munich are base malts (MP-Q2).
+    // Each row's price (cost of a batch, EC-S1, EC-S3): a malt's per lb, a
+    // hop's per oz, the yeast's per batch, typed by the brewer and read by no
+    // recipe figure; blank (NaN) until typed.
     malts: [
-      { name: 'Pale 2-Row', weightLb: 10, fgdb: 0.8, colorL: 2, type: 'base', distilledWaterPh: NaN, acidityMeqPerKg: NaN },
-      { name: 'Munich', weightLb: 1, fgdb: 0.8, colorL: 9, type: 'base', distilledWaterPh: NaN, acidityMeqPerKg: NaN },
+      { name: 'Pale 2-Row', weightLb: 10, fgdb: 0.8, colorL: 2, type: 'base', distilledWaterPh: NaN, acidityMeqPerKg: NaN, pricePerLb: NaN },
+      { name: 'Munich', weightLb: 1, fgdb: 0.8, colorL: 9, type: 'base', distilledWaterPh: NaN, acidityMeqPerKg: NaN, pricePerLb: NaN },
     ],
     efficiency: 0.75, // documented brewhouse (into-kettle) default
     apparentAttenuation: 0.77,
@@ -41,10 +44,10 @@ export function defaultRecipeState() {
 
     // Hops (weights in oz; time in min; wort temp in degF; alpha as a fraction).
     kettleAdditions: [
-      { name: 'Magnum', timeMin: 60, wortTempF: 212, weightOz: 1, alphaAcidFraction: 0.12 },
-      { name: 'Cascade', timeMin: 10, wortTempF: 212, weightOz: 1, alphaAcidFraction: 0.06 },
+      { name: 'Magnum', timeMin: 60, wortTempF: 212, weightOz: 1, alphaAcidFraction: 0.12, pricePerOz: NaN },
+      { name: 'Cascade', timeMin: 10, wortTempF: 212, weightOz: 1, alphaAcidFraction: 0.06, pricePerOz: NaN },
     ],
-    dryHops: [{ name: 'Citra', weightOz: 2 }],
+    dryHops: [{ name: 'Citra', weightOz: 2, pricePerOz: NaN }],
 
     // Fermentation volume (US gal) — feeds both the dry-hop rate and cell count.
     fermentVolGal: 5.5,
@@ -53,7 +56,12 @@ export function defaultRecipeState() {
     // name as typed or picked (empty on a new recipe: the app never invents a
     // strain); the brewer's fermentation temperature in degF (NaN = blank).
     // Neither the name nor the temperature is read by any calculation.
-    yeast: { type: 'ale', density: 'mod', name: '', fermTempF: NaN },
+    // The yeast's price per batch (cost of a batch) is blank until typed.
+    yeast: { type: 'ale', density: 'mod', name: '', fermTempF: NaN, pricePerBatch: NaN },
+
+    // The Cost card's other lines (cost of a batch, EC-S1): each a name and a
+    // cost per batch, none on a new recipe.
+    otherCosts: [],
 
     // Temperature (degF) each volume was measured at, keyed by the kind
     // reference-volume.js corrects (mash water is used as entered). A new

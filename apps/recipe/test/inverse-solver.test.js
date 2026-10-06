@@ -30,6 +30,7 @@ import { exportRecipeDocument, SCHEMA_VERSION } from '../src/persistence.js';
 import { defaultWaterState } from '../src/water-state.js';
 import { solveGrist, correctVolumeToRef } from '@brew/engine';
 import * as f from './inverse-solver.fixture.js';
+import { docWithBlankPrices } from './blank-prices.js';
 
 const { computeRecipe } = selectors;
 const solveTargetOG = (...a) => selectors.solveTargetOG(...a);
@@ -281,7 +282,7 @@ describe('design to a target OG', () => {
     // The saved document carries no target and no percents, at the same version.
     const doc = JSON.parse(exportRecipeDocument({ recipe: after, ...DEFAULT_DISPLAY }));
     expect(doc.version).toBe(SCHEMA_VERSION);
-    expect(SCHEMA_VERSION).toBe(10);
+    expect(SCHEMA_VERSION).toBe(11);
     expect(Object.keys(doc.recipe).sort()).toEqual(Object.keys(r).sort());
     expect(Object.keys(doc.recipe.malts[0]).sort()).toEqual(Object.keys(r.malts[0]).sort());
     expect(JSON.stringify(doc)).not.toMatch(/target|percent/i);
@@ -297,6 +298,12 @@ describe('design to a target OG', () => {
     expect(withoutNew(home)).toBe(BEFORE['grist-home']);
     expect(withoutNew(f.gristHtml(r, { mode: 'pro' }))).toBe(BEFORE['grist-pro-lb']);
     expect(withoutNew(f.gristHtml(r, { mode: 'pro', proMaltUnit: 'sack' }))).toBe(BEFORE['grist-pro-sack']);
-    expect(exportRecipeDocument({ recipe: r, ...DEFAULT_DISPLAY })).toBe(BEFORE.document);
+    // Since cost of a batch: version 11, with blank prices (economics EC-S3).
+    const before = JSON.parse(BEFORE.document);
+    expect(JSON.parse(exportRecipeDocument({ recipe: r, ...DEFAULT_DISPLAY }))).toEqual({
+      ...before,
+      version: 11,
+      recipe: docWithBlankPrices(before.recipe),
+    });
   });
 });

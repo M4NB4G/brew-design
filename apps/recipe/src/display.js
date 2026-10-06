@@ -167,6 +167,46 @@ export function percentToFraction(percent) {
   return percent / 100;
 }
 
+// --- Prices (cost of a batch): canonical $/lb malt, $/oz hop, $/gal ---------
+// A malt is priced per lb, or per 55 lb sack in Pro with sacks; a hop per oz
+// at Home and per lb in Pro; the yeast and the other lines per batch. The
+// cost per unit is per gal, or per bbl in Pro's barrels (EC-S1, EC-S2), by
+// the engine's LB_PER_SACK, OZ_PER_LB and GALLONS_PER_BBL.
+export function maltPriceUnit(mode, proMaltUnit) {
+  return maltInSacks(mode, proMaltUnit) ? '$/sack' : '$/lb';
+}
+
+export function maltPriceFromCanonical(perLb, mode, proMaltUnit) {
+  return maltInSacks(mode, proMaltUnit) ? perLb * LB_PER_SACK : perLb;
+}
+
+export function maltPriceToCanonical(displayValue, mode, proMaltUnit) {
+  // -> $/lb
+  return maltInSacks(mode, proMaltUnit) ? displayValue / LB_PER_SACK : displayValue;
+}
+
+export function hopPriceUnit(mode) {
+  return mode === 'pro' ? '$/lb' : '$/oz';
+}
+
+export function hopPriceFromCanonical(perOz, mode) {
+  return mode === 'pro' ? perOz * OZ_PER_LB : perOz;
+}
+
+export function hopPriceToCanonical(displayValue, mode) {
+  // -> $/oz
+  return mode === 'pro' ? displayValue / OZ_PER_LB : displayValue;
+}
+
+export function batchPriceUnit() {
+  return '$/batch';
+}
+
+// The cost of a gal, or of a bbl in Pro's barrels: $/gal x gal per bbl.
+export function costPerVolumeFromCanonical(perGal, mode, proVolumeUnit) {
+  return volumesInBarrels(mode, proVolumeUnit) ? perGal * GALLONS_PER_BBL : perGal;
+}
+
 // --- Water: salts g and liquid acid mL in both modes -------------------------
 // Acidulated malt is canonical grams (the engine doses it by the gram): Home
 // shows oz, Pro lb, by the engine's G_PER_OZ and G_PER_LB.

@@ -43,7 +43,7 @@ describe('persistence', () => {
     const edited = {
       ...defaultRecipeState(),
       preBoilVolGal: 16,
-      malts: [{ name: 'Golden Promise', weightLb: 27, fgdb: 0.8, colorL: 2.2, type: 'base', distilledWaterPh: NaN, acidityMeqPerKg: NaN }],
+      malts: [{ name: 'Golden Promise', weightLb: 27, fgdb: 0.8, colorL: 2.2, type: 'base', distilledWaterPh: NaN, acidityMeqPerKg: NaN, pricePerLb: NaN }],
     };
     savePersisted(s, { recipe: edited, mode: 'home', proGravityUnit: 'plato' });
 

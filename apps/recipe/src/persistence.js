@@ -49,6 +49,11 @@
 // sacks). A version-1 to 9 document is read as barrels and pounds, and saved
 // back as 10. The recipe's volumes are gallons and its weights pounds in
 // every version.
+// Version 11 (cost of a batch, EC-S3): the recipe carries prices — each
+// malt's per lb, each kettle and dry hop's per oz, the yeast's per batch —
+// and the Cost card's other lines (a name and a cost per batch). A version-1
+// to 10 document is read with every price blank and no other lines, and
+// saved back as 11.
 //
 // Recipe file (2026-09-23): export hands the browser the same document the
 // autosave writes, as a file; import reads a file with the same reader as
@@ -95,8 +100,8 @@ export const STORAGE_KEY = 'brew-design.recipe';
 // The latest saved copy that could not be read, kept as found (V3); nothing
 // reads it back.
 export const UNREADABLE_KEY = 'brew-design.recipe.unreadable';
-export const SCHEMA_VERSION = 10;
-const READABLE_VERSIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, SCHEMA_VERSION];
+export const SCHEMA_VERSION = 11;
+const READABLE_VERSIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, SCHEMA_VERSION];
 
 const MODES = ['home', 'pro'];
 const GRAVITY_UNITS = ['plato', 'sg'];
@@ -150,6 +155,11 @@ function hasRowsOf(recipe, template) {
     if (!recipe[field].every((row) => hasFieldsOf(row, template[field][0]))) return false;
   }
   if (!recipe.malts.every((m) => m.type === '' || MALT_TYPES.includes(m.type))) return false;
+  // The Cost card's other lines (EC-S3): a name as text and a cost per batch
+  // as a number or blank.
+  if (!recipe.otherCosts.every((o) => isRecord(o) && typeof o.name === 'string' && typeof o.costPerBatch === 'number')) {
+    return false;
+  }
   const { yeast } = recipe;
   return (
     hasFieldsOf(yeast, template.yeast) &&
@@ -243,6 +253,19 @@ function readDocument(raw, defaults) {
     // as it always went (AM-S5).
     recipe = { ...recipe, water: { ...recipe.water, acidPlace: 'salts' } };
   }
+  if (doc.version <= 10 && isRecord(recipe)) {
+    // Code before version 11 never wrote a price or an other line: every
+    // price blank, no other lines (EC-S3).
+    const priced = (rows, key) => (Array.isArray(rows) ? rows.map((r) => (isRecord(r) ? { ...r, [key]: NaN } : r)) : rows);
+    recipe = {
+      ...recipe,
+      malts: priced(recipe.malts, 'pricePerLb'),
+      kettleAdditions: priced(recipe.kettleAdditions, 'pricePerOz'),
+      dryHops: priced(recipe.dryHops, 'pricePerOz'),
+      yeast: isRecord(recipe.yeast) ? { ...recipe.yeast, pricePerBatch: NaN } : recipe.yeast,
+      otherCosts: [],
+    };
+  }
   if (!hasShapeOf(recipe, defaults.recipe) || !hasRowsOf(recipe, defaults.recipe)) return {};
   if (!hasWaterOf(recipe.water)) return {};
   if (!MODES.includes(doc.mode) || !GRAVITY_UNITS.includes(doc.proGravityUnit)) return {};
@@ -263,7 +286,7 @@ function readDocument(raw, defaults) {
 /**
  * Read the persisted document. Returns { recipe, mode, proGravityUnit,
  * temperatureUnit, proVolumeUnit, proMaltUnit } when storage holds a readable
- * document at SCHEMA_VERSION or at version 9, 8, 7, 6, 5, 4, 3, 2 or 1
+ * document at SCHEMA_VERSION or at version 10, 9, 8, 7, 6, 5, 4, 3, 2 or 1
  * (read as readDocument describes, against `defaults`); otherwise
  * `fallback`, which is `defaults` unless given. A saved copy that cannot be
  * read is first kept aside, as found, under UNREADABLE_KEY, replacing any

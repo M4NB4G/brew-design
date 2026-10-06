@@ -43,6 +43,7 @@ import * as f from './pro-unit-choices.fixture.js';
 // The Grist card gained its % of total and "Design to target OG" after this
 // capture (docs/items/inverse-solver-ui.md, IS-S7): compared without them.
 import { withoutTargetOgDesign } from './inverse-solver.fixture.js';
+import { docWithBlankPrices } from './blank-prices.js';
 
 const BEFORE = JSON.parse(readFileSync(new URL('./pro-unit-choices.before.json', import.meta.url), 'utf8'));
 
@@ -211,7 +212,7 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
 
   // PU-S5, PU-Q4
   it('the choices are saved and older documents read as barrels and pounds', () => {
-    expect(SCHEMA_VERSION).toBe(10);
+    expect(SCHEMA_VERSION).toBe(11);
     expect(BREWERY_VERSION).toBe(5);
     expect(DEFAULT_DISPLAY.proVolumeUnit).toBe('bbl');
     expect(DEFAULT_DISPLAY.proMaltUnit).toBe('lb');
@@ -219,7 +220,7 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     const r = defaultRecipeState();
     const state = { recipe: r, mode: 'pro', proGravityUnit: 'sg', temperatureUnit: 'C', proVolumeUnit: 'gal', proMaltUnit: 'sack' };
     const doc = JSON.parse(exportRecipeDocument(state));
-    expect(doc.version).toBe(10);
+    expect(doc.version).toBe(11);
     expect(doc.proVolumeUnit).toBe('gal');
     expect(doc.proMaltUnit).toBe('sack');
     const loaded = loadPersisted(memoryStorage({ [STORAGE_KEY]: JSON.stringify(doc) }), defaults());
@@ -242,9 +243,9 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
       const d = { ...doc, ...bad };
       expect(loadPersisted(memoryStorage({ [STORAGE_KEY]: JSON.stringify(d) }), defaults(), fallback)).toBe(fallback);
     }
-    const newer = importRecipeFile(JSON.stringify({ ...doc, version: 11 }), defaults(), () => true);
+    const newer = importRecipeFile(JSON.stringify({ ...doc, version: SCHEMA_VERSION + 1 }), defaults(), () => true);
     expect(newer.outcome).toBe('refused');
-    expect(newer.message).toContain('reads up to version 10');
+    expect(newer.message).toContain(`reads up to version ${SCHEMA_VERSION}`);
 
     // Brewery figures: blank by default; saved and read back; older read blank.
     const e = emptyBreweryFigures();
@@ -292,7 +293,8 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     // The saved documents: as before, at the new versions, with the choices.
     const before = JSON.parse(BEFORE['recipe-document']);
     const after = JSON.parse(exportRecipeDocument({ recipe: r, mode: 'pro', proGravityUnit: 'plato', temperatureUnit: 'F', ...BBL_LB }));
-    expect(after).toEqual({ ...before, version: 10, ...BBL_LB });
+    // Since cost of a batch: version 11, with blank prices (economics EC-S3).
+    expect(after).toEqual({ ...before, version: 11, recipe: docWithBlankPrices(before.recipe), ...BBL_LB });
     const bBefore = JSON.parse(BEFORE['brewery-document']);
     const bAfter = JSON.parse(exportBreweryDocument({ ...f.brewery(), proVolumeUnit: null, proMaltUnit: null }));
     expect(bAfter).toEqual({ version: 5, brewery: { ...bBefore.brewery, proVolumeUnit: null, proMaltUnit: null } });

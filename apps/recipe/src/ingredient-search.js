@@ -48,11 +48,12 @@ const PICKED_KEYS = {
 const YEAST_TYPE = { ale: 'Ale', lager: 'Lager' };
 
 // A new row: an empty name and today's starting numbers (item B5); a malt's
-// type blank until picked or chosen, and no lab figures (mash pH, MP-S3).
+// type blank until picked or chosen, and no lab figures (mash pH, MP-S3); its
+// price blank (cost of a batch, EC-S3). A pick never writes a price.
 const NEW_ROW = {
-  malts: { name: '', weightLb: 1, fgdb: 0.8, colorL: 2, type: '', distilledWaterPh: NaN, acidityMeqPerKg: NaN },
-  kettleAdditions: { name: '', timeMin: 10, wortTempF: 212, weightOz: 1, alphaAcidFraction: 0.1 },
-  dryHops: { name: '', weightOz: 1 },
+  malts: { name: '', weightLb: 1, fgdb: 0.8, colorL: 2, type: '', distilledWaterPh: NaN, acidityMeqPerKg: NaN, pricePerLb: NaN },
+  kettleAdditions: { name: '', timeMin: 10, wortTempF: 212, weightOz: 1, alphaAcidFraction: 0.1, pricePerOz: NaN },
+  dryHops: { name: '', weightOz: 1, pricePerOz: NaN },
 };
 
 // For matching only: capitals and accents ignored ("Mittelfrüh" ~ "mittelfruh").

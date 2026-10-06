@@ -41,6 +41,7 @@ import { strainInfo, fermTempWarning } from '../src/ingredient-search.js';
 import { temperatureChange } from '../src/components/VolumesSection.jsx';
 import Header from '../src/components/Header.jsx';
 import * as f from './celsius-toggle.fixture.js';
+import { docWithBlankPrices } from './blank-prices.js';
 
 const BEFORE = JSON.parse(readFileSync(new URL('./celsius-toggle.before.json', import.meta.url), 'utf8'));
 
@@ -235,14 +236,14 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
 
   // CT-S5, C-Q1, PU-Q4
   it('the choice is saved and older documents read as °F', () => {
-    expect(SCHEMA_VERSION).toBe(10);
+    expect(SCHEMA_VERSION).toBe(11);
     expect(BREWERY_VERSION).toBe(5);
     expect(DEFAULT_DISPLAY.temperatureUnit).toBe('F');
 
     // Saved with the display settings, read back as saved.
     const r = defaultRecipeState();
     const doc = JSON.parse(exportRecipeDocument({ recipe: r, mode: 'pro', proGravityUnit: 'sg', temperatureUnit: 'C' }));
-    expect(doc.version).toBe(10);
+    expect(doc.version).toBe(11);
     expect(doc.temperatureUnit).toBe('C');
     const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(doc) });
     expect(loadPersisted(storage, defaults()).temperatureUnit).toBe('C');
@@ -263,9 +264,9 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
       expect(loadPersisted(memoryStorage({ [STORAGE_KEY]: JSON.stringify(d) }), defaults(), fallback)).toBe(fallback);
     }
     // A later version is refused as newer.
-    const newer = importRecipeFile(JSON.stringify({ ...doc, version: 11 }), defaults(), () => true);
+    const newer = importRecipeFile(JSON.stringify({ ...doc, version: SCHEMA_VERSION + 1 }), defaults(), () => true);
     expect(newer.outcome).toBe('refused');
-    expect(newer.message).toContain('reads up to version 10');
+    expect(newer.message).toContain(`reads up to version ${SCHEMA_VERSION}`);
 
     // A brewery figure: saved, read back, blank by default and in a version-1 to 3 document.
     expect(emptyBreweryFigures().temperatureUnit).toBeNull();
@@ -309,7 +310,8 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
     // The saved documents: as before, at the new versions, with the choice.
     const before = JSON.parse(BEFORE['recipe-document']);
     const after = JSON.parse(exportRecipeDocument({ recipe: r, mode: 'home', proGravityUnit: 'plato', temperatureUnit: 'F' }));
-    expect(after).toEqual({ ...before, version: 10, temperatureUnit: 'F', proVolumeUnit: 'bbl', proMaltUnit: 'lb' });
+    // Since cost of a batch: version 11, with blank prices (economics EC-S3).
+    expect(after).toEqual({ ...before, version: 11, recipe: docWithBlankPrices(before.recipe), temperatureUnit: 'F', proVolumeUnit: 'bbl', proMaltUnit: 'lb' });
     const bBefore = JSON.parse(BEFORE['brewery-document']);
     const bAfter = JSON.parse(exportBreweryDocument({ ...f.brewery(), temperatureUnit: null }));
     expect(bAfter).toEqual({ version: 5, brewery: { ...bBefore.brewery, temperatureUnit: null, proVolumeUnit: null, proMaltUnit: null } });

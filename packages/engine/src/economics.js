@@ -17,10 +17,11 @@ export function rollupCost(lineItems) {
 }
 
 /**
- * Cost per unit of output. Guards a non-positive batch size by returning 0
- * rather than dividing by zero.
+ * Cost per unit of output. A batch size that is zero, negative or not a
+ * number gives no cost per unit: NaN (blank), never 0, which would be a
+ * figure nobody entered (cost of a batch, EC-S4, EC-Q3).
  */
 export function costPerUnit(total, batchSize) {
-  if (batchSize <= 0) return 0;
+  if (!(batchSize > 0)) return NaN;
   return total / batchSize;
 }
