@@ -1,7 +1,7 @@
 # Design to a target OG — Tier B
 
 Status: agreed 2026-10-05 ("agree to all"; IS-Q2 replaced by IS-Q2', option
-A, the same day), not started; IS-Q7 open (see Decisions). Written by the S6b
+A, the same day; IS-Q7 agreed 2026-10-06, "agree to all"), not started. Written by the S6b
 session; built in batch S7, first of its three items (docs/ROADMAP.md,
 Sessions). Follows S6b on its branch (recipe format 10).
 
@@ -34,7 +34,7 @@ malt's percent of total on the Grist card at all times (2026-10-05).
 | IS-Q4 | Is the target saved? | No: a one-off action, no format change | One format change only when it carries information |
 | IS-Q5 | Blank figures | Solve refuses and names them; nothing changes. A blank weight is not one of them (IS-Q2') | No number the brewer did not enter |
 | IS-Q6 | Undo | "Undo solve" restores the previous weights until the next edit | The action rewrites many figures at once |
-| IS-Q7 | **Open, not built until answered.** When the % boxes "total 100 %" | Recommended: the boxes' total, shown to one decimal, reads 100.0; a box left as filled keeps the malt's exact share, so an untouched bill always totals 100 | Percents are shown to one decimal; the shares the engine gives sum to 1 |
+| IS-Q7 | When the % boxes "total 100 %" (agreed 2026-10-06, "agree to all") | The boxes' total, shown to one decimal, reads 100.0; a box left as filled keeps the malt's exact share, so an untouched bill always totals 100 | Percents are shown to one decimal; the shares the engine gives sum to 1 |
 | M1 | Builder model | Opus, high effort | The Models rule's default |
 | M2 | Inspector model | Opus, default effort, a fresh session | The Models rule's default |
 | K | Silent properties | **Atomicity:** Solve changes every weight in one step, one autosave. **Idempotence:** Solve twice with the same target and percents gives the same weights. **Undo** lasts until the next edit, in this tab only, not saved. Schema migration none; storage disabled and multi-tab as today | — |

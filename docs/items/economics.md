@@ -1,7 +1,7 @@
 # Cost of a batch — Tier A + B
 
-Status: agreed 2026-10-05 ("agree to all"), not started; EC-Q6 open (see
-Decisions). Written by the S6b session; built in batch S7, second of its
+Status: agreed 2026-10-05 ("agree to all"; EC-Q6 agreed 2026-10-06, "agree
+to all"), not started. Written by the S6b session; built in batch S7, second of its
 three items, after design to a target OG (docs/ROADMAP.md, Sessions).
 Follows S6b (recipe format 10): this item takes recipe format 11.
 
@@ -29,7 +29,7 @@ batch types the prices they pay.
 | EC-Q3 | Cost per unit for a zero or blank batch volume | Blank ("—"), not 0: the engine changes (Tier A) | A 0 is a number the brewer did not enter |
 | EC-Q4 | Currency | "$", no conversion | The owner's market |
 | EC-Q5 | On the printed sheet | No | The sheet is for brew day |
-| EC-Q6 | **Open, not built until answered.** A line with no price | Recommended: the line shows "—"; the total and the cost per unit add the priced lines and say how many are unpriced ("3 lines unpriced"); a blank price is not named in the empty-fields line under the stats bar, as it feeds no recipe figure | A cost card is useful before every price is known; the count keeps the total honest |
+| EC-Q6 | A line with no price (agreed 2026-10-06, "agree to all") | The line shows "—"; the total and the cost per unit add the priced lines and say how many are unpriced ("3 lines unpriced"); a blank price is not named in the empty-fields line under the stats bar, as it feeds no recipe figure | A cost card is useful before every price is known; the count keeps the total honest |
 | M1 | Builder model | Opus, high effort | The Models rule's default |
 | M2 | Inspector model | Opus, default effort, a fresh session | The Models rule's default |
 | K | Silent properties | **Schema migration:** recipe format 11; versions 1–10 read with prices blank; each row's price checked as a number or blank, like its other figures (saved rows checked inside). Prices are never brewery figures. Ordering, storage disabled, multi-tab as today | — |
