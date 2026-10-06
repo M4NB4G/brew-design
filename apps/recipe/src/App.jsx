@@ -58,6 +58,7 @@ import WaterTab from './components/water/WaterTab.jsx';
 import BreweryBanner from './components/BreweryBanner.jsx';
 import RecipeSheet from './components/RecipeSheet.jsx';
 import Footer from './components/Footer.jsx';
+import NotesPage from './components/NotesPage.jsx';
 import { colors } from './components/shared/styles.js';
 
 // window.localStorage itself can throw when storage is blocked; treat that as
@@ -85,6 +86,13 @@ export default function App() {
   const [proVolumeUnit, setProVolumeUnit] = useState(initial.proVolumeUnit); // Pro: 'bbl' | 'gal'
   const [proMaltUnit, setProMaltUnit] = useState(initial.proMaltUnit); // Pro: 'lb' | 'sack'
   const [tab, setTab] = useState('recipe'); // 'recipe' | 'water' | 'options'; every load opens on Recipe
+  // The methods and sources page (notes page, NM-S1): opened from the footer,
+  // left by its Back; not saved, every load opens on the app.
+  const [notesOpen, setNotesOpen] = useState(false);
+  const openNotes = (open) => {
+    setNotesOpen(open);
+    window.scrollTo(0, 0);
+  };
   const [fileMessage, setFileMessage] = useState(''); // an import refusal, shown under the header controls
   // The brewery's figures (Options tab, My brewery): kept apart from the
   // recipe, and read only when a new recipe is made.
@@ -314,6 +322,12 @@ export default function App() {
         fileMessage={fileMessage}
       />
 
+      {notesOpen ? (
+        <main style={{ maxWidth: '900px', margin: '0 auto', padding: '1rem 1.25rem' }}>
+          <NotesPage onBack={() => openNotes(false)} temperatureUnit={temperatureUnit} />
+        </main>
+      ) : (
+        <>
       {/* Recipe · Water · Options tabs (Brew Water Chem's row, in its position) */}
       <TabBar tab={tab} onTab={setTab} />
 
@@ -445,9 +459,11 @@ export default function App() {
           />
         )}
       </main>
+        </>
+      )}
 
       {/* Persyn attribution (Brew Water Chem's footer); on screen only, inside #root */}
-      <Footer />
+      <Footer onNotes={() => openNotes(true)} />
 
       {/* The print-only recipe sheet, from the same derived values; portaled
           beside the app root so the print rules can hide the root alone. */}
