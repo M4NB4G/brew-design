@@ -54,6 +54,20 @@ pinned by the golden-master tests.
    or setup figure is NaN. The volume treated is the recipe's mash water or
    the tank's treated volume; the sparge water is typed and the water left
    in the mash tun is worked out.
+   Switching Home ↔ Pro asks whether to scale the recipe to that side's
+   batch — My brewery's batch volume when it is set, in either direction;
+   where it is blank, 10 bbl (310 gal) for Pro and the built-in recipe's
+   5.5 gal for Home — and changes no figure without the brewer's yes. Yes
+   multiplies, by the engine, every amount by the batch ÷ the recipe's
+   fermentation volume: each malt weight, each kettle and dry hop weight,
+   the mash water, the pre-boil and sparge volumes, the boil-off rate, the
+   tank's treated volume and top-up level, and the brewer's own salt and
+   acid amounts; the fermentation volume becomes the batch. Percents,
+   times, temperatures, the efficiency, the attenuation and the yeast stay,
+   so OG, FG, ABV, SRM and IBU stay; nothing is rounded. Nothing is asked
+   when the recipe is already at the batch, or when its fermentation volume
+   or the batch is blank, zero or negative: the switch then changes units
+   only. A scale is one step and one autosave; no saved format changes.
 9. **Convert only at the edges.** `display.js` is the only place that converts
    between canonical and display units, using engine constants and functions
    (`GALLONS_PER_BBL`, `OZ_PER_LB`, `G_PER_OZ`, `sgToPlato`, `platoToSg`,
@@ -195,12 +209,15 @@ pinned by the golden-master tests.
     a message. A new recipe — Reset, or a load with no
     readable saved recipe — is the built-in recipe and display settings with
     each figure that is set in place of the built-in one; a blank figure
-    never reaches a recipe. They are copied only when a recipe is created:
+    never reaches a recipe. A new recipe that opens in Pro with the
+    brewery's batch volume blank starts from the built-in recipe scaled to
+    10 bbl (rule 8's scale), the figures that are set then taking their
+    places; with Home/Pro blank it opens in Home, at 5.5 gal. They are copied only when a recipe is created:
     changing them never changes a recipe, its saved document or a recipe
     file, and an older saved recipe is upgraded and checked against the
     built-in recipe, never against them.
     In My brewery an empty number box shows, greyed, the figure a new recipe
-    gets in its place, in the screen's units (none where the built-in figure
+    gets in its place (scaled, when it opens in Pro at 10 bbl), in the screen's units (none where the built-in figure
     is itself blank): a placeholder, never a value, so never saved, never
     exported and never ending the banner.
 

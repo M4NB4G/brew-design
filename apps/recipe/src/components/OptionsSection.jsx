@@ -30,7 +30,7 @@ import {
   mashRvUnit,
 } from '../display.js';
 import { roundForInput } from '../format.js';
-import { DEFAULT_DISPLAY, defaultRecipeState } from '../state.js';
+import { DEFAULT_DISPLAY, newRecipe } from '../state.js';
 import { defaultWaterState, TEST_RESULT_KEYS } from '../water-state.js';
 import { REPORT_LABELS } from './water/WaterInScreen.jsx';
 import { VESSEL_LABELS, SPARGE_LABELS, TREATMENT_LABELS } from './water/WaterGoesCard.jsx';
@@ -238,7 +238,7 @@ export default function OptionsSection({
   const breweryFile = useRef(null); // the brewery file's picker (S4b item 5)
   const vUnit = volumeUnit(mode, proVolumeUnit);
   const tUnit = tempUnit(temperatureUnit);
-  const built = defaultRecipeState(); // the figures a new recipe gets in place of a blank one
+  const built = newRecipe(brewery).recipe; // the figures a new recipe gets in place of a blank one (scaled in Pro, PD-B2)
   const volume = {
     toShown: (gal) => volumeFromCanonical(gal, mode, proVolumeUnit),
     fromShown: (v) => volumeToCanonical(v, mode, proVolumeUnit),

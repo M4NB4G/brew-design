@@ -9,7 +9,9 @@
 
 import { REFERENCE_TEMP_F } from '@brew/engine';
 import { defaultWaterState, TEST_RESULT_KEYS, TREATMENTS, SPARGE_METHODS, VESSEL_COUNTS } from './water-state.js';
-import { TEMPERATURE_UNITS, PRO_VOLUME_UNITS, PRO_MALT_UNITS } from './display.js';
+import { TEMPERATURE_UNITS, PRO_VOLUME_UNITS, PRO_MALT_UNITS, volumeToCanonical, volumeFromCanonical, volumeUnit } from './display.js';
+import { roundForInput } from './format.js';
+import { scaleRecipeTo } from './selectors.js';
 
 export function defaultRecipeState() {
   return {
@@ -193,7 +195,12 @@ export function breweryFiguresFromRecipe(recipe, mode, proGravityUnit, temperatu
  */
 export function newRecipe(brewery) {
   const b = brewery ?? {};
-  const recipe = defaultRecipeState();
+  const mode = MODES.includes(b.mode) ? b.mode : DEFAULT_DISPLAY.mode;
+  // In Pro with the brewery's batch blank, the built-in recipe scaled to the
+  // Pro batch, 10 bbl (PD-S5); the brewery's figures that are set then take
+  // the built-in ones' places as usual.
+  const built = defaultRecipeState();
+  const recipe = mode === 'pro' && figure(b.fermentVolGal) === null ? scaleRecipeTo(built, proBatchGal()) : built;
   for (const k of BREWERY_NUMBERS) {
     if (figure(b[k]) !== null) recipe[k] = b[k];
   }
@@ -215,12 +222,53 @@ export function newRecipe(brewery) {
   }
   return {
     recipe,
-    mode: MODES.includes(b.mode) ? b.mode : DEFAULT_DISPLAY.mode,
+    mode,
     proGravityUnit: GRAVITY_UNITS.includes(b.proGravityUnit) ? b.proGravityUnit : DEFAULT_DISPLAY.proGravityUnit,
     temperatureUnit: TEMPERATURE_UNITS.includes(b.temperatureUnit) ? b.temperatureUnit : DEFAULT_DISPLAY.temperatureUnit,
     proVolumeUnit: PRO_VOLUME_UNITS.includes(b.proVolumeUnit) ? b.proVolumeUnit : DEFAULT_DISPLAY.proVolumeUnit,
     proMaltUnit: PRO_MALT_UNITS.includes(b.proMaltUnit) ? b.proMaltUnit : DEFAULT_DISPLAY.proMaltUnit,
   };
+}
+
+// --- Scale the recipe when switching Home and Pro (S6e) -----------------------
+// docs/items/pro-recipe-default.md. The built-in Pro batch: 10 bbl in the
+// fermenter, the owner's figure for a brewery that has not set its batch
+// volume (PD-Q2''); in gallons by display.js's barrel conversion.
+export const PRO_BATCH_BBL = 10;
+const proBatchGal = () => volumeToCanonical(PRO_BATCH_BBL, 'pro', 'bbl');
+
+// The batch a switch to `mode` offers (PD-S3): the brewery's batch
+// (fermentation) volume whenever it is set, in either direction; where it is
+// blank, 10 bbl for Pro and the built-in recipe's for Home.
+function batchGalFor(mode, brewery) {
+  const set = figure(brewery?.fermentVolGal);
+  if (set !== null) return set;
+  return mode === 'pro' ? proBatchGal() : defaultRecipeState().fermentVolGal;
+}
+
+/**
+ * The header's Pro/Home switch (PD-S1, PD-S2): -> { recipe, mode }. A switch to
+ * the other mode asks `ask(question)` whether to scale the recipe to that
+ * mode's batch, named in its volume unit; yes (true) scales it, no keeps it as
+ * it is. Nothing is asked when the recipe is already at the batch, or when
+ * there is no ratio to scale by — a blank, zero or negative fermentation
+ * volume or batch: the switch then changes units only. A switch never changes
+ * a figure without the brewer's yes (PD-Q1).
+ */
+export function switchMode({ recipe, mode, proVolumeUnit }, next, brewery, ask) {
+  if (next === mode) return { recipe, mode };
+  const batchGal = batchGalFor(next, brewery);
+  const from = recipe.fermentVolGal;
+  const scalable = from > 0 && batchGal > 0 && Number.isFinite(from) && Number.isFinite(batchGal);
+  if (!scalable || from === batchGal) return { recipe, mode: next };
+  const side = next === 'pro' ? 'Pro' : 'Home';
+  const shown = `${roundForInput(volumeFromCanonical(batchGal, next, proVolumeUnit), 2)} ${volumeUnit(next, proVolumeUnit)}`;
+  const yes = ask(
+    `Scale this recipe to the ${side} batch, ${shown}?\n\n` +
+      `OK multiplies every amount by the same ratio, so OG, FG, ABV, color and bitterness stay as they are. ` +
+      `Cancel switches to ${side} with the recipe as it is.`,
+  );
+  return { recipe: yes ? scaleRecipeTo(recipe, batchGal) : recipe, mode: next };
 }
 
 // --- My brewery banner (S4b item 4) -------------------------------------------

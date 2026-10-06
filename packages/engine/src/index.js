@@ -43,6 +43,8 @@ export { solveStarter } from './starter.js';
 
 export { solveGrist } from './solver.js';
 
+export { scaleRecipe } from './scale.js';
+
 export { rollupCost, costPerUnit } from './economics.js';
 
 // Water chemistry engine (relocated from brew-water-chem, behavior preserved).

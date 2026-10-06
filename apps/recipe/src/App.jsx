@@ -18,6 +18,7 @@ import {
   bannerDismissalAfter,
   breweryFiguresFromRecipe,
   newRecipe,
+  switchMode,
 } from './state.js';
 import { computeRecipe, computeWater } from './selectors.js';
 import { mashWaterChanged } from './water-state.js';
@@ -235,6 +236,14 @@ export default function App() {
     changeBrewery(result.brewery);
   };
 
+  // The Pro/Home switch (S6e, PD-S1, PD-S2): asks whether to scale the recipe
+  // to that side's batch; the scale and the switch are one step, one autosave.
+  const changeMode = (next) => {
+    const out = switchMode({ recipe, mode, proVolumeUnit }, next, brewery, (question) => window.confirm(question));
+    setRecipe(out.recipe);
+    setMode(out.mode);
+  };
+
   // Top-level scalar field setter.
   // A new mash water, when it is the treated water, returns the brewer's own
   // salt and acid amounts to the recommendation (water treatment K).
@@ -266,7 +275,7 @@ export default function App() {
       {/* Header with the recipe actions (Export, Import, Reset, Print) and the Pro/Home, °F/°C and Pro unit toggles */}
       <Header
         mode={mode}
-        onMode={setMode}
+        onMode={changeMode}
         proGravityUnit={proGravityUnit}
         onProGravityUnit={setProGravityUnit}
         temperatureUnit={temperatureUnit}

@@ -41,9 +41,17 @@ import {
   mashPh,
   mashPhOutsideRange,
   mashPhTestedRange,
+  scaleRecipe,
 } from '@brew/engine';
 import { toReferenceVolume } from './reference-volume.js';
 import { TEST_RESULT_KEYS, effectiveSetup } from './water-state.js';
+
+// Scale the recipe when switching Home and Pro (docs/items/pro-recipe-default.md):
+// the recipe with every amount multiplied by the batch over its fermentation
+// volume, by the engine (PD-S4).
+export function scaleRecipeTo(recipe, batchGal) {
+  return scaleRecipe(recipe, batchGal);
+}
 
 export function computeRecipe(state) {
   // Boil-off is applied to the measured (hot) pre-boil volume; the resulting
