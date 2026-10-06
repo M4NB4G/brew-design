@@ -1,8 +1,8 @@
-# Tests on GitHub for every push (docs/items/guard-rails.md, item 1): both
-# suites and the app build run on every push to any branch and on every pull
-# request, and the result shows on the pull request. It is a check, not a
-# gate: nothing is configured to block a merge on it (the owner gates merges).
-# Node 24, as Netlify's build (apps/recipe/netlify.toml).
+# Tests on GitHub for every push (docs/items/guard-rails.md, items 1 and 2):
+# the linter, both suites and the app build run on every push to any branch
+# and on every pull request, and the result shows on the pull request. It is
+# a check, not a gate: nothing is configured to block a merge on it (the owner
+# gates merges). Node 24, as Netlify's build (apps/recipe/netlify.toml).
 name: CI
 
 on:
@@ -22,5 +22,6 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - run: npm run lint
       - run: npm test
       - run: npm run build

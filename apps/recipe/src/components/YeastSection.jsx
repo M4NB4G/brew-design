@@ -5,7 +5,6 @@
 // the Volumes card and feeds both the dry-hop rate (Hops) and the cell count
 // (here) via shared canonical state.
 import Card from './shared/Card.jsx';
-import InputRow from './shared/InputRow.jsx';
 import StatBox from './shared/StatBox.jsx';
 import { colors, tokens } from './shared/styles.js';
 import usePhone from './shared/usePhone.js';

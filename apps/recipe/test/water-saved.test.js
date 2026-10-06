@@ -273,7 +273,7 @@ describe('water saved with the recipe', () => {
     // WS-S5: each damage, through storage and through a file.
     const good = () => JSON.parse(exportRecipeDocument({ ...defaults(), recipe: withWater(waterEntries()) }));
     const damages = {
-      'no water': (w) => undefined,
+      'no water': () => undefined,
       'water not an object': () => 'water',
       'a test result missing': (w) => ({ ...w, source: { ...w.source, Ca: undefined } }),
       'a test result as text': (w) => ({ ...w, source: { ...w.source, Mg: '2' } }),

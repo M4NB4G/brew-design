@@ -2,7 +2,7 @@
 // A plain controlled number input styled with the shared token. Works entirely
 // in display units — the parent converts to/from canonical at the boundary.
 // Emits a parsed Number, or NaN when the field is empty.
-import { tokens, colors } from './shared/styles.js';
+import { tokens } from './shared/styles.js';
 import { roundForInput } from '../format.js';
 
 export default function NumberField({ value, onChange, style, ...rest }) {

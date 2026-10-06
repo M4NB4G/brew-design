@@ -10,6 +10,14 @@
   ],
   "scripts": {
     "test": "npm test --workspaces",
-    "build": "npm run build --workspace @brew/recipe"
+    "build": "npm run build --workspace @brew/recipe",
+    "lint": "eslint apps packages"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0"
   }
 }

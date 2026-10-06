@@ -1,6 +1,6 @@
 # Guard rails — three Tier C and D items, batch F1
 
-Status: agreed 2026-10-06 ("agree to all", F-Q1 to F-Q7). Item 1 landed: "A GitHub check runs both suites and the build on every push and pull request"; items 2 and 3 not started.
+Status: agreed 2026-10-06 ("agree to all", F-Q1 to F-Q7). Item 1 landed: "A GitHub check runs both suites and the build on every push and pull request"; item 2 landed: "A linter reads the apps and packages, and the GitHub check runs it"; item 3 not started.
 Written by the S7 session after its structural review; built in batch F1,
 before S8 (docs/ROADMAP.md, Sessions). Items in this order (F-Q2): tests on
 GitHub, the linter, box names.
@@ -60,3 +60,7 @@ Proof: `npm run lint` exits clean (warnings listed in the report, each with its 
 
 - Item 1: `.github/workflows/ci.yml`, triggered on every push and every pull request, runs `npm ci`, `npm test` and `npm run build` on Node 24 (`actions/checkout@v4`, `actions/setup-node@v4` with the npm cache), with `contents: read` permission. No branch protection is configured, so nothing blocks a merge (GR1-S2). The workflow is on the branch `ccr-1093c45b-ibf1ig`, not one named F1 (the session's harness names the branch); `git diff e00bea3..HEAD` is the F1 batch alone, `main...` also carries S7's unmerged commits.
 - Numbers introduced: none that is a recipe value (the Node version is a tooling setting).
+- Item 2: ESLint 9.39.5 (`@eslint/js` 9.39.5, `eslint-plugin-react-hooks` 7.1.1, `eslint-plugin-react` 7.37.5 for JSX counted as use, `globals`), root devDependencies; ESLint 10 was refused by `eslint-plugin-react`'s peer range. The config names `rules-of-hooks` (error) and `exhaustive-deps` (warning) one by one, so the plugin's newer React Compiler rules are not on. `no-unused-vars` allows the leave-one-out copy (`ignoreRestSiblings`): 36 of the first 40 findings were that idiom in tests and persistence.
+- Findings fixed (Tier C and D): the unused `colors` import in `NumberField.jsx`, the unused `InputRow` import in `YeastSection.jsx`, an unused parameter in `water-saved.test.js`. The one finding left is a warning in a Tier B file: `persistence.js`'s `no-control-regex`, a roadmap line. Only that one finding is downgraded, for that rule in that file; a new finding in a Tier A or B file (the refresh tool and `ingredients.test.js` included, which are Tier B) is an error, so the guard stays on where the numbers come from.
+- Builder's choice for the owner to reverse: the `ignoreRestSiblings` option (ESLint's documented setting for the leave-one-out copy) took 36 of the 40 first findings out by configuration, 4 of them in Tier A or B files (`persistence.js` three, `selectors.js` one), which would otherwise have been warnings and roadmap lines. The lockfile gained 204 packages and changed the version of none already there.
+- Both suites and the bundle are unchanged (`index-D4CBS1Oh.js`, 369253 bytes before and after). Numbers introduced: none.

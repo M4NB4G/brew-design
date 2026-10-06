@@ -42,6 +42,7 @@ Modules:
 ```bash
 npm install                          # sets up the npm workspace
 npm test                             # both suites (engine + recipe app)
+npm run lint                         # ESLint over apps/ and packages/
 git config core.hooksPath tools/hooks  # activates the pre-commit / commit-msg guards
 ```
 
