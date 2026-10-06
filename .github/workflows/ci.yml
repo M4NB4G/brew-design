@@ -1,0 +1,26 @@
+# Tests on GitHub for every push (docs/items/guard-rails.md, item 1): both
+# suites and the app build run on every push to any branch and on every pull
+# request, and the result shows on the pull request. It is a check, not a
+# gate: nothing is configured to block a merge on it (the owner gates merges).
+# Node 24, as Netlify's build (apps/recipe/netlify.toml).
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build

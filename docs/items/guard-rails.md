@@ -1,6 +1,6 @@
 # Guard rails — three Tier C and D items, batch F1
 
-Status: agreed 2026-10-06 ("agree to all", F-Q1 to F-Q7), not started.
+Status: agreed 2026-10-06 ("agree to all", F-Q1 to F-Q7). Item 1 landed: "A GitHub check runs both suites and the build on every push and pull request"; items 2 and 3 not started.
 Written by the S7 session after its structural review; built in batch F1,
 before S8 (docs/ROADMAP.md, Sessions). Items in this order (F-Q2): tests on
 GitHub, the linter, box names.
@@ -55,3 +55,8 @@ Proof: `npm run lint` exits clean (warnings listed in the report, each with its 
 - Most boxes go through `components/shared/InputRow.jsx` and `components/NumberField.jsx`; naming them there covers most of item 3. The table boxes (Grist, Hops, Cost, the % boxes) need the row's name passed in.
 - Earlier "nothing else changes" scenarios compare cards byte for byte against before-captures; a name attribute changes those bytes. Compare through a strip of the added name attributes only (as `withoutTargetOgDesign` does for S7), never by recapturing.
 - The scan tool (e.g. axe-core) is a dev dependency; the built bundle must not grow by it (compare the bundle before and after).
+
+## Builder's notes (F1, 2026-10-06)
+
+- Item 1: `.github/workflows/ci.yml`, triggered on every push and every pull request, runs `npm ci`, `npm test` and `npm run build` on Node 24 (`actions/checkout@v4`, `actions/setup-node@v4` with the npm cache), with `contents: read` permission. No branch protection is configured, so nothing blocks a merge (GR1-S2). The workflow is on the branch `ccr-1093c45b-ibf1ig`, not one named F1 (the session's harness names the branch); `git diff e00bea3..HEAD` is the F1 batch alone, `main...` also carries S7's unmerged commits.
+- Numbers introduced: none that is a recipe value (the Node version is a tooling setting).
