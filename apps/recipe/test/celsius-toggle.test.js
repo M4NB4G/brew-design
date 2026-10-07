@@ -86,6 +86,9 @@ const defaults = () => ({ recipe: defaultRecipeState(), ...DEFAULT_DISPLAY });
 // Pro's volume and malt weight units — which "nothing else changes" leaves out.
 const withoutUnitChoice = (markup) =>
   markup.replace(/<div[^>]*><span[^>]*>(Temperature unit|Pro volume unit|Pro malt weight unit)<\/span><select[\s\S]*?<\/select><\/div>/g, '');
+// Since My ingredients (MI-S5'): My brewery lists the brewer's saved
+// ingredients, here none.
+const withoutMyIngredients = (markup) => markup.replace(/<span[^>]*>My ingredients<\/span><p[^>]*>None saved yet[\s\S]*?<\/p>/, '');
 
 describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
   // CT-S1, C-Q2, CT-S3
@@ -238,7 +241,7 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
   // CT-S5, C-Q1, PU-Q4
   it('the choice is saved and older documents read as °F', () => {
     expect(SCHEMA_VERSION).toBe(11);
-    expect(BREWERY_VERSION).toBe(5);
+    expect(BREWERY_VERSION).toBe(6);
     expect(DEFAULT_DISPLAY.temperatureUnit).toBe('F');
 
     // Saved with the display settings, read back as saved.
@@ -274,7 +277,7 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
     const b = { ...emptyBreweryFigures(), temperatureUnit: 'C' };
     expect(hasBreweryFigures(b)).toBe(true);
     const bDoc = JSON.parse(exportBreweryDocument(b));
-    expect(bDoc.version).toBe(5);
+    expect(bDoc.version).toBe(6);
     expect(bDoc.brewery.temperatureUnit).toBe('C');
     expect(importBreweryFile(JSON.stringify(bDoc), () => true).brewery.temperatureUnit).toBe('C');
     const bStorage = memoryStorage({ [BREWERY_KEY]: JSON.stringify(bDoc) });
@@ -284,7 +287,7 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
       const old = memoryStorage({ [BREWERY_KEY]: JSON.stringify({ version, brewery: v3brewery }) });
       const loaded = loadBrewery(old);
       expect(loaded.temperatureUnit, `brewery version ${version}`).toBeNull();
-      expect(JSON.parse(old.items[BREWERY_KEY]).version).toBe(5);
+      expect(JSON.parse(old.items[BREWERY_KEY]).version).toBe(6);
     }
     for (const bad of ['K', 1]) {
       const d = { ...bDoc, brewery: { ...bDoc.brewery, temperatureUnit: bad } };
@@ -306,7 +309,7 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
     }
     expect(noNames(f.hopsHtml(r, 'home', 'F'))).toBe(noNames(BEFORE.hops));
     expect(noNames(f.yeastHtml(r, 'F'))).toBe(noNames(BEFORE.yeast));
-    expect(noNames(withoutUnitChoice(f.optionsHtml(f.brewery(), 'home', 'F')))).toBe(noNames(BEFORE.options));
+    expect(noNames(withoutMyIngredients(withoutUnitChoice(f.optionsHtml(f.brewery(), 'home', 'F'))))).toBe(noNames(BEFORE.options));
 
     // The saved documents: as before, at the new versions, with the choice.
     const before = JSON.parse(BEFORE['recipe-document']);
@@ -315,7 +318,11 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
     expect(after).toEqual({ ...before, version: 11, recipe: docWithBlankPrices(before.recipe), temperatureUnit: 'F', proVolumeUnit: 'bbl', proMaltUnit: 'lb' });
     const bBefore = JSON.parse(BEFORE['brewery-document']);
     const bAfter = JSON.parse(exportBreweryDocument({ ...f.brewery(), temperatureUnit: null }));
-    expect(bAfter).toEqual({ version: 5, brewery: { ...bBefore.brewery, temperatureUnit: null, proVolumeUnit: null, proMaltUnit: null } });
+    // Since My ingredients: version 6, with none saved (MI-Q8').
+    expect(bAfter).toEqual({
+      version: 6,
+      brewery: { ...bBefore.brewery, temperatureUnit: null, proVolumeUnit: null, proMaltUnit: null, ingredients: { malts: [], hops: [] } },
+    });
 
     // Switching the unit changes no stored figure: the recipe saved in °C is
     // the recipe saved in °F, but for the choice.

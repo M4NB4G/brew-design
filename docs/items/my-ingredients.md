@@ -2,8 +2,12 @@
 
 Status: agreed 2026-10-07 ("agree to all"; MI-Q8 revised to MI-Q8' and
 MI-S5, MI-S7 and K revised with it, MI-Q12 to MI-Q14 added, the owner, the
-same day), not started. Written by the session after F1; to be built by a new
-Opus session as batch S8, on its own (docs/ROADMAP.md, Sessions).
+same day); landed 2026-10-07 on branch `claude/wizardly-bardeen-wjpoth` as
+"A brewer saves a malt or hop that is not on the owner's list from its name
+box, and it is offered again, kept with My brewery's figures and carried by
+the brewery file (brewery format 6)"; awaiting the owner's "merge and push".
+Written by the session after F1; built as batch S8, on its own
+(docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -91,3 +95,22 @@ missing functions; record the trimmed error.
 - **Name matching** for the clash (MI-Q4) and the replace (MI-S4) uses the search's fold: capitals and accents ignored, surrounding spaces trimmed.
 - **The save line** shows the numbers as the suggestions do (`suggestionDetail`), in percent in both modes.
 - **Owner-facing language:** "My ingredients", "your ingredient list"; never a key or file name.
+
+## Builder's notes (S8, 2026-10-07)
+
+Claims for the inspector to verify; none is a decision the sentences made.
+
+- **MI-S8, as written** (after the inspector's FAIL, round 1). With storage off, or a stored brewery that cannot be read, a save says the ingredient could not be kept, and it is not offered; over an unreadable copy nothing is written (it was already kept aside at load). A brewery figure set over an unreadable copy still writes, as before K' (the copy kept aside first). A brewery file imported with storage off puts its figures on screen for the session, as before, but not its ingredients, and the import says how many could not be kept: the list on screen changes only with a kept write.
+- **One check for save and load.** `myIngredientOf` (ingredient-search.js) checks an entry as the owner's list is checked (a name; FGDB, colour or alpha a number; a malt type blank or the model's; a lab figure blank or a number on a type that reads it). The brewery reader uses it, and so does the save, so a save never writes what a load would refuse. The only save it refuses beyond MI-Q3 and MI-Q4 is a lab figure on a type that does not read it, which only a hand-edited recipe file can carry. The workbook's 0–100 % and colour ≥ 0 ranges are not applied: a saved figure is the one the brewer typed.
+- **Name matching** (MI-Q4, MI-S4) uses the search's fold, trimmed; the clash is checked against the owner's list of the row's kind (malts for a malt, hops for a hop). The saved name is trimmed. Replacing keeps the entry in its place in the order saved.
+- **The save line** is the last line of the suggestions, chosen by click, tap, or arrows and Enter. A save closes the list; what it did ("Saved to My ingredients." or "… could not be kept: …") is said under the box until the name is next typed. To save again from the same row the brewer types in its name box (or presses the down arrow) to open the list. A refusal is a greyed line that does nothing.
+- **Delete** asks nothing (MI-S5' names no question).
+- **Wiring.** The name boxes read My ingredients and the save through a React context (`MyIngredientsContext`, IngredientSearch.jsx) provided by App, so the Grist and Hops tables are not touched.
+- **Re-read before write (K').** `readStoredBrewery(storage)` reads the stored brewery and says what became of it (read, none, unreadable, unavailable); `loadBrewery(storage, fallback)` wraps it, falling back to the copy on screen when none can be read. Every figure change and delete applies its step to the stored copy (or the copy on screen); an ingredient save goes ahead only over a readable copy or none. The brewery file's import replaces the whole document, so it needs no re-read; its question counts the stored list. With storage off, a figure change or an import still shows on screen for the session, as before.
+- **Forget** (MI-Q14): `clearBrewery` keeps the stored ingredients with every figure blank, and removes the document only when none are saved, as before. "Use this recipe's figures" keeps them too.
+- **Import question** (MI-Q13): "Replace your brewery's figures and My ingredients with those in "<file>"? The recipe on screen is unchanged." plus, when any are saved, "Your N saved ingredients will be replaced by the file's M." or, when the file has none, "The file has none in My ingredients: your N saved ingredients will go."
+- **Earlier scenarios changed for the format:** the brewery version pins read 6 (brewery-defaults, celsius-toggle, pro-unit-choices, sparge-typed, water-saved); the "another" or "newer" brewery versions read 7 (brewery-defaults, brewery-file, water-saved); brewery-defaults' hand-built brewery gains an empty list; the brewery documents expected by celsius-toggle and pro-unit-choices gain an empty list; their Options snapshots leave out the new, empty My ingredients block. No assertion loosened; the smoke test untouched. `eslint.config.js` gives the new jsdom test the browser's globals, as accessible-names has.
+- **Numbers introduced:** none that is a recipe value. Every figure saved is one the brewer typed or picked; the brewery format tag is 6; the counts in the import question are list lengths; the rest is layout (px, rem) and font sizes.
+- **FAIL rounds:** round 1 (the inspector): MI-S8 for an unreadable stored brewery was built as a reading (the save kept) — rebuilt as written; scenario 13 did not save in the unreadable case — it does now; with storage off a brewery-file import offered its ingredients — they are no longer put on screen, and the import says so (scenario 13). Scenario 11's in-app half now overwrites the unreadable copy with a figure, not an ingredient.
+- **Roadmap:** one line added, in scope: a name saved first and added to the owner's workbook later is offered twice.
+

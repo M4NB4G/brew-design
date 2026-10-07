@@ -102,6 +102,9 @@ const header = (mode, units = {}) =>
 // My brewery's two new choices, which "nothing else changes" leaves out.
 const withoutNewChoices = (markup) =>
   markup.replace(/<div[^>]*><span[^>]*>Pro (volume|malt weight) unit<\/span><select[\s\S]*?<\/select><\/div>/g, '');
+// Since My ingredients (MI-S5'): My brewery lists the brewer's saved
+// ingredients, here none.
+const withoutMyIngredients = (markup) => markup.replace(/<span[^>]*>My ingredients<\/span><p[^>]*>None saved yet[\s\S]*?<\/p>/, '');
 
 describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
   // PU-S1, PU-S2, PU-Q2
@@ -214,7 +217,7 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
   // PU-S5, PU-Q4
   it('the choices are saved and older documents read as barrels and pounds', () => {
     expect(SCHEMA_VERSION).toBe(11);
-    expect(BREWERY_VERSION).toBe(5);
+    expect(BREWERY_VERSION).toBe(6);
     expect(DEFAULT_DISPLAY.proVolumeUnit).toBe('bbl');
     expect(DEFAULT_DISPLAY.proMaltUnit).toBe('lb');
 
@@ -256,7 +259,7 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     expect(hasBreweryFigures({ ...e, proVolumeUnit: 'gal' })).toBe(true);
     expect(hasBreweryFigures({ ...e, proMaltUnit: 'sack' })).toBe(true);
     const bDoc = JSON.parse(exportBreweryDocument(b));
-    expect(bDoc.version).toBe(5);
+    expect(bDoc.version).toBe(6);
     expect(loadBrewery(memoryStorage({ [BREWERY_KEY]: JSON.stringify(bDoc) }))).toEqual(b);
     const { proVolumeUnit: _v, proMaltUnit: _m, ...v4brewery } = bDoc.brewery;
     for (const version of [4, 3, 2, 1]) {
@@ -264,7 +267,7 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
       const loadedB = loadBrewery(old);
       expect(loadedB.proVolumeUnit, `brewery version ${version}`).toBeNull();
       expect(loadedB.proMaltUnit, `brewery version ${version}`).toBeNull();
-      expect(JSON.parse(old.items[BREWERY_KEY]).version).toBe(5);
+      expect(JSON.parse(old.items[BREWERY_KEY]).version).toBe(6);
     }
     for (const bad of [{ proVolumeUnit: 'hl' }, { proMaltUnit: 'kg' }]) {
       const d = { ...bDoc, brewery: { ...bDoc.brewery, ...bad } };
@@ -288,7 +291,7 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
       }
       expect(noNames(f.hopsHtml(r, 'pro', units))).toBe(noNames(BEFORE.hops));
       expect(noNames(f.waterHtml(r, 'pro', units))).toBe(noNames(BEFORE.water));
-      expect(noNames(withoutNewChoices(f.optionsHtml(f.brewery(), 'pro', units)))).toBe(noNames(BEFORE.options));
+      expect(noNames(withoutMyIngredients(withoutNewChoices(f.optionsHtml(f.brewery(), 'pro', units))))).toBe(noNames(BEFORE.options));
     }
 
     // The saved documents: as before, at the new versions, with the choices.
@@ -298,7 +301,8 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     expect(after).toEqual({ ...before, version: 11, recipe: docWithBlankPrices(before.recipe), ...BBL_LB });
     const bBefore = JSON.parse(BEFORE['brewery-document']);
     const bAfter = JSON.parse(exportBreweryDocument({ ...f.brewery(), proVolumeUnit: null, proMaltUnit: null }));
-    expect(bAfter).toEqual({ version: 5, brewery: { ...bBefore.brewery, proVolumeUnit: null, proMaltUnit: null } });
+    // Since My ingredients: version 6, with none saved (MI-Q8').
+    expect(bAfter).toEqual({ version: 6, brewery: { ...bBefore.brewery, proVolumeUnit: null, proMaltUnit: null, ingredients: { malts: [], hops: [] } } });
 
     // Switching the choices changes no stored figure.
     const inGal = JSON.parse(exportRecipeDocument({ recipe: r, mode: 'pro', proGravityUnit: 'plato', temperatureUnit: 'F', proVolumeUnit: 'gal', proMaltUnit: 'sack' }));

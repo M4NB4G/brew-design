@@ -116,10 +116,10 @@ describe('brewery file', () => {
     expect(refused(JSON.stringify(damaged)).outcome).toBe('refused');
     // Newer than this app reads.
     const newer = JSON.parse(p.exportBreweryDocument(BREWERY));
-    newer.version = 6;
+    newer.version = 7;
     const n = refused(JSON.stringify(newer));
     expect(n.outcome).toBe('refused');
-    expect(n.message).toMatch(/saved by a newer version of Brew Design \(file version 6; this app reads up to version 5\)/);
+    expect(n.message).toMatch(/saved by a newer version of Brew Design \(file version 7; this app reads up to version 6\)/);
     // Older files read as storage reads them: version 1 with the water blank,
     // version 2 without the water kept in the mash tun.
     const { water, ...v1 } = BREWERY;

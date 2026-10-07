@@ -78,6 +78,8 @@ const BREWERY = {
   proMaltUnit: null,
   // Water saved with the recipe: no water figure set.
   water: emptyBreweryWater(),
+  // My ingredients: none saved.
+  ingredients: { malts: [], hops: [] },
 };
 
 describe('brewery defaults', () => {
@@ -212,17 +214,17 @@ describe('brewery defaults', () => {
   });
 
   // S5, K6
-  it('the brewery figures round-trip through their own saved document at version 5; unreadable, another version or blocked storage gives the built-in figures and nothing throws', () => {
+  it('the brewery figures round-trip through their own saved document at version 6; unreadable, another version or blocked storage gives the built-in figures and nothing throws', () => {
     const s = fakeStorage();
     const withBlank = { ...BREWERY, boilTimeMin: null, measurementTempF: { ...BREWERY.measurementTempF, postBoil: null } };
     saveBrewery(s, withBlank);
 
     // Their own key, apart from the recipe, in one document carrying version 3.
     expect(BREWERY_KEY).not.toBe(STORAGE_KEY);
-    expect(BREWERY_VERSION).toBe(5);
+    expect(BREWERY_VERSION).toBe(6);
     expect([...s._map.keys()]).toEqual([BREWERY_KEY]);
     const doc = JSON.parse(s._map.get(BREWERY_KEY));
-    expect(doc.version).toBe(5);
+    expect(doc.version).toBe(6);
     expect(doc.brewery.preBoilVolGal).toBe(16); // gallons, not bbl
 
     // A reload reads them back, blanks as blanks.
@@ -236,7 +238,7 @@ describe('brewery defaults', () => {
       return loadBrewery(b);
     };
     expect(bad('{not json')).toEqual(emptyBreweryFigures());
-    expect(bad(JSON.stringify({ version: 6, brewery: BREWERY }))).toEqual(emptyBreweryFigures());
+    expect(bad(JSON.stringify({ version: 7, brewery: BREWERY }))).toEqual(emptyBreweryFigures());
     expect(bad(JSON.stringify({ version: 1, brewery: { ...BREWERY, efficiency: '93' } }))).toEqual(emptyBreweryFigures());
     expect(bad(JSON.stringify({ version: 1, brewery: { ...BREWERY, mode: 'metric' } }))).toEqual(emptyBreweryFigures());
     expect(bad(JSON.stringify({ version: 1 }))).toEqual(emptyBreweryFigures());

@@ -121,7 +121,16 @@ export function emptyBreweryWater() {
   };
 }
 
-/** Every brewery figure blank. */
+// My ingredients (docs/items/my-ingredients.md, MI-Q8'): the brewer's own
+// malts and hops, kept with the brewery's figures and carried by the brewery
+// file, each with the keys of the owner's list (ingredients.json). They are
+// not figures: no new recipe reads them, and they neither show nor end the
+// banner (MI-Q12).
+export function emptyMyIngredients() {
+  return { malts: [], hops: [] };
+}
+
+/** Every brewery figure blank, and no saved ingredients. */
 export function emptyBreweryFigures() {
   return {
     fermentVolGal: null,
@@ -136,6 +145,7 @@ export function emptyBreweryFigures() {
     proVolumeUnit: null,
     proMaltUnit: null,
     water: emptyBreweryWater(),
+    ingredients: emptyMyIngredients(),
   };
 }
 

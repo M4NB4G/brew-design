@@ -6,7 +6,8 @@
 // the built-in figure. Editing them never touches the recipe on screen.
 // Their Water group (Water saved with the recipe, S7): the usual treatment
 // and kettle switch, the water setup, the usual water report and the salts
-// on hand.
+// on hand. My ingredients (MI-S5'): the brewer's own malts and hops, saved
+// from their name boxes, each with a Delete that changes no recipe.
 import { useRef } from 'react';
 import { SALT_CONTRIBUTIONS_PER_G_GAL } from '@brew/engine';
 import Card from './shared/Card.jsx';
@@ -30,6 +31,7 @@ import {
   mashRvUnit,
 } from '../display.js';
 import { roundForInput } from '../format.js';
+import { suggestionDetail } from '../ingredient-search.js';
 import { DEFAULT_DISPLAY, newRecipe } from '../state.js';
 import { defaultWaterState, TEST_RESULT_KEYS } from '../water-state.js';
 import { REPORT_LABELS } from './water/WaterInScreen.jsx';
@@ -207,6 +209,60 @@ function BreweryWater({ water, setBreweryWater, volume, vUnit }) {
   );
 }
 
+// My ingredients (MI-S5'): each malt and hop the brewer saved, with the
+// numbers its suggestion shows and a Delete. A recipe keeps its own copy of
+// every number, so deleting one changes no recipe.
+function MyIngredients({ mine, onDelete }) {
+  const groups = [
+    ['malts', 'Malts', 'malts'],
+    ['hops', 'Hops', 'kettleAdditions'],
+  ].filter(([list]) => mine[list].length > 0);
+  return (
+    <>
+      <span style={{ ...tokens.cardLabel, marginTop: '0.85rem', marginBottom: '0.3rem', fontSize: '0.65rem' }}>My ingredients</span>
+      {groups.length === 0 && (
+        <p style={{ ...tokens.notice, marginTop: 0, marginBottom: '0.3rem' }}>
+          None saved yet. Type a malt or boil hop that is not on the ingredient list in its name box, then choose
+          “Save to my ingredients”.
+        </p>
+      )}
+      {groups.map(([list, heading, field]) => (
+        <div key={list}>
+          <span style={{ fontSize: '0.78rem', color: colors.textSecondary, fontWeight: 600 }}>{heading}</span>
+          {mine[list].map((item) => (
+            <div key={item.name} style={ingredientRowStyle}>
+              <span style={{ fontSize: '0.92rem', color: colors.textPrimary, fontWeight: 500 }}>{item.name}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <span style={{ fontSize: '0.82rem', color: colors.textSecondary, fontVariantNumeric: 'tabular-nums' }}>
+                  {suggestionDetail(field, item)}
+                </span>
+                <button
+                  type="button"
+                  aria-label={`Delete ${item.name} from My ingredients`}
+                  onClick={() => onDelete(list, item.name)}
+                  style={{ ...button, padding: '0.25rem 0.7rem', fontSize: '0.8rem' }}
+                >
+                  Delete
+                </button>
+              </span>
+            </div>
+          ))}
+        </div>
+      ))}
+    </>
+  );
+}
+
+const ingredientRowStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  flexWrap: 'wrap',
+  gap: '0.4rem 0.75rem',
+  padding: '0.45rem 0',
+  borderBottom: `1px solid ${colors.rowDivider}`,
+};
+
 const saltGridStyle = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
@@ -230,6 +286,7 @@ export default function OptionsSection({
   setBreweryFigure,
   setBreweryTemp,
   setBreweryWater,
+  onDeleteIngredient,
   onUseRecipeFigures,
   onForgetBrewery,
   onExportBrewery,
@@ -346,6 +403,8 @@ export default function OptionsSection({
       />
 
       <BreweryWater water={brewery.water} setBreweryWater={setBreweryWater} volume={volume} vUnit={vUnit} />
+
+      <MyIngredients mine={brewery.ingredients} onDelete={onDeleteIngredient} />
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginTop: '0.85rem' }}>
         <button type="button" onClick={onUseRecipeFigures} style={button}>

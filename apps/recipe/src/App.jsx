@@ -12,7 +12,6 @@ import { createPortal } from 'react-dom';
 import {
   defaultRecipeState,
   DEFAULT_DISPLAY,
-  emptyBreweryFigures,
   hasBreweryFigures,
   breweryBannerShown,
   bannerDismissalAfter,
@@ -33,6 +32,7 @@ import {
   recipeFileName,
   importRecipeFile,
   loadBrewery,
+  readStoredBrewery,
   loadBannerDismissed,
   saveBannerDismissed,
   exportBreweryDocument,
@@ -40,8 +40,10 @@ import {
   importBreweryFile,
   saveBrewery,
   clearBrewery,
+  breweryImportQuestion,
   BREWERY_KEY,
 } from './persistence.js';
+import { saveOffer, withMyIngredient, withoutMyIngredient } from './ingredient-search.js';
 import Header from './components/Header.jsx';
 import TabBar from './components/TabBar.jsx';
 import IdentitySection, { NotesSection } from './components/IdentitySection.jsx';
@@ -59,6 +61,7 @@ import BreweryBanner from './components/BreweryBanner.jsx';
 import RecipeSheet from './components/RecipeSheet.jsx';
 import Footer from './components/Footer.jsx';
 import NotesPage from './components/NotesPage.jsx';
+import { MyIngredientsContext } from './components/IngredientSearch.jsx';
 import { colors } from './components/shared/styles.js';
 
 // window.localStorage itself can throw when storage is blocked; treat that as
@@ -191,30 +194,73 @@ export default function App() {
   };
 
   // The brewery's figures: each change is saved at once, and never touches
-  // the recipe on screen or its saved copy (S4).
+  // the recipe on screen or its saved copy (S4). Each change starts from the
+  // stored brewery, read again (the copy on screen where none can be read),
+  // so a change made in another tab — a figure or one of My ingredients — is
+  // kept (My ingredients, K').
   // "Not now" on the My brewery banner (S4b item 4): kept in this browser.
   const [bannerDismissed, setBannerDismissed] = useState(() => loadBannerDismissed(browserStorage()));
   const dismissBanner = (dismissed) => {
     setBannerDismissed(dismissed);
     saveBannerDismissed(browserStorage(), dismissed);
   };
+  // Ingredients storage did not keep are not offered (MI-S8): the list on
+  // screen changes only with a kept write. Returns whether it was kept.
   const changeBrewery = (next) => {
     const dismissed = bannerDismissalAfter(next, bannerDismissed);
     if (dismissed !== bannerDismissed) dismissBanner(dismissed);
-    setBrewery(next);
-    saveBrewery(browserStorage(), next);
+    const kept = saveBrewery(browserStorage(), next);
+    setBrewery(kept ? next : { ...next, ingredients: brewery.ingredients });
+    return kept;
   };
-  const setBreweryFigure = (key, value) => changeBrewery({ ...brewery, [key]: value });
+  const updateBrewery = (step) => changeBrewery(step(loadBrewery(browserStorage(), brewery)));
+  const setBreweryFigure = (key, value) => updateBrewery((b) => ({ ...b, [key]: value }));
   const setBreweryTemp = (kind, tempF) =>
-    changeBrewery({ ...brewery, measurementTempF: { ...brewery.measurementTempF, [kind]: tempF } });
-  const setBreweryWater = (key, value) => changeBrewery({ ...brewery, water: { ...brewery.water, [key]: value } });
+    updateBrewery((b) => ({ ...b, measurementTempF: { ...b.measurementTempF, [kind]: tempF } }));
+  const setBreweryWater = (key, value) => updateBrewery((b) => ({ ...b, water: { ...b.water, [key]: value } }));
+  // "Use this recipe's figures" rewrites the figures and keeps My ingredients.
   const useRecipeFigures = () =>
-    changeBrewery(breweryFiguresFromRecipe(recipe, mode, proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit));
+    updateBrewery((b) => ({
+      ...breweryFiguresFromRecipe(recipe, mode, proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit),
+      ingredients: b.ingredients,
+    }));
+  // Forget clears the figures and keeps My ingredients (MI-Q14).
   const forgetBrewery = () => {
-    if (!window.confirm("Forget your brewery's figures? A new recipe will start from the built-in figures; the recipe on screen is unchanged.")) return;
-    clearBrewery(browserStorage());
-    setBrewery(emptyBreweryFigures());
+    if (
+      !window.confirm(
+        "Forget your brewery's figures? A new recipe will start from the built-in figures; the recipe on screen is unchanged. My ingredients are kept.",
+      )
+    )
+      return;
+    setBrewery(clearBrewery(browserStorage(), brewery));
   };
+
+  // My ingredients (MI-S2, MI-S4, MI-S5', MI-S8): saving a malt or hop from
+  // its name box asks first when it replaces one of the brewer's own, then
+  // keeps it with the stored brewery, read again first; the recipe is not
+  // touched. With storage off, or a stored brewery that cannot be read, it is
+  // not kept and says so; what was not kept, the boxes do not offer. Returns
+  // what the name box says, or null when nothing was saved.
+  const saveMyIngredient = (field, row) => {
+    const offer = saveOffer(field, row, brewery.ingredients);
+    if (!offer?.entry) return null;
+    const { name } = offer.entry;
+    if (offer.replaces && !window.confirm(`Replace "${name}" in My ingredients with these figures? No recipe changes.`)) return null;
+    const storage = browserStorage();
+    const stored = readStoredBrewery(storage);
+    if (stored.status === 'unreadable') {
+      return { kept: false, message: `${name} could not be kept: the brewery saved in this browser could not be read, so it is not in My ingredients.` };
+    }
+    const base = stored.brewery ?? brewery;
+    const next = { ...base, ingredients: withMyIngredient(base.ingredients, field, offer.entry) };
+    if (stored.status === 'unavailable' || !saveBrewery(storage, next)) {
+      return { kept: false, message: `${name} could not be kept: this browser is not keeping this site's data, so it is not in My ingredients.` };
+    }
+    setBrewery(next);
+    return { kept: true, message: `Saved to My ingredients.` };
+  };
+  const deleteMyIngredient = (list, name) =>
+    updateBrewery((b) => ({ ...b, ingredients: withoutMyIngredient(b.ingredients, list, name) }));
 
   // The brewery file (S4b item 5): Export hands the browser the brewery's
   // document; Import asks first, then replaces the brewery's figures through
@@ -241,12 +287,16 @@ export default function App() {
     } catch {
       text = ''; // an unreadable file is refused like any other
     }
-    const result = importBreweryFile(text, () =>
-      window.confirm(`Replace your brewery's figures with those in "${file.name}"? The recipe on screen is unchanged.`),
+    // The one question names how many of My ingredients go (MI-Q13).
+    const result = importBreweryFile(text, (incoming) =>
+      window.confirm(breweryImportQuestion(file.name, loadBrewery(browserStorage(), brewery), incoming)),
     );
     if (result.outcome === 'refused') setBreweryFileMessage(result.message);
     if (result.outcome !== 'replaced') return;
-    changeBrewery(result.brewery);
+    const n = result.brewery.ingredients.malts.length + result.brewery.ingredients.hops.length;
+    if (!changeBrewery(result.brewery) && n > 0) {
+      setBreweryFileMessage(`The file's ${n} saved ingredient${n === 1 ? '' : 's'} could not be kept: this browser is not keeping this site's data, so they are not in My ingredients.`);
+    }
   };
 
   // The Pro/Home switch (S6e, PD-S1, PD-S2): asks whether to scale the recipe
@@ -302,6 +352,7 @@ export default function App() {
     setRecipe((r) => ({ ...r, measurementTempF: { ...r.measurementTempF, [kind]: tempF } }));
 
   return (
+    <MyIngredientsContext.Provider value={{ mine: brewery.ingredients, onSave: saveMyIngredient }}>
     <div style={{ minHeight: '100vh', paddingBottom: '4rem' }}>
 
       {/* Header with the recipe actions (Export, Import, Reset, Print) and the Pro/Home, °F/°C and Pro unit toggles */}
@@ -451,6 +502,7 @@ export default function App() {
             setBreweryFigure={setBreweryFigure}
             setBreweryTemp={setBreweryTemp}
             setBreweryWater={setBreweryWater}
+            onDeleteIngredient={deleteMyIngredient}
             onUseRecipeFigures={useRecipeFigures}
             onForgetBrewery={forgetBrewery}
             onExportBrewery={exportBrewery}
@@ -483,5 +535,6 @@ export default function App() {
       )}
 
     </div>
+    </MyIngredientsContext.Provider>
   );
 }

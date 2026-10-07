@@ -174,7 +174,7 @@ describe('sparge water typed', () => {
     expect(brewery.water.vessels).toBe(2);
     expect('keptInTunGal' in brewery.water).toBe(false);
     expect('spargeGal' in brewery.water).toBe(false);
-    expect(JSON.parse(b._map.get(BREWERY_KEY)).version).toBe(5);
+    expect(JSON.parse(b._map.get(BREWERY_KEY)).version).toBe(6);
     expect(newRecipe(brewery).recipe.water.spargeGal).toBeNaN();
 
     // My brewery no longer asks for it.

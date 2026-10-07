@@ -203,6 +203,18 @@ pinned by the golden-master tests.
     information line and fermentation-temperature warning look the strain
     up by name each time they are drawn and show the list's current
     figures; they are never stored and never feed a number.
+    My ingredients are the brewer's own malts and hops, beside the owner's
+    list and never in it. A malt or boil-hop name box whose typed name is not
+    on the owner's list of its kind (capitals, accents and surrounding spaces
+    ignored) offers to save it, showing what it keeps: a malt's FGDB, colour,
+    type and two lab figures, a hop's alpha; a dry hop is never saved. A
+    blank FGDB, colour or alpha refuses the save, and a name on the owner's
+    list is refused with a line saying so; saving a name already in My
+    ingredients asks, then replaces it in its place. The malt boxes offer the
+    brewer's malts, and the boil-hop and dry-hop boxes their hops, first,
+    marked as yours, in the order saved; a pick copies their numbers as a
+    pick from the owner's list does. Saving or deleting one changes no
+    recipe. They are kept with the brewery's figures (rule 17).
 17. **The brewery's figures are not a recipe.** The brewery's batch
     (fermentation) volume, pre-boil volume, boil-off rate, boil time, three
     measurement temperatures, brewhouse efficiency, Home/Pro, Pro gravity,
@@ -210,22 +222,39 @@ pinned by the golden-master tests.
     usual treatment choice and kettle switch, and the water setup (vessels,
     sparge, the tank's treated volume and top-up level, grain absorption)
     — are kept in their own JSON document, under
-    their own key, carrying their own version (5), in the recipe's units; a
-    blank figure is null. A version-1 document — saved before the water —
+    their own key, carrying their own version (6), in the recipe's units; a
+    blank figure is null. The same document carries My ingredients (rule
+    16), each entry checked as the owner's list is; a damaged entry makes the
+    document unreadable. A version-1 document — saved before the water —
     loads with every water figure blank, a version-2 one without the
     water kept in the mash tun, a version-1 to 3 one with the temperature
-    unit blank, and a version-1 to 4 one with Pro's volume and malt weight
-    units blank; each is saved back as version 5. The sparge
+    unit blank, a version-1 to 4 one with Pro's volume and malt weight
+    units blank, and a version-1 to 5 one with no saved ingredients; each
+    is saved back as version 6. The sparge
     water is never a brewery figure.
     Unreadable data, any other version, or unavailable storage yields every
-    figure blank and never throws. The water style, where the acid goes,
+    figure blank and no saved ingredients, and never throws; a stored copy
+    that cannot be read is kept aside, as found, under its own key
+    (`brew-design.brewery.unreadable`), replacing any copy kept before, and
+    failing to keep it never stops a load. Every change to the brewery — a
+    figure, an ingredient saved or deleted — starts from the stored
+    document, read again, so a change made in another tab is kept; an
+    ingredient is never saved over a stored copy that cannot be read (a
+    figure is, the copy kept aside first); an ingredient that storage could
+    not keep — saved, or imported with a brewery file — is said so and not
+    offered. My
+    ingredients neither show nor end the banner, and "Forget my brewery
+    figures" and "Use this recipe's figures" change the figures and keep
+    them. The water style, where the acid goes,
     the brewer's own amounts and the prices are never brewery figures. While every one is blank, a banner on
     every tab recommends setting them up; its "Not now" is kept in this
     browser under its own key, never part of a recipe or the brewery's
     figures, and ends when a figure is set. The brewery file is the same
     document: an export is byte for byte what storage holds, and an import
     reads it with the same reader, versions and upgrades included, asks
-    before it replaces the brewery's figures and never touches the recipe; a
+    before it replaces the brewery's figures and My ingredients — naming how
+    many saved ingredients go, all of them when the file has none — and
+    never touches the recipe; a
     file that is not a brewery file, is damaged or is newer is refused with
     a message. A new recipe — Reset, or a load with no
     readable saved recipe — is the built-in recipe and display settings with

@@ -75,7 +75,10 @@
 // version-1 to 3 document is read with it blank and saved back as 4. Their
 // version 5 (Pro unit choices, PU-S5) adds Pro's volume and malt weight
 // units; a version-1 to 4 document is read with them blank and saved back
-// as 5.
+// as 5. Their version 6 (My ingredients, MI-Q8') carries the brewer's own
+// malts and hops; a version-1 to 5 document is read with none and saved back
+// as 6. A stored brewery that cannot be read is kept aside, as found, under
+// its own key before anything overwrites it (K'), as the recipe's is.
 //
 // Saved rows checked inside (2026-09-23): a document is readable only if its
 // every malt, kettle-hop and dry-hop row, and its yeast, carry every field of
@@ -94,6 +97,7 @@ import {
   newRecipe,
 } from './state.js';
 import { TEMPERATURE_UNITS, PRO_VOLUME_UNITS, PRO_MALT_UNITS } from './display.js';
+import { myIngredientOf } from './ingredient-search.js';
 import { TEST_RESULT_KEYS, TREATMENTS, ACID_PLACES, SPARGE_METHODS, VESSEL_COUNTS } from './water-state.js';
 
 export const STORAGE_KEY = 'brew-design.recipe';
@@ -370,7 +374,10 @@ export function clearPersisted(storage) {
 }
 
 export const BREWERY_KEY = 'brew-design.brewery';
-export const BREWERY_VERSION = 5;
+// The latest stored brewery that could not be read, kept as found (K');
+// nothing reads it back.
+export const BREWERY_UNREADABLE_KEY = 'brew-design.brewery.unreadable';
+export const BREWERY_VERSION = 6;
 
 // A saved figure: a finite number, or null (blank).
 const isFigure = (v) => v === null || Number.isFinite(v);
@@ -400,18 +407,28 @@ function readBreweryWater(w) {
   return out;
 }
 
+// My ingredients in a document, or null when the two lists are not there or
+// an entry is damaged (MI-Q8'): each entry checked as the owner's list is.
+function readMyIngredients(mine) {
+  if (!isRecord(mine) || !Array.isArray(mine.malts) || !Array.isArray(mine.hops)) return null;
+  const malts = mine.malts.map((m) => myIngredientOf('malts', m));
+  const hops = mine.hops.map((h) => myIngredientOf('hops', h));
+  return [...malts, ...hops].includes(null) ? null : { malts, hops };
+}
+
 // The brewery figures in a document, or null when one is missing or is not
 // a figure: every key of the blank figures, each blank or of its kind. A
 // version-1 document, saved before the water setup, has every water figure
 // blank (WS-S4); a version-1 to 3 document, saved before the temperature
 // unit, has it blank (CT-S5); a version-1 to 4 document, saved before Pro's
-// volume and malt weight units, has them blank (PU-S5).
+// volume and malt weight units, has them blank (PU-S5); a version-1 to 5
+// document, saved before My ingredients, has none.
 function readBrewery(b, version) {
   const isObject = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
   if (!isObject(b) || !isObject(b.measurementTempF)) return null;
   const out = emptyBreweryFigures();
   for (const k of Object.keys(out)) {
-    if (k === 'measurementTempF' || k === 'water') continue;
+    if (k === 'measurementTempF' || k === 'water' || k === 'ingredients') continue;
     if (k === 'temperatureUnit' && version < 4) continue;
     if ((k === 'proVolumeUnit' || k === 'proMaltUnit') && version < 5) continue;
     if (!(k in b)) return null;
@@ -421,7 +438,7 @@ function readBrewery(b, version) {
     if (!isFigure(b.measurementTempF[k])) return null;
     out.measurementTempF[k] = b.measurementTempF[k];
   }
-  const { mode, proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit, measurementTempF, water, ...numbers } = out;
+  const { mode, proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit, measurementTempF, water, ingredients, ...numbers } = out;
   if (!Object.values(numbers).every(isFigure)) return null;
   if (mode !== null && !MODES.includes(mode)) return null;
   if (proGravityUnit !== null && !GRAVITY_UNITS.includes(proGravityUnit)) return null;
@@ -432,42 +449,77 @@ function readBrewery(b, version) {
     out.water = readBreweryWater(b.water);
     if (out.water === null) return null;
   }
+  if (version > 5) {
+    out.ingredients = readMyIngredients(b.ingredients);
+    if (out.ingredients === null) return null;
+  }
   return out;
 }
 
 /**
  * Read the brewery's figures. Nothing saved, unreadable data, a version
- * other than 1 to 4 or BREWERY_VERSION, or unavailable storage yields every
- * figure blank (the built-in figures). A readable version-1 document is read
+ * other than 1 to 5 or BREWERY_VERSION, or unavailable storage yields
+ * `fallback`: every figure blank (the built-in figures) and no saved
+ * ingredients, unless given — a save re-reads the stored brewery with the
+ * copy on screen as its fallback (K'). A readable version-1 document is read
  * with the water figures blank, a version-2 one without the water kept in
  * the mash tun, a version-1 to 3 one with the temperature unit blank, a
- * version-1 to 4 one with Pro's volume and malt weight units blank; each is
- * saved back at BREWERY_VERSION (best-effort).
+ * version-1 to 4 one with Pro's volume and malt weight units blank, a
+ * version-1 to 5 one with no saved ingredients; each is saved back at
+ * BREWERY_VERSION (best-effort). A stored copy that cannot be read is first
+ * kept aside, as found, under BREWERY_UNREADABLE_KEY, replacing any copy
+ * kept before; keeping it is best-effort.
  * Never throws.
  */
-export function loadBrewery(storage) {
+export function loadBrewery(storage, fallback) {
+  return readStoredBrewery(storage).brewery ?? fallback ?? emptyBreweryFigures();
+}
+
+/**
+ * The stored brewery and what became of reading it: { status: 'read',
+ * brewery } (upgraded and saved back as loadBrewery says), { status: 'none' }
+ * with nothing stored, { status: 'unreadable' } for a stored copy that cannot
+ * be read — kept aside first, as loadBrewery says — or { status:
+ * 'unavailable' } when storage cannot be read at all. A save of one of My
+ * ingredients is kept only over a readable brewery or none (MI-S8).
+ * Never throws.
+ */
+export function readStoredBrewery(storage) {
+  let raw;
   try {
-    const raw = storage.getItem(BREWERY_KEY);
-    if (raw === null || raw === undefined) return emptyBreweryFigures();
-    const { brewery, version } = readBreweryDocument(raw);
-    if (!brewery) return emptyBreweryFigures();
-    if (version !== BREWERY_VERSION) saveBrewery(storage, brewery);
-    return brewery;
+    raw = storage.getItem(BREWERY_KEY);
   } catch {
-    return emptyBreweryFigures();
+    return { status: 'unavailable' };
   }
+  if (raw === null || raw === undefined) return { status: 'none' };
+  let read;
+  try {
+    read = readBreweryDocument(raw);
+  } catch {
+    read = {}; // not JSON
+  }
+  if (read.brewery) {
+    if (read.version !== BREWERY_VERSION) saveBrewery(storage, read.brewery);
+    return { status: 'read', brewery: read.brewery };
+  }
+  try {
+    storage.setItem(BREWERY_UNREADABLE_KEY, raw);
+  } catch {
+    // Storage unavailable: the copy cannot be kept; loading goes on.
+  }
+  return { status: 'unreadable' };
 }
 
 // One brewery document's text, read as storage and the brewery file both
 // read it (S4b item 5, K): { brewery, version } when readable at version 1
-// to 4 or BREWERY_VERSION (upgraded as loadBrewery says); { newer: version } for a
+// to 5 or BREWERY_VERSION (upgraded as loadBrewery says); { newer: version } for a
 // later version; otherwise {}. Throws on text that is not JSON.
 function readBreweryDocument(raw) {
   const doc = JSON.parse(raw);
   // A document without the brewery's figures (a recipe file, say) is not one.
   if (!doc || typeof doc !== 'object' || !('brewery' in doc)) return {};
   if (Number.isInteger(doc.version) && doc.version > BREWERY_VERSION) return { newer: doc.version };
-  if (![1, 2, 3, 4, BREWERY_VERSION].includes(doc.version)) return {};
+  if (![1, 2, 3, 4, 5, BREWERY_VERSION].includes(doc.version)) return {};
   const brewery = readBrewery(doc.brewery, doc.version);
   return brewery ? { brewery, version: doc.version } : {};
 }
@@ -475,23 +527,37 @@ function readBreweryDocument(raw) {
 /**
  * Write the brewery's figures as their own document under their own key; a
  * blank figure is written as null. The recipe's document is not touched.
- * Never throws.
+ * Returns whether it was kept (MI-S8). Never throws.
  */
 export function saveBrewery(storage, brewery) {
   try {
     storage.setItem(BREWERY_KEY, exportBreweryDocument(brewery));
+    return true;
   } catch {
     // Storage unavailable: behave as if there is none.
+    return false;
   }
 }
 
-/** "Forget my brewery figures": remove their document. Never throws. */
-export function clearBrewery(storage) {
+/**
+ * "Forget my brewery figures": every figure blank, and My ingredients kept
+ * (MI-Q14), read from the stored brewery (`onScreen` where none can be read).
+ * With no saved ingredients the document is removed. Returns the brewery
+ * after. Never throws.
+ */
+export function clearBrewery(storage, onScreen) {
+  const { ingredients } = loadBrewery(storage, onScreen);
+  const cleared = { ...emptyBreweryFigures(), ingredients };
+  if (ingredients.malts.length + ingredients.hops.length > 0) {
+    saveBrewery(storage, cleared);
+    return cleared;
+  }
   try {
     storage.removeItem(BREWERY_KEY);
   } catch {
     // Storage unavailable: nothing to clear.
   }
+  return cleared;
 }
 
 // Characters Windows rejects in a file name, and control characters.
@@ -589,11 +655,31 @@ export function breweryFileName(date) {
 
 const BREWERY_UNCHANGED = 'Your brewery figures are unchanged.';
 
+const savedCount = (brewery) => (brewery?.ingredients?.malts.length ?? 0) + (brewery?.ingredients?.hops.length ?? 0);
+const savedText = (n) => `${n} saved ingredient${n === 1 ? '' : 's'}`;
+
+/**
+ * The brewery import's one question (MI-S7', MI-Q13): it replaces the
+ * figures and My ingredients, and names how many of the brewer's saved
+ * ingredients go — all of them when the file has none (one saved before My
+ * ingredients, say).
+ */
+export function breweryImportQuestion(fileName, current, incoming) {
+  const question = `Replace your brewery's figures and My ingredients with those in "${fileName}"? The recipe on screen is unchanged.`;
+  const going = savedCount(current);
+  if (going === 0) return question;
+  const coming = savedCount(incoming);
+  return coming === 0
+    ? `${question} The file has none in My ingredients: your ${savedText(going)} will go.`
+    : `${question} Your ${savedText(going)} will be replaced by the file's ${coming}.`;
+}
+
 /**
  * Import a brewery file's text. Returns { outcome: 'replaced', brewery } when
- * readable and confirmed by `confirmReplace()`, { outcome: 'declined' } when
- * not confirmed, or { outcome: 'refused', message } — not a brewery file,
- * damaged, or newer — without asking. Never throws for any text.
+ * readable and confirmed by `confirmReplace(brewery)`, which is shown the
+ * file's brewery; { outcome: 'declined' } when not confirmed, or
+ * { outcome: 'refused', message } — not a brewery file, damaged, or newer —
+ * without asking. Never throws for any text.
  */
 export function importBreweryFile(text, confirmReplace) {
   let read;
@@ -616,6 +702,6 @@ export function importBreweryFile(text, confirmReplace) {
       message: `Not imported: this file is not a Brew Design brewery file, or it is damaged. ${BREWERY_UNCHANGED}`,
     };
   }
-  if (!confirmReplace()) return { outcome: 'declined' };
+  if (!confirmReplace(read.brewery)) return { outcome: 'declined' };
   return { outcome: 'replaced', brewery: read.brewery };
 }
