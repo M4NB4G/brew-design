@@ -3,8 +3,8 @@
 Status: agreed 2026-10-02 (RA-1 to RA-5, then AA-Q1 to AA-Q6, each "agree
 to all"); not started. Scheduled 2026-10-07 as batch S9, on its own
 (docs/ROADMAP.md, Sessions): agreed but never placed in a session until then.
-Before building, the owner answers RA-5 (his malt measurements before or after
-this item). Written by the S5 item 2
+RA-5 answered by the owner, 2026-10-07: his malt measurements come after this
+item; it is built on the model's figures as they stand. Written by the S5 item 2
 session. Built after batch S5b lands (AS-5, RA-3, `docs/items/mash-ph-acid.md`):
 it needs S5b's acid-side slope and, if chosen, acid into the mash.
 

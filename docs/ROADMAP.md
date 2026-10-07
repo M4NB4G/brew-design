@@ -27,7 +27,7 @@ carries its session.
 | S7 · Design tools | Inverse solver UI (target OG → grain bill) · Economics · Notes / methodology page | — |
 | F1 · Guard rails (Tier C and D; Sonnet 5.5 builds, Opus advises) | Tests on GitHub for every push · A linter · Every box has a name a screen reader reads (`docs/items/guard-rails.md`; agreed 2026-10-06, before S8, F-Q7) | — (a trial session writes no scope tables) |
 | S8 · My ingredients (Opus) | My ingredients (`docs/items/my-ingredients.md`; agreed 2026-10-07) | — |
-| S9 · Acid aimed at a mash pH (Opus) | Acid aimed at a mash pH (`docs/items/acid-aimed-at-mash-ph.md`; agreed 2026-10-02, never placed in a session until 2026-10-07; its format rows brought up to date the same day). Before building: the owner's answer on RA-5, whether his malt measurements come first | S11 |
+| S9 · Acid aimed at a mash pH (Opus) | Acid aimed at a mash pH (`docs/items/acid-aimed-at-mash-ph.md`; agreed 2026-10-02, never placed in a session until 2026-10-07; its format rows brought up to date the same day). RA-5: the owner's malt measurements come after this item (the owner, 2026-10-07) | S11 |
 | S10 · Wrong on screen (Tier C; Sonnet 5.5 builds, Opus advises) | Water Notes say mash pH is predicted · Liquid acid to 0.1 mL · Empty-fields line names each temperature beside its volume | — (a trial session writes no scope tables) |
 | S11 · Wrong numbers (Opus) | A new Pro recipe with the brewery's batch set · 15.6 °C typed is the reference · A Cost card with no price reads "—" | S12 and S13 |
 | S12 · Decisions owed (Opus) | Water volumes past their limits (A) · Costs per batch when the recipe scales · Solve with volumes measured hot | — |
