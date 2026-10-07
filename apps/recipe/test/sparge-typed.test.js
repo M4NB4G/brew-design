@@ -161,7 +161,7 @@ describe('sparge water typed', () => {
     expect('keptInTunGal' in loaded.recipe.water).toBe(false);
     expect(loaded.recipe.water.styleId).toBe('ipa');
     savePersisted(s, loaded);
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(11);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(12);
     expect(importRecipeFile(JSON.stringify(v5), { recipe: defaultRecipeState(), ...DEFAULT_DISPLAY }, () => true).outcome).toBe(
       'replaced',
     );

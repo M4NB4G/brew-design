@@ -49,14 +49,15 @@ pinned by the golden-master tests.
    The Water tab's entries are part of the recipe, its `water` field, saved
    and reset with it and read by no recipe figure: the test results in mg/L
    (pH in SU); the style family; the salts on hand and the brewer's own salt
-   and acid amounts (none while they follow the recommendation); where the
+   and acid amounts (none while they follow the recommendation); the target
+   mash pH the acid aims at (a cooled sample, 5.4 by default); where the
    water is treated (the mash water or the hot-liquor tank's first fill),
    whether salts also go in the kettle, where the acid goes with the tank
    treated (with the salts or into the mash), and the setup the water sums need —
    vessels, sparge method, the tank's treated volume and top-up level and
    the sparge water in US gal, grain absorption in qt/lb;
-   salts and acidulated malt in g, liquid acid in mL; a blank test result
-   or setup figure is NaN. The volume treated is the recipe's mash water or
+   salts and acidulated malt in g, liquid acid in mL; a blank test result,
+   setup figure or target is NaN. The volume treated is the recipe's mash water or
    the tank's treated volume; the sparge water is typed and the water left
    in the mash tun is worked out.
    Switching Home ↔ Pro asks whether to scale the recipe to that side's
@@ -95,7 +96,7 @@ pinned by the golden-master tests.
 10. `selectors.js` is the only place the app calls engine compute functions.
     The UI renders from `computeRecipe(state)`; tests assert through it.
     The Water tab renders from `computeWater(water, recipe)` beside it: every
-    water figure, including the solver's dose as the acid picked, how near
+    water figure, including the acid's dose as the acid picked, how near
     each predicted figure is to its target, the water volumes from the
     recipe (its grain, mash water and pre-boil volume at 60 °F), the
     hot-liquor tank's draws and the kettle salts, comes from the engine
@@ -112,10 +113,23 @@ pinned by the golden-master tests.
     naming each limit crossed when the water's residual alkalinity or the
     mash thickness is beyond the range the engine's model was tested on (the
     figure still shown); the tab names each blank malt figure it needs. The
-    printed sheet prints it, and that note, beside the measured mash pH box.
+    printed sheet prints it, the recipe's target and that note, beside the
+    measured mash pH box.
+    The acid recommended is the engine's dose that brings the predicted mash
+    pH to the recipe's target, for the water the mash draws before the acid —
+    the salts on screen, less the alkalinity-raising salt the style's
+    alkalinity recommends — dosed where the acid goes. Above the target
+    without that salt, no raising salt is recommended; at or below it, no
+    acid, and the raising salt follows the style's alkalinity. While the mash
+    pH cannot be predicted, the acid is the solver's for the style's
+    alkalinity, and a note names what the pH needs. A blank target blanks the
+    acid recommendation, and what reads it while the brewer follows it, and
+    the tab names it; changing the target returns the brewer's own acid to the
+    recommendation. The salts follow the style's mineral targets; its
+    alkalinity and residual alkalinity show as targets beside the profile.
     With the hot-liquor tank treated and the acid going into the mash, the
-    salts stay in the tank as before, the acid recommended is the solver's
-    dose for the recipe's mash water, the predicted profile and mash pH are
+    salts stay in the tank as before, the acid recommended is dosed for the
+    recipe's mash water, the predicted profile and mash pH are
     the water the mash draws — the tank's treated water with the acid over
     the mash water — and the sparge, the tank's leftover and the kettle carry
     no acid; the printed sheet names the acid's place, Mash or HLT.
@@ -150,7 +164,7 @@ pinned by the golden-master tests.
     only when the canonical state does, at the value that leaves every pinned
     number the same.
 13. Persisted state is the canonical state, under one key, in one JSON
-    document carrying a schema version (11). A version-1 document — saved
+    document carrying a schema version (12). A version-1 document — saved
     before the measurement temperatures existed — loads as the same recipe
     with the three at 60 °F; a version-1 or version-2 document — saved
     before the recipe had a name, style and notes — loads with those three
@@ -167,8 +181,9 @@ pinned by the golden-master tests.
     unit was a display setting — loads in °F; a version-1 to 9 document —
     saved before Pro's volume and malt weight choices — loads in barrels and
     pounds; a version-1 to 10 document — saved before prices — loads with
-    every price blank and no other cost lines; each is saved back as version
-    11. Unreadable data,
+    every price blank and no other cost lines; a version-1 to 11 document —
+    saved before the target mash pH — loads with the target 5.4; each is
+    saved back as version 12. Unreadable data,
     any other version, or unavailable storage yields a new recipe (rule 17) and never
     throws. A document is readable only if, after its upgrade, every malt,
     kettle-hop and dry-hop row and the yeast carry every field of the

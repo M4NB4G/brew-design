@@ -159,7 +159,7 @@ describe('measurement temperatures beside their volumes', () => {
     expect(d.refVolumesGal.ferment).toBe(correctVolumeToRef(12, 68));
     // The saved document is the canonical state, its temperatures in °F, at the same version.
     const doc = JSON.parse(exportRecipeDocument({ recipe: r, ...DEFAULT_DISPLAY }));
-    expect(doc.version).toBe(11);
+    expect(doc.version).toBe(12);
     expect(doc.recipe.measurementTempF).toEqual(TEMPS);
     expect(Object.keys(doc.recipe).sort()).toEqual(Object.keys(r).sort());
   });

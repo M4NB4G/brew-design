@@ -210,8 +210,8 @@ describe('yeast card', () => {
     savePersisted(s, state);
 
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(SCHEMA_VERSION).toBe(11);
-    expect(doc.version).toBe(11);
+    expect(SCHEMA_VERSION).toBe(12);
+    expect(doc.version).toBe(12);
     expect(doc.recipe.yeast).toEqual({ type: 'lager', density: 'high', name: 'Hausstamm Kölner ÄLE', fermTempF: 52.5, pricePerBatch: null });
     expect(loadPersisted(s, defaults())).toEqual(state);
     // The recipe file is the same document, and imports as the same recipe.
@@ -277,7 +277,7 @@ describe('yeast card', () => {
       expect(importRecipeFile(text, defaults(), () => true).state.recipe, `version ${version}`).toEqual(expected);
 
       savePersisted(s, loaded);
-      expect(JSON.parse(s._map.get(STORAGE_KEY)).version, `version ${version}`).toBe(11);
+      expect(JSON.parse(s._map.get(STORAGE_KEY)).version, `version ${version}`).toBe(12);
     }
   });
 

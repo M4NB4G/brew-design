@@ -17,6 +17,7 @@ import { defaultRecipeState } from '../src/state.js';
 import { computeRecipe, computeWater } from '../src/selectors.js';
 import { defaultWaterState } from '../src/water-state.js';
 import { recipeSheet } from '../src/components/recipe-sheet-data.js';
+import { sheetWithAimedAcid } from './acid-aim.js';
 
 const TODAY = new Date(2026, 9, 5);
 const BEFORE = JSON.parse(
@@ -150,7 +151,8 @@ describe('sparge water in the printed sheet\'s volumes', () => {
         const after = sheetOf(recipeWith({ spargeMethod: method }), mode);
         const before = JSON.parse(JSON.stringify(BEFORE[`${method}-${mode}`]));
         before.water.volumes = before.water.volumes.filter((v) => !v.label.startsWith('Sparge water'));
-        expect(withoutRow(after)).toEqual(before);
+        // Since the acid aimed at a mash pH: the acid's figures and the target (AA-S1, AA-S5).
+        expect(withoutRow(after)).toEqual(sheetWithAimedAcid(before, withoutRow(after)));
       }
     }
 

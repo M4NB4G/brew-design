@@ -43,6 +43,7 @@ import Header from '../src/components/Header.jsx';
 import * as f from './celsius-toggle.fixture.js';
 import { docWithBlankPrices } from './blank-prices.js';
 import { withoutBoxNames as noNames } from './box-names.fixture.js';
+import { docWithTarget, sheetWithAimedAcid } from './acid-aim.js';
 
 const BEFORE = JSON.parse(readFileSync(new URL('./celsius-toggle.before.json', import.meta.url), 'utf8'));
 
@@ -240,14 +241,14 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
 
   // CT-S5, C-Q1, PU-Q4
   it('the choice is saved and older documents read as °F', () => {
-    expect(SCHEMA_VERSION).toBe(11);
+    expect(SCHEMA_VERSION).toBe(12);
     expect(BREWERY_VERSION).toBe(6);
     expect(DEFAULT_DISPLAY.temperatureUnit).toBe('F');
 
     // Saved with the display settings, read back as saved.
     const r = defaultRecipeState();
     const doc = JSON.parse(exportRecipeDocument({ recipe: r, mode: 'pro', proGravityUnit: 'sg', temperatureUnit: 'C' }));
-    expect(doc.version).toBe(11);
+    expect(doc.version).toBe(12);
     expect(doc.temperatureUnit).toBe('C');
     const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(doc) });
     expect(loadPersisted(storage, defaults()).temperatureUnit).toBe('C');
@@ -305,7 +306,9 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
     const r = f.recipe();
     for (const mode of ['home', 'pro']) {
       expect(noNames(f.volumesHtml(r, mode, 'F')), `volumes ${mode}`).toBe(noNames(BEFORE[`volumes-${mode}`]));
-      expect(f.sheetData(r, mode, 'F'), `sheet ${mode}`).toEqual(BEFORE[`sheet-data-${mode}`]);
+      // Since the acid aimed at a mash pH: the acid's figures and the target (AA-S1, AA-S5).
+      const sheet = f.sheetData(r, mode, 'F');
+      expect(sheet, `sheet ${mode}`).toEqual(sheetWithAimedAcid(BEFORE[`sheet-data-${mode}`], sheet));
     }
     expect(noNames(f.hopsHtml(r, 'home', 'F'))).toBe(noNames(BEFORE.hops));
     expect(noNames(f.yeastHtml(r, 'F'))).toBe(noNames(BEFORE.yeast));
@@ -315,7 +318,8 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
     const before = JSON.parse(BEFORE['recipe-document']);
     const after = JSON.parse(exportRecipeDocument({ recipe: r, mode: 'home', proGravityUnit: 'plato', temperatureUnit: 'F' }));
     // Since cost of a batch: version 11, with blank prices (economics EC-S3).
-    expect(after).toEqual({ ...before, version: 11, recipe: docWithBlankPrices(before.recipe), temperatureUnit: 'F', proVolumeUnit: 'bbl', proMaltUnit: 'lb' });
+    // Since the acid aimed at a mash pH: version 12, with the target 5.4 (AA-Q4).
+    expect(after).toEqual({ ...before, version: 12, recipe: docWithTarget(docWithBlankPrices(before.recipe)), temperatureUnit: 'F', proVolumeUnit: 'bbl', proMaltUnit: 'lb' });
     const bBefore = JSON.parse(BEFORE['brewery-document']);
     const bAfter = JSON.parse(exportBreweryDocument({ ...f.brewery(), temperatureUnit: null }));
     // Since My ingredients: version 6, with none saved (MI-Q8').

@@ -21,6 +21,7 @@ import {
   ACIDS,
   findStyle,
   solveAdditions,
+  acidForMashPh,
   predictFinalProfile,
   saltTotals,
   applyAcids,
@@ -326,8 +327,72 @@ export function computeWater(water, recipe) {
         })
       : null;
 
+  // Where the acid goes and the water it is dosed for (S5b item C, AM-S2):
+  // into the mash, the recipe's mash water; with the salts, the treated
+  // water. The mash draws the same concentration either way.
+  const acidInMash = setup.acidPlace === 'mash';
+  const acidGal = acidInMash ? mashWaterGal : vol;
+  const acidDosable = !!recommendation && entered(acidGal) && acidGal > 0;
+
+  // The malt figures the predicted mash pH needs (MP-S5), named on the tab.
+  const mashPhNeeds = [];
+  recipe.malts.forEach((m, i) => {
+    if (m.type === 'none') return;
+    const malt = String(m.name ?? '').trim() || `Malt ${i + 1}`;
+    if (!MALT_TYPES.includes(m.type)) mashPhNeeds.push({ malt, field: 'type' });
+    if (!entered(m.weightLb)) mashPhNeeds.push({ malt, field: 'weightLb' });
+    // A base or crystal malt's colour, unless a measured figure stands in for
+    // its type's rule; roast and acidulated malts do not read it.
+    const colourRead =
+      (m.type === 'base' && !entered(m.distilledWaterPh)) || (m.type === 'crystal' && !entered(m.acidityMeqPerKg));
+    if (colourRead && !entered(m.colorL)) mashPhNeeds.push({ malt, field: 'colorL' });
+  });
+
+  // The acid aimed at the recipe's target mash pH
+  // (docs/items/acid-aimed-at-mash-ph.md): the engine's dose that brings the
+  // predicted mash pH to the target (AA-S1), for the water the mash draws
+  // before the acid — the salts on screen, less the alkalinity-raising salt
+  // the style's alkalinity recommends — dosed where the acid goes. Above the
+  // target without it, the acid aims and no raising salt is recommended
+  // (AA-Q7); at or below, no acid, and the raising salt follows the style
+  // (AA-Q3). A blank target blanks the acid (AA-S2).
+  const solverSalts = recommendation ? saltTotals(recommendation.additions) : {};
+  const withoutRaise = Object.fromEntries(Object.entries(solverSalts).filter(([k]) => k !== water.raiseAlkSource));
+  const targetPh = water.mashPhTarget;
+  const targetBlank = !entered(targetPh);
+  const aimed =
+    acidDosable && !targetBlank
+      ? acidForMashPh({
+          malts: recipe.malts,
+          mashWaterGal,
+          water: predictFinalProfile({
+            source: s,
+            additions: { ...withoutRaise, ...overrides },
+            acids: {},
+            volumeGallons: vol,
+          }),
+          targetPh,
+          volumeGallons: acidGal,
+        })
+      : null;
+  // AA-Q1: the mash pH cannot be predicted: the solver's acid for the
+  // style's alkalinity, as before; into the mash, for the mash water (AM-S2).
+  const styleAcid =
+    !acidDosable || targetBlank || aimed
+      ? null
+      : acidInMash
+        ? solveAdditions({
+            source: s,
+            target,
+            volumeGallons: mashWaterGal,
+            raiseAlkSource: water.raiseAlkSource,
+            enabledSalts: new Set(water.enabledSalts),
+          })
+        : recommendation;
+  const acidAcids = aimed ? aimed.acids : styleAcid ? styleAcid.acids : null;
+
   // Salts: the recommendation per salt, the brewer's own amounts over it.
-  const recommendedSalts = recommendation ? saltTotals(recommendation.additions) : {};
+  const recommendedSalts = aimed && Object.keys(aimed.acids).length > 0 ? withoutRaise : solverSalts;
   const effectiveSalts = { ...recommendedSalts, ...overrides };
   const recommendedOf = (k) => (recommendation ? recommendedSalts[k] ?? 0 : NaN);
   const saltRow = (k) => ({
@@ -349,27 +414,14 @@ export function computeWater(water, recipe) {
     }));
   const raiseSalt = saltRow(water.raiseAlkSource);
 
-  // Acid: the solver's dose (88 % lactic) as the acid picked, same mEq.
-  // Into the mash (S5b item C, AM-S2): the solver's dose for the recipe's
-  // mash water instead of the tank's volume — the same water, so the same
-  // alkalinity to take out — with the salts in the tank as before.
-  const acidInMash = setup.acidPlace === 'mash';
-  const acidGal = acidInMash ? mashWaterGal : vol;
-  const acidRecommendation = !acidInMash
-    ? recommendation
-    : recommendation && entered(mashWaterGal) && mashWaterGal > 0
-      ? solveAdditions({
-          source: s,
-          target,
-          volumeGallons: mashWaterGal,
-          raiseAlkSource: water.raiseAlkSource,
-          enabledSalts: new Set(water.enabledSalts),
-        })
-      : null;
-  const recommendedMeq = acidRecommendation ? applyAcids(acidRecommendation.acids, acidGal).total_meq : NaN;
-  const equivalent = acidRecommendation ? equivalentAcidDose(acidRecommendation.acids, primary) : NaN;
+  // Acid: the dose (88 % lactic) as the acid picked, same mEq.
+  const recommendedMeq = acidAcids ? applyAcids(acidAcids, acidGal).total_meq : NaN;
+  const equivalent = acidAcids ? equivalentAcidDose(acidAcids, primary) : NaN;
   const expected = { ...Object.fromEntries(ACID_KEYS.map((k) => [k, 0])), [primary]: equivalent };
   const amounts = water.acidAmounts ?? expected;
+  // The acid in the water is known: the brewer's own, or a recommendation
+  // that is not blank (AA-S2).
+  const acidKnown = acidDosable && (water.acidAmounts !== null || acidAcids !== null);
   const meqOf = (k, amount) => (Number.isNaN(amount) ? NaN : acidContribution(k, amount));
   const acid = {
     primary,
@@ -377,7 +429,17 @@ export function computeWater(water, recipe) {
     amounts,
     recommendedMeq,
     recommended: equivalent,
-    totals: acidRecommendation ? applyAcids(amounts, acidGal) : { total_meq: NaN, ppm_alk_reduced: NaN },
+    // What the recommendation aims at: 'target' (the recipe's target mash
+    // pH), 'style' (the style's alkalinity, the pH not predicted: AA-Q1), or
+    // null while there is none.
+    aimedAt: aimed ? 'target' : styleAcid ? 'style' : null,
+    target: targetPh,
+    targetBlank,
+    // AA-Q1: the figures the predicted mash pH needs, named with the style's aim.
+    styleBecause: styleAcid
+      ? [...mashPhNeeds, ...(entered(mashWaterGal) ? [] : [{ malt: null, field: 'mashWaterGal' }])]
+      : [],
+    totals: acidKnown ? applyAcids(amounts, acidGal) : { total_meq: NaN, ppm_alk_reduced: NaN },
     rows: ACID_KEYS.map((k) => {
       const amount = amounts[k] ?? 0;
       const recommended = k === primary ? equivalent : 0;
@@ -402,7 +464,7 @@ export function computeWater(water, recipe) {
   // water the mash draws — the tank's water with its salts, then the acid
   // over the mash water. None without a volume to dose the acid for.
   let final = null;
-  if (recommendation && acidRecommendation) {
+  if (recommendation && acidKnown) {
     let ions;
     if (acidInMash) {
       const tankIons = predictFinalProfile({ source: s, additions: effectiveSalts, acids: {}, volumeGallons: vol });
@@ -434,18 +496,6 @@ export function computeWater(water, recipe) {
     };
   }
 
-  const mashPhNeeds = [];
-  recipe.malts.forEach((m, i) => {
-    if (m.type === 'none') return;
-    const malt = String(m.name ?? '').trim() || `Malt ${i + 1}`;
-    if (!MALT_TYPES.includes(m.type)) mashPhNeeds.push({ malt, field: 'type' });
-    if (!entered(m.weightLb)) mashPhNeeds.push({ malt, field: 'weightLb' });
-    // A base or crystal malt's colour, unless a measured figure stands in for
-    // its type's rule; roast and acidulated malts do not read it.
-    const colourRead =
-      (m.type === 'base' && !entered(m.distilledWaterPh)) || (m.type === 'crystal' && !entered(m.acidityMeqPerKg));
-    if (colourRead && !entered(m.colorL)) mashPhNeeds.push({ malt, field: 'colorL' });
-  });
   const predictedMashPh = final ? mashPh({ malts: recipe.malts, mashWaterGal, water: final.ions }) : NaN;
   const mashPhFigures = {
     ph: predictedMashPh,

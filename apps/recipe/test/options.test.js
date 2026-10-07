@@ -223,7 +223,7 @@ describe('options page', () => {
     savePersisted(s, { recipe, mode: 'home', proGravityUnit: 'plato' });
 
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(11);
+    expect(doc.version).toBe(12);
     expect(doc.recipe.measurementTempF.preBoil).toBe(170);
     expect(doc.recipe.measurementTempF.ferment).toBe(60);
     expect('postBoil' in doc.recipe.measurementTempF).toBe(true);
@@ -261,7 +261,7 @@ describe('options page', () => {
     expect(loaded.proGravityUnit).toBe('sg');
 
     savePersisted(s, loaded);
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(11);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(12);
   });
 
   // S6

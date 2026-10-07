@@ -45,6 +45,7 @@ import * as f from './pro-unit-choices.fixture.js';
 import { withoutTargetOgDesign } from './inverse-solver.fixture.js';
 import { docWithBlankPrices } from './blank-prices.js';
 import { withoutBoxNames as noNames } from './box-names.fixture.js';
+import { docWithTarget, sheetWithAimedAcid, withoutAcidCards } from './acid-aim.js';
 
 const BEFORE = JSON.parse(readFileSync(new URL('./pro-unit-choices.before.json', import.meta.url), 'utf8'));
 
@@ -206,17 +207,18 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     // The brewery's barrels and pounds over a screen in gallons and sacks:
     // the sheet as before.
     const back = f.sheetData(r, 'pro', { proVolumeUnit: 'gal', proMaltUnit: 'sack' }, brewery(BBL_LB));
-    expect(back).toEqual(BEFORE['sheet-data-pro']);
+    expect(back).toEqual(sheetWithAimedAcid(BEFORE['sheet-data-pro'], back));
 
     // Home prints gallons and pounds, whatever the brewery's Pro choices.
-    expect(f.sheetData(r, 'home', BBL_LB, brewery({ proVolumeUnit: 'bbl', proMaltUnit: 'sack' }))).toEqual(
-      BEFORE['sheet-data-home'],
+    const homeSheet = f.sheetData(r, 'home', BBL_LB, brewery({ proVolumeUnit: 'bbl', proMaltUnit: 'sack' }));
+    expect(homeSheet).toEqual(
+      sheetWithAimedAcid(BEFORE['sheet-data-home'], homeSheet),
     );
   });
 
   // PU-S5, PU-Q4
   it('the choices are saved and older documents read as barrels and pounds', () => {
-    expect(SCHEMA_VERSION).toBe(11);
+    expect(SCHEMA_VERSION).toBe(12);
     expect(BREWERY_VERSION).toBe(6);
     expect(DEFAULT_DISPLAY.proVolumeUnit).toBe('bbl');
     expect(DEFAULT_DISPLAY.proMaltUnit).toBe('lb');
@@ -224,7 +226,7 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     const r = defaultRecipeState();
     const state = { recipe: r, mode: 'pro', proGravityUnit: 'sg', temperatureUnit: 'C', proVolumeUnit: 'gal', proMaltUnit: 'sack' };
     const doc = JSON.parse(exportRecipeDocument(state));
-    expect(doc.version).toBe(11);
+    expect(doc.version).toBe(12);
     expect(doc.proVolumeUnit).toBe('gal');
     expect(doc.proMaltUnit).toBe('sack');
     const loaded = loadPersisted(memoryStorage({ [STORAGE_KEY]: JSON.stringify(doc) }), defaults());
@@ -287,10 +289,13 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
       for (const mode of ['home', 'pro']) {
         expect(noNames(f.volumesHtml(r, mode, units)), `volumes ${mode}`).toBe(noNames(BEFORE[`volumes-${mode}`]));
         expect(noNames(withoutTargetOgDesign(f.gristHtml(r, mode, units))), `grist ${mode}`).toBe(noNames(BEFORE[`grist-${mode}`]));
-        expect(f.sheetData(r, mode, units), `sheet ${mode}`).toEqual(BEFORE[`sheet-data-${mode}`]);
+        // Since the acid aimed at a mash pH: the acid's figures and the target (AA-S1, AA-S5).
+        const sheet = f.sheetData(r, mode, units);
+        expect(sheet, `sheet ${mode}`).toEqual(sheetWithAimedAcid(BEFORE[`sheet-data-${mode}`], sheet));
       }
       expect(noNames(f.hopsHtml(r, 'pro', units))).toBe(noNames(BEFORE.hops));
-      expect(noNames(f.waterHtml(r, 'pro', units))).toBe(noNames(BEFORE.water));
+      // Since the acid aimed at a mash pH: all but the acid's and the predicted profile's cards (AA-S1).
+      expect(noNames(withoutAcidCards(f.waterHtml(r, 'pro', units)))).toBe(noNames(withoutAcidCards(BEFORE.water)));
       expect(noNames(withoutMyIngredients(withoutNewChoices(f.optionsHtml(f.brewery(), 'pro', units))))).toBe(noNames(BEFORE.options));
     }
 
@@ -298,7 +303,8 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     const before = JSON.parse(BEFORE['recipe-document']);
     const after = JSON.parse(exportRecipeDocument({ recipe: r, mode: 'pro', proGravityUnit: 'plato', temperatureUnit: 'F', ...BBL_LB }));
     // Since cost of a batch: version 11, with blank prices (economics EC-S3).
-    expect(after).toEqual({ ...before, version: 11, recipe: docWithBlankPrices(before.recipe), ...BBL_LB });
+    // Since the acid aimed at a mash pH: version 12, with the target 5.4 (AA-Q4).
+    expect(after).toEqual({ ...before, version: 12, recipe: docWithTarget(docWithBlankPrices(before.recipe)), ...BBL_LB });
     const bBefore = JSON.parse(BEFORE['brewery-document']);
     const bAfter = JSON.parse(exportBreweryDocument({ ...f.brewery(), proVolumeUnit: null, proMaltUnit: null }));
     // Since My ingredients: version 6, with none saved (MI-Q8').

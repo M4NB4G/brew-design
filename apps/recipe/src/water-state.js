@@ -12,7 +12,7 @@
 // kettle as a switch on either, and the brewery setup the sums need. The
 // treated volume comes from the recipe or the tank; the typed volume is gone
 // (WT-S8).
-import { SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS, GRAIN_ABSORPTION_QT_PER_LB } from '@brew/engine';
+import { SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS, GRAIN_ABSORPTION_QT_PER_LB, MASH_PH_TARGET } from '@brew/engine';
 
 // The water test report's rows, in its order (Brew Water Chem, WaterInTab.jsx).
 export const TEST_RESULT_KEYS = ['Ca', 'Mg', 'Na', 'SO4', 'Cl', 'Alkalinity', 'pH'];
@@ -50,6 +50,9 @@ export function defaultWaterState() {
     acidAmounts: null,
     primaryAcid: 'lactic_88',
     multiAcid: false,
+    // The mash pH the acid aims at, a cooled sample (AA-S2): the engine's
+    // default, the middle of the cooled-sample range.
+    mashPhTarget: MASH_PH_TARGET,
     treatment: 'mash',
     // The acid with the salts (AM-Q3).
     acidPlace: 'salts',
@@ -139,6 +142,12 @@ export function mashWaterChanged(water) {
   const setup = effectiveSetup(water);
   if (setup.treatment === 'mash') return toRecommendation(water);
   return setup.acidPlace === 'mash' ? { ...water, acidAmounts: null } : water;
+}
+
+// The target mash pH moves the acid recommendation: the brewer's own acid
+// returns to it, the brewer's salts stay (AA-S4).
+export function setMashPhTarget(water, mashPhTarget) {
+  return { ...water, mashPhTarget, acidAmounts: null };
 }
 
 export function setRaiseAlkSource(water, raiseAlkSource) {

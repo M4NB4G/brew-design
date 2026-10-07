@@ -7,6 +7,13 @@ export function num(value, digits = 2) {
   return Number(value).toFixed(digits);
 }
 
+// A figure to at most `digits` decimals, without trailing zeros: a target
+// mash pH typed 5.4 shows "5.4", typed 5.35 "5.35".
+export function trimmed(value, digits = 2) {
+  if (value === null || value === undefined || Number.isNaN(value)) return '—';
+  return String(Number(Number(value).toFixed(digits)));
+}
+
 // Gravity is shown to 3 decimals as SG (1.062) and 2 as Plato (15.21).
 export function gravity(value, gravityUnit) {
   return gravityUnit === 'plato' ? num(value, 2) : num(value, 3);

@@ -174,7 +174,7 @@ export default function RecipeSheet({
 
       {/* Water treatment: where each addition goes, the water volumes, the
           treated water against the style target, the measured mash pH
-          box with the predicted mash pH beside it */}
+          box with the predicted mash pH and its target beside it */}
       {s.water && (
         <Section>
           <Heading>Water Treatment</Heading>
@@ -207,6 +207,7 @@ export default function RecipeSheet({
               <div>
                 <div style={mashPhLine}>{s.water.mashPhLabel}</div>
                 <div style={mashPhLine}>predicted {s.water.mashPhPredicted}</div>
+                <div style={mashPhLine}>target {s.water.mashPhTarget}</div>
               </div>
               <MeasuredBox />
             </div>

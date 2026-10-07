@@ -40,6 +40,7 @@ import { emptyFields, emptyFieldsLine } from '../src/empty-fields.js';
 import { newRow, pickIngredient } from '../src/ingredient-search.js';
 import * as f from './economics.fixture.js';
 import { withoutBoxNames as noNames } from './box-names.fixture.js';
+import { docWithTarget, sheetWithAimedAcid } from './acid-aim.js';
 
 const BEFORE = JSON.parse(readFileSync(new URL('./economics.before.json', import.meta.url), 'utf8'));
 const computeCost = (...a) => selectors.computeCost(...a);
@@ -204,11 +205,11 @@ describe('cost of a batch', () => {
 
   // EC-S3, K
   it('prices are saved and older documents read blank', () => {
-    expect(SCHEMA_VERSION).toBe(11);
+    expect(SCHEMA_VERSION).toBe(12);
     const r = priced();
     const s = memoryStorage();
     savePersisted(s, { recipe: r, ...DEFAULT_DISPLAY });
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(11);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(12);
     const back = loadPersisted(s, { recipe: defaultRecipeState(), ...DEFAULT_DISPLAY });
     expect(back.recipe).toEqual(r);
     // A blank price round-trips as blank.
@@ -284,8 +285,10 @@ describe('cost of a batch', () => {
     expect(noNames(f.recipeTabHtml(r, 'pro', sack))).toEqual(noNames(BEFORE['recipe-tab-pro']));
     // The printed sheet as before, with no cost on it.
     const sheet = JSON.parse(JSON.stringify(f.sheetData(r, 'home')));
-    expect(sheet).toEqual(BEFORE['sheet-home']);
-    expect(JSON.parse(JSON.stringify(f.sheetData(r, 'pro', sack)))).toEqual(BEFORE['sheet-pro']);
+    // Since the acid aimed at a mash pH: the acid's figures and the target (AA-S1, AA-S5).
+    expect(sheet).toEqual(sheetWithAimedAcid(BEFORE['sheet-home'], sheet));
+    const proSheet = JSON.parse(JSON.stringify(f.sheetData(r, 'pro', sack)));
+    expect(proSheet).toEqual(sheetWithAimedAcid(BEFORE['sheet-pro'], proSheet));
     expect(JSON.stringify(sheet)).not.toContain('$');
     // Every recipe figure as before.
     const plain = f.recipe();
@@ -293,14 +296,15 @@ describe('cost of a batch', () => {
     expect(strip(computeRecipe(r))).toEqual(strip(computeRecipe(plain)));
     // A blank price is not named under the stats bar.
     expect(emptyFieldsLine(emptyFields(plain, computeRecipe(plain)))).toBeNull();
-    // The saved document: as before, at version 11, with blank prices and no other lines.
+    // The saved document: as before, at version 11, with blank prices and no other lines;
+    // since the acid aimed at a mash pH, version 12 with the target 5.4 (AA-Q4).
     const before = JSON.parse(BEFORE.document);
     const after = JSON.parse(exportRecipeDocument({ recipe: plain, ...DEFAULT_DISPLAY }));
     expect(after).toEqual({
       ...before,
-      version: 11,
+      version: 12,
       recipe: {
-        ...before.recipe,
+        ...docWithTarget(before.recipe),
         malts: before.recipe.malts.map((m) => ({ ...m, pricePerLb: null })),
         kettleAdditions: before.recipe.kettleAdditions.map((a) => ({ ...a, pricePerOz: null })),
         dryHops: before.recipe.dryHops.map((d) => ({ ...d, pricePerOz: null })),

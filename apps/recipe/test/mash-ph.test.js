@@ -280,10 +280,10 @@ describe('mash pH from the grain bill (item 2)', () => {
     expect(tab(loaded.recipe, 'water')).toContain(`Malt type (${old.malts[0].name})`);
 
     // Saved back at the current version, carrying the blank types.
-    expect(SCHEMA_VERSION).toBe(11);
+    expect(SCHEMA_VERSION).toBe(12);
     savePersisted(s, loaded);
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(11);
+    expect(doc.version).toBe(12);
     expect(doc.recipe.malts[0].type).toBe('');
     expect(loadPersisted(s, defaults()).recipe.malts[0].type).toBe('');
 
@@ -334,9 +334,18 @@ describe('mash pH from the grain bill (item 2)', () => {
       malts: typed.malts.map((m) => ({ ...m, type: '', distilledWaterPh: 5.5, acidityMeqPerKg: 99 })),
     };
     expect(computeRecipe(untyped)).toEqual(computeRecipe(typed));
-    const { mashPh: a, ...restTyped } = computeWater(typed.water, typed);
-    const { mashPh: b, ...restUntyped } = computeWater(untyped.water, untyped);
+    // Since the acid aimed at a mash pH (AA-S1, AA-Q1) the types also move
+    // the acid's recommendation, which reads the predicted pH: with the
+    // brewer's own acid, nothing else moves.
+    const own = (r, amounts) => ({ ...r, water: { ...r.water, acidAmounts: amounts } });
+    const amounts = computeWater(typed.water, typed).acid.amounts;
+    const ownTyped = own(typed, amounts);
+    const ownUntyped = own(untyped, amounts);
+    const { mashPh: a, acid: acidA, ...restTyped } = computeWater(ownTyped.water, ownTyped);
+    const { mashPh: b, acid: acidB, ...restUntyped } = computeWater(ownUntyped.water, ownUntyped);
     expect(restUntyped).toEqual(restTyped);
+    expect(acidB.amounts).toEqual(acidA.amounts);
+    expect(acidB.totals).toEqual(acidA.totals);
     expect(a.ph).not.toBe(b.ph);
 
     // The built-in recipe's malts are base malts (MP-Q2 names pale and

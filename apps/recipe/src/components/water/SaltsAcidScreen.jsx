@@ -22,9 +22,17 @@
 // mash pH of a cooled sample at the top of the predicted profile card, the
 // model cited beside it, with a warning outside the cooled-sample range
 // (MP-Q10) and when acidulated malt is counted twice (MP-Q5).
+//
+// The acid aimed at a mash pH (docs/items/acid-aimed-at-mash-ph.md): the
+// recipe's target mash pH is a box on the Acid card, the dose says what it
+// aims at, and beside the predicted mash pH the target shows as the other
+// figures' targets do (AA-S1, AA-S2); a note says when the acid falls back to
+// the style's alkalinity and why (AA-Q1).
 import { useEffect, useState } from 'react';
 import { SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS, MASH_PH_RANGE } from '@brew/engine';
 import { testedRangeNote } from './tested-range-note.js';
+import { mashPhNeedLabel } from './mash-ph-needs.js';
+import NumberField from '../NumberField.jsx';
 import Card from '../shared/Card.jsx';
 import StatBox from '../shared/StatBox.jsx';
 import { colors, radii, tokens } from '../shared/styles.js';
@@ -44,7 +52,7 @@ import {
   acidMaltFromCanonical,
   acidMaltToCanonical,
 } from '../../display.js';
-import { num } from '../../format.js';
+import { num, trimmed } from '../../format.js';
 import {
   setRaiseAlkSource,
   toggleSaltOnHand,
@@ -52,6 +60,7 @@ import {
   setAcidAmount,
   setPrimaryAcid,
   setMultiAcid,
+  setMashPhTarget,
   resetToRecommended,
 } from '../../water-state.js';
 
@@ -158,11 +167,19 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
   const onSetPrimaryAcid = (key) => setWater((w) => setPrimaryAcid(w, acid.amounts, key));
   const onChangeAcid = (key) => (v) => setWater((w) => setAcidAmount(w, acid.amounts, key, v));
 
+  const aimedAtTarget = acid.aimedAt === 'target';
+  const targetText = trimmed(acid.target, 2);
+  const neutralize = `${num(acid.totals.ppm_alk_reduced, 0)} mg/L alkalinity (${num(acid.totals.total_meq, 1)} mEq total)`;
   const singleReason = Number.isNaN(acid.recommendedMeq)
     ? '—'
     : acid.recommendedMeq > 0
-      ? `Neutralize ${num(acid.totals.ppm_alk_reduced, 0)} mg/L alkalinity (${num(acid.totals.total_meq, 1)} mEq total)`
-      : 'No acid required by solver — adjust if desired.';
+      ? aimedAtTarget
+        ? `To a mash pH of ${targetText}: neutralize ${neutralize}`
+        : `Neutralize ${neutralize}`
+      : aimedAtTarget
+        ? `No acid: the predicted mash pH is at or below ${targetText} without it.`
+        : 'No acid required by solver — adjust if desired.';
+  const styleBecause = acid.styleBecause.map(mashPhNeedLabel).join(', ');
 
   const MATCH = { near: colors.matchNear, off: colors.matchOff, far: colors.matchFar };
   const tileStyle = (match) => ({ fontSize: '1.6rem', color: match ? MATCH[match] : colors.textPrimary });
@@ -271,6 +288,21 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
               </label>
             </div>
 
+            <div style={editableRowStyle}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={recipeNameStyle}>Target mash pH (cooled sample)</div>
+                <div style={recipeReasonStyle}>The acid brings the predicted mash pH to it.</div>
+              </div>
+              <NumberField
+                aria-label="Target mash pH (cooled sample)"
+                value={water.mashPhTarget}
+                step="0.01"
+                min="0"
+                onChange={(v) => setWater((w) => setMashPhTarget(w, v))}
+                style={{ width: '90px' }}
+              />
+            </div>
+
             {!acid.multi ? (
               <AcidRow
                 row={primaryRow}
@@ -306,6 +338,13 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
                   −{num(acid.totals.ppm_alk_reduced, 0)} ppm Alk
                 </div>
               </>
+            )}
+
+            {acid.aimedAt === 'style' && (
+              <p role="status" style={tokens.warning}>
+                Aimed at the style's alkalinity: the predicted mash pH{' '}
+                {styleBecause ? `needs ${styleBecause}` : 'cannot be worked out'}.
+              </p>
             )}
 
             <p style={tokens.notice}>
@@ -390,7 +429,7 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
             </p>
 
             <div style={{ ...tokens.statGrid, marginBottom: '0.5rem' }}>
-              <StatBox value={num(mashPh.ph, 1)} label="Predicted mash pH (cooled sample)" />
+              <StatBox value={num(mashPh.ph, 1)} label="Predicted mash pH (cooled sample)" sublabel={`tgt ${targetText}`} />
             </div>
             {mashPh.outsideRange && (
               <p role="status" style={tokens.warning}>

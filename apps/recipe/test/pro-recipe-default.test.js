@@ -240,7 +240,7 @@ describe('scale the recipe when switching Home and Pro', () => {
     const doc = JSON.parse(exportRecipeDocument({ ...state, ...yes }));
     const was = JSON.parse(before);
     expect(doc.version).toBe(SCHEMA_VERSION);
-    expect(SCHEMA_VERSION).toBe(11);
+    expect(SCHEMA_VERSION).toBe(12);
     expect(Object.keys(doc)).toEqual(Object.keys(was));
     expect(Object.keys(doc.recipe)).toEqual(Object.keys(was.recipe));
     expect(Object.keys(doc.recipe.water)).toEqual(Object.keys(was.recipe.water));

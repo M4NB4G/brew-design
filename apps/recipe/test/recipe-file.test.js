@@ -105,7 +105,7 @@ describe('recipe file', () => {
       expect(file).toBe(s._map.get(STORAGE_KEY));
       const doc = JSON.parse(file);
       expect(doc.version).toBe(SCHEMA_VERSION);
-      expect(doc.version).toBe(11);
+      expect(doc.version).toBe(12);
       expect(doc.mode).toBe(state.mode);
       expect(doc.proGravityUnit).toBe(state.proGravityUnit);
       expect(doc.recipe.name).toBe(state.recipe.name);

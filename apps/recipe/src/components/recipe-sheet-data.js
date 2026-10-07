@@ -41,7 +41,7 @@ import {
   acidMaltUnit,
   acidMaltFromCanonical,
 } from '../display.js';
-import { num, gravity } from '../format.js';
+import { num, gravity, trimmed } from '../format.js';
 import { TEST_RESULT_KEYS } from '../water-state.js';
 import {
   TREATMENT_LABELS,
@@ -239,7 +239,7 @@ export function recipeSheet({
 // the screen's units and precision (salts 0.1 g Home, 1 g Pro; liquid acid
 // whole mL; acidulated malt 0.01 oz or lb), only what goes in (P5); the water
 // volumes; the style target and the treated water's predicted profile; and a
-// box for the measured mash pH (P3), the predicted mash pH beside it (mash
+// box for the measured mash pH (P3), the target and the predicted mash pH beside it (mash
 // pH, MP-S6). `water` is computeWater's output, the
 // figures the Water tab shows: nothing here is computed. No water entries —
 // no test result entered and no amount of the brewer's own — print no
@@ -327,6 +327,8 @@ function waterSection(water, mode, vol, vUnit) {
     // line; the figure to one decimal.
     mashPhLabel: 'Mash pH (cooled sample),',
     mashPhPredicted: num(water.mashPh.ph, 1),
+    // AA-S5: the target the acid aims at, as typed (to 0.01).
+    mashPhTarget: trimmed(water.acid.target, 2),
     // TR-S2: the Water tab's tested-range note, or null.
     mashPhNote: testedRangeNote(water.mashPh.testedRange),
     // HL-S2: the acronym spelled out on the sheet, with the HLT treated.

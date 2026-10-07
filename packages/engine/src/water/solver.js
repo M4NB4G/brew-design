@@ -24,6 +24,7 @@
 import { SALT_CONTRIBUTIONS_PER_G_GAL, HCO3_TO_CACO3 } from './salts.js';
 import { acidCapacity, applyAcids } from './acids.js';
 import { LITERS_PER_GALLON } from '../units.js';
+import { alkalinityForMashPh } from './mash-ph.js';
 
 // TODO(v1.2): make the recommended acid configurable from a settings page.
 // For v1.1 the solver always recommends 88% lactic. Multi-acid blends are a
@@ -340,6 +341,37 @@ export function solveAdditions({ source, target, volumeGallons, raiseAlkSource, 
   }
 
   return { additions, acids, finalIons: current };
+}
+
+/**
+ * The acid aimed at a mash pH (docs/items/acid-aimed-at-mash-ph.md, AA-S1):
+ * the dose that brings the predicted mash pH (mashPh) to targetPh, as the
+ * solver's own acid step doses it (88 % lactic, the alkalinity to take out
+ * over the volume dosed), with the alkalinity the target needs from the model
+ * in place of the style's.
+ *
+ * @param {object} p
+ * @param {Array} p.malts, p.mashWaterGal  as mashPh takes them
+ * @param {{Ca, Mg, Alk}} p.water  the water the mash draws, before the acid (mg/L)
+ * @param {number} p.targetPh
+ * @param {number} p.volumeGallons  the water the acid is dosed into, US gal;
+ *   the mash draws the same concentration
+ * @returns {{ acids: { [acidKey]: amount } } | null}
+ *   acids {} when the mash reads the target or below it without acid
+ *   (AA-Q3); null when the pH cannot be predicted, the target is blank or
+ *   there is no volume to dose.
+ */
+export function acidForMashPh({ malts, mashWaterGal, water, targetPh, volumeGallons }) {
+  const alk = alkalinityForMashPh({ malts, mashWaterGal, water, targetPh });
+  if (!Number.isFinite(alk) || !Number.isFinite(water?.Alk) || !(volumeGallons > 0)) return null;
+  const acids = {};
+  const ppmToReduce = water.Alk - alk;
+  if (ppmToReduce > 0) {
+    const liters = volumeGallons * LITERS_PER_GALLON;
+    const totalMeq = (ppmToReduce / 50.04) * liters;
+    acids[SOLVER_ACID_KEY] = totalMeq / acidCapacity(SOLVER_ACID_KEY);
+  }
+  return { acids };
 }
 
 /**

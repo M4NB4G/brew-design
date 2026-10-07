@@ -40,11 +40,17 @@ const SRC = join(APP, 'src');
 // is treated by default and the volume is the recipe's mash water. Here the
 // water app's volume (`volumeGal`, 5 gal unless given) is typed as the
 // recipe's mash water, on the built-in treatment and setup.
+// The acid aimed at a mash pH (AA-S1, AA-Q1): the water app knew no grain
+// bill, so its acid is the one aimed at the style's alkalinity, which the
+// tab gives while the mash pH cannot be predicted: here, every malt's type
+// blank.
 const water = async () => {
   const selectors = await import('../src/selectors.js');
   const state = await import('../src/water-state.js');
+  const recipe = defaultRecipeState();
+  const untyped = recipe.malts.map((m) => ({ ...m, type: '' }));
   const computeWater = ({ volumeGal = 5, ...entries }) =>
-    selectors.computeWater({ ...state.defaultWaterState(), ...entries }, { ...defaultRecipeState(), mashWaterGal: volumeGal });
+    selectors.computeWater({ ...state.defaultWaterState(), ...entries }, { ...recipe, malts: untyped, mashWaterGal: volumeGal });
   return { ...state, computeWater };
 };
 

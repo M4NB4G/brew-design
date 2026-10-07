@@ -66,7 +66,7 @@ describe('recipe identity', () => {
     // One key, one document, at version 7, carrying the three as text.
     expect([...s._map.keys()]).toEqual([STORAGE_KEY]);
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(11);
+    expect(doc.version).toBe(12);
     expect(doc.recipe.name).toBe('1.060');
     expect(doc.recipe.style).toBe('21A American IPA');
     expect(doc.recipe.notes).toBe(FILLED.notes);

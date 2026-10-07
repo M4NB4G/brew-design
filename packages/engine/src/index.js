@@ -71,6 +71,7 @@ export {
 
 export {
   solveAdditions,
+  acidForMashPh,
   predictFinalProfile,
   saltTotals,
   targetMatch,
@@ -82,7 +83,9 @@ export { STYLE_FAMILIES, findStyle } from './water/styles.js';
 export {
   MALT_TYPES,
   mashPh,
+  alkalinityForMashPh,
   MASH_PH_RANGE,
+  MASH_PH_TARGET,
   mashPhOutsideRange,
   MASH_PH_TESTED_RANGE,
   mashPhTestedRangeCrossed,

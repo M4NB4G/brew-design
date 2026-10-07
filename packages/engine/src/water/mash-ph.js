@@ -94,33 +94,8 @@ function specialtyAcidity(m) {
  * @returns {number} pH; NaN when a figure the model needs is blank
  */
 export function mashPh({ malts, mashWaterGal, water }) {
-  const inMash = (malts ?? []).filter((m) => m.type !== 'none');
-  let grainLb = 0;
-  for (const m of inMash) {
-    if (!MALT_TYPES.includes(m.type) || !given(m.weightLb)) return NaN;
-    grainLb += m.weightLb;
-  }
-  if (!(grainLb > 0) || !given(mashWaterGal)) return NaN;
-
-  const r = thickness(mashWaterGal, grainLb);
-
-  // §3.5: the grist's distilled-water pH.
-  let basePh = 0;
-  let specialtyShare = 0;
-  let specialtyAcid = 0;
-  for (const m of inMash) {
-    const share = m.weightLb / grainLb;
-    if (m.type === 'base') {
-      // Its measured figure where given (S5-B13), otherwise the line (S5-B16).
-      const ph = given(m.distilledWaterPh) ? m.distilledWaterPh : BASE_PH_AT_ZERO_EBC + BASE_PH_PER_EBC * ebc(m.colorL);
-      if (!given(ph)) return NaN;
-      basePh += ph * share;
-    } else {
-      specialtyShare += share;
-      specialtyAcid += specialtyAcidity(m) * share;
-    }
-  }
-  const gristPh = basePh + SPECIALTY_TITRATION_PH * specialtyShare - (SPECIALTY_ACIDITY_SLOPE * specialtyAcid) / r;
+  const { gristPh, r } = gristOf(malts, mashWaterGal);
+  if (Number.isNaN(gristPh)) return NaN;
 
   // §3.6, §3.10: the water moves it by its residual alkalinity (the Water
   // tab's, Kolbach: S5-B15), in mEq/L.
@@ -137,11 +112,71 @@ export function mashPh({ malts, mashWaterGal, water }) {
   return gristPh + slope * hardnessMeq + acidSlope * (water.Alk / MG_CACO3_PER_MEQ);
 }
 
+// The grist's distilled-water pH (§3.5) and the mash thickness R (L/kg);
+// the pH NaN when a figure the model needs is blank.
+function gristOf(malts, mashWaterGal) {
+  const blank = { gristPh: NaN, r: NaN };
+  const inMash = (malts ?? []).filter((m) => m.type !== 'none');
+  let grainLb = 0;
+  for (const m of inMash) {
+    if (!MALT_TYPES.includes(m.type) || !given(m.weightLb)) return blank;
+    grainLb += m.weightLb;
+  }
+  if (!(grainLb > 0) || !given(mashWaterGal)) return blank;
+
+  const r = thickness(mashWaterGal, grainLb);
+
+  let basePh = 0;
+  let specialtyShare = 0;
+  let specialtyAcid = 0;
+  for (const m of inMash) {
+    const share = m.weightLb / grainLb;
+    if (m.type === 'base') {
+      // Its measured figure where given (S5-B13), otherwise the line (S5-B16).
+      const ph = given(m.distilledWaterPh) ? m.distilledWaterPh : BASE_PH_AT_ZERO_EBC + BASE_PH_PER_EBC * ebc(m.colorL);
+      if (!given(ph)) return blank;
+      basePh += ph * share;
+    } else {
+      specialtyShare += share;
+      specialtyAcid += specialtyAcidity(m) * share;
+    }
+  }
+  return { gristPh: basePh + SPECIALTY_TITRATION_PH * specialtyShare - (SPECIALTY_ACIDITY_SLOPE * specialtyAcid) / r, r };
+}
+
+/**
+ * The alkalinity (mg/L as CaCO3) the mash water needs for the predicted mash
+ * pH to read targetPh, its calcium and magnesium as given: mashPh solved for
+ * the alkalinity (docs/items/acid-aimed-at-mash-ph.md, AA-S1). mashPh is a
+ * straight line on either side of zero alkalinity (the published slope above,
+ * the acid side's below, meeting at zero: AS-S2), so the answer is closed
+ * form on the side the target falls.
+ *
+ * @param {object} p  malts and mashWaterGal as mashPh takes them
+ * @param {{Ca, Mg}} p.water  the mash water's calcium and magnesium (mg/L)
+ * @param {number} p.targetPh
+ * @returns {number} mg/L as CaCO3; NaN when a figure the model needs is blank
+ */
+export function alkalinityForMashPh({ malts, mashWaterGal, water, targetPh }) {
+  const { gristPh, r } = gristOf(malts, mashWaterGal);
+  const slope = alkalinitySlope(r);
+  const hardnessMeq = residualAlkalinity(0, water?.Ca, water?.Mg) / MG_CACO3_PER_MEQ;
+  // The pH at zero alkalinity, where the two sides meet.
+  const atZero = gristPh + slope * hardnessMeq;
+  const rise = targetPh - atZero;
+  const sideSlope = rise >= 0 ? slope : (ACID_SIDE_SLOPE * slope) / alkalinitySlope(ACID_SIDE_THICKNESS);
+  return (rise / sideSlope) * MG_CACO3_PER_MEQ;
+}
+
 // The range a cooled sample's mash pH is checked against (MP-Q10): 5.2-5.6,
 // the range the owner's logs and Palmer & Kaminski, "Water: A Comprehensive
 // Guide for Brewers" (2013), give for a mash sample cooled to room
 // temperature. The ends are inside. A warning changes no number.
 export const MASH_PH_RANGE = Object.freeze({ low: 5.2, high: 5.6 });
+
+// The target a recipe's acid aims at by default (RA-2): the middle of the
+// range, (5.2 + 5.6) / 2 = 5.4.
+export const MASH_PH_TARGET = (MASH_PH_RANGE.low + MASH_PH_RANGE.high) / 2;
 
 /** true when a predicted mash pH lies outside MASH_PH_RANGE; a blank (NaN) gives false. */
 export function mashPhOutsideRange(ph) {

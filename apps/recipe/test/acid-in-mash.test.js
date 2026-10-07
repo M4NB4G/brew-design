@@ -84,30 +84,32 @@ const sheetOf = (recipe) =>
     today: new Date(2026, 9, 3),
   });
 
-// By hand. The style's target residual alkalinity is -40 mg/L as CaCO3
-// (Pilsner / Light Lager); the salts bring calcium and magnesium to 50 and
-// 10, so the alkalinity the acid aims at is -40 + 50 / 1.4 + 10 / 1.7
-// = -40 + 35.7142857142857 + 5.88235294117647 = 1.59663865546218 mg/L, from
-// the report's 50: 48.4033613445378 mg/L to take out, or 48.4033613445378 /
-// 50.04 = 0.967293392976375 mEq/L.
-// 75 % phosphoric: 1.579 g/mL x 0.75 x 1000 / 97.99 = 12.0854168792734 mEq/mL.
-//   Into the mash, for the 8 gal of mash water (8 x 3.785411784 =
-//   30.283294272 L): 0.967293392976375 x 30.283294272 = 29.2928304426576
-//   mEq = 29.2928304426576 / 12.0854168792734 = 2.42381630152081 mL.
-//   With the salts, for the tank's 14 gal (52.995764976 L):
-//   51.2624532746509 mEq = 4.24167852766142 mL.
-const MASH_REC_MEQ = 29.2928304426576;
-const MASH_REC_ML = 2.42381630152081;
-const TANK_REC_MEQ = 51.2624532746509;
-const TANK_REC_ML = 4.24167852766142;
-// The water the mash draws at the recommendation: alkalinity
-// 1.59663865546218 mg/L, the residual alkalinity -40 mg/L, either way.
+// By hand. Since the acid aimed at a mash pH (S9, AA-S1) the recommendation
+// brings the predicted mash pH to the recipe's target, 5.4 by default; before
+// it, it took the water to the style's alkalinity (1.59663865546218 mg/L:
+// 2.42381630152081 mL into the mash, 4.24167852766142 mL with the salts).
+// The salts bring calcium and magnesium to 50 and 10 and add no alkalinity.
 // Mash pH (items 1 and A): grist 5.74171 (12 x 5.738 + 7 x 5.7486 + 5.738,
 // over 20); R 3.33816450378314 L/kg; slope 0.0563961385491808; acid slope
-// 0.0706253181215894; residual alkalinity -40 / 50.04 = -0.799360511590727
-// mEq/L: 5.74171 - 0.0563961385491808 x 0.799360511590727 = 5.69662915383759.
-const REC_ALK = 1.59663865546218;
-const REC_PH = 5.69662915383759;
+// 0.0706253181215894; hardness -(50 / 1.4 + 10 / 1.7) / 50.04 =
+// -0.831267758902122 mEq/L; at zero alkalinity 5.74171 - 0.0563961385491808
+// x 0.831267758902122 = 5.69482970829749. The target 5.4 is below it: the
+// alkalinity it needs is (5.4 - 5.69482970829749) / 0.0706253181215894 x
+// 50.04 = -208.895039280488 mg/L; from the report's 50, 258.895039280488
+// mg/L to take out, 5.17376177618880 mEq/L.
+// 75 % phosphoric: 1.579 g/mL x 0.75 x 1000 / 97.99 = 12.0854168792734 mEq/mL.
+//   Into the mash, for the 8 gal of mash water (8 x 3.785411784 =
+//   30.283294272 L): 156.678550361551 mEq = 12.9642652733193 mL.
+//   With the salts, for the tank's 14 gal (52.995764976 L):
+//   274.187463132714 mEq = 22.6874642283088 mL.
+const MASH_REC_MEQ = 156.678550361551;
+const MASH_REC_ML = 12.9642652733193;
+const TANK_REC_MEQ = 274.187463132714;
+const TANK_REC_ML = 22.6874642283088;
+// The water the mash draws at the recommendation: alkalinity
+// -208.895039280488 mg/L, either way; its mash pH the target.
+const REC_ALK = -208.895039280488;
+const REC_PH = 5.4;
 // 3 mL into the mash: 3 x 12.0854168792734 = 36.2562506378202 mEq over
 // 30.283294272 L = 1.19723... mEq/L = 59.9096903269864 mg/L as CaCO3;
 // alkalinity 50 - 59.9096903269864 = -9.9096903269864 mg/L (acid past
@@ -199,12 +201,12 @@ describe('acid into the mash (S5b item C)', () => {
 
   it('a recipe saved without the choice reads with the acid with the salts', () => {
     // AM-S5, AM-Q1 (revised 2026-10-03): recipe format 8.
-    expect(SCHEMA_VERSION).toBe(11);
+    expect(SCHEMA_VERSION).toBe(12);
     const s = fakeStorage();
     const recipe = wcPils({ acidPlace: 'mash' });
     savePersisted(s, { recipe, ...DEFAULT_DISPLAY });
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(11);
+    expect(doc.version).toBe(12);
     expect(doc.recipe.water.acidPlace).toBe('mash');
     const defaults = { recipe: defaultRecipeState(), ...DEFAULT_DISPLAY };
     expect(loadPersisted(s, defaults).recipe.water.acidPlace).toBe('mash');
@@ -218,7 +220,7 @@ describe('acid into the mash (S5b item C)', () => {
     expect(read.recipe.water.acidPlace).toBe('salts');
     expect(read.recipe.mashWaterGal).toBe(8);
     savePersisted(s, read);
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(11);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(12);
     // A version-4 document (before the water entries) reads with the built-in ones.
     const { water, ...v4recipe } = doc.recipe;
     s.setItem(
@@ -257,7 +259,8 @@ describe('acid into the mash (S5b item C)', () => {
     // The salts stay in the HLT.
     const salts = sheetOf(wcPils({ acidPlace: 'mash' })).water.additions.filter((a) => a.name.startsWith('Gypsum'));
     expect(salts.map((a) => a.place)).toEqual(['HLT', 'Kettle']);
-    // The dose printed is the mash water's: 2 mL (2.42 to whole mL).
-    expect(sheetOf(wcPils({ acidPlace: 'mash' })).water.additions.find((a) => a.place === 'Mash').amount).toBe('2');
+    // The dose printed is the mash water's: 13 mL (12.96 to whole mL; aimed
+    // at the target mash pH since S9).
+    expect(sheetOf(wcPils({ acidPlace: 'mash' })).water.additions.find((a) => a.place === 'Mash').amount).toBe('13');
   });
 });
