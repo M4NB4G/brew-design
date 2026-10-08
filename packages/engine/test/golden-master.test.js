@@ -86,9 +86,8 @@ describe('grist golden master', () => {
     expect(grist.ABV).toBeCloseTo(0.0757708, 4);
   });
   it('SRM', () => {
-    // Rev 3's figure until S10a item 2 (Morey's coefficients); Rev 4's
-    // Grist and Pitch Calc's!I4 is 4.1048543 (SPEC rule 2).
-    expect(grist.SRM).toBeCloseTo(4.1236703, 4);
+    // Rev 4, Grist and Pitch Calc's!I4 (Rev 3: 4.1236703, with 1.49 and 0.69).
+    expect(grist.SRM).toBeCloseTo(4.1048543, 4);
   });
 });
 

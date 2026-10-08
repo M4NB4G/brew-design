@@ -79,7 +79,8 @@ describe('parity through the UI selector (computeRecipe)', () => {
     expect(d.grist.ABV).toBeCloseTo(0.0757708, 4);
   });
   it('SRM', () => {
-    expect(d.grist.SRM).toBeCloseTo(4.1236703, 4);
+    // Rev 4, I4 (Rev 3: 4.1236703).
+    expect(d.grist.SRM).toBeCloseTo(4.1048543, 4);
   });
   it('mashRv (qt/lb)', () => {
     expect(d.grist.mashRv).toBeCloseTo(1.7931034, 4);

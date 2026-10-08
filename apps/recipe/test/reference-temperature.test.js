@@ -152,7 +152,7 @@ describe('the 60 °F reference held in one place', () => {
     expect(d.grist.OG).toBeCloseTo(1.0688522, 6);
     expect(d.grist.FG).toBeCloseTo(1.0137704, 6);
     expect(d.grist.ABV).toBeCloseTo(0.0757708, 4);
-    expect(d.grist.SRM).toBeCloseTo(4.1236703, 4);
+    expect(d.grist.SRM).toBeCloseTo(4.1048543, 4); // Rev 4 (Rev 3: 4.1236703)
     expect(d.grist.mashRv).toBeCloseTo(1.7931034, 4);
     expect(d.hops.totalIBU).toBe(46);
     expect(d.cells).toBe(570);

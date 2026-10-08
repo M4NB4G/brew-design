@@ -19,9 +19,9 @@ cached values are pinned by the golden-master tests.
    75 × 100; and the 400B starter band serves 800-1000 billion cells
    inclusive from the pack alone, and above 1000 with one extra 200B pack (Starter Vol Solver N11, whose strict
    boundary at 900 disagreed with its own note; the owner's rule since
-   2026-09-21, `packages/engine/src/starter.js`). The colour and the IBU
-   land in batch S10a's items 2 and 3; until each does, the engine and the
-   golden master's SRM and Bravo IBU rows keep Rev 3's figure.
+   2026-09-21, `packages/engine/src/starter.js`). The IBU lands in batch
+   S10a's item 3; until it does, the engine and the golden master's Bravo
+   IBU row keep Rev 3's figure.
 3. When faithful transcription produces a result that looks wrong, keep it and
    add a `// FLAG:` comment saying what and why. Never silently fix.
 4. Golden-master tolerances are fixed and never loosened:

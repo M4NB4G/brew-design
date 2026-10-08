@@ -100,9 +100,10 @@ export function computeGrist(input) {
   // Standard advanced ABV (76.08, 1.775, 0.794). Returned as a fraction.
   const ABV = ((76.08 * (OG - FG)) / (1.775 - OG)) * (FG / 0.794) / 100;
 
-  // Morey color: SRM = 1.49 * (sum MCU)^0.69.
+  // Morey color: SRM = 1.4922 * (sum MCU)^0.6859 (Morey 1998; Rev 4, Grist and
+  // Pitch Calc's!I4, in place of Rev 3's 1.49 and 0.69).
   const sumMcu = perMalt.reduce((s, m) => s + m.perMaltMcu, 0);
-  const SRM = 1.49 * Math.pow(sumMcu, 0.69);
+  const SRM = 1.4922 * Math.pow(sumMcu, 0.6859);
 
   const mashRv = (mashWaterGal * 4) / sumWeightLb; // qt / lb
   const mashR = mashRv * 2.055; // lb / lb (2.055 qt->lb water constant)

@@ -27,7 +27,8 @@ import { recipeSheet } from '../src/components/recipe-sheet-data.js';
 // The smoke test's reference recipe (test/smoke.test.js), in canonical units.
 // Its derived numbers are pinned there against the spreadsheet: OG 1.0688522,
 // FG 1.0137704, ABV 0.0757708 (Rev 4; Rev 3: 1.0681297, 1.0136259,
-// 0.0748883), SRM 4.1236703, mash Rv 1.7931034, IBU 46, post-boil 14.5 gal.
+// 0.0748883), SRM 4.1048543 (Rev 4; Rev 3: 4.1236703), mash Rv 1.7931034,
+// IBU 46, post-boil 14.5 gal.
 const referenceState = () => ({
   name: 'Reference IPA',
   style: '21A American IPA',
@@ -97,7 +98,7 @@ describe('printed recipe sheet', () => {
     expect(headline(s, 'Cells').value).toBe(num(cellsFromCanonical(d.cells, 'home'), 0));
     // The same values as the smoke test pins them, at print precision:
     // OG 1.0688522 -> "1.069"; FG 1.0137704 -> "1.014"; ABV 0.0757708 x 100 =
-    // 7.57708 -> "7.6"; SRM 4.1236703 -> "4.1"; IBU 46 -> "46". (Rev 3: OG
+    // 7.57708 -> "7.6"; SRM 4.1048543 -> "4.1"; IBU 46 -> "46". (Rev 3: OG
     // "1.068", ABV "7.5".)
     expect(s.headline.slice(0, 5).map((h) => h.value)).toEqual(['1.069', '1.014', '7.6', '4.1', '46']);
     // Measured-value boxes sit beside OG and FG only (S6).

@@ -1,6 +1,6 @@
 # Engine corrections — three Tier A items, batch S10a
 
-Status: agreed 2026-10-08 ("agree to all"; EC-Q1 and EC-Q2 as revised the same day with the owner's Rev 4; EC-Q6 and EC-Q7 added while building, agreed the same day). Item 1 landed: "The original gravity is the pre-boil °P concentrated by the ratio of the pre-boil to the post-boil volume, both at 60 °F, with no other factor". Items 2 and 3 not started.
+Status: agreed 2026-10-08 ("agree to all"; EC-Q1 and EC-Q2 as revised the same day with the owner's Rev 4; EC-Q6 and EC-Q7 added while building, agreed the same day). Item 1 landed: "The original gravity is the pre-boil °P concentrated by the ratio of the pre-boil to the post-boil volume, both at 60 °F, with no other factor". Item 2 landed: "Colour is SRM = 1.4922 × MCU^0.6859 (Morey 1998), in place of 1.49 × MCU^0.69". Item 3 not started.
 Written by the session that wrote the References page's scope table; built
 in batch S10a, before S10b (docs/ROADMAP.md, Sessions; RF-Q11). Items in
 this order: the boil factor, Morey's coefficients, the IBU conversion.
@@ -85,3 +85,4 @@ EC-Q1.
 - Item 1. The solver's pinned residual moves from 29.0129133 to 29.0128327 lb (mash water 13.0057884 → 13.0057522 gal); the FLAG's "~29.013 lb" holds, its "~1.068" and "~0.045 %" become "~1.069" and "~0.044 %".
 - Item 1. "Solve with volumes measured hot" (roadmap): re-worked with the 1.01 gone, a target of 1.050 on the built-in recipe still predicts 1.0494 at 212 °F and 1.0497 at 150 °F (1.04941 and 1.04974 both before and after), so the line stands unchanged.
 - Item 1. The Notes page still says Rev 3 and "the spreadsheet's empirical boil correction": a Tier C roadmap line, since the References page (S10b) replaces the page.
+- Item 2. Only the engine's colour line moves; the app's tests that pinned the reference SRM (the smoke test and the reference-temperature guard) take Rev 4's I4, 4.1048543 (Rev 3: 4.1236703), and the printed sheet's "4.1" stands. No other app test held the SRM: the built-in recipe's 4.7 and the others read the same at one decimal. SPEC rule 2's line now names only the IBU as still to land.

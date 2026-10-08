@@ -78,3 +78,24 @@ describe('EC1: boil concentration without the 1.01', () => {
     expect(Math.abs(back.OG - target)).toBeLessThan(6e-5);
   });
 });
+
+describe("EC2: Morey's coefficients", () => {
+  it("colour is Morey's 1.4922 and 0.6859", () => {
+    // Reference recipe: MCU = (2.2 x 27 + 2.0 x 2) / 14.5 = 63.4 / 14.5 =
+    // 4.3724138. ln 4.3724138 = 1.4753152; x 0.6859 = 1.0119187;
+    // e^1.0119187 = 2.7508741; x 1.4922 = 4.1048543 SRM (Rev 4, Grist and
+    // Pitch Calc's!I4). With 1.49 and 0.69 it was 4.1236703.
+    const g = computeGrist(reference);
+    expect(g.SRM).toBeCloseTo(4.1048543, 4);
+
+    // A dark beer, MCU 50: 10 lb at 50 °L in 10 gal post-boil.
+    // ln 50 = 3.9120230; x 0.6859 = 2.6832566; e^2.6832566 = 14.6326682;
+    // x 1.4922 = 21.8348675 SRM. With 1.49 and 0.69 it was 22.1551947.
+    const dark = computeGrist({
+      ...reference,
+      malts: [{ name: 'Dark', weightLb: 10, fgdb: 0.8, colorL: 50 }],
+      postBoilVolGal: 10,
+    });
+    expect(dark.SRM).toBeCloseTo(21.8348675, 4);
+  });
+});
