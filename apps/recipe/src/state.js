@@ -214,11 +214,14 @@ export function breweryFiguresFromRecipe(recipe, mode, proGravityUnit, temperatu
 export function newRecipe(brewery) {
   const b = brewery ?? {};
   const mode = MODES.includes(b.mode) ? b.mode : DEFAULT_DISPLAY.mode;
-  // In Pro with the brewery's batch blank, the built-in recipe scaled to the
-  // Pro batch, 10 bbl (PD-S5); the brewery's figures that are set then take
-  // the built-in ones' places as usual.
+  // The built-in recipe scaled to the brewery's batch whenever it is set, in
+  // Pro and Home (NB-S1); with it blank, to the Pro batch, 10 bbl, in Pro
+  // (PD-S5), and as built in Home (NB-S3). A zero or negative batch gives no
+  // ratio, as on the Home/Pro switch: the built-in recipe. The brewery's
+  // figures that are set then take their places, unscaled (NB-S2).
   const built = defaultRecipeState();
-  const recipe = mode === 'pro' && figure(b.fermentVolGal) === null ? scaleRecipeTo(built, proBatchGal()) : built;
+  const batchGal = figure(b.fermentVolGal) ?? (mode === 'pro' ? proBatchGal() : null);
+  const recipe = batchGal > 0 ? scaleRecipeTo(built, batchGal) : built;
   for (const k of BREWERY_NUMBERS) {
     if (figure(b[k]) !== null) recipe[k] = b[k];
   }

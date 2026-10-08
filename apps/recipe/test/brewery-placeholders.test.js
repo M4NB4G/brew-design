@@ -96,8 +96,9 @@ describe('blank brewery figures name the built-in one', () => {
     expect(box(markup, 'Batch (fermentation) volume (gal)')).toEqual({ value: '12', placeholder: undefined });
     expect(box(markup, 'Boil time (min)')).toEqual({ value: '90', placeholder: undefined });
     expect(box(markup, 'Brewhouse efficiency (%)')).toEqual({ value: '93', placeholder: undefined });
-    // The ones still blank name the built-in figure.
-    expect(box(markup, 'Pre-boil volume (gal)').placeholder).toBe('7');
+    // The ones still blank name the built-in figure, scaled to the set batch
+    // since NB-S4: 7 gal x 12 / 5.5 = 168/11 = 15.272727 gal, by hand.
+    expect(box(markup, 'Pre-boil volume (gal)').placeholder).toBe('15.272727');
   });
 
   // BB-S3, BB-S4

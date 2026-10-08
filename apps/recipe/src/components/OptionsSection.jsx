@@ -296,7 +296,7 @@ export default function OptionsSection({
   const breweryFile = useRef(null); // the brewery file's picker (S4b item 5)
   const vUnit = volumeUnit(mode, proVolumeUnit);
   const tUnit = tempUnit(temperatureUnit);
-  const built = newRecipe(brewery).recipe; // the figures a new recipe gets in place of a blank one (scaled in Pro, PD-B2)
+  const built = newRecipe(brewery).recipe; // the figures a new recipe gets in place of a blank one (scaled to its batch, PD-B2, NB-S4)
   const volume = {
     toShown: (gal) => volumeFromCanonical(gal, mode, proVolumeUnit),
     fromShown: (v) => volumeToCanonical(v, mode, proVolumeUnit),

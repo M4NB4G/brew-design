@@ -286,15 +286,17 @@ cached values are pinned by the golden-master tests.
     a message. A new recipe — Reset, or a load with no
     readable saved recipe — is the built-in recipe and display settings with
     each figure that is set in place of the built-in one; a blank figure
-    never reaches a recipe. A new recipe that opens in Pro with the
-    brewery's batch volume blank starts from the built-in recipe scaled to
-    10 bbl (rule 8's scale), the figures that are set then taking their
-    places; with Home/Pro blank it opens in Home, at 5.5 gal. They are copied only when a recipe is created:
+    never reaches a recipe. A new recipe starts from the built-in recipe
+    scaled (rule 8's scale) to the brewery's batch volume when it is set, in
+    Pro and in Home; with it blank, one that opens in Pro starts scaled to
+    10 bbl and one that opens in Home at the built-in 5.5 gal; the figures
+    that are set then take their places, unscaled. With Home/Pro blank it
+    opens in Home. They are copied only when a recipe is created:
     changing them never changes a recipe, its saved document or a recipe
     file, and an older saved recipe is upgraded and checked against the
     built-in recipe, never against them.
     In My brewery an empty number box shows, greyed, the figure a new recipe
-    gets in its place (scaled, when it opens in Pro at 10 bbl), in the screen's units (none where the built-in figure
+    gets in its place (scaled to the batch it starts at), in the screen's units (none where the built-in figure
     is itself blank): a placeholder, never a value, so never saved, never
     exported and never ending the banner.
 

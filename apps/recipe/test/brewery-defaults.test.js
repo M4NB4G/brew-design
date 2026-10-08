@@ -28,7 +28,7 @@ import {
   clearBrewery,
   loadStartingState,
 } from '../src/persistence.js';
-import { computeRecipe } from '../src/selectors.js';
+import { computeRecipe, scaleRecipeTo } from '../src/selectors.js';
 import { defaultWaterState } from '../src/water-state.js';
 
 function fakeStorage() {
@@ -94,9 +94,11 @@ describe('brewery defaults', () => {
 
   // S1, S3, K2
   it('brewery figures fill a new recipe\'s batch volume, pre-boil volume, boil-off rate, boil time, measurement temperatures and efficiency, and its Home/Pro and gravity unit; every other field is the built-in one', () => {
+    // Since a new recipe at the brewery's batch (NB-S1): the built-in recipe
+    // scaled to the brewery's 12 gal, its other set figures then in place.
     const expected = {
       recipe: {
-        ...defaultRecipeState(),
+        ...scaleRecipeTo(defaultRecipeState(), 12),
         fermentVolGal: 12,
         preBoilVolGal: 16,
         boilOffRateGalPerHr: 1.25,
@@ -112,12 +114,18 @@ describe('brewery defaults', () => {
     };
     expect(newRecipe(BREWERY)).toEqual(expected);
 
-    // Malts, hops, yeast, attenuation, mash water and identity are the built-in ones.
+    // Yeast, attenuation and identity are the built-in ones; malts, hops and
+    // mash water the built-in ones scaled to the batch (NB-S1). By hand: ratio
+    // 12 / 5.5 = 24/11; Pale 10 lb -> 240/11 = 21.8181... lb, Magnum 1 oz ->
+    // 24/11 = 2.1818... oz, mash water 5 gal -> 120/11 = 10.9090... gal.
     const r = newRecipe(BREWERY).recipe;
     const d = defaultRecipeState();
-    for (const key of ['malts', 'kettleAdditions', 'dryHops', 'yeast', 'apparentAttenuation', 'mashWaterGal', 'name', 'style', 'notes']) {
+    for (const key of ['yeast', 'apparentAttenuation', 'name', 'style', 'notes']) {
       expect(r[key]).toEqual(d[key]);
     }
+    expect(r.malts[0].weightLb).toBeCloseTo(240 / 11, 10);
+    expect(r.kettleAdditions[0].weightOz).toBeCloseTo(24 / 11, 10);
+    expect(r.mashWaterGal).toBeCloseTo(120 / 11, 10);
 
     // SG as the Pro gravity unit, Home as the mode.
     expect(newRecipe({ ...BREWERY, mode: 'home', proGravityUnit: 'sg' })).toMatchObject({
@@ -142,7 +150,9 @@ describe('brewery defaults', () => {
       proGravityUnit: null,
     };
     const { recipe, mode, proGravityUnit } = newRecipe(partial);
-    expect(recipe.preBoilVolGal).toBe(d.preBoilVolGal);
+    // The built-in figure, scaled to the brewery's batch since NB-S1:
+    // 7 gal x 12 / 5.5 = 168/11 = 15.2727... gal, by hand.
+    expect(recipe.preBoilVolGal).toBeCloseTo(168 / 11, 10);
     expect(recipe.measurementTempF).toEqual({ preBoil: d.measurementTempF.preBoil, postBoil: 180, ferment: 68 });
     expect(mode).toBe('home');
     expect(proGravityUnit).toBe('plato');
@@ -301,8 +311,9 @@ describe('brewery defaults', () => {
   // S6
   it('a recipe from brewery figures gives the same stats as the same recipe typed by hand', () => {
     const fromBrewery = newRecipe(BREWERY).recipe;
+    // Typed by hand on the built-in recipe scaled to the batch (NB-S1).
     const typed = {
-      ...defaultRecipeState(),
+      ...scaleRecipeTo(defaultRecipeState(), 12),
       fermentVolGal: 12,
       preBoilVolGal: 16,
       boilOffRateGalPerHr: 1.25,

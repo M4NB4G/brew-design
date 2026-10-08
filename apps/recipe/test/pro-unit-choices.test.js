@@ -111,6 +111,13 @@ const withoutNewChoices = (markup) =>
 // Since My ingredients (MI-S5'): My brewery lists the brewer's saved
 // ingredients, here none.
 const withoutMyIngredients = (markup) => markup.replace(/<span[^>]*>My ingredients<\/span><p[^>]*>None saved yet[\s\S]*?<\/p>/, '');
+// Since a new recipe at the brewery's batch (NB-S4): this brewery's batch is
+// set, 380 gal, so the greyed pre-boil and boil-off are the built-in ones
+// scaled to it. By hand: 7 gal x 380/5.5 = 2660/5.5 gal, / 31 = 2660/170.5 =
+// 15.601173 bbl; 1.5 gal/hr x 380/5.5 = 570/5.5, / 31 = 570/170.5 = 3.343109
+// bbl/hr (six decimals), in place of 7/31 = 0.225806 and 1.5/31 = 0.048387.
+const withScaledGreyed = (markup) =>
+  markup.replace('placeholder="0.225806"', 'placeholder="15.601173"').replace('placeholder="0.048387"', 'placeholder="3.343109"');
 
 describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
   // PU-S1, PU-S2, PU-Q2
@@ -301,7 +308,7 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
       expect(noNames(f.hopsHtml(r, 'pro', units))).toBe(noNames(BEFORE.hops));
       // Since the acid aimed at a mash pH: all but the acid's and the predicted profile's cards (AA-S1).
       expect(noNames(withoutAcidCards(f.waterHtml(r, 'pro', units)))).toBe(noNames(withoutAcidCards(BEFORE.water)));
-      expect(noNames(withoutMyIngredients(withoutNewChoices(f.optionsHtml(f.brewery(), 'pro', units))))).toBe(noNames(BEFORE.options));
+      expect(noNames(withoutMyIngredients(withoutNewChoices(f.optionsHtml(f.brewery(), 'pro', units))))).toBe(noNames(withScaledGreyed(BEFORE.options)));
     }
 
     // The saved documents: as before, at the new versions, with the choices.
