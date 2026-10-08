@@ -553,9 +553,9 @@ function AcidRow({ row, mode, onChangeAmount, primary = false, single = false, p
   const solid = row.solid;
   const unit = solid ? acidMaltUnit(mode) : liquidAcidUnit(mode);
 
-  // Liquid acid to 0.1 mL; acidulated malt to 0.01 oz or lb.
+  // Liquid acid in whole mL; acidulated malt to 0.01 oz or lb.
   const shown = (v) => (solid ? acidMaltFromCanonical(v, mode) : v);
-  const digits = solid ? 2 : 1;
+  const digits = solid ? 2 : 0;
   const format = (v) => (Number.isFinite(v) ? shown(v).toFixed(digits) : '');
   const parse = (raw) => {
     const v = parseFloat(raw);
