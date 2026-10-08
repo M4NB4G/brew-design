@@ -10,3 +10,13 @@
 
 [build.environment]
   NODE_VERSION = "24"
+
+# Response headers on every path (OWASP HTTP Headers Cheat Sheet): the page may
+# load its own files and Google Fonts and nothing else, and may not be put in
+# a frame. The page has no inline script; its styles are set from script,
+# which the policy does not block. security-headers.test.js reads this block.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    X-Frame-Options = "DENY"
