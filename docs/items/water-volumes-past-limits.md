@@ -1,7 +1,10 @@
 # Water volumes past their limits — Tier A + B
 
-Status: agreed 2026-10-08 ("agree to all"); not started. Written by the S11
-session; built in batch S12, item 1 (docs/ROADMAP.md, Sessions).
+Status: landed 2026-10-08 in batch S12 on branch
+`claude/compassionate-knuth-hydp66`, as "The hot-liquor tank is never topped
+up below the treated water the mash leaves, and every share of its salts
+stays between 0 and 1". Written by the S11 session; built in batch S12,
+item 1 (docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -44,3 +47,13 @@ Engine (`packages/engine/test/water/volumes.test.js`, or a new file): *a top-up 
 - `packages/engine/src/water/volumes.js` `tankDraws` and its FLAG (the FLAG goes with the change); its warnings travel through `selectors.js` (`computeWater`'s `warnings`) to `components/water/WaterGoesCard.jsx`, beside the two existing warnings; the sheet reads `water.tank` in `components/recipe-sheet-data.js`.
 - The held figures are arithmetic, not a spreadsheet cell: pin each by hand with the working in the test.
 - Files likely touched: `packages/engine/src/water/volumes.js`; `apps/recipe/src/selectors.js`; `apps/recipe/src/components/water/WaterGoesCard.jsx`; SPEC rule 10; `docs/TEST_COVERAGE.md`.
+
+## Builder's notes (S12, 2026-10-08)
+
+- The engine's `tankDraws` holds every share: mash water more than the treated volume draws all of it (`toMash` 1, nothing stays); the tank's water as the sparge draws is the typed top-up level or, when that is below the treated water left, that water; the sparge draws at most what the tank holds. Within both limits each expression is the one it replaced, term for term (`remainingGal / topUpGal`, `stays * (spargeGal / topUpGal)`, `stays * (leftGal / topUpGal)`), so every figure is bit for bit as before.
+- WV-S4 says no share is "ever" past 0 or 1, so the sparge drawing more than the tank holds (already warned, more than the top-up level) is held too: it carries all the salts that stayed, and none is left. The item's two decisions did not name that case; the sentence does.
+- The new warning is the engine's `topUpBelowTreated`, worked with the engine's round-off allowance for volumes (`SAME_VOLUME_GAL`, 1e-9 gal, already in `volumes.js`), so a top-up level equal to the treated water left, as converted from barrels, does not warn. The hold itself compares exactly, so a share never passes 1 by round-off.
+- The "Left in the HLT, not used" volume is the tank's water less the sparge, as before; with the sparge more than the tank holds it still reads negative beside 0 g of salts, and the sparge warning still compares the sparge with the typed top-up level. No sentence decided either: one roadmap line (Tier B, unassigned).
+- The printed sheet prints no warning, as before (the treated-volume and top-up warnings are not on it); it prints the held share and volume.
+- Numbers introduced: none. The 1 (all of the treated water to the mash) and the 0s are the limits WV-Q1 and WV-Q2 name; `SAME_VOLUME_GAL` was already in the file. Every held figure is pinned by hand in the tests.
+- The FLAG in `tankDraws` went with the change.

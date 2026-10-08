@@ -111,7 +111,14 @@ cached values are pinned by the golden-master tests.
     each predicted figure is to its target, the water volumes from the
     recipe (its grain, mash water and pre-boil volume at 60 °F), the
     hot-liquor tank's draws and the kettle salts, comes from the engine
-    through it. No wort mineral figure is worked out. Beside the treated
+    through it. No wort mineral figure is worked out. The hot-liquor tank
+    is never topped up below the treated water the mash leaves: with the
+    top-up level below it, the tank holds only that water, all treated, the
+    sparge and the water left drawn from it, and a warning says no untreated
+    water is added; mash water more than the treated volume takes all of it
+    and every salt, the sparge liquor's treated share 0 (warned); each share
+    of the tank's salts is held between 0 and 1, and the shares add to 1.
+    Beside the treated
     water's predicted profile, with kettle salts on, the kettle water before
     the boil: the source water plus the salts in the kettle over the pre-boil
     volume, the mash's salts reaching it at the recipe's brewhouse

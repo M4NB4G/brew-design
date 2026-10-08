@@ -67,29 +67,38 @@ export function waterVolumes({ malts, absorptionQtPerLb, preBoilGal, mashWaterGa
  * sparge leaves is discarded, never emptied into the mash tun (item B, C).
  *
  * @returns {{ remainingGal, treatedShare, leftGal, toMash, toSparge, left,
- *   mashOverTreated, spargeOverTopUp }}
+ *   mashOverTreated, spargeOverTopUp, topUpBelowTreated }}
  *   remainingGal: treated water left after the mash draws; treatedShare: its
  *   share of the topped-up tank, the sparge liquor's treated share; leftGal:
  *   the water left after the sparge, not used. toMash, toSparge and left are
  *   the shares of everything put in the tank (salts and acid) that go to the
- *   mash, are carried by the sparge, and are left. The two warnings: more mash
- *   water than the treated volume; more sparge water than the top-up level.
- *   FLAG: a top-up level below the treated water left gives a share over 1;
- *   kept as the arithmetic gives it (the item's sentences do not say).
+ *   mash, are carried by the sparge, and are left. The three warnings: more
+ *   mash water than the treated volume; more sparge water than the top-up
+ *   level; a top-up level below the treated water the mash leaves.
+ *   Past those limits every share is held between 0 and 1 and the shares
+ *   still add to 1 (docs/items/water-volumes-past-limits.md, WV-Q1, WV-Q2):
+ *   mash water more than the treated volume takes all of it and every salt;
+ *   a tank is never topped up below the treated water it holds, so it then
+ *   holds only that water, all treated; a sparge cannot draw more than the
+ *   tank holds.
  */
 export function tankDraws({ treatedGal, topUpGal, mashWaterGal, spargeGal }) {
-  const remainingGal = treatedGal - mashWaterGal;
-  const leftGal = topUpGal - spargeGal;
+  const mashOverTreated = mashWaterGal > treatedGal;
+  const remainingGal = mashOverTreated ? 0 : treatedGal - mashWaterGal;
+  const topUpBelowTreated = remainingGal > topUpGal + SAME_VOLUME_GAL;
+  const tankGal = remainingGal > topUpGal ? remainingGal : topUpGal; // the water in the tank as the sparge draws
+  const leftGal = tankGal - spargeGal;
   const stays = remainingGal / treatedGal; // share of the additions the mash leaves in the tank
   return {
     remainingGal,
-    treatedShare: remainingGal / topUpGal,
+    treatedShare: remainingGal / tankGal,
     leftGal,
-    toMash: mashWaterGal / treatedGal,
-    toSparge: stays * (spargeGal / topUpGal),
-    left: stays * (leftGal / topUpGal),
-    mashOverTreated: mashWaterGal > treatedGal,
+    toMash: mashOverTreated ? 1 : mashWaterGal / treatedGal,
+    toSparge: stays * (Math.min(spargeGal, tankGal) / tankGal),
+    left: stays * (Math.max(0, leftGal) / tankGal),
+    mashOverTreated,
     spargeOverTopUp: spargeGal > topUpGal,
+    topUpBelowTreated,
   };
 }
 

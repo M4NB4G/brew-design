@@ -622,6 +622,7 @@ export function computeWater(water, recipe) {
     warnings: {
       mashOverTreated: tank?.mashOverTreated ?? false,
       spargeOverTopUp: tank?.spargeOverTopUp ?? false,
+      topUpBelowTreated: tank?.topUpBelowTreated ?? false,
       kettleShortGal: sums.kettleShortGal,
     },
   };

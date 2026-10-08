@@ -241,6 +241,12 @@ export default function WaterGoesCard({ water, figures, mode, proVolumeUnit, set
               {unit})
             </Warning>
           )}
+          {warnings.topUpBelowTreated && (
+            <Warning>
+              The HLT's top-up level ({v(tank.topUpGal)} {unit}) is below the treated water the mash leaves (
+              {v(tank.remainingGal)} {unit}): no untreated water is added
+            </Warning>
+          )}
         </>
       )}
     </Card>
