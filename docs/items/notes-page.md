@@ -1,6 +1,6 @@
 # Methods and sources page — Tier C
 
-Status: agreed 2026-10-05 ("agree to all"); landed 2026-10-06 on branch `S7`
+Status: superseded 2026-10-08 by `docs/items/references-page.md` (NM-S1 to NM-S3). Was: agreed 2026-10-05 ("agree to all"); landed 2026-10-06 on branch `S7`
 as "A Notes link in the footer opens a page of the methods and their sources,
 with a way back to the app"; awaiting the owner's "merge and push". Written by the S6b
 session; built in batch S7, third of its three items (docs/ROADMAP.md,
