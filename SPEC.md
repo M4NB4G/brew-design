@@ -1,19 +1,27 @@
 # Brew Design — specification
 
 The rules every change is checked against. The source of truth for all math is
-the reference spreadsheet `Experiments_Are_Fun_Recipe_Designer_Rev_3.xlsm`
-(Persyn Chemical Engineering). It is not in the repo; its cached values are
-pinned by the golden-master tests.
+the reference spreadsheet, the owner's Experiments Are Fun Recipe Designer
+Rev 4 (Persyn Chemical Engineering, 2026-10-08), in `docs/sources/`; its
+cached values are pinned by the golden-master tests.
 
 ## 1. Engine (`packages/engine`)
 
 1. Pure functions only. No DOM, no network, no I/O, no global state.
 2. Every constant is reproduced exactly from the spreadsheet / Phase 1 Port
    Spec. Do not round, simplify, or "improve" a constant.
-   Deviation (2026-09-21, the owner, as the spreadsheet's author): the 400B
-   starter band serves 800-1000 billion cells inclusive from the pack alone,
-   and above 1000 with one extra 200B pack, superseding Rev 3's strict
-   boundary at 900 (`packages/engine/src/starter.js`).
+   Rev 4 is Rev 3 with the owner's corrections, as the spreadsheet's author
+   (2026-10-08): the boil concentration carries no 1.01, the original
+   gravity being the pre-boil °P times the pre-boil over the post-boil
+   volume, both at 60 °F (Grist and Pitch Calc's!I2); colour is Morey's
+   SRM = 1.4922 × MCU^0.6859 (I4), in place of 1.49 and 0.69; each kettle
+   addition's IBU converts oz/gal to mg/L by 7489.1 (Hops!J3), in place of
+   75 × 100; and the 400B starter band serves 800-1000 billion cells
+   inclusive from the pack alone, and above 1000 with one extra 200B pack (Starter Vol Solver N11, whose strict
+   boundary at 900 disagreed with its own note; the owner's rule since
+   2026-09-21, `packages/engine/src/starter.js`). The colour and the IBU
+   land in batch S10a's items 2 and 3; until each does, the engine and the
+   golden master's SRM and Bravo IBU rows keep Rev 3's figure.
 3. When faithful transcription produces a result that looks wrong, keep it and
    add a `// FLAG:` comment saying what and why. Never silently fix.
 4. Golden-master tolerances are fixed and never loosened:
@@ -159,8 +167,10 @@ pinned by the golden-master tests.
     (NaN) or outside its density table (0–100 °C) — yields a NaN volume;
     nothing throws, and no clamping or fallback to the measured volume.
 12. The smoke test (`apps/recipe/test/smoke.test.js`) pins the reference
-    recipe through the UI's own selectors. Its assertions and tolerances
-    never change; its reference state is a canonical state and gains a field
+    recipe through the UI's own selectors. Its tolerances never change; its
+    pinned figures change only when the spreadsheet the engine reproduces
+    does (rule 2), each re-read from the same cell as the golden master's,
+    the old figure kept beside it (the owner, 2026-10-08); its reference state is a canonical state and gains a field
     only when the canonical state does, at the value that leaves every pinned
     number the same.
 13. Persisted state is the canonical state, under one key, in one JSON

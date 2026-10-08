@@ -10,7 +10,9 @@ describe('solveGrist round-trip', () => {
       { fgdb: 0.8, percent: 0.9310345 },
       { fgdb: 0.8, percent: 0.0689655 },
     ],
-    targetOG: 1.0681297,
+    // The reference recipe's OG, Rev 4, Grist and Pitch Calc's!I3 (Rev 3,
+    // with the 1.01: 1.0681297).
+    targetOG: 1.0688522,
     efficiency: 0.93,
     preBoilVolGal: 16,
     boilOffRateGalPerHr: 1.5,
@@ -44,7 +46,7 @@ describe('solveGrist round-trip', () => {
 
   it('pins the exact round-trip residual (non-inverse gravity polynomials)', () => {
     // Deterministic output of the mandated formulas; locks the FLAGged behavior.
-    expect(result.totalWeightLb).toBeCloseTo(29.0129133, 5);
-    expect(result.mashWaterGal).toBeCloseTo(13.0057884, 5);
+    expect(result.totalWeightLb).toBeCloseTo(29.0128327, 5);
+    expect(result.mashWaterGal).toBeCloseTo(13.0057522, 5);
   });
 });

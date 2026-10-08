@@ -20,6 +20,10 @@ import { recipeSheet } from '../src/components/recipe-sheet-data.js';
 import { sheetWithAimedAcid } from './acid-aim.js';
 
 const TODAY = new Date(2026, 9, 5);
+// Since the engine follows Rev 4 (docs/items/engine-corrections.md, EC-Q7),
+// the printed sheet's figures it moves are re-pinned in the captured bytes:
+// in Pro, OG 10.93 -> 11.04 °P and FG 2.59 -> 2.61 °P; without the water
+// argument, OG 1.055 -> 1.056 and ABV 5.7 -> 5.8 %.
 const BEFORE = JSON.parse(
   readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'sparge-in-volumes.before.json'), 'utf8'),
 );

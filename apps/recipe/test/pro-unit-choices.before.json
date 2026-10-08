@@ -46,7 +46,7 @@
    },
    {
     "label": "Cells",
-    "value": "4660",
+    "value": "4710",
     "unit": "billion",
     "measuredBox": false
    }
@@ -157,7 +157,7 @@
    "character": "Moderate",
    "pitchRate": "0.75",
    "pitchRateUnit": "billion/L/°P",
-   "cells": "4660",
+   "cells": "4710",
    "cellsUnit": "billion",
    "starterVolumeUnit": "L",
    "starter": []
@@ -362,13 +362,13 @@
   "headline": [
    {
     "label": "OG",
-    "value": "4.32",
+    "value": "4.36",
     "unit": "°P",
     "measuredBox": true
    },
    {
     "label": "FG",
-    "value": "1.00",
+    "value": "1.01",
     "unit": "°P",
     "measuredBox": true
    },
@@ -392,7 +392,7 @@
    },
    {
     "label": "Cells",
-    "value": "4.66",
+    "value": "4.71",
     "unit": "trillion",
     "measuredBox": false
    }
@@ -503,7 +503,7 @@
    "character": "Moderate",
    "pitchRate": "0.75",
    "pitchRateUnit": "billion/L/°P",
-   "cells": "4.66",
+   "cells": "4.71",
    "cellsUnit": "trillion",
    "starterVolumeUnit": "L",
    "starter": []

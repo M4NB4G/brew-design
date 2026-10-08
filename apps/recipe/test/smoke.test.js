@@ -67,13 +67,16 @@ describe('parity through the UI selector (computeRecipe)', () => {
     expect(d.grist.preBoilSg).toBeCloseTo(1.062031, 6);
   });
   it('OG', () => {
-    expect(d.grist.OG).toBeCloseTo(1.0681297, 6);
+    // Rev 4, Grist and Pitch Calc's!I3 (Rev 3: 1.0681297), as the golden master.
+    expect(d.grist.OG).toBeCloseTo(1.0688522, 6);
   });
   it('FG', () => {
-    expect(d.grist.FG).toBeCloseTo(1.0136259, 6);
+    // Rev 4, K7 (Rev 3: 1.0136259).
+    expect(d.grist.FG).toBeCloseTo(1.0137704, 6);
   });
   it('ABV (fraction)', () => {
-    expect(d.grist.ABV).toBeCloseTo(0.0748883, 4);
+    // Rev 4, K8 (Rev 3: 0.0748883).
+    expect(d.grist.ABV).toBeCloseTo(0.0757708, 4);
   });
   it('SRM', () => {
     expect(d.grist.SRM).toBeCloseTo(4.1236703, 4);

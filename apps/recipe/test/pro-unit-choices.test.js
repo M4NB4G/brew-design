@@ -47,6 +47,10 @@ import { docWithBlankPrices } from './blank-prices.js';
 import { withoutBoxNames as noNames } from './box-names.fixture.js';
 import { docWithTarget, sheetWithAimedAcid, withoutAcidCards } from './acid-aim.js';
 
+// Since the engine follows Rev 4 (docs/items/engine-corrections.md, EC-Q7),
+// the printed sheet's figures it moves are re-pinned in the captured bytes:
+// cells 4660 -> 4710 billion (4.66 -> 4.71 trillion); in Pro, OG 4.32 -> 4.36 °P
+// and FG 1.00 -> 1.01 °P.
 const BEFORE = JSON.parse(readFileSync(new URL('./pro-unit-choices.before.json', import.meta.url), 'utf8'));
 
 const GAL = { proVolumeUnit: 'gal', proMaltUnit: 'lb' };

@@ -36,17 +36,17 @@ export function solveGrist(input) {
 
   // FLAG: sgToPlato (Brewer's Friend cubic) and platoToSg (ASBC) are two
   // independent polynomial approximations and are NOT exact inverses:
-  // sgToPlato(platoToSg(p)) - p is about +0.0034 degP near OG ~1.068. The
+  // sgToPlato(platoToSg(p)) - p is about +0.0034 degP near OG ~1.069. The
   // forward grist produces OG via platoToSg; this inverse solver re-enters via
   // sgToPlato(targetOG), so an OG -> grist -> OG round trip carries that
   // residual. On the reference recipe it lands totalWeightLb at ~29.013 lb
-  // (target 29.00), i.e. ~0.013 lb / ~0.045% off, slightly beyond the spec's
+  // (target 29.00), i.e. ~0.013 lb / ~0.044% off, slightly beyond the spec's
   // stated 1e-2 round-trip tolerance. This is a property of the mandated
   // constants, not an implementation error; the constants are reproduced as
   // written and left unchanged. See solver.test.js for the pinned residual.
   const targetPostPlato = sgToPlato(targetOG);
-  // Invert the forward boil-concentration step (1.01 factor).
-  const targetPrePlato = targetPostPlato * ((1.01 * postBoilVolGal) / preBoilVolGal);
+  // Invert the forward boil-concentration step (pre-boil / post-boil volume).
+  const targetPrePlato = targetPostPlato * (postBoilVolGal / preBoilVolGal);
   const targetPreSg = platoToSg(targetPrePlato);
   const targetPoints = (targetPreSg - 1) * 1000;
 

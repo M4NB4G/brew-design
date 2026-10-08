@@ -45,6 +45,9 @@ import { docWithBlankPrices } from './blank-prices.js';
 import { withoutBoxNames as noNames } from './box-names.fixture.js';
 import { docWithTarget, sheetWithAimedAcid } from './acid-aim.js';
 
+// Since the engine follows Rev 4 (docs/items/engine-corrections.md, EC-Q7),
+// the printed sheet's figures it moves are re-pinned in the captured bytes:
+// ABV 5.9 -> 6.0 %; in Pro, OG 14.01 -> 14.15 °P and FG 3.34 -> 3.38 °P.
 const BEFORE = JSON.parse(readFileSync(new URL('./celsius-toggle.before.json', import.meta.url), 'utf8'));
 
 const text = (markup) =>

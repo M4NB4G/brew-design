@@ -4,7 +4,7 @@
 
 import { sgToPlato, platoToSg } from './units.js';
 
-// Recommended mash ranges, the owner's Recipe Designer Rev 3, "Grist and Pitch
+// Recommended mash ranges, the owner's Recipe Designer Rev 4, "Grist and Pitch
 // Calc's": F3 "Rv Should be 1.25-2" (beside E3, Estimated Mash Rv, qt/lb) and
 // F4 "R should be 2.5-4" (beside E4, Estimated Mash R, lb/lb). Both ends are
 // inside the range.
@@ -89,8 +89,11 @@ export function computeGrist(input) {
   const preBoilSg = 1 + sumPoints / 1000;
   const preBoilPlato = sgToPlato(preBoilSg);
 
-  // 1.01 = empirical boil-concentration correction.
-  const postBoilPlato = preBoilPlato / ((1.01 * postBoilVolGal) / preBoilVolGal);
+  // Boil concentration: the pre-boil °P by pre-boil / post-boil volume, both at
+  // 60 F, with no other factor (Rev 4, Grist and Pitch Calc's!I2; the owner
+  // took out Rev 3's 1.01, a temperature allowance the 60 F correction makes
+  // redundant, 2026-10-08).
+  const postBoilPlato = preBoilPlato / (postBoilVolGal / preBoilVolGal);
   const OG = platoToSg(postBoilPlato);
   const FG = OG - apparentAttenuation * (OG - 1);
 

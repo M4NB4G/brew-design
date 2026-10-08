@@ -253,13 +253,13 @@
     "headline": [
       {
         "label": "OG",
-        "value": "10.93",
+        "value": "11.04",
         "unit": "°P",
         "measuredBox": true
       },
       {
         "label": "FG",
-        "value": "2.59",
+        "value": "2.61",
         "unit": "°P",
         "measuredBox": true
       },
@@ -731,13 +731,13 @@
     "headline": [
       {
         "label": "OG",
-        "value": "10.93",
+        "value": "11.04",
         "unit": "°P",
         "measuredBox": true
       },
       {
         "label": "FG",
-        "value": "2.59",
+        "value": "2.61",
         "unit": "°P",
         "measuredBox": true
       },
@@ -970,7 +970,7 @@
     "headline": [
       {
         "label": "OG",
-        "value": "1.055",
+        "value": "1.056",
         "unit": "SG",
         "measuredBox": true
       },
@@ -982,7 +982,7 @@
       },
       {
         "label": "ABV",
-        "value": "5.7",
+        "value": "5.8",
         "unit": "%",
         "measuredBox": false
       },

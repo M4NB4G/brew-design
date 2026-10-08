@@ -148,9 +148,10 @@ describe('the 60 °F reference held in one place', () => {
     const d = computeRecipe(referenceState());
     expect(d.postBoilVolGal).toBeCloseTo(14.5, 6);
     expect(d.grist.preBoilSg).toBeCloseTo(1.062031, 6);
-    expect(d.grist.OG).toBeCloseTo(1.0681297, 6);
-    expect(d.grist.FG).toBeCloseTo(1.0136259, 6);
-    expect(d.grist.ABV).toBeCloseTo(0.0748883, 4);
+    // Rev 4's OG, FG and ABV (Rev 3: 1.0681297, 1.0136259, 0.0748883).
+    expect(d.grist.OG).toBeCloseTo(1.0688522, 6);
+    expect(d.grist.FG).toBeCloseTo(1.0137704, 6);
+    expect(d.grist.ABV).toBeCloseTo(0.0757708, 4);
     expect(d.grist.SRM).toBeCloseTo(4.1236703, 4);
     expect(d.grist.mashRv).toBeCloseTo(1.7931034, 4);
     expect(d.hops.totalIBU).toBe(46);

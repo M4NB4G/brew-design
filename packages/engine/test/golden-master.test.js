@@ -1,5 +1,7 @@
 // golden-master.test.js
-// Pins the engine to the reference spreadsheet's cached values.
+// Pins the engine to the reference spreadsheet's cached values: the owner's
+// Recipe Designer Rev 4 (2026-10-08, docs/sources/). A value Rev 4 changed
+// names its cell, with the Rev 3 value it replaced.
 // Tolerances per spec: SG abs 1e-6; Plato/SRM/IBU/utilization/tempFactor 1e-4;
 // integers exact; starter volume and DME 1e-2 (DME expected at 1e-1).
 
@@ -68,18 +70,24 @@ describe('grist golden master', () => {
     expect(grist.preBoilPlato).toBeCloseTo(15.2145679, 4);
   });
   it('postBoilPlato', () => {
-    expect(grist.postBoilPlato).toBeCloseTo(16.6222661, 4);
+    // Rev 4, Grist and Pitch Calc's!I2 (Rev 3: 16.6222661, with the 1.01).
+    expect(grist.postBoilPlato).toBeCloseTo(16.7884887, 4);
   });
   it('OG', () => {
-    expect(grist.OG).toBeCloseTo(1.0681297, 6);
+    // Rev 4, Grist and Pitch Calc's!I3 (Rev 3: 1.0681297).
+    expect(grist.OG).toBeCloseTo(1.0688522, 6);
   });
   it('FG', () => {
-    expect(grist.FG).toBeCloseTo(1.0136259, 6);
+    // Rev 4, Grist and Pitch Calc's!K7 (Rev 3: 1.0136259).
+    expect(grist.FG).toBeCloseTo(1.0137704, 6);
   });
   it('ABV (fraction)', () => {
-    expect(grist.ABV).toBeCloseTo(0.0748883, 4);
+    // Rev 4, Grist and Pitch Calc's!K8 (Rev 3: 0.0748883).
+    expect(grist.ABV).toBeCloseTo(0.0757708, 4);
   });
   it('SRM', () => {
+    // Rev 3's figure until S10a item 2 (Morey's coefficients); Rev 4's
+    // Grist and Pitch Calc's!I4 is 4.1048543 (SPEC rule 2).
     expect(grist.SRM).toBeCloseTo(4.1236703, 4);
   });
 });
@@ -93,6 +101,8 @@ describe('hops golden master', () => {
     expect(bravo.tempFactor).toBeCloseTo(0.7468118, 4);
   });
   it('Bravo ibu', () => {
+    // Rev 3's figure until S10a item 3 (the IBU's 7489.1); Rev 4's Hops!J3
+    // is 23.4769679 (SPEC rule 2).
     expect(bravo.ibu).toBeCloseTo(23.5111374, 4);
   });
   it('totalIBU', () => {

@@ -12,9 +12,9 @@
 // The pins are worked by hand. The built-in recipe's 10 lb Pale and 1 lb
 // Munich are 10/11 = 0.909090... -> 90.9 % and 1/11 = 0.090909... -> 9.1 % of
 // the 11 lb bill. The smoke test's reference recipe brews 27 lb Golden Promise
-// and 2 lb Carafoam (29 lb) to OG 1.0681297: 27/29 = 93.103 % -> 93.1 and
-// 2/29 = 6.897 % -> 6.9; solving back from that OG at 93.1/6.9 % gives ~27.0
-// and ~2.0 lb, within the engine's pinned round-trip residual (solver.test.js:
+// and 2 lb Carafoam (29 lb) to OG 1.0688522 (Rev 4; Rev 3: 1.0681297):
+// 27/29 = 93.103 % -> 93.1 and 2/29 = 6.897 % -> 6.9; solving back from that
+// OG at 93.1/6.9 % gives ~27.0 and ~2.0 lb, within the engine's pinned round-trip residual (solver.test.js:
 // 2e-2 lb, the two gravity conversions not being exact inverses). Mash Rv
 // after the solve is 13 gal x 4 qt/gal over the new total: about 52/29 =
 // 1.793 qt/lb.
@@ -138,7 +138,7 @@ describe('design to a target OG', () => {
   it('Solve sets the weights from the target and the percents', () => {
     const r = reference();
     // 93.1 and 6.9 % as typed: they total 100.0.
-    const out = solveTargetOG(r, 1.0681297, [0.931, 0.069]);
+    const out = solveTargetOG(r, 1.0688522, [0.931, 0.069]);
     expect(out.ok).toBe(true);
     const solved = withMaltWeights(r, out.weightsLb);
     // ~27.0 and ~2.0 lb, within the solver's pinned residual (2e-2 lb).
@@ -157,10 +157,10 @@ describe('design to a target OG', () => {
 
     // The exact shares as filled (IS-Q7) total 100 and solve.
     const shares = computeRecipe(r).grist.perMalt.map((m) => m.perMaltWeightFraction);
-    expect(solveTargetOG(r, 1.0681297, shares).ok).toBe(true);
+    expect(solveTargetOG(r, 1.0688522, shares).ok).toBe(true);
 
     // Idempotence: Solve again with the same target and percents, same weights.
-    const again = solveTargetOG(solved, 1.0681297, [0.931, 0.069]);
+    const again = solveTargetOG(solved, 1.0688522, [0.931, 0.069]);
     expect(again.weightsLb).toEqual(out.weightsLb);
 
     // The pre-boil volume reaches the solver at 60 °F: measured hot (212 °F),
@@ -170,13 +170,13 @@ describe('design to a target OG', () => {
     const engineAt60 = (preBoilVolGal) =>
       solveGrist({
         malts: [{ fgdb: 0.8, percent: 0.931 }, { fgdb: 0.8, percent: 0.069 }],
-        targetOG: 1.0681297,
+        targetOG: 1.0688522,
         efficiency: 0.93,
         preBoilVolGal,
         boilOffRateGalPerHr: 1.5,
         boilTimeMin: 60,
       }).weights.map((w) => w.weightLb);
-    const hotOut = solveTargetOG(hot, 1.0681297, [0.931, 0.069]);
+    const hotOut = solveTargetOG(hot, 1.0688522, [0.931, 0.069]);
     expect(hotOut.weightsLb).toEqual(engineAt60(correctVolumeToRef(16, 212)));
     expect(hotOut.weightsLb[0]).not.toBeCloseTo(engineAt60(16)[0], 1);
 
@@ -188,7 +188,7 @@ describe('design to a target OG', () => {
   it('Solve fills a blank weight from its %', () => {
     const r = reference();
     const blank = { ...r, malts: [r.malts[0], { ...r.malts[1], weightLb: NaN }] };
-    const out = solveTargetOG(blank, 1.0681297, [0.931, 0.069]);
+    const out = solveTargetOG(blank, 1.0688522, [0.931, 0.069]);
     expect(out.ok).toBe(true);
     expect(Math.abs(out.weightsLb[1] - 2)).toBeLessThan(2e-2);
   });
@@ -198,12 +198,12 @@ describe('design to a target OG', () => {
     const { solveRefusalText } = await solver();
     const r = reference();
     // 93.1 + 5.9 = 99.0: refused, naming the total.
-    const short = solveTargetOG(r, 1.0681297, [0.931, 0.059]);
+    const short = solveTargetOG(r, 1.0688522, [0.931, 0.059]);
     expect(short.ok).toBe(false);
     expect(short.weightsLb).toBeUndefined();
     expect(solveRefusalText(short)).toBe('The percents total 99.0 %, not 100 %. Nothing changed.');
     // 99.96 reads 100.0: solves.
-    expect(solveTargetOG(r, 1.0681297, [0.9306, 0.069]).ok).toBe(true);
+    expect(solveTargetOG(r, 1.0688522, [0.9306, 0.069]).ok).toBe(true);
 
     // Each blank figure, named.
     const named = (recipe, target, pct) => solveRefusalText(solveTargetOG(recipe, target, pct));

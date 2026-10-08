@@ -1,6 +1,6 @@
 # Engine corrections — three Tier A items, batch S10a
 
-Status: agreed 2026-10-08 ("agree to all"; EC-Q1 and EC-Q2 as revised the same day with the owner's Rev 4), not started.
+Status: agreed 2026-10-08 ("agree to all"; EC-Q1 and EC-Q2 as revised the same day with the owner's Rev 4; EC-Q6 and EC-Q7 added while building, agreed the same day). Item 1 landed: "The original gravity is the pre-boil °P concentrated by the ratio of the pre-boil to the post-boil volume, both at 60 °F, with no other factor". Items 2 and 3 not started.
 Written by the session that wrote the References page's scope table; built
 in batch S10a, before S10b (docs/ROADMAP.md, Sessions; RF-Q11). Items in
 this order: the boil factor, Morey's coefficients, the IBU conversion.
@@ -51,6 +51,8 @@ cached values match the probe's to every digit for OG, FG, ABV and SRM.
 | EC-Q3 | Saved recipes | No change to any saved file; they open showing the new figures, since figures are worked out, never saved. A grain bill solved to a target before S10a shows about 1 % more gravity points; Solve again to return to the target. No notice in the app | The recipe holds inputs, not results (SPEC rule 8) |
 | EC-Q4 | Order and commits | The boil factor, then Morey, then the IBU; one commit each, a fresh inspector each | CLAUDE.md, Batches |
 | EC-Q5 | Before the References page | S10a lands before S10b is built, so the page shows these equations (RF-Q11, RF-Q13) | One set of equations on the page |
+| EC-Q6 | The app's reference check (the smoke test) pins OG, FG, ABV and SRM, and SPEC rule 12 said those never change | Rule 12: its figures change only when the spreadsheet the engine follows changes, each re-read from the same Rev 4 cell as the golden master, the old figure kept beside it; tolerances never change (agreed 2026-10-08, raised by the S10a builder) | The check mirrors the golden master: it guards the app against drifting, not the owner against correcting the spreadsheet |
+| EC-Q7 | The other app tests that pin the old OG, FG, ABV, SRM or IBU | Each item re-pins the figures it moves in those tests, in the same commit, from Rev 4's cells or from the engine's golden-master value, the old figure beside each one; no other change to those tests (agreed 2026-10-08, raised by the S10a builder) | One item, one commit; the suites must pass |
 | M1 | Builder model | Opus, high effort | CLAUDE.md, Models (default; engine items stay on Opus) |
 | M2 | Inspector model | Opus, default effort, a fresh subagent per item | CLAUDE.md, Models |
 | Silent property | What does this depend on that nobody decided? | Saved recipes: unchanged, figures shift on open (EC-Q3). Printed sheets already printed keep the old figures. Cells needed can move across a starter band, so a recipe may be offered a different starter. No storage, ordering or multi-tab question: nothing saved changes | — |
@@ -77,4 +79,9 @@ EC-Q1.
 
 ## Builder's notes
 
-(none yet)
+- The probe's "app suite 256/256 passing" was wrong: item 1 alone fails 14 app tests (the smoke test's OG, FG and ABV among them), item 2 alone 2, item 3 alone 6. Raised as EC-Q6 and EC-Q7 before anything was committed.
+- Item 1. SPEC rule 2 records all three of Rev 4's changes and N11 (EC1-S4), with a line saying the colour and the IBU land in items 2 and 3 and until then the engine and the golden master's SRM and Bravo IBU rows keep Rev 3's figure; those two rows say the same. Items 2 and 3 each remove their part of that line. (First built item by item, adding each figure with its item; the inspector failed that as EC1-S4 only partly built.)
+- Item 1. The re-pinned app snapshots (EC-Q7): the reference recipe's printed OG "1.068" → "1.069" and ABV "7.5" → "7.6"; the built-in recipe's OG 1.055 → 1.056 and ABV 5.7 → 5.8 %, in Pro 13.62 → 13.76 °P and FG 3.25 → 3.28 °P; the °C recipe's ABV 5.9 → 6.0 %, in Pro 14.01 → 14.15 °P and 3.34 → 3.38 °P; the Pro recipe's cells 4660 → 4710 billion (4.66 → 4.71 trillion), OG 4.32 → 4.36 °P, FG 1.00 → 1.01 °P; the sparge recipes' Pro OG 10.93 → 11.04 °P and FG 2.59 → 2.61 °P. The JSON snapshots carry no comments, so each test file names its re-pinned figures, old beside new, where it loads them. The design-to-target tests solve to Rev 4's OG, 1.0688522, in place of 1.0681297.
+- Item 1. The solver's pinned residual moves from 29.0129133 to 29.0128327 lb (mash water 13.0057884 → 13.0057522 gal); the FLAG's "~29.013 lb" holds, its "~1.068" and "~0.045 %" become "~1.069" and "~0.044 %".
+- Item 1. "Solve with volumes measured hot" (roadmap): re-worked with the 1.01 gone, a target of 1.050 on the built-in recipe still predicts 1.0494 at 212 °F and 1.0497 at 150 °F (1.04941 and 1.04974 both before and after), so the line stands unchanged.
+- Item 1. The Notes page still says Rev 3 and "the spreadsheet's empirical boil correction": a Tier C roadmap line, since the References page (S10b) replaces the page.

@@ -42,6 +42,10 @@ import * as f from './economics.fixture.js';
 import { withoutBoxNames as noNames } from './box-names.fixture.js';
 import { docWithTarget, sheetWithAimedAcid } from './acid-aim.js';
 
+// Since the engine follows Rev 4 (docs/items/engine-corrections.md, EC-Q7),
+// the printed sheet's figures it moves are re-pinned in the captured bytes:
+// OG 1.055 -> 1.056 and ABV 5.7 -> 5.8 %; in Pro, OG 13.62 -> 13.76 °P and
+// FG 3.25 -> 3.28 °P.
 const BEFORE = JSON.parse(readFileSync(new URL('./economics.before.json', import.meta.url), 'utf8'));
 const computeCost = (...a) => selectors.computeCost(...a);
 // The card's module, loaded per scenario (it is new with this item).

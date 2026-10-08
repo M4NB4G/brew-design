@@ -188,8 +188,9 @@ describe('yeast card', () => {
 
     // The smoke test's pinned values hold (attenuation 0.8, ale, moderate).
     const d = computeRecipe(withStrain);
-    expect(d.grist.FG).toBeCloseTo(1.0136259, 6);
-    expect(d.grist.ABV).toBeCloseTo(0.0748883, 4);
+    // Rev 4's FG and ABV (Rev 3: 1.0136259, 0.0748883).
+    expect(d.grist.FG).toBeCloseTo(1.0137704, 6);
+    expect(d.grist.ABV).toBeCloseTo(0.0757708, 4);
     expect(d.pitchRate).toBe(selectPitchRate('ale', 'mod'));
     expect(d.cells).toBe(570);
     expect(d.starter[0].volumeL).toBeCloseTo(3.0, 2);

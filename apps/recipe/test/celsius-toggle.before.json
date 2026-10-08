@@ -27,7 +27,7 @@
    },
    {
     "label": "ABV",
-    "value": "5.9",
+    "value": "6.0",
     "unit": "%",
     "measuredBox": false
    },
@@ -180,19 +180,19 @@
   "headline": [
    {
     "label": "OG",
-    "value": "14.01",
+    "value": "14.15",
     "unit": "°P",
     "measuredBox": true
    },
    {
     "label": "FG",
-    "value": "3.34",
+    "value": "3.38",
     "unit": "°P",
     "measuredBox": true
    },
    {
     "label": "ABV",
-    "value": "5.9",
+    "value": "6.0",
     "unit": "%",
     "measuredBox": false
    },
