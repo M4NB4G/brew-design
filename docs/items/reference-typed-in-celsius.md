@@ -1,7 +1,9 @@
 # 15.6 °C typed is the reference — Tier B
 
-Status: agreed 2026-10-07 ("agree to all"); not started. Written by the S9
-session; built in batch S11 (docs/ROADMAP.md, Sessions).
+Status: landed 2026-10-08 in batch S11 on branch `S11`, as "In °C, a
+temperature typed as the reference shows it, 15.6, is stored as the
+reference, 60 °F exactly"; agreed 2026-10-07 ("agree to all"). Written by
+the S9 session; built in batch S11 (docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -37,3 +39,14 @@ App (`apps/recipe/test/celsius-toggle.test.js`, or a new file): *15.6 °C typed 
 
 - `display.js`: `tempToCanonical` converts (its comment carries the FLAG-style note on this question); the reference as shown is already worked out for the "at 15.6 °C" text (`num(fToC(REFERENCE_TEMP_F), 1)`). Compare against the same figure, not a written 15.6 (SPEC rule 11: no app file writes the figure).
 - Files likely touched: `apps/recipe/src/display.js`; SPEC rule 9; `docs/TEST_COVERAGE.md`.
+
+## Builder's notes (S11, 2026-10-08)
+
+Claims for the inspector to verify; none is a decision the sentences made.
+
+- One change, in `display.js`'s `tempToCanonical`, the one °C-to-°F conversion every temperature box calls (the three measurement temperatures on the Volumes card, the yeast's fermentation temperature, each kettle hop's temperature, and My brewery's three; no other box takes a temperature: the item's scenario list names a mash temperature, but the app has no mash temperature box). In °C, an entry equal to the reference as its box shows it, `tempBoxValue(REFERENCE_TEMP_F, 'C')` (the engine's `fToC` of 60, to one decimal: 15.6), is stored as `REFERENCE_TEMP_F` itself; every other entry is the engine's `cToF`, as before. No app file writes 15.6 or 60 (SPEC rule 11).
+- The comparison is exact equality of numbers: the box reads `parseFloat` of what is typed, so "15.6", "15.60" and "015.6" all match; 15.56 converts as typed (60.008 °F, pinned).
+- The `// FLAG:` beside `tempToCanonical` (CT-S2's 60.08) goes with the change; the comment now says what the function does.
+- The scenario draws the whole app in jsdom (as `accessible-names.test.js` and `my-ingredients.test.js` do) so every box is typed into as a brewer does and the saved copy the autosave writes is read back; the sheet's notes are read from the sheet's own data for the saved recipe.
+- Two of the four scenarios failed before ("15.6 °C typed is the reference", "every temperature box": every box stored 60.08); "other °C entries convert as before" and "nothing else changes" passed before, as RT-S2 and RT-S4 say nothing changes. "Every temperature box" was first written to stop at the first box; it was rewritten before the change to gather every box's stored figure, and the recorded failure is from the rewritten one, run against the unchanged `display.js`. A wrong box name in that first draft (the yeast's box is named "Fermentation temperature °C") was corrected the same way.
+- Numbers introduced: none written; 60 is the engine's `REFERENCE_TEMP_F` and 15.6 its `fToC` at the box's one decimal (`tempBoxValue`, display precision). The other °C pins are by hand in the test (C × 1.8 + 32).

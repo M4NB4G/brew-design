@@ -249,15 +249,14 @@ export function tempUnit(temperatureUnit) {
   return temperatureUnit === 'C' ? '°C' : '°F';
 }
 
-// FLAG: the °C entry is stored as typed, converted (CT-S2), so re-typing a
-// shown °C figure can move the stored °F: the 60 °F reference shows as 15.6,
-// and 15.6 typed stores 60.08 °F, which is not the reference — the post-boil
-// volume then shows a second row "at 16 °C" and the sheet notes "measured at
-// 16 °C"; each volume moves in its sixth figure. Kept as specified; the
-// question is on the roadmap ("15.6 °C typed is not the reference").
+// A °C entry is stored as the engine's cToF of it (CT-S2), except the
+// reference as its box shows it (15.6): that is stored as the reference,
+// 60 °F exactly, so typing what the screen shows for it gives it back (RT-S1).
 export function tempToCanonical(displayValue, temperatureUnit) {
   // -> °F
-  return temperatureUnit === 'C' ? cToF(displayValue) : displayValue;
+  if (temperatureUnit !== 'C') return displayValue;
+  if (displayValue === tempBoxValue(REFERENCE_TEMP_F, 'C')) return REFERENCE_TEMP_F;
+  return cToF(displayValue);
 }
 
 // A temperature box's value: °F as stored; °C to tenths, the precision the

@@ -91,8 +91,9 @@ cached values are pinned by the golden-master tests.
    constants anywhere in the app.
    Temperatures are stored in °F and shown in the header's choice, °F or
    °C: a °C entry is stored as the engine's `cToF` of it and shows back as
-   typed; boxes take tenths of a degree, readouts show whole degrees, except
-   the reference, shown in °C as 15.6. The printed sheet uses the screen's
+   typed, except the reference as its box shows it (15.6), which is stored
+   as the reference itself; boxes take tenths of a degree, readouts show
+   whole degrees, except the reference, shown in °C as 15.6. The printed sheet uses the screen's
    unit. Switching the unit changes no stored figure.
    In Pro two more choices sit beside the gravity unit: liquid volumes in
    barrels or gallons — gallons covers every volume except the dry-hop
