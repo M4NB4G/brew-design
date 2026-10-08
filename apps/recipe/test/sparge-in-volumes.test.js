@@ -23,7 +23,8 @@ const TODAY = new Date(2026, 9, 5);
 // Since the engine follows Rev 4 (docs/items/engine-corrections.md, EC-Q7),
 // the printed sheet's figures it moves are re-pinned in the captured bytes:
 // in Pro, OG 10.93 -> 11.04 °P and FG 2.59 -> 2.61 °P; without the water
-// argument, OG 1.055 -> 1.056 and ABV 5.7 -> 5.8 %.
+// argument, OG 1.055 -> 1.056 and ABV 5.7 -> 5.8 %. With the IBU's 7489.1
+// (item 3), Magnum's IBU 18.3 -> 18.2 (40.1 -> 40.0 without the water argument).
 const BEFORE = JSON.parse(
   readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'sparge-in-volumes.before.json'), 'utf8'),
 );

@@ -28,8 +28,9 @@ export function computeHops(input) {
 
     const adjUtil = utilization * tempFactor;
 
-    // IBU scale: 75 and x100.
-    const ibu = a.weightOz * a.alphaAcidFraction * adjUtil * (75 / postBoilVolGal) * 100;
+    // IBU scale: oz/gal to mg/L by 7489.1 (Rev 4, Hops!J3, in place of Rev 3's
+    // 75 and x100).
+    const ibu = a.weightOz * a.alphaAcidFraction * adjUtil * (7489.1 / postBoilVolGal);
 
     return {
       name: a.name,

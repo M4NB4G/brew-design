@@ -50,7 +50,8 @@ import { docWithTarget, sheetWithAimedAcid, withoutAcidCards } from './acid-aim.
 // Since the engine follows Rev 4 (docs/items/engine-corrections.md, EC-Q7),
 // the printed sheet's figures it moves are re-pinned in the captured bytes:
 // cells 4660 -> 4710 billion (4.66 -> 4.71 trillion); in Pro, OG 4.32 -> 4.36 °P
-// and FG 1.00 -> 1.01 °P.
+// and FG 1.00 -> 1.01 °P. With the IBU's 7489.1 (item 3), Magnum's IBU
+// 60.1 -> 60.0 on the sheet and the Hops card.
 const BEFORE = JSON.parse(readFileSync(new URL('./pro-unit-choices.before.json', import.meta.url), 'utf8'));
 
 const GAL = { proVolumeUnit: 'gal', proMaltUnit: 'lb' };

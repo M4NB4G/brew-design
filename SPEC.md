@@ -17,11 +17,10 @@ cached values are pinned by the golden-master tests.
    SRM = 1.4922 × MCU^0.6859 (I4), in place of 1.49 and 0.69; each kettle
    addition's IBU converts oz/gal to mg/L by 7489.1 (Hops!J3), in place of
    75 × 100; and the 400B starter band serves 800-1000 billion cells
-   inclusive from the pack alone, and above 1000 with one extra 200B pack (Starter Vol Solver N11, whose strict
-   boundary at 900 disagreed with its own note; the owner's rule since
-   2026-09-21, `packages/engine/src/starter.js`). The IBU lands in batch
-   S10a's item 3; until it does, the engine and the golden master's Bravo
-   IBU row keep Rev 3's figure.
+   inclusive from the pack alone, and above 1000 with one extra 200B pack
+   (Starter Vol Solver N11, whose strict boundary at 900 disagreed with its
+   own note; the owner's rule since 2026-09-21,
+   `packages/engine/src/starter.js`).
 3. When faithful transcription produces a result that looks wrong, keep it and
    add a `// FLAG:` comment saying what and why. Never silently fix.
 4. Golden-master tolerances are fixed and never loosened:

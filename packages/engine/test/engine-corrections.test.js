@@ -4,7 +4,7 @@
 // the working beside it.
 
 import { describe, it, expect } from 'vitest';
-import { computeGrist, solveGrist } from '../src/index.js';
+import { computeGrist, solveGrist, computeHops } from '../src/index.js';
 
 // The engine's reference recipe (the golden master's), at 60 °F.
 const reference = {
@@ -97,5 +97,34 @@ describe("EC2: Morey's coefficients", () => {
       postBoilVolGal: 10,
     });
     expect(dark.SRM).toBeCloseTo(21.8348675, 4);
+  });
+});
+
+describe('EC3: the IBU conversion', () => {
+  it("each addition's IBU converts oz/gal to mg/L by Rev 4's 7489.1", () => {
+    // Bravo, the reference recipe's 60-minute addition: 2 oz at 14.7 % alpha,
+    // utilization x temperature factor 0.1546084 (Rev 4, Hops!I3), 14.5 gal
+    // post-boil. 2 x 0.147 = 0.294; x 0.1546084 = 0.0454549;
+    // 7489.1 / 14.5 = 516.4896552; 0.0454549 x 516.4896552 = 23.4769679 IBU
+    // (Rev 4, Hops!J3). With 75 x 100 = 7500 it was 23.5111374.
+    const bravo = { name: 'Bravo', timeMin: 60, wortTempF: 204, weightOz: 2, alphaAcidFraction: 0.147 };
+    const hops = computeHops({
+      kettleAdditions: [bravo],
+      preBoilSg: 1.062031,
+      postBoilVolGal: 14.5,
+      fermentVolGal: 12,
+    });
+    expect(hops.additions[0].adjUtil).toBeCloseTo(0.1546084, 6);
+    expect(hops.additions[0].ibu).toBeCloseTo(23.4769679, 4);
+
+    // The factor alone, on another volume: IBU x post-boil gal / (oz x alpha
+    // x utilization) is 7489.1 mg/L per oz/gal, not 7500.
+    const ten = computeHops({
+      kettleAdditions: [bravo],
+      preBoilSg: 1.062031,
+      postBoilVolGal: 10,
+      fermentVolGal: 12,
+    }).additions[0];
+    expect((ten.ibu * 10) / (2 * 0.147 * ten.adjUtil)).toBeCloseTo(7489.1, 9);
   });
 });

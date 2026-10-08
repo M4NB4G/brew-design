@@ -100,9 +100,8 @@ describe('hops golden master', () => {
     expect(bravo.tempFactor).toBeCloseTo(0.7468118, 4);
   });
   it('Bravo ibu', () => {
-    // Rev 3's figure until S10a item 3 (the IBU's 7489.1); Rev 4's Hops!J3
-    // is 23.4769679 (SPEC rule 2).
-    expect(bravo.ibu).toBeCloseTo(23.5111374, 4);
+    // Rev 4, Hops!J3 (Rev 3: 23.5111374, with 75 x 100).
+    expect(bravo.ibu).toBeCloseTo(23.4769679, 4);
   });
   it('totalIBU', () => {
     expect(hops.totalIBU).toBe(46);
