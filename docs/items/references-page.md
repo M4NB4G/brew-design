@@ -95,10 +95,13 @@ Builder and advisor as M1, no inspector (M2); the report names the models. The
 `/usage` readings at the start and at the report are the owner's to supply: a
 session cannot read them.
 
-- **Branch.** `main` (and `origin/main`) is at 7404297 and does not hold S10a,
-  which RF-Q11 and RF-S6 need, so the item was built on the session's own
-  branch `claude/tender-hypatia-273wty`, whose tip 3916114 holds S10a. A pull
-  request from it shows the 29 commits that are not on `main` yet.
+- **Branch.** Built on the session's own branch `claude/tender-hypatia-273wty`,
+  which is `origin/main` at 3916114 (S10a, which RF-Q11 and RF-S6 need, is on
+  it) plus this item's commit; a pull request from it shows that commit alone.
+  The builder first read `main` as 7404297 from an out-of-date copy of
+  `origin/main` in its cloud clone, and the first report said the pull request
+  carried 29 earlier commits; both were wrong, and `git fetch origin` showed
+  3916114 (corrected by the owner, 2026-10-08).
 - **File name.** Kept `NotesPage.jsx`: `App.jsx` (Tier B) imports it by that
   name, so a rename would put it in the diff and stop the item. The component
   is `ReferencesPage` (default export), its props unchanged; `Footer` keeps
