@@ -142,7 +142,7 @@ describe('water tab screens', () => {
     // The acid dose line: the recommended lactic dose, and what it neutralises;
     // since the acid aimed at a mash pH, what it aims at (AA-S1: the built-in
     // malts are typed, so it aims at the target, 5.4).
-    expect(salts).toContain(`rec ${f.acid.recommended.toFixed(0)} mL`);
+    expect(salts).toContain(`rec ${f.acid.recommended.toFixed(1)} mL`);
     expect(f.acid.aimedAt).toBe('target');
     if (f.acid.recommendedMeq > 0) {
       expect(salts).toContain(

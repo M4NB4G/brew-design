@@ -259,8 +259,8 @@ describe('acid into the mash (S5b item C)', () => {
     // The salts stay in the HLT.
     const salts = sheetOf(wcPils({ acidPlace: 'mash' })).water.additions.filter((a) => a.name.startsWith('Gypsum'));
     expect(salts.map((a) => a.place)).toEqual(['HLT', 'Kettle']);
-    // The dose printed is the mash water's: 13 mL (12.96 to whole mL; aimed
-    // at the target mash pH since S9).
-    expect(sheetOf(wcPils({ acidPlace: 'mash' })).water.additions.find((a) => a.place === 'Mash').amount).toBe('13');
+    // The dose printed is the mash water's: 13.0 mL (12.96 to 0.1 mL since
+    // S10; aimed at the target mash pH since S9).
+    expect(sheetOf(wcPils({ acidPlace: 'mash' })).water.additions.find((a) => a.place === 'Mash').amount).toBe('13.0');
   });
 });
