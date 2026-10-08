@@ -5,7 +5,7 @@ D trial, then the widened trial). One row per batch. Figures are the owner's
 `/usage` readings at the end of each session, as sent; a session cannot run
 `/usage` itself, and no start reading was taken, so a batch's cost is the
 whole session's, not per item. "Builder" and "advisor" are the trial's two
-models (CLAUDE.md, Models). Last updated 2026-10-06.
+models (CLAUDE.md, Models). Last updated 2026-10-08.
 
 ## Batches
 
@@ -15,6 +15,7 @@ models (CLAUDE.md, Models). Last updated 2026-10-06.
 | S6c | | | | | | | |
 | S6d | | | | | | | |
 | F1 | 3 (tests on GitHub; a linter; a name for every box) | D, D, C | $10.02 | API 17m 4s, active 25m 34s | 67 % / 33 % (basis, cost or tokens, not stated) | 0 | 0 |
+| S10b | 1 (the References page) | C and D | $10.02 | API 26m, wall 30m | not split: the report lists only the builder's model line | 0 | 1 (a docs-only note, `597b677`) |
 
 S6c and S6d are left blank until their readings are in.
 
@@ -33,6 +34,27 @@ byte-for-byte scenarios); S6a's were a wording fix and a print layout.
   never opened "Design to target OG" (the scenario now does).
 - Every number each item adds was confirmed by the advisor as no recipe value.
 - Merged on the owner's word: `main` at e2d5edf.
+
+## S10b detail
+
+- The reading (2026-10-08, 20:08 UTC) is one line for the builder's model and
+  no advisor line, so no split between builder and advisor is recorded. It was
+  taken after the merge, so $10.02 covers the whole session: the build, the
+  report, the branch correction, the follow-up commit, the merge and push, and
+  the questions after them. It equals F1's $10.02 to the cent; the times differ
+  (F1 API 17m 4s, S10b API 26m), so it is read as a coincidence.
+- Send-backs: 0. After the report the owner corrected the builder's claim that
+  `main` was stale: the cloud clone's `origin/main` read 7404297, while GitHub's
+  was 3916114 (S10a on top). That changed no code.
+- Fix after a commit: 1, `597b677`, a docs-only correction to the item file's
+  branch note, made as a follow-up commit so the reviewed hash stayed valid.
+- The advisor was called twice, before building and before the commit. It
+  changed the builder's work once: the page divided an engine constant
+  (`G_PER_LB / 1000`), which made SPEC rule 7's new sentence untrue; the
+  equation is now written in the engine's own form. Every number the item adds
+  was confirmed as no recipe value.
+- Merge: on the owner's word, `main` at `597b677`; the pull request is
+  M4NB4G/brew-design#64. The Netlify build and CI were not checked here.
 
 ## Not like for like
 
