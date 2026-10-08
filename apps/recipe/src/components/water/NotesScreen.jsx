@@ -5,7 +5,9 @@
 // only where the text credits the chemistry's origin (NT-Q2). Only the
 // water app's version talk ("v1.2", "v2", "v1.3", "New in v1.1") is replaced by where each stands
 // in Brew Design (W8), and its "Recipe tab" is the Salts & Acid screen here
-// (W2). Static text; nothing computed.
+// (W2). The two passages that said mash pH is not predicted (Scope &
+// Limitations, the last Application Assumption) say what the Water tab does
+// since S5 (S10). Static text; nothing computed.
 import Card from '../shared/Card.jsx';
 import { colors, tokens } from '../shared/styles.js';
 
@@ -21,10 +23,15 @@ export default function NotesScreen() {
             profile.
           </p>
           <p>
-            <strong>Mash pH is not predicted yet.</strong> Mash pH prediction
-            requires the grain bill (base malt color, crystal %, roast %) to
-            estimate buffering. It is planned in Brew Design from the recipe&apos;s
-            grain bill with the Kaiser/Troester model (water program step 5).
+            <strong>Mash pH is predicted from the recipe&apos;s grain bill.</strong>{' '}
+            The Water tab estimates the mash pH of a cooled sample with
+            Troester&apos;s model (2009, braukaiser.com): each malt from its type and
+            color, or its measured figure; the treated mash water&apos;s residual
+            alkalinity; the mash water and grain as entered. It is an estimate
+            within the range the model was tested on: the tab warns when the
+            water&apos;s residual alkalinity or the mash thickness is beyond that
+            range, and when the predicted pH is outside the range for a cooled
+            sample.
           </p>
           <p>
             What the Water tab <em>does</em> do:
@@ -149,7 +156,8 @@ export default function NotesScreen() {
           </li>
           <li style={{ marginBottom: 0 }}>
             This application calculates salt and acid additions to reach a target ion
-            profile. It does not predict mash pH (which requires grain bill data).
+            profile, and predicts the mash pH of a cooled sample from the grain bill,
+            within the range the model was tested on.
             All outputs are process guidance and should be verified against direct
             analytical testing and pH measurement before production use.
           </li>

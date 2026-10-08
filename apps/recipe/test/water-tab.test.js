@@ -182,7 +182,7 @@ describe('water tab screens', () => {
       'Calcium chloride is modeled as the dihydrate form (CaCl₂·2H₂O), the form most commonly sold for brewing, consistent with Palmer & Kaminski (2013).',
       'Phosphoric acid is treated as effectively monoprotic at mash pH.',
       'Residual alkalinity is calculated per the Kolbach (1953) formulation.',
-      'This application calculates salt and acid additions to reach a target ion profile. It does not predict mash pH (which requires grain bill data).',
+      'This application calculates salt and acid additions to reach a target ion profile, and predicts the mash pH of a cooled sample from the grain bill, within the range the model was tested on.',
       'Validation & Methodology',
       "Salt and acid chemistry has been validated against Bru'n Water 1.25 and Palmer's water adjustment spreadsheet across multiple reference water profiles.",
       'Commercial Use & Liability Disclaimer',
@@ -193,7 +193,8 @@ describe('water tab screens', () => {
       expect(notes).toContain(words);
     }
     expect(notes).not.toMatch(/\bv1\.[0-9]|\bv2\b/);
-    expect(notes).toContain('water program step 5');
+    // The mash pH passages say what the tab does (S10, notes-mash-ph.test.js).
+    expect(notes).toContain('Mash pH is predicted from the recipe');
   });
 
   // W6 ("the Water tab says the entries are not saved, and nothing is saved")
