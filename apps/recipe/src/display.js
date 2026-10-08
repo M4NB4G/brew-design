@@ -218,6 +218,14 @@ export function liquidAcidUnit() {
   return 'mL';
 }
 
+// Liquid acid's decimals, on the Salts & Acid screen and the printed sheet
+// alike: 0.1 mL at Home, whole mL in Pro (docs/items/liquid-acid-tenth.md,
+// LT-Q1). Leaving an acid box saves the dose as shown (LT-S3), so this
+// sets a saved dose too.
+export function liquidAcidDigits(mode) {
+  return mode === 'pro' ? 0 : 1;
+}
+
 export function acidMaltUnit(mode) {
   return mode === 'pro' ? 'lb' : 'oz';
 }

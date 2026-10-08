@@ -38,6 +38,7 @@ import {
   starterVolumeUnit,
   saltUnit,
   liquidAcidUnit,
+  liquidAcidDigits,
   acidMaltUnit,
   acidMaltFromCanonical,
 } from '../display.js';
@@ -237,7 +238,7 @@ export function recipeSheet({
 // --- Water on the printed sheet (docs/items/water-print-sheet.md) ----------
 // What the kettle needs from the Water tab: each addition where it goes, in
 // the screen's units and precision (salts 0.1 g Home, 1 g Pro; liquid acid
-// whole mL; acidulated malt 0.01 oz or lb), only what goes in (P5); the water
+// 0.1 mL Home, whole mL Pro; acidulated malt 0.01 oz or lb), only what goes in (P5); the water
 // volumes; the style target and the treated water's predicted profile; and a
 // box for the measured mash pH (P3), the target and the predicted mash pH beside it (mash
 // pH, MP-S6). `water` is computeWater's output, the
@@ -269,7 +270,7 @@ function waterSection(water, mode, vol, vUnit) {
       additions.push(
         r.solid
           ? { place: acidPlace, name: r.name, amount: num(acidMaltFromCanonical(r.amount, mode), 2), unit: acidMaltUnit(mode) }
-          : { place: acidPlace, name: r.name, amount: num(r.amount, 0), unit: liquidAcidUnit(mode) },
+          : { place: acidPlace, name: r.name, amount: num(r.amount, liquidAcidDigits(mode)), unit: liquidAcidUnit(mode) },
       );
     }
   }

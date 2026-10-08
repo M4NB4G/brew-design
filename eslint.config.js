@@ -42,7 +42,11 @@ export default [
   },
   // The tests that draw the whole app in jsdom read the browser's globals.
   {
-    files: ['apps/recipe/test/accessible-names.test.js', 'apps/recipe/test/my-ingredients.test.js'],
+    files: [
+      'apps/recipe/test/accessible-names.test.js',
+      'apps/recipe/test/my-ingredients.test.js',
+      'apps/recipe/test/liquid-acid-tenth.test.js',
+    ],
     languageOptions: { globals: globals.browser },
   },
 ];
