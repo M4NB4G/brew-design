@@ -77,9 +77,9 @@ describe('empty-field handling', () => {
     expect(named({ ...fresh, name: '', style: '', notes: '' })).toEqual([]);
 
     // Every number box empty, in screen order: the Volumes card (Mash, Boil,
-    // Ferment), the Grist table and its efficiency, the Yeast card's
-    // attenuation, the kettle hops, the dry hops; then the (Volumes card's)
-    // measurement temperatures. An unnamed row is named by its place.
+    // Ferment, each measurement temperature beside its volume: S10 item 3),
+    // the Grist table and its efficiency, the Yeast card's attenuation, the
+    // kettle hops, the dry hops. An unnamed row is named by its place.
     const r = defaultRecipeState();
     Object.assign(r, {
       mashWaterGal: NaN,
@@ -106,9 +106,12 @@ describe('empty-field handling', () => {
     expect(named(r)).toEqual([
       'Mash water',
       'Pre-boil volume',
+      'Pre-boil measurement temperature',
       'Boil-off rate',
       'Boil time',
+      'Post-boil measurement temperature',
       'Fermentation volume',
+      'Fermentation measurement temperature',
       'Pale 2-Row weight',
       'Pale 2-Row FGDB',
       'Pale 2-Row color',
@@ -122,9 +125,6 @@ describe('empty-field handling', () => {
       'Kettle hop 2 alpha',
       'Citra dry-hop weight',
       'Dry hop 2 weight',
-      'Pre-boil measurement temperature',
-      'Post-boil measurement temperature',
-      'Fermentation measurement temperature',
     ]);
 
     // One or two empty: the line under the stats bar names them.
@@ -134,6 +134,62 @@ describe('empty-field handling', () => {
     expect(emptyFieldsLine(named(two))).toBe('Empty: Boil time, Pale 2-Row weight — figures that depend on them show —');
     expect(emptyFieldsLine(['Boil time'])).toBe('Empty: Boil time — figures that depend on it show —');
     expect(emptyFieldsLine([])).toBeNull();
+  });
+
+  it('each measurement temperature is named beside the volume it corrects, in the order the Volumes card shows them', async () => {
+    // S10 item 3. The Volumes card, top to bottom: Mash water; the Boil
+    // column's pre-boil volume with its temperature under it, boil-off rate,
+    // boil time, then the post-boil volume (worked out, not entered) with its
+    // temperature under it; the Ferment column's fermentation volume with its
+    // temperature under it. The line names them in that order; every name and
+    // the line's text stay as they were.
+    await loadNaming();
+    const volumes = defaultRecipeState();
+    Object.assign(volumes, {
+      mashWaterGal: NaN,
+      preBoilVolGal: NaN,
+      boilOffRateGalPerHr: NaN,
+      boilTimeMin: NaN,
+      fermentVolGal: NaN,
+      measurementTempF: { preBoil: NaN, postBoil: NaN, ferment: NaN },
+    });
+    expect(named(volumes)).toEqual([
+      'Mash water',
+      'Pre-boil volume',
+      'Pre-boil measurement temperature',
+      'Boil-off rate',
+      'Boil time',
+      'Post-boil measurement temperature',
+      'Fermentation volume',
+      'Fermentation measurement temperature',
+    ]);
+
+    // One temperature empty: it is named where it sits, not after the dry hops.
+    const grist = (recipe) => ({ ...recipe, malts: [{ ...recipe.malts[0], weightLb: NaN }, ...recipe.malts.slice(1)] });
+    const base = defaultRecipeState();
+    const temps = (patch) => ({ ...base.measurementTempF, ...patch });
+    expect(named(grist({ ...base, measurementTempF: temps({ preBoil: NaN }), boilTimeMin: NaN }))).toEqual([
+      'Pre-boil measurement temperature',
+      'Boil time',
+      'Pale 2-Row weight',
+    ]);
+    expect(named(grist({ ...base, measurementTempF: temps({ postBoil: NaN }), boilTimeMin: NaN }))).toEqual([
+      'Boil time',
+      'Post-boil measurement temperature',
+      'Pale 2-Row weight',
+    ]);
+    expect(named(grist({ ...base, measurementTempF: temps({ ferment: NaN }), fermentVolGal: NaN }))).toEqual([
+      'Fermentation volume',
+      'Fermentation measurement temperature',
+      'Pale 2-Row weight',
+    ]);
+
+    // One the correction cannot use sits in the same place, with its note.
+    expect(named(grist({ ...base, measurementTempF: temps({ preBoil: 250 }), boilOffRateGalPerHr: NaN }))).toEqual([
+      `Pre-boil measurement temperature${OUT}`,
+      'Boil-off rate',
+      'Pale 2-Row weight',
+    ]);
   });
 
   it('a measurement temperature the correction cannot use is named with the empty boxes', async () => {

@@ -21,17 +21,10 @@ const typedName = (row) => (typeof row?.name === 'string' ? row.name.trim() : ''
 // A row's name as typed, or its place when it has none ("Malt 2").
 const rowName = (row, kind, index) => typedName(row) || `${kind} ${index + 1}`;
 
-const MEASUREMENTS = [
-  ['preBoil', 'Pre-boil'],
-  ['postBoil', 'Post-boil'],
-  ['ferment', 'Fermentation'],
-];
-
 /**
- * The empty number boxes of `recipe`, in screen order: the Volumes card,
- * the Grist table and its efficiency, the Yeast card's attenuation, the
- * kettle and dry hops, then the three measurement temperatures (on the
- * Volumes card; named last, as when they were on the Options tab).
+ * The empty number boxes of `recipe`, in screen order: the Volumes card (each
+ * measurement temperature beside the volume it corrects), the Grist table and
+ * its efficiency, the Yeast card's attenuation, the kettle and dry hops.
  * `derived` is computeRecipe(recipe).
  */
 export function emptyFields(recipe, derived) {
@@ -40,11 +33,27 @@ export function emptyFields(recipe, derived) {
     if (blank(value)) names.push(name);
   };
 
+  // A volume's measurement temperature, named where its box sits on the
+  // Volumes card: blank, or one the correction cannot use (see above).
+  const checkTemp = (kind, label, measuredGal) => {
+    const tempF = recipe.measurementTempF?.[kind];
+    if (blank(tempF)) {
+      names.push(`${label} measurement temperature`);
+    } else if (blank(derived.refVolumesGal[kind]) && !blank(measuredGal)) {
+      names.push(`${label} measurement temperature (outside the correction's range)`);
+    }
+  };
+
   check(recipe.mashWaterGal, 'Mash water');
   check(recipe.preBoilVolGal, 'Pre-boil volume');
+  checkTemp('preBoil', 'Pre-boil', recipe.preBoilVolGal);
   check(recipe.boilOffRateGalPerHr, 'Boil-off rate');
   check(recipe.boilTimeMin, 'Boil time');
+  // The post-boil volume is worked out, not entered: its temperature box sits
+  // after the boil rows.
+  checkTemp('postBoil', 'Post-boil', derived.postBoilMeasuredGal);
   check(recipe.fermentVolGal, 'Fermentation volume');
+  checkTemp('ferment', 'Fermentation', recipe.fermentVolGal);
 
   recipe.malts.forEach((m, i) => {
     const name = rowName(m, 'Malt', i);
@@ -67,21 +76,6 @@ export function emptyFields(recipe, derived) {
     const name = typedName(d);
     check(d.weightOz, name ? `${name} dry-hop weight` : `Dry hop ${i + 1} weight`);
   });
-
-  // The volume each temperature corrects, as measured.
-  const measured = {
-    preBoil: recipe.preBoilVolGal,
-    postBoil: derived.postBoilMeasuredGal,
-    ferment: recipe.fermentVolGal,
-  };
-  for (const [kind, label] of MEASUREMENTS) {
-    const tempF = recipe.measurementTempF?.[kind];
-    if (blank(tempF)) {
-      names.push(`${label} measurement temperature`);
-    } else if (blank(derived.refVolumesGal[kind]) && !blank(measured[kind])) {
-      names.push(`${label} measurement temperature (outside the correction's range)`);
-    }
-  }
   return names;
 }
 
