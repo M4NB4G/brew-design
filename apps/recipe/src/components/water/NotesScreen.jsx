@@ -5,9 +5,11 @@
 // only where the text credits the chemistry's origin (NT-Q2). Only the
 // water app's version talk ("v1.2", "v2", "v1.3", "New in v1.1") is replaced by where each stands
 // in Brew Design (W8), and its "Recipe tab" is the Salts & Acid screen here
-// (W2). The two passages that said mash pH is not predicted (Scope &
-// Limitations, the last Application Assumption) say what the Water tab does
-// since S5 (S10). Static text; nothing computed.
+// (W2). What the Notes say about the mash pH and the acid follows the Water
+// tab as it is since S5 (the mash pH predicted) and S9 (the acid aimed at the
+// target mash pH): the opening line, Scope & Limitations, the acid in the
+// Features list and the last Application Assumption (S10). Static text;
+// nothing computed.
 import Card from '../shared/Card.jsx';
 import { colors, tokens } from '../shared/styles.js';
 
@@ -18,28 +20,32 @@ export default function NotesScreen() {
         <div style={tokens.cardLabel}>Scope &amp; Limitations</div>
         <div style={{ fontSize: '0.92rem', lineHeight: 1.6, color: colors.textPrimary }}>
           <p style={{ marginTop: 0 }}>
-            This calculator computes <strong>salt additions</strong> and{' '}
-            <strong>acid dose</strong> to move source water toward a target ion
-            profile.
+            This calculator computes <strong>salt additions</strong> to move
+            source water toward a target ion profile, and an{' '}
+            <strong>acid dose</strong> aimed at the recipe&apos;s target mash pH.
           </p>
           <p>
             <strong>Mash pH is predicted from the recipe&apos;s grain bill.</strong>{' '}
             The Water tab estimates the mash pH of a cooled sample with
             Troester&apos;s model (2009, braukaiser.com): each malt from its type and
             color, or its measured figure; the treated mash water&apos;s residual
-            alkalinity; the mash water and grain as entered. It is an estimate
-            within the range the model was tested on: the tab warns when the
-            water&apos;s residual alkalinity or the mash thickness is beyond that
-            range, and when the predicted pH is outside the range for a cooled
-            sample.
+            alkalinity; the mash water and grain as entered. The model was tested
+            on a limited range of water and mash thickness; beyond it the tab
+            still shows the prediction and aims the acid at it, with a note
+            naming the limit crossed. Separately, the tab warns when the
+            predicted mash pH is outside the usual range for a cooled sample.
           </p>
           <p>
-            What the Water tab <em>does</em> do:
+            What the Water tab does:
           </p>
           <ul style={{ marginLeft: '1.2rem', lineHeight: 1.7 }}>
             <li>Compute residual alkalinity per Kolbach (1953)</li>
             <li>Hit target ion concentrations (Ca, Mg, Na, SO₄, Cl, Alk)</li>
-            <li>Recommend an acid dose to neutralize excess alkalinity</li>
+            <li>
+              Recommend an acid dose that brings the predicted mash pH to the
+              recipe&apos;s target, or, while the mash pH cannot be predicted, takes
+              the water to the style&apos;s alkalinity
+            </li>
             <li>
               Optionally blend <strong>multiple acids</strong> in one batch
               (acidulated malt + liquid phosphoric, two liquid acids together,
@@ -155,9 +161,9 @@ export default function NotesScreen() {
             Residual alkalinity is calculated per the Kolbach (1953) formulation.
           </li>
           <li style={{ marginBottom: 0 }}>
-            This application calculates salt and acid additions to reach a target ion
-            profile, and predicts the mash pH of a cooled sample from the grain bill,
-            within the range the model was tested on.
+            This application calculates salt additions to reach a target ion profile
+            and an acid dose aimed at the recipe&apos;s target mash pH, and predicts the
+            mash pH of a cooled sample from the grain bill.
             All outputs are process guidance and should be verified against direct
             analytical testing and pH measurement before production use.
           </li>
