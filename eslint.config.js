@@ -46,6 +46,7 @@ export default [
       'apps/recipe/test/accessible-names.test.js',
       'apps/recipe/test/my-ingredients.test.js',
       'apps/recipe/test/liquid-acid-tenth.test.js',
+      'apps/recipe/test/reference-typed-in-celsius.test.js',
     ],
     languageOptions: { globals: globals.browser },
   },
