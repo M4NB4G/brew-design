@@ -147,8 +147,9 @@ cached values are pinned by the golden-master tests.
     The Cost card renders from `computeCost(recipe)`: each line's cost, the
     total of the priced lines (counting the rest) and the cost per gal at the
     fermentation volume at 60 °F, by the engine's `rollupCost` and
-    `costPerUnit`, blank for a zero, negative or blank volume. It is not on
-    the printed sheet.
+    `costPerUnit`, blank for a zero, negative or blank volume. With no line
+    priced, the total and the cost per gal are blank ("—"), not $0.00. It is
+    not on the printed sheet.
     The Grist card shows each malt's % of total grain weight, the engine's
     share ("—" where blank). "Design to target OG" sets every malt's weight,
     in one step, by the engine's `solveGrist` from a target OG in the screen's

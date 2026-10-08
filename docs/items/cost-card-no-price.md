@@ -1,7 +1,9 @@
 # A Cost card with no price reads "—" — Tier B
 
-Status: agreed 2026-10-07 ("agree to all"); not started. Written by the S9
-session; built in batch S11 (docs/ROADMAP.md, Sessions).
+Status: landed 2026-10-08 in batch S11 on branch `S11`, as "With no line
+priced, the Cost card's total and cost per gal read "—", not $0.00";
+agreed 2026-10-07 ("agree to all"). Written by the S9 session; built in
+batch S11 (docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -34,3 +36,14 @@ App (`apps/recipe/test/economics.test.js`, or a new file): *with no line priced 
 
 - `selectors.js`'s `computeCost` and its `// FLAG:` (EC-Q6's $0.00); the FLAG goes with the change.
 - Files likely touched: `apps/recipe/src/selectors.js`, possibly `components/CostCard.jsx`; SPEC rule 10; `docs/TEST_COVERAGE.md`.
+
+## Builder's notes (S11, 2026-10-08)
+
+Claims for the inspector to verify; none is a decision the sentences made.
+
+- One change, in `selectors.js`'s `computeCost`: with no priced line the total is blank (NaN) in place of the engine's sum of no lines; with one or more it is the engine's `rollupCost` of the priced lines as before. The cost per unit follows with no code of its own: the engine's `costPerUnit` of a blank total is blank. The card already shows a blank as "—" (`dollars`), so `CostCard.jsx` is unchanged.
+- "Priced" is as before (EC-Q6): a price that is a number, so a price typed as 0 is priced and the total reads $0.00, a figure the brewer entered (pinned).
+- The `// FLAG:` in `selectors.js` (EC-Q6's $0.00) goes with the change; the comment says what the function does now.
+- One roadmap line is extended, not added: the inspector of item 2 noticed React's warning "Received NaN for the `children` attribute" when the post-boil measurement temperature is emptied; it is "Post-boil volume at 60 °F" reading "NaN" (seen on the built app); not caused by item 2, since an emptied box is a blank (NaN) that the conversion passes through before and after it, and the family of the existing Tier C line "Figures that depend on an empty box read 'NaN' on the Volumes card", which now names it (procedure step 3).
+- One of the three scenarios failed before; "one priced line gives its sum" and "nothing else changes" passed before, as CC-S2 and CC-S3 say nothing changes. The first scenario was rewritten before the change to gather the three figures the card shows, so the recorded failure names each; the recorded failure is from the rewritten one.
+- Numbers introduced: none. The blank is NaN, the app's blank figure (SPEC rule 8); the `> 0` is a count of priced lines. The sums are pinned by hand in the test.

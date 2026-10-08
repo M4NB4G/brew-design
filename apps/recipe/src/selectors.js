@@ -122,14 +122,11 @@ export function solveTargetOG(recipe, targetOG, shares) {
 // and dry hop, the yeast and each other line, in the card's order, each its
 // quantity (lb, oz, or 1 batch) times its price, by the engine's rollupCost
 // (EC-S2). The total adds the priced lines only and counts the rest (EC-Q6);
-// a priced line whose quantity is blank blanks the total, as any blank figure
+// with no line priced it is blank, not a $0.00 nobody entered (CC-S1); a
+// priced line whose quantity is blank blanks the total, as any blank figure
 // blanks what needs it. The cost per gal is the total over the fermentation
 // volume at 60 degF (SPEC 11), by the engine's costPerUnit: blank for a zero,
-// negative or blank volume (EC-S4).
-// FLAG: with no line priced (every new recipe, every older one read) the
-// priced lines add to $0.00 and so does the cost per gal, beside "6 lines
-// unpriced": EC-Q6's sum of the priced lines, kept as specified; on the
-// roadmap whether the total shows "—" until a line is priced.
+// negative or blank volume (EC-S4), or a blank total.
 // -> { lines: [{ kind, index, name, quantity, unitPrice, cost }], total, unpriced, perGal }
 export function computeCost(recipe) {
   const line = (kind, index, name, quantity, unitPrice) => ({ kind, index, name, label: name, quantity, unitPrice });
@@ -143,7 +140,7 @@ export function computeCost(recipe) {
   ];
   const { items } = rollupCost(lineItems);
   const priced = lineItems.filter((li) => entered(li.unitPrice));
-  const { total } = rollupCost(priced);
+  const total = priced.length > 0 ? rollupCost(priced).total : NaN;
   const fermentRefGal = toReferenceVolume(recipe.fermentVolGal, 'ferment', recipe.measurementTempF);
   return {
     lines: items.map(({ label, ...li }) => li),
