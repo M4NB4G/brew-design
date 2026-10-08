@@ -1,7 +1,10 @@
 # Costs per batch when the recipe scales — Tier B
 
-Status: agreed 2026-10-08 ("agree to all"); not started. Written by the S11
-session; built in batch S12, item 2 (docs/ROADMAP.md, Sessions).
+Status: landed 2026-10-08 in batch S12 on branch
+`claude/compassionate-knuth-hydp66`, as "Scaling the recipe leaves the
+yeast's price and the other cost lines as typed, and the question says so
+when any of them is priced". Written by the S11 session; built in batch S12,
+item 2 (docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -36,3 +39,10 @@ App (`apps/recipe/test/pro-recipe-default.test.js`, or a new file): *the questio
 - The question is built in `apps/recipe/src/state.js` (`switchMode`); the scale is the engine's `scaleRecipe` (unchanged: it already leaves the per-batch prices).
 - "Priced" is EC-Q6's: a price that is a number (0 included).
 - Files likely touched: `apps/recipe/src/state.js`; SPEC rule 8; `docs/TEST_COVERAGE.md`.
+
+## Builder's notes (S12, 2026-10-08)
+
+- The sentence sits in the question after what OK does and before what Cancel does, since it says what OK leaves alone. With nothing priced the question is byte for byte as before (pinned).
+- "Priced" is a price that is a number (EC-Q6), so $0 is priced; an other line with a blank cost is not. Malt and hop prices are per lb and per oz, so they never bring the sentence (pinned).
+- Three of the four scenarios passed before: they hold CS-S1, CS-S3 and CS-S4, which say nothing changes there; the engine's `scaleRecipe` already left the per-batch prices. Only CS-S2 is new behaviour, and its scenario failed.
+- Numbers introduced: none. The $676.36 is pinned by hand in the test (6200/11 lb × $1.20).

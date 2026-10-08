@@ -83,7 +83,10 @@ cached values are pinned by the golden-master tests.
    so OG, FG, ABV, SRM and IBU stay; nothing is rounded. Nothing is asked
    when the recipe is already at the batch, or when its fermentation volume
    or the batch is blank, zero or negative: the switch then changes units
-   only. A scale is one step and one autosave; no saved format changes.
+   only. The yeast's price and the other cost lines are per batch and stay
+   as typed; when any of them is priced (a number, 0 included), the
+   question says so. A scale is one step and one autosave; no saved format
+   changes.
 9. **Convert only at the edges.** `display.js` is the only place that converts
    between canonical and display units, using engine constants and functions
    (`GALLONS_PER_BBL`, `OZ_PER_LB`, `G_PER_OZ`, `sgToPlato`, `platoToSg`,

@@ -284,9 +284,14 @@ export function switchMode({ recipe, mode, proVolumeUnit }, next, brewery, ask) 
   if (!scalable || from === batchGal) return { recipe, mode: next };
   const side = next === 'pro' ? 'Pro' : 'Home';
   const shown = `${roundForInput(volumeFromCanonical(batchGal, next, proVolumeUnit), 2)} ${volumeUnit(next, proVolumeUnit)}`;
+  // The yeast's price and the other cost lines are per batch: the scale
+  // leaves them as typed, and says so when any is priced (CS-S2, CS-Q1).
+  const perBatchPriced =
+    Number.isFinite(recipe.yeast.pricePerBatch) || recipe.otherCosts.some((o) => Number.isFinite(o.costPerBatch));
   const yes = ask(
     `Scale this recipe to the ${side} batch, ${shown}?\n\n` +
       `OK multiplies every amount by the same ratio, so OG, FG, ABV, color and bitterness stay as they are. ` +
+      (perBatchPriced ? `The yeast's price and the other cost lines are per batch and stay as typed. ` : '') +
       `Cancel switches to ${side} with the recipe as it is.`,
   );
   return { recipe: yes ? scaleRecipeTo(recipe, batchGal) : recipe, mode: next };
