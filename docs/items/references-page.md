@@ -1,6 +1,6 @@
 # References page — Tier C and D
 
-Status: agreed 2026-10-08 ("agree to all", RF-Q1 to RF-Q10), not started.
+Status: agreed 2026-10-08 ("agree to all", RF-Q1 to RF-Q13), not started.
 Written by the session that reviewed the S7 notes page with the owner;
 built in batch S10b (docs/ROADMAP.md, Sessions). Replaces the methods and
 sources page of `docs/items/notes-page.md` (NM-S1 to NM-S3 are superseded;
@@ -23,7 +23,7 @@ dimensional analysis." The footer link is also too small to read as one.
 - **RF-S3** Dimensional analysis (unit factors, gravity points, the 7500 in the IBU, quarts and pounds of water, °F to °C) appears only where a symbol is defined: no citation, no card of its own.
 - **RF-S4** The page does not mention the Recipe Designer spreadsheet, and carries no notes about how the app was built (fidelity to a spreadsheet, goal-seek, the starter-band deviation, the round trip of a gravity through °P).
 - **RF-S5** Every coefficient on the page is the one the engine computes with: read from the engine where the engine exports it, otherwise written on the page and checked by the scenario against the engine's own results.
-- **RF-S6** The page shows the equations as the app computes them today, including the three figures on the roadmap (RF-Q6, RF-Q7, RF-Q9): the 1.01 boil factor, with a line saying it is a temperature allowance to be removed; Morey's 1.49 and 0.69; the IBU's 7500.
+- **RF-S6** The page shows the equations as the engine holds them when S10b is built (RF-Q13): after S10a, the boil concentration without the 1.01, Morey's 1.4922 and 0.6859, and the IBU's exact 7489.
 - **RF-S7** Nothing else changes: no figure, saved document or printed sheet.
 - **RF-S8** SPEC rule 7 gains one sentence: equations shown as reference text on the References page are not brewing math. The pre-commit hook's rule 7 search skips the References page's file, and only that file.
 
@@ -33,7 +33,7 @@ dimensional analysis." The footer link is also too small to read as one.
 |---|---|
 | Extract potential (46 points per lb per gal, sucrose), points per malt, pre-boil gravity | Palmer, J. J. (2017). *How to Brew* (4th ed.). Brewers Publications. ISBN 978-1938469350. |
 | SG to °P, °P to SG | Brewer's Friend. Plato to SG Conversion Chart (the ASBC polynomial). brewersfriend.com/plato-to-sg-conversion-chart/ |
-| Boil concentration, 1.01 | None: a temperature allowance, to be removed (RF-Q6). |
+| Boil concentration | None: the volume ratio (dimensional; the 1.01 removed in S10a, RF-Q6). |
 | ABV | Hall, M. L. (1995). Brew by the Numbers: Add Up What's in Your Beer. *Zymurgy*, 18(2), Summer 1995. |
 | Colour | Morey, D. (1998). Approximating SRM beer color of homebrew based on recipe formulation. *BrewingTechniques*, 6(1), 42–46. |
 | Tinseth utilization | Tinseth, G. Glenn's Hop Utilization Numbers. realbeer.com/hops/research.html |
@@ -63,6 +63,9 @@ dimensional analysis." The footer link is also too small to read as one.
 | RF-Q8 | The whirlpool article | Meiners and Cavanna, Skeptical Brewing, Part 3, *Zymurgy* May/June 2022 | The owner: the issue is right |
 | RF-Q9 | The IBU's 7500 against the exact 7489 | A roadmap line for the owner to decide; not in this item | A number change is its own item |
 | RF-Q10 | Wrong sources in the engine's comments and the Water Notes' phosphoric line | Roadmap lines; not in this item | Engine files are Tier A by path |
+| RF-Q11 | When the boil factor and Morey change are built | Together with the IBU in an Opus batch, S10a, before S10b (2026-10-08) | The page shows the corrected equations; no "to be removed" flag is built |
+| RF-Q12 | The IBU's 7500 against 7489 | 7489, in S10a (2026-10-08) | One deploy for the three number changes |
+| RF-Q13 | RF-S6 | The page shows the equations as the engine holds them when S10b is built (2026-10-08) | RF-S5 ties the page to the engine |
 | M1 | Builder model | Sonnet 5.5, Opus advising; the report lists every number the change adds, confirmed by the advisor as no recipe value | CLAUDE.md, Models (Tier C and D trial) |
 | M2 | Inspector model | None: Tier C and D, no recipe value introduced (RF-S5, RF-S7) | CLAUDE.md, Change control |
 
