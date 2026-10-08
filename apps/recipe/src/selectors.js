@@ -72,14 +72,15 @@ export function percentTotal(shares) {
 // Refused, with no weights, when the shares do not total 100 % as shown to
 // one decimal (IS-Q7), or when a figure it needs is blank (IS-S4), each named
 // in the card's order. -> { ok: true, weightsLb } | { ok: false, totalPercent, blank }
-// FLAG: the engine takes the pre-boil volume at 60 degF and boils it off there
-// (ref pre-boil - boil-off), while the recipe boils off the measured volume and
-// corrects the post-boil volume at its own temperature. At the reference
-// temperatures the two agree; with the volumes measured hot the predicted OG
-// after Solve sits further from the target than the gravity conversions alone
-// explain. Kept as specified (IS-S3, the item's notes); on the roadmap.
+// The boil is worked as computeRecipe works it (docs/items/solve-volumes-
+// measured-hot.md, SH-S1): the measured pre-boil volume boiled off, the
+// post-boil volume then corrected at its own measurement temperature and the
+// pre-boil volume at its own; a temperature the correction cannot use
+// refuses Solve and is named (SH-S4).
 export function solveTargetOG(recipe, targetOG, shares) {
   const preBoilRefGal = toReferenceVolume(recipe.preBoilVolGal, 'preBoil', recipe.measurementTempF);
+  const postBoilRawGal = computePostBoilVol(recipe.preBoilVolGal, recipe.boilOffRateGalPerHr, recipe.boilTimeMin);
+  const postBoilRefGal = toReferenceVolume(postBoilRawGal, 'postBoil', recipe.measurementTempF);
   const maltName = (m, i) => String(m.name ?? '').trim() || `Malt ${i + 1}`;
   const blank = [];
   if (!entered(targetOG)) blank.push({ field: 'targetOG' });
@@ -94,6 +95,7 @@ export function solveTargetOG(recipe, targetOG, shares) {
   else if (!entered(preBoilRefGal)) blank.push({ field: 'preBoilTemp' });
   if (!entered(recipe.boilOffRateGalPerHr)) blank.push({ field: 'boilOffRateGalPerHr' });
   if (!entered(recipe.boilTimeMin)) blank.push({ field: 'boilTimeMin' });
+  if (entered(postBoilRawGal) && !entered(postBoilRefGal)) blank.push({ field: 'postBoilTemp' });
 
   // The boxes total 100 when their total, shown to one decimal, reads 100.0
   // (IS-Q7); blank while a box is.
@@ -108,6 +110,7 @@ export function solveTargetOG(recipe, targetOG, shares) {
     preBoilVolGal: preBoilRefGal,
     boilOffRateGalPerHr: recipe.boilOffRateGalPerHr,
     boilTimeMin: recipe.boilTimeMin,
+    postBoilVolGal: postBoilRefGal,
   });
   const weightsLb = weights.map((w) => w.weightLb);
   // FLAG: figures that are entered but give no usable bill (a zero efficiency

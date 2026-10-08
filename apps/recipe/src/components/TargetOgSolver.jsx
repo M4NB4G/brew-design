@@ -49,6 +49,9 @@ export function solveRefusalText(result) {
   if (blanks.some((b) => b.field === 'preBoilTemp')) {
     parts.push('The pre-boil volume cannot be corrected at its measurement temperature.');
   }
+  if (blanks.some((b) => b.field === 'postBoilTemp')) {
+    parts.push('The post-boil volume cannot be corrected at its measurement temperature.');
+  }
   if (result.unusable && parts.length === 0) parts.push('These figures give no usable weights.');
   parts.push('Nothing changed.');
   return parts.join(' ');

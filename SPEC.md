@@ -164,9 +164,15 @@ cached values are pinned by the golden-master tests.
     share ("—" where blank). "Design to target OG" sets every malt's weight,
     in one step, by the engine's `solveGrist` from a target OG in the screen's
     gravity unit, one % per malt (filled from the shares) and the recipe's
-    brewhouse efficiency, pre-boil volume at 60 °F, boil-off rate and boil
-    time; it changes nothing, and says why, when the percents' total, shown
-    to one decimal, is not 100.0 or a figure it needs is blank. The mash water
+    brewhouse efficiency and boil, worked as the recipe works it: the
+    measured pre-boil volume boiled off at the boil-off rate and boil time,
+    the post-boil volume then corrected to 60 °F at its own measurement
+    temperature and the pre-boil volume at its own (rule 11), so the weights
+    give the target through the recipe's own calculation whatever the
+    temperatures, within the gravity conversions' mismatch; it changes
+    nothing, and says why, when the percents' total, shown to one decimal, is
+    not 100.0, a figure it needs is blank, or the pre- or post-boil
+    measurement temperature cannot be used. The mash water
     is not touched. The target and the percents are never saved; "Undo solve"
     restores the weights until the next edit.
 11. `toReferenceVolume(measuredGal, kind, measurementTempF)` is the

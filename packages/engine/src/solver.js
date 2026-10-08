@@ -15,6 +15,10 @@ import { computePostBoilVol } from './grist.js';
  *   preBoilVolGal,                // at 60 F reference
  *   boilOffRateGalPerHr,
  *   boilTimeMin,
+ *   postBoilVolGal,               // optional, at 60 F reference: the caller's
+ *                                 // post-boil volume (the measured pre-boil
+ *                                 // boiled off, then corrected); without it,
+ *                                 // preBoilVolGal boiled off
  *   targetMashRvQtPerLb,
  * }
  *
@@ -32,7 +36,7 @@ export function solveGrist(input) {
     targetMashRvQtPerLb,
   } = input;
 
-  const postBoilVolGal = computePostBoilVol(preBoilVolGal, boilOffRateGalPerHr, boilTimeMin);
+  const postBoilVolGal = input.postBoilVolGal ?? computePostBoilVol(preBoilVolGal, boilOffRateGalPerHr, boilTimeMin);
 
   // FLAG: sgToPlato (Brewer's Friend cubic) and platoToSg (ASBC) are two
   // independent polynomial approximations and are NOT exact inverses:

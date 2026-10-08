@@ -1,7 +1,10 @@
 # Solve with volumes measured hot — Tier A + B
 
-Status: agreed 2026-10-08 ("agree to all"); not started. Written by the S11
-session; built in batch S12, item 3 (docs/ROADMAP.md, Sessions).
+Status: landed 2026-10-08 in batch S12 on branch
+`claude/compassionate-knuth-hydp66`, as "Design to target OG works the boil
+as the recipe does, so its weights give the target OG whatever the
+measurement temperatures". Written by the S11 session; built in batch S12,
+item 3 (docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -41,3 +44,13 @@ Engine (`packages/engine/test/solver.test.js`, or a new file): *the solver takes
 - `packages/engine/src/solver.js` `solveGrist` works its post-boil volume from the pre-boil volume, rate and time (`computePostBoilVol`); the smallest change is likely an optional post-boil volume at 60 °F given by the caller, every constant unchanged (SPEC rule 2). `apps/recipe/src/selectors.js` `solveTargetOG` and its FLAG (the FLAG goes with the change) would pass the post-boil volume worked as `computeRecipe` works it.
 - The residual of the two gravity conversions is the engine's own FLAG in `solver.js`; the tolerance in the scenario is that residual, stated with its working.
 - Files likely touched: `packages/engine/src/solver.js`; `apps/recipe/src/selectors.js`; possibly `components/TargetOgSolver.jsx` (a refusal's name); SPEC rule 10; `docs/TEST_COVERAGE.md`.
+
+## Builder's notes (S12, 2026-10-08)
+
+- The engine's `solveGrist` takes an optional post-boil volume at 60 °F; without one (`undefined`) it boils the pre-boil volume off as before, every constant unchanged. A blank one (NaN) is kept and blanks the weights, as any blank figure does.
+- `solveTargetOG` works the post-boil volume as `computeRecipe` does: the measured pre-boil volume less the boil-off, then `toReferenceVolume` at the post-boil temperature. The FLAG it carried went with the change.
+- SH-S4: the post-boil temperature is named only when the measured post-boil volume can be worked out (pre-boil volume, boil-off rate and boil time all entered) and the correction cannot use it; a blank pre-boil volume, rate or time is named as before and the temperature is not also blamed. The sentence follows the pre-boil one: "The post-boil volume cannot be corrected at its measurement temperature."
+- SH-S3 at the bit level: at 60 °F the solver now gets the measured post-boil volume corrected (5.5 gal for the built-in recipe), where before it got the corrected pre-boil less the boil-off. `correctVolumeToRef(7, 60)` is 7.000000000000001 (the shelved one-ulp identity on the roadmap), so for the built-in recipe the old post-boil volume was 5.500000000000001 and the new one is the forward calculation's 5.5; the weights differ in the 16th digit, below every shown figure, and now match the forward calculation exactly. For the reference recipe (16 and 14.5 gal, exact) the weights are bit for bit the old ones (pinned). The built-in recipe at 60 °F is pinned by its predicted OG, by hand.
+- The tolerance in the scenarios is not a guessed band: each predicted OG is the hand value platoToSg(P + r × pre/post), r the conversions' mismatch at that gravity, worked in decimal arithmetic in the test's header.
+- One older scenario moved with the change: `inverse-solver.test.js` scenario 3 pinned the hot pre-boil case to the old boil (the corrected pre-boil less the boil-off); it now pins the new one (the measured 16 gal less 1.5, 14.5 gal at its own 60 °F).
+- Numbers introduced: none in the code. The test figures are hand pins, with the working beside them.

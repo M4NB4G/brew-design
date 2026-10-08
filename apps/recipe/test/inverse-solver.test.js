@@ -165,9 +165,13 @@ describe('design to a target OG', () => {
 
     // The pre-boil volume reaches the solver at 60 °F: measured hot (212 °F),
     // the weights are the engine's for correctVolumeToRef(16, 212), not for the
-    // measured 16 gal (which would be about 4 % lighter).
+    // measured 16 gal (which would be about 4 % lighter). Since S12 item 3
+    // (docs/items/solve-volumes-measured-hot.md, SH-S1) the post-boil volume
+    // is the measured 16 gal boiled off, 16 - 1.5 = 14.5 gal, corrected at
+    // its own temperature (60 °F here: 14.5), as the recipe works it; before,
+    // it was the corrected pre-boil volume boiled off.
     const hot = { ...r, measurementTempF: { ...r.measurementTempF, preBoil: 212 } };
-    const engineAt60 = (preBoilVolGal) =>
+    const engineAt60 = (preBoilVolGal, postBoilVolGal) =>
       solveGrist({
         malts: [{ fgdb: 0.8, percent: 0.931 }, { fgdb: 0.8, percent: 0.069 }],
         targetOG: 1.0688522,
@@ -175,9 +179,10 @@ describe('design to a target OG', () => {
         preBoilVolGal,
         boilOffRateGalPerHr: 1.5,
         boilTimeMin: 60,
+        postBoilVolGal,
       }).weights.map((w) => w.weightLb);
     const hotOut = solveTargetOG(hot, 1.0688522, [0.931, 0.069]);
-    expect(hotOut.weightsLb).toEqual(engineAt60(correctVolumeToRef(16, 212)));
+    expect(hotOut.weightsLb).toEqual(engineAt60(correctVolumeToRef(16, 212), 14.5));
     expect(hotOut.weightsLb[0]).not.toBeCloseTo(engineAt60(16)[0], 1);
 
     // In Pro the weights are still pounds in the recipe (sacks are shown at the edge).
