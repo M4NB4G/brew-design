@@ -1,6 +1,6 @@
 # References page — Tier C and D
 
-Status: agreed 2026-10-08 ("agree to all", RF-Q1 to RF-Q13), not started.
+Status: landed 2026-10-08 on branch `claude/tender-hypatia-273wty` as "A References link in the footer opens a page of each model's equation, its symbols with their units and its citation, with a way back to the app" (batch S10b), awaiting the owner's "merge and push". Was: agreed 2026-10-08 ("agree to all", RF-Q1 to RF-Q13), not started.
 Written by the session that reviewed the S7 notes page with the owner;
 built in batch S10b (docs/ROADMAP.md, Sessions). Replaces the methods and
 sources page of `docs/items/notes-page.md` (NM-S1 to NM-S3 are superseded;
@@ -91,4 +91,70 @@ passing the References page.
 
 ## Builder's notes
 
-(none yet)
+Builder and advisor as M1, no inspector (M2); the report names the models. The
+`/usage` readings at the start and at the report are the owner's to supply: a
+session cannot read them.
+
+- **Branch.** `main` (and `origin/main`) is at 7404297 and does not hold S10a,
+  which RF-Q11 and RF-S6 need, so the item was built on the session's own
+  branch `claude/tender-hypatia-273wty`, whose tip 3916114 holds S10a. A pull
+  request from it shows the 29 commits that are not on `main` yet.
+- **File name.** Kept `NotesPage.jsx`: `App.jsx` (Tier B) imports it by that
+  name, so a rename would put it in the diff and stop the item. The component
+  is `ReferencesPage` (default export), its props unchanged; `Footer` keeps
+  `onNotes`. The hook's exclusion names `NotesPage.jsx`. The names that still
+  say Notes are a roadmap line (Tier B).
+- **The equations are the engine's as it stands after S10a**, not the Notes
+  for the builder above: no 1.01, Morey's 1.4922 and 0.6859, and the IBU's
+  7489.1 (defined in the symbol list as the factor from oz/gal to mg/L).
+- **The data list.** The page exports `COEFFICIENTS` and renders every written
+  coefficient from it; the engine's exports (pitch rates, mash and mash pH
+  ranges, the density table, the reference temperature, litres per gallon,
+  quarts per gallon, grams per pound, the lactic acid fraction and molar mass
+  of the acid table) are read at render. `notes-page.test.js` reads each
+  coefficient as the page renders it, evaluates the equation at two or three
+  inputs against the engine, and fails on any number on the page, outside the
+  citations, that is neither a written coefficient, an engine value nor a unit
+  factor (1, 2, 3, 5, 9, 10, 32, 1000).
+- **Choices the sentences did not make.** (a) The sheet's "as above" rows
+  (starter malt extract, mash thickness) cite Palmer (2017) in full where they
+  apply, so each card stands alone. (b) The starter bands are given as the
+  engine's inequalities (`< 400`, `< 500`, `< 700`, `< 800`, `≤ 1000`, `> 1000`),
+  with the source line "none; the bands are the app's own rule" and no note on
+  the gaps. (c) The mash pH's thickness is R<sub>kg</sub> (L/kg), so it does
+  not clash with R (lb/lb) under Mash thickness; the starter volume is V (the
+  owner), the cells needed C and the cells to reach N. (d) The utilization's
+  `f(T)` is in °F whatever the screen's unit, as the quadratic was fitted; the
+  mash pH's thickness is written as the engine holds it, `(W × g per lb / 1000)`,
+  so the page does no arithmetic on an engine value (SPEC rule 7's sentence). (e)
+  Palmer and Kaminski's citation prints no page, as the owner said ("fine for
+  now"); the page prints no note about it. (f) The Water tab's Notes are
+  pointed to under Residual alkalinity and in the opening line.
+- **Failure recorded** (scenarios run alone on the unchanged code):
+  `footer.test.js` scenario 1: expected `…Consulting Notes` to be `…Consulting
+  References`; `notes-page.test.js`: "expected '<footer …>' to match
+  /<button[^>]*>References<\/button>/", "the page exports its list of written
+  coefficients: expected undefined to be type of 'object'" (eight scenarios),
+  "expected ['/spreadsheet/i', …(5)] to deeply equal []", "the litres per
+  gallon on the page: expected NaN to be greater than 0", "the density table on
+  the page: expected +0 to be 21"; `accessible-names.test.js`: `no button
+  "References"`. Two scenarios first passed on the unchanged code because they
+  never read the page; they were rewritten to read the page's own figures
+  before any change was made. Fifteen deliberate typos in the finished page
+  (Tinseth's base, 7489.1 to 7500, Morey's two coefficients, the acid-side
+  slope, a band limit, the extract per litre, 2.055, Kolbach's 1.4, the
+  titration pH, a sign, an index, ABV's 0.794, the cubic's last term, a curve's
+  c) each fail a scenario; the page was restored byte for byte.
+- **The hook (RF-S8).** There is no hook test, so the hook was run in a scratch
+  copy with a Tier B file staged: with the page unchanged it passes; with a
+  stray `0.000125` in another component it refuses ("brewing formula in
+  apps/recipe/src (SPEC.md rule 7)"); the hook before this change refuses the
+  same index, naming the page's coefficient lines.
+- **Far end** (built app, Chromium, 1200 and 390 px): References opens the page
+  at the top, the tabs and stats bar gone; Back returns to the Recipe tab; the
+  link and the back button are both 13.6 px; no horizontal scroll and nothing
+  wider than the screen at 390 px; no console messages.
+- **Outside the named files.** `accessible-names.test.js` clicks "References"
+  where it clicked "Notes" (the label changed); `docs/TEST_COVERAGE.md` rows
+  for the footer, the old page and the box-name scan; `docs/ROADMAP.md` loses
+  "The Notes page describes Rev 3" (this item replaces the page).

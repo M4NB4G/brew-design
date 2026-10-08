@@ -37,10 +37,11 @@ describe('footer', () => {
     const markup = await renderFooter();
     expect(markup).toMatch(/^<footer\b/);
     expect(imgTags(markup)).toHaveLength(1);
-    // The company name and, since the methods and sources page (notes page,
-    // NM-Q1, superseding D1), the "Notes" link under it are the footer's text.
+    // The company name and, since the References page (references page,
+    // RF-S1, superseding the notes page's NM-Q1 and the footer's D1), the
+    // "References" link under it are the footer's text.
     const text = markup.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-    expect(text).toBe('Persyn Chemical Engineering and Consulting Notes');
+    expect(text).toBe('Persyn Chemical Engineering and Consulting References');
   });
 
   it('screen readers skip the footer logo', async () => {

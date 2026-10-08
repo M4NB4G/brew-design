@@ -1,20 +1,21 @@
 // Footer.jsx
 // Persyn attribution below the page, as in Brew Water Chem's footer: the full
-// logo at the left and the company name beside it, with the "Notes" link to
-// the methods and sources page under it. On screen only — it lives inside
-// #root, which the print rules hide.
+// logo at the left and the company name beside it, with the "References" link
+// to the references page under it. On screen only — it lives inside #root,
+// which the print rules hide.
 
 import logoSrc from '../assets/persyn-logo.png';
 import { colors } from './shared/styles.js';
 
-// The "Notes" link opens the methods and sources page (docs/items/notes-page.md, NM-S1).
+// The "References" link opens the references page (docs/items/references-page.md,
+// RF-S1), in the size of the page's back button.
 const notesStyle = {
   background: 'none',
   border: 'none',
   padding: 0,
   marginTop: '0.3rem',
   color: colors.textFooter,
-  fontSize: '0.72rem',
+  fontSize: '0.85rem',
   fontFamily: 'inherit',
   textDecoration: 'underline',
   cursor: 'pointer',
@@ -38,7 +39,7 @@ export default function Footer({ onNotes }) {
           <p style={{ fontSize: '0.72rem', lineHeight: 1.6, margin: 0, color: colors.textFooter }}>
             Persyn Chemical Engineering and Consulting
           </p>
-          <button type="button" onClick={onNotes} style={notesStyle}>Notes</button>
+          <button type="button" onClick={onNotes} style={notesStyle}>References</button>
         </div>
       </div>
     </footer>

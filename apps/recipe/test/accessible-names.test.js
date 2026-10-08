@@ -183,11 +183,11 @@ describe('every box has an accessible name (GR3-S1, GR3-S3)', () => {
     expect(await nameless(), 'multiple acids').toEqual([]);
   });
 
-  it('the Options tab, and the methods and sources page', async () => {
+  it('the Options tab, and the References page', async () => {
     mount();
     click(button('Options'));
     expect(await nameless()).toEqual([]);
-    click(button('Notes'));
+    click(button('References'));
     expect(host.textContent).toContain('Back to the recipe');
     expect(await nameless()).toEqual([]);
   });

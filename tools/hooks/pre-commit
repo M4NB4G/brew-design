@@ -36,7 +36,9 @@ if echo "$STAGED" | grep -qE "$AB"; then
   # inspector's to judge; a live one is on a code line.
   RULE7='46 \* |Math\.pow\(|Math\.exp\(|0\.000125|1\.65 \* |76\.08|1\.49 \* |[*/] *2\.055|2\.055 *[*/]|3\.785411784|28\.3495|453\.592'
   COMMENT='^[^:]+:[0-9]+:[[:space:]]*(//|\*|/\*)'
-  HITS=$(git grep --cached -nE "$RULE7" -- 'apps/recipe/src' | grep -vE "$COMMENT")
+  # The References page's file is the one exception (SPEC rule 7: equations
+  # shown as reference text are not brewing math); no other file is skipped.
+  HITS=$(git grep --cached -nE "$RULE7" -- 'apps/recipe/src' ':!apps/recipe/src/components/NotesPage.jsx' | grep -vE "$COMMENT")
   if [ -n "$HITS" ]; then
     echo "$HITS"
     echo "pre-commit: REFUSED - brewing formula in apps/recipe/src (SPEC.md rule 7)"; exit 1

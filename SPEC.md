@@ -35,7 +35,10 @@ cached values are pinned by the golden-master tests.
 
 7. **No brewing math in the app.** Every computed number comes from
    `@brew/engine`. A formula like `46 * fgdb`, a Tinseth term, or an ABV
-   expression anywhere in `apps/` is a defect.
+   expression anywhere in `apps/` is a defect. Equations shown as reference
+   text on the References page are not brewing math: nothing there is
+   computed, and the pre-commit hook's rule 7 search skips that page's file
+   (`NotesPage.jsx`), and only that file.
 8. **One canonical state object** in engine units: US gal, lb, oz, °F, SG,
    billion cells, L. State never holds display units. An emptied number
    box is a blank figure (NaN), never replaced by a number the brewer did
