@@ -70,8 +70,9 @@ a test-only dependency, and a header layout read from measured positions.
   and "agree". Send-backs after the report: 0.
 - CI: green on the first run of the pull request (M4NB4G/brew-design#68), both
   the push and the pull-request run; Netlify's header-rules check passed on the
-  deploy preview. The deployed headers themselves are read after the merge: the
-  sandbox's proxy refused the preview address.
+  deploy preview. The sandbox's proxy refused the preview address, so the
+  deployed headers were read by the owner on his phone (securityheaders.com,
+  2026-10-09): the policy word for word as committed, and anti-framing DENY.
 - The advisor was called four times: before building, and before each commit.
   It changed the builder's work in these ways: it asked for the tab clicks to
   be counted (the first browser check would have skipped a missing tab without
