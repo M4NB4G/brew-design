@@ -5,7 +5,7 @@ D trial, then the widened trial). One row per batch. Figures are the owner's
 `/usage` readings at the end of each session, as sent; a session cannot run
 `/usage` itself, and no start reading was taken, so a batch's cost is the
 whole session's, not per item. "Builder" and "advisor" are the trial's two
-models (CLAUDE.md, Models). Last updated 2026-10-08.
+models (CLAUDE.md, Models). Last updated 2026-10-09.
 
 ## Batches
 
@@ -16,13 +16,16 @@ models (CLAUDE.md, Models). Last updated 2026-10-08.
 | S6d | | | | | | | |
 | F1 | 3 (tests on GitHub; a linter; a name for every box) | D, D, C | $10.02 | API 17m 4s, active 25m 34s | 67 % / 33 % (basis, cost or tokens, not stated) | 0 | 0 |
 | S10b | 1 (the References page) | C and D | $10.02 | API 26m, wall 30m | not split: the report lists only the builder's model line | 0 | 1 (a docs-only note, `597b677`) |
+| F2 | 3 (security headers; browser checks kept in the repo; header unit switches on their own row) | D, D, C | $9.56 | API 17m 35s, wall 34m 57s | $5.52 Sonnet / $4.03 Opus (58 % / 42 %) | 0 | 0 so far (the reading is from before the merge) |
 
 S6c and S6d are left blank until their readings are in.
 
-Per item, from the whole session's cost: S6a about $2.57, F1 about $3.34. F1's
-items were the heavier kind (a new browser-DOM test suite with two test-only
-dependencies, a before-and-after browser run, and a strip across four older
-byte-for-byte scenarios); S6a's were a wording fix and a print layout.
+Per item, from the whole session's cost: S6a about $2.57, F1 about $3.34, F2
+about $3.19. F1's items were the heavier kind (a new browser-DOM test suite
+with two test-only dependencies, a before-and-after browser run, and a strip
+across four older byte-for-byte scenarios); S6a's were a wording fix and a
+print layout; F2's were a config block, a browser suite with its own server and
+a test-only dependency, and a header layout read from measured positions.
 
 ## F1 detail
 
@@ -56,6 +59,34 @@ byte-for-byte scenarios); S6a's were a wording fix and a print layout.
 - Merge: on the owner's word, `main` at `597b677`; the pull request is
   M4NB4G/brew-design#64. The Netlify build and CI were not checked here.
 
+## F2 detail
+
+- The reading (2026-10-09) is the owner's `/usage` after the report and before
+  the merge, so $9.56 covers the build, the report, the pull request and the
+  questions after it. No start reading was taken. It splits by model: $5.52
+  Sonnet, $4.03 Opus (the advisor).
+- Questions to the owner: 2, asked together before building (where the header's
+  unit switches go on a screen and on a phone); both answered "their own row"
+  and "agree". Send-backs after the report: 0.
+- CI: green on the first run of the pull request (M4NB4G/brew-design#68), both
+  the push and the pull-request run; Netlify's header-rules check passed on the
+  deploy preview. The deployed headers themselves are read after the merge: the
+  sandbox's proxy refused the preview address.
+- The advisor was called four times: before building, and before each commit.
+  It changed the builder's work in these ways: it asked for the tab clicks to
+  be counted (the first browser check would have skipped a missing tab without
+  saying so; all three were clicked in the re-run) and for the unverified Deploy Preview claim to come out of the
+  coverage row; it found the "pinned outside the app's code" wording untrue for
+  the built-in recipe's own readings, and the wait in the two
+  expected-violation checks racing; it asked for the real count from the
+  inline-script break (the first run's output had been cut at nine lines); it
+  asked that the install scripts of the new packages be checked (only a
+  macOS-only optional one has any); and it asked for one click of °C on the
+  phone, to show a moved switch still works. Every number each item adds was
+  confirmed as no recipe value.
+- Not built, put to the roadmap: the GitHub check running the browser suite.
+  Put to the owner: what "the test totals" in the roadmap means.
+
 ## Not like for like
 
 - S7 (an all-Opus session, three Tier A/B items with a fresh inspector each, one
@@ -64,4 +95,5 @@ byte-for-byte scenarios); S6a's were a wording fix and a print layout.
 - No Opus Tier C and D batch has been measured (CLAUDE.md, Models). Until one
   is, a saving against Opus cannot be stated, only the cost per item here.
 - The line counters in the readings ("+280 −0" for F1, "0 added, 0 removed" for
-  S6a) do not match the commits and are not used.
+  S6a, "168 added, 0 removed" for F2, whose commits add 802 lines) do not match
+  the commits and are not used.
