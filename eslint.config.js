@@ -27,14 +27,6 @@ export default [
       'react-hooks/exhaustive-deps': 'warn',
     },
   },
-  // The one finding in a Tier A or B file stays a warning: a Tier C and D
-  // session does not fix it (guard-rails F-Q4). It is a roadmap line for an
-  // Opus session ("A control-character test warns in the linter"); a new
-  // finding anywhere else, in these files too, is an error.
-  {
-    files: ['apps/recipe/src/persistence.js'],
-    rules: { 'no-control-regex': 'warn' },
-  },
   // The app's screens run in the browser.
   {
     files: ['apps/recipe/src/**/*.{js,jsx}'],

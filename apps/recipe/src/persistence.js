@@ -570,6 +570,7 @@ export function clearBrewery(storage, onScreen) {
 }
 
 // Characters Windows rejects in a file name, and control characters.
+// eslint-disable-next-line no-control-regex -- the control characters are listed on purpose: a file name cannot hold them
 const REJECTED_IN_FILE_NAME = /[<>:"/\\|?*\u0000-\u001f\u007f]/g;
 const FALLBACK_FILE_NAME = 'Brew Design recipe';
 
