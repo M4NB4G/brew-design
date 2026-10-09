@@ -61,6 +61,7 @@ import BreweryBanner from './components/BreweryBanner.jsx';
 import RecipeSheet from './components/RecipeSheet.jsx';
 import Footer from './components/Footer.jsx';
 import NotesPage from './components/NotesPage.jsx';
+import PageError from './components/PageError.jsx';
 import { MyIngredientsContext } from './components/IngredientSearch.jsx';
 import { colors } from './components/shared/styles.js';
 
@@ -351,6 +352,10 @@ export default function App() {
   const setMeasurementTemp = (kind, tempF) =>
     setRecipe((r) => ({ ...r, measurementTempF: { ...r.measurementTempF, [kind]: tempF } }));
 
+  // An error drawing a tab or the References page shows a message in its
+  // place (PageError); a change to any of these after it draws it again.
+  const pageKeys = [tab, recipe, mode, proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit, brewery];
+
   return (
     <MyIngredientsContext.Provider value={{ mine: brewery.ingredients, onSave: saveMyIngredient }}>
     <div style={{ minHeight: '100vh', paddingBottom: '4rem' }}>
@@ -375,7 +380,9 @@ export default function App() {
 
       {notesOpen ? (
         <main style={{ maxWidth: '900px', margin: '0 auto', padding: '1rem 1.25rem' }}>
-          <NotesPage onBack={() => openNotes(false)} temperatureUnit={temperatureUnit} />
+          <PageError resetKeys={pageKeys}>
+            <NotesPage onBack={() => openNotes(false)} temperatureUnit={temperatureUnit} />
+          </PageError>
         </main>
       ) : (
         <>
@@ -404,6 +411,7 @@ export default function App() {
           <BreweryBanner onSetUp={() => setTab('options')} onNotNow={() => dismissBanner(true)} />
         )}
 
+        <PageError resetKeys={pageKeys}>
         {tab === 'recipe' && (
           <>
             <IdentitySection name={recipe.name} style={recipe.style} setField={setField} />
@@ -510,6 +518,7 @@ export default function App() {
             breweryFileMessage={breweryFileMessage}
           />
         )}
+        </PageError>
       </main>
         </>
       )}

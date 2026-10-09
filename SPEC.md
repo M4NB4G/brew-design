@@ -319,6 +319,14 @@ cached values are pinned by the golden-master tests.
     gets in its place (scaled to the batch it starts at), in the screen's units (none where the built-in figure
     is itself blank): a placeholder, never a value, so never saved, never
     exported and never ending the banner.
+18. **An error drawing a page stays on that page.** An error while the
+    Recipe, Water or Options tab or the References page is drawn shows, in
+    place of its content, "Something went wrong drawing this page. Your
+    saved recipe is kept as it was.", a Reload button, and a line that
+    Export in the header saves a copy and Reset to defaults starts a new
+    recipe. The header keeps working, and the error changes no saved
+    document, the recipe's or the brewery's. Another tab, a new recipe or a
+    unit choice draws the page again.
 
 ### Display units
 
