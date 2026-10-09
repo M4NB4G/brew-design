@@ -1,10 +1,12 @@
 // Header.jsx
 // Product header for the Recipe Designer, adapted from the Brew Water Chem
-// header.  Same stack order: brand row → 3 px accent strip → toggle row.
-// The Pro/Home toggle, the °F/°C toggle beside it (°C display toggle, CT-S1)
-// and the Pro-only gravity-unit, volume-unit and malt-weight-unit toggles
-// (Pro unit choices, PU-S1) live here, matching the water app's convention of
-// keeping unit controls in the header.
+// header.  Same stack order: brand row → 3 px accent strip → actions row →
+// unit row.  The Pro/Home toggle, the °F/°C toggle beside it (°C display
+// toggle, CT-S1) and the Pro-only gravity-unit, volume-unit and
+// malt-weight-unit toggles (Pro unit choices, PU-S1) live here, matching the
+// water app's convention of keeping unit controls in the header.  The unit
+// switches have a row of their own under the four actions, and on a phone
+// Pro/Home alone stays beside the brand (docs/items/header-unit-toggles.md).
 
 import { useRef } from 'react';
 import markSrc from '../assets/persyn-header-mark.png';
@@ -160,42 +162,15 @@ export default function Header({
             </div>
           </div>
 
-          {/* Phone: Home/Pro on the brand row, °F/°C under it, then Pro's gravity, volume and malt units */}
+          {/* Phone: Pro/Home on the brand row; the other unit switches are under the actions */}
           {phone && (
-            <div
-              style={{
-                marginLeft: 'auto',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-end',
-                gap: '0.35rem',
-                flexShrink: 0,
-              }}
-            >
+            <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
               <PillToggle
                 value={mode}
                 onChange={onMode}
                 options={[['pro', 'Pro'], ['home', 'Home']]}
                 compact
               />
-              <PillToggle
-                value={temperatureUnit}
-                onChange={onTemperatureUnit}
-                options={TEMPERATURE_OPTIONS}
-                compact
-              />
-              {mode === 'pro' && (
-                <>
-                  <PillToggle
-                    value={proGravityUnit}
-                    onChange={onProGravityUnit}
-                    options={[['plato', '°P'], ['sg', 'SG']]}
-                    compact
-                  />
-                  <PillToggle value={proVolumeUnit} onChange={onProVolumeUnit} options={VOLUME_OPTIONS} compact />
-                  <PillToggle value={proMaltUnit} onChange={onProMaltUnit} options={MALT_OPTIONS} compact />
-                </>
-              )}
             </div>
           )}
 
@@ -205,8 +180,10 @@ export default function Header({
       {/* Accent gradient strip */}
       <div style={{ height: '3px', background: colors.accent, marginTop: '1rem' }} />
 
-      {/* Toggle row — right-aligned: recipe actions and Print, then gravity, volume and malt units (Pro only), then °F/°C, then Pro/Home.
-          Phone: the four actions alone, two by two. */}
+      {/* Actions row — right-aligned: the four recipe actions.  Phone: two by two.
+          Unit row below it — right-aligned: Pro's gravity, volume and malt units, then °F/°C,
+          then Pro/Home.  Phone: Pro's units and °F/°C, wrapping when too narrow (Pro/Home is
+          on the brand row). */}
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0.55rem 1.25rem 0.5rem' }}>
         {phone ? (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
@@ -248,29 +225,46 @@ export default function Header({
           <button type="button" onClick={() => window.print()} style={actionButton}>
             Print recipe
           </button>
+        </div>
+        )}
+
+        {/* The unit switches, on a row of their own */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: phone ? 'center' : 'flex-end',
+            gap: phone ? '0.5rem' : '0.6rem',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            marginTop: '0.5rem',
+          }}
+        >
           {mode === 'pro' && (
             <>
               <PillToggle
                 value={proGravityUnit}
                 onChange={onProGravityUnit}
                 options={[['plato', '°P'], ['sg', 'SG']]}
+                compact={phone}
               />
-              <PillToggle value={proVolumeUnit} onChange={onProVolumeUnit} options={VOLUME_OPTIONS} />
-              <PillToggle value={proMaltUnit} onChange={onProMaltUnit} options={MALT_OPTIONS} />
+              <PillToggle value={proVolumeUnit} onChange={onProVolumeUnit} options={VOLUME_OPTIONS} compact={phone} />
+              <PillToggle value={proMaltUnit} onChange={onProMaltUnit} options={MALT_OPTIONS} compact={phone} />
             </>
           )}
           <PillToggle
             value={temperatureUnit}
             onChange={onTemperatureUnit}
             options={TEMPERATURE_OPTIONS}
+            compact={phone}
           />
-          <PillToggle
-            value={mode}
-            onChange={onMode}
-            options={[['pro', 'Pro'], ['home', 'Home']]}
-          />
+          {!phone && (
+            <PillToggle
+              value={mode}
+              onChange={onMode}
+              options={[['pro', 'Pro'], ['home', 'Home']]}
+            />
+          )}
         </div>
-        )}
 
         {/* An import refusal, until the next action */}
         {fileMessage && (
