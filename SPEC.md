@@ -220,7 +220,9 @@ cached values are pinned by the golden-master tests.
     built-in recipe's, each of its kind — text as text, a number as a
     number or blank — with ale/lager and the yeast character among the
     engine's pitch-rate choices, each malt's type blank or one the mash pH
-    model knows, each other cost line a name and a cost (a number or blank), and the water entries carry every field,
+    model knows, each other cost line a name and a cost (a number or blank), the
+    three measurement temperatures each a number or blank, and the water
+    entries carry every field,
     each of its kind — a number as a number or blank, a choice among the
     Water tab's, a salt, acid or style the engine knows; extra fields are
     ignored. A saved copy in

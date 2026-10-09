@@ -1,6 +1,8 @@
 # Measurement temperatures checked inside — Tier B
 
-Status: agreed 2026-10-08 ("agree to all"); not started. Written by the S11
+Status: agreed 2026-10-08 ("agree to all"); landed 2026-10-09 as "A saved
+recipe or recipe file whose pre-boil, post-boil or fermentation measurement
+temperature is not a number or blank is unreadable". Written by the S11
 session; built in batch S13, item 1 (docs/ROADMAP.md, Sessions).
 
 ## Why
@@ -36,3 +38,14 @@ App (`apps/recipe/test/saved-rows.test.js`, or a new file): *a temperature as te
 
 - `apps/recipe/src/persistence.js` `readDocument`: the shape check (`hasShapeOf`, `hasRowsOf`, `hasWaterOf`) passes an object of any content; the brewery reader's check of its three (`isFigure`) is the model.
 - Files likely touched: `apps/recipe/src/persistence.js`; SPEC rule 13; `docs/TEST_COVERAGE.md`.
+
+## Builder's notes (S13, 2026-10-09)
+
+Claims for the inspector to verify; none is a decision the sentences made.
+
+- One check added in `persistence.js`'s `readDocument`, after every upgrade and beside the row checks: `hasFieldsOf(recipe.measurementTempF, defaults.recipe.measurementTempF)`, the same per-field check the malt, hop and yeast rows use. The template is the built-in recipe's three temperatures (numbers), so each of the three must be present and a number; a blank, saved as null, is revived to NaN before the check and is a number. Text, a list, true/false, an object, or a missing one fails; the three as a list fails (not an object). Extra fields inside pass and are carried as rows' extra fields are (read by nothing).
+- Version 1 is unaffected: its upgrade writes the defaults' three before the check.
+- MT-S2 needs no code of its own: an unreadable document already takes the damaged-file message and the kept-aside path (SPEC 13); the scenario proves both for this damage.
+- The scenarios are a new file, `apps/recipe/test/measurement-temps-checked.test.js`. Two of the four failed before; "version 1 still reads at 60 °F, a blank one as blank, extra fields ignored" and "nothing else changes" passed before, as MT-S3 and MT-S4 say nothing changes there (guards).
+- Numbers introduced: none recipe values. The temperatures in the test (150, 180, 68, 152) are test inputs read back as saved; 60 is the reference the version-1 upgrade already writes.
+- Far end 2026-10-09 on the built app (served with netlify.toml's headers): a file whose post-boil temperature is "180" is refused with the damaged message, nothing asked, storage byte for byte unchanged; the same document planted in storage reloads as a new recipe (temperatures 60/60/60) with the damaged text kept aside byte for byte; a blank post-boil temperature (null) loads blank, nothing kept aside, and the line under the stats bar names it. No page errors.

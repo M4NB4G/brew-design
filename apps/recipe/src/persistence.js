@@ -278,6 +278,8 @@ function readDocument(raw, defaults) {
     recipe = { ...recipe, water: { ...recipe.water, mashPhTarget: MASH_PH_TARGET } };
   }
   if (!hasShapeOf(recipe, defaults.recipe) || !hasRowsOf(recipe, defaults.recipe)) return {};
+  // The three measurement temperatures, each a number or blank (MT-S1).
+  if (!hasFieldsOf(recipe.measurementTempF, defaults.recipe.measurementTempF)) return {};
   if (!hasWaterOf(recipe.water)) return {};
   if (!MODES.includes(doc.mode) || !GRAVITY_UNITS.includes(doc.proGravityUnit)) return {};
   // Code before version 9 never wrote the temperature unit: °F, as every
