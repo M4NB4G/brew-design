@@ -8,6 +8,9 @@ npm-debug.log*
 # Build / coverage output
 dist/
 coverage/
+# The browser suite's output (apps/recipe/test/browser)
+test-results/
+playwright-report/
 
 # Editor / OS cruft
 .DS_Store

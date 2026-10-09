@@ -11,7 +11,8 @@
   "scripts": {
     "test": "npm test --workspaces",
     "build": "npm run build --workspace @brew/recipe",
-    "lint": "eslint apps packages"
+    "lint": "eslint apps packages",
+    "e2e": "npm run e2e --workspace @brew/recipe"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

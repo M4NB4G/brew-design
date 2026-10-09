@@ -40,6 +40,11 @@ export default [
     files: ['apps/recipe/src/**/*.{js,jsx}'],
     languageOptions: { globals: globals.browser },
   },
+  // The browser suite's callbacks run in the page (page.evaluate, addInitScript).
+  {
+    files: ['apps/recipe/test/browser/**/*.{js,mjs}'],
+    languageOptions: { globals: globals.browser },
+  },
   // The tests that draw the whole app in jsdom read the browser's globals.
   {
     files: [
