@@ -31,6 +31,7 @@ import { recipeSheet } from '../src/components/recipe-sheet-data.js';
 import WaterTab from '../src/components/water/WaterTab.jsx';
 import RecipeSheet from '../src/components/RecipeSheet.jsx';
 import GristTable from '../src/components/GristTable.jsx';
+import { wcPils } from './west-coast-pils.fixture.js';
 
 function fakeStorage() {
   const m = new Map();
@@ -367,35 +368,7 @@ const RA_HIGH = 14.3;
 const R_LOW = 2;
 const R_HIGH = 5;
 
-// The owner's West Coast Pilsner (the item file's case): Pilsner Northstar
-// 12 lb (2 °L), Pilsner Weyermann 7 lb (1.8 °L), Carafoam 1 lb (2 °L), all
-// base; 8 gal of mash water; the example report; Pilsner / Light Lager; the
-// tank treated at 14 gal, topped up to 12; fly sparge 10 gal; kettle salts
-// on; the salts as recommended; 75 % phosphoric as the acid.
-const wcPils = (acidMl = null, mashWaterGal = 8) => ({
-  ...defaultRecipeState(),
-  name: 'Home Grown WC Pils',
-  malts: [
-    malt('Pilsner Northstar', 'base', 12, 2),
-    malt('Pilsner Weyermann', 'base', 7, 1.8),
-    malt('Carafoam', 'base', 1, 2),
-  ],
-  mashWaterGal,
-  water: {
-    ...defaultWaterState(),
-    source: { ...EXAMPLE_SOURCE },
-    styleId: 'pilsner',
-    primaryAcid: 'phosphoric_75',
-    treatment: 'tank',
-    tankTreatedGal: 14,
-    tankTopUpGal: 12,
-    spargeMethod: 'fly',
-    spargeGal: 10,
-    kettleSalts: true,
-    acidAmounts:
-      acidMl === null ? null : { ...Object.fromEntries(Object.keys(ACIDS).map((k) => [k, 0])), phosphoric_75: acidMl },
-  },
-});
+// The owner's West Coast Pilsner, from the shared fixture (west-coast-pils.fixture.js).
 
 const NOTE_START = 'Beyond the range the model was tested on (Troester 2009): ';
 const NOTE_END = '; this prediction is unreliable.';
@@ -418,7 +391,7 @@ describe('the tested range', () => {
     // slope 0.0814 x 0.0563961385491808 / 0.065 = 0.0706253181215894.
     // pH = 5.74171 - 0.0563961385491808 x 0.831267758902122
     //      + 0.0706253181215894 x -6.98237281201525 = 5.20169740720538.
-    const recipe = wcPils(35);
+    const recipe = wcPils({ acidMl: 35 });
     const figures = computeWater(recipe.water, recipe);
     expect(figures.final.ions.Ca).toBeCloseTo(50, 6);
     expect(figures.final.ions.Mg).toBeCloseTo(10, 6);
@@ -438,12 +411,12 @@ describe('the tested range', () => {
     // The mash thickness: 20 lb = 9.07184 kg; 1.9 L/kg is 1.9 x 9.07184 /
     // 3.785411784 = 4.55340052378302 gal of mash water, 5.1 L/kg is
     // 12.2222856164702 gal.
-    const thin = wcPils(null, 12.2222856164702);
+    const thin = wcPils({ mashWaterGal: 12.2222856164702 });
     expect(computeWater(thin.water, thin).mashPh.testedRange).toEqual([
       { figure: 'thickness', side: 'above', limit: R_HIGH },
     ]);
     expect(tab(thin)).toContain(`${NOTE_START}mash thickness above 5 L/kg${NOTE_END}`);
-    const thick = wcPils(35, 4.55340052378302);
+    const thick = wcPils({ acidMl: 35, mashWaterGal: 4.55340052378302 });
     expect(computeWater(thick.water, thick).mashPh.testedRange).toEqual([
       { figure: 'residualAlkalinity', side: 'below', limit: RA_LOW },
       { figure: 'thickness', side: 'below', limit: R_LOW },
@@ -486,7 +459,7 @@ describe('the tested range', () => {
       };
     };
     const note = `${NOTE_START}residual alkalinity below −5.61 mEq/L${NOTE_END}`;
-    const beyond = sheetOf(wcPils(35));
+    const beyond = sheetOf(wcPils({ acidMl: 35 }));
     expect(beyond.data.water.mashPhPredicted).toBe('5.2');
     expect(beyond.data.water.mashPhNote).toBe(note);
     expect(beyond.html).toMatch(/predicted 5\.2<[\s\S]*?Beyond the range the model was tested on/);
@@ -500,7 +473,7 @@ describe('the tested range', () => {
     // TR-S3: a warning; no figure moves. The predicted pH is the engine's
     // model on the treated profile, as before; the water figures carry the
     // note's crossings and nothing else new.
-    for (const recipe of [wcPils(35), wcPils(), handRecipe()]) {
+    for (const recipe of [wcPils({ acidMl: 35 }), wcPils(), handRecipe()]) {
       const figures = computeWater(recipe.water, recipe);
       expect(figures.mashPh.ph).toBe(
         engine.mashPh({ malts: recipe.malts, mashWaterGal: recipe.mashWaterGal, water: figures.final.ions }),

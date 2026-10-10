@@ -8,13 +8,13 @@
 import { describe, it, expect } from 'vitest';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { ACIDS } from '@brew/engine';
 import { defaultRecipeState, DEFAULT_DISPLAY, breweryFiguresFromRecipe, newRecipe } from '../src/state.js';
 import { computeRecipe, computeWater } from '../src/selectors.js';
-import { defaultWaterState, EXAMPLE_SOURCE, setWaterSetup } from '../src/water-state.js';
+import { defaultWaterState, setWaterSetup } from '../src/water-state.js';
 import { STORAGE_KEY, SCHEMA_VERSION, savePersisted, loadPersisted } from '../src/persistence.js';
 import { recipeSheet } from '../src/components/recipe-sheet-data.js';
 import WaterTab from '../src/components/water/WaterTab.jsx';
+import { wcPils } from './west-coast-pils.fixture.js';
 
 function fakeStorage() {
   const m = new Map();
@@ -25,43 +25,6 @@ function fakeStorage() {
     _map: m,
   };
 }
-
-const malt = (name, weightLb, colorL) => ({
-  name,
-  weightLb,
-  fgdb: 0.8,
-  colorL,
-  type: 'base',
-  distilledWaterPh: NaN,
-  acidityMeqPerKg: NaN,
-  pricePerLb: NaN,
-});
-const noAcid = () => Object.fromEntries(Object.keys(ACIDS).map((k) => [k, 0]));
-
-// The owner's West Coast Pilsner (the item file's case): 20 lb of base malt,
-// 8 gal of mash water, the example report, Pilsner / Light Lager, the tank
-// treated at 14 gal and topped up to 12, fly sparge 10 gal, kettle salts on,
-// the salts as recommended, 75 % phosphoric as the acid.
-const wcPils = ({ acidPlace, acidMl = null, treatment = 'tank' } = {}) => ({
-  ...defaultRecipeState(),
-  name: 'Home Grown WC Pils',
-  malts: [malt('Pilsner Northstar', 12, 2), malt('Pilsner Weyermann', 7, 1.8), malt('Carafoam', 1, 2)],
-  mashWaterGal: 8,
-  water: {
-    ...defaultWaterState(),
-    source: { ...EXAMPLE_SOURCE },
-    styleId: 'pilsner',
-    primaryAcid: 'phosphoric_75',
-    treatment,
-    tankTreatedGal: 14,
-    tankTopUpGal: 12,
-    spargeMethod: 'fly',
-    spargeGal: 10,
-    kettleSalts: true,
-    ...(acidPlace === undefined ? {} : { acidPlace }),
-    acidAmounts: acidMl === null ? null : { ...noAcid(), phosphoric_75: acidMl },
-  },
-});
 
 const tab = (recipe, screen = 'salts') =>
   renderToStaticMarkup(

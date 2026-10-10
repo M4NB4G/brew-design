@@ -3,9 +3,11 @@
 // hand on (docs/items/mash-ph-acid.md's case): 20 lb of base malt, 8 gal of
 // mash water, the example report, Pilsner / Light Lager, the tank treated at
 // 14 gal and topped up to 12, fly sparge 10 gal, kettle salts on, the salts
-// as recommended, 75 % phosphoric as the acid. The same recipe as
-// acid-in-mash.test.js's (the roadmap's "One West Coast Pilsner for the acid
-// tests" moves the other copies here).
+// as recommended, 75 % phosphoric as the acid. The one copy: acid-in-mash,
+// acid-aimed, mash-ph and liquid-acid-tenth read it from here, and
+// west-coast-pils.test.js fails if another test writes the recipe out again,
+// since a hand figure holds only while its copy matches the recipe it was
+// worked for.
 
 import { ACIDS } from '@brew/engine';
 import { defaultRecipeState } from '../src/state.js';
@@ -23,13 +25,31 @@ const malt = (name, weightLb, colorL) => ({
 });
 const noAcid = () => Object.fromEntries(Object.keys(ACIDS).map((k) => [k, 0]));
 
+// The grain bill: Pilsner Northstar 12 lb (2 °L), Pilsner Weyermann 7 lb
+// (1.8 °L), Carafoam 1 lb (2 °L), all base.
+export const wcPilsMalts = () => [
+  malt('Pilsner Northstar', 12, 2),
+  malt('Pilsner Weyermann', 7, 1.8),
+  malt('Carafoam', 1, 2),
+];
+
 // `acidPlace` 'mash' or 'salts' (left out: the recipe's default); `acidMl`
-// the brewer's own dose of 75 % phosphoric (null follows the recommendation).
-export const wcPils = ({ acidPlace, acidMl = null, treatment = 'tank' } = {}) => ({
+// the brewer's own dose of 75 % phosphoric (null follows the recommendation);
+// `target` the mash pH the acid aims at (left out: the recipe's default, 5.4);
+// `malts` another grain bill (left out: the Pilsner's); `mashWaterGal` the
+// mash water in US gal.
+export const wcPils = ({
+  acidPlace,
+  acidMl = null,
+  treatment = 'tank',
+  target,
+  malts = wcPilsMalts(),
+  mashWaterGal = 8,
+} = {}) => ({
   ...defaultRecipeState(),
   name: 'Home Grown WC Pils',
-  malts: [malt('Pilsner Northstar', 12, 2), malt('Pilsner Weyermann', 7, 1.8), malt('Carafoam', 1, 2)],
-  mashWaterGal: 8,
+  malts,
+  mashWaterGal,
   water: {
     ...defaultWaterState(),
     source: { ...EXAMPLE_SOURCE },
@@ -42,6 +62,7 @@ export const wcPils = ({ acidPlace, acidMl = null, treatment = 'tank' } = {}) =>
     spargeGal: 10,
     kettleSalts: true,
     ...(acidPlace === undefined ? {} : { acidPlace }),
+    ...(target === undefined ? {} : { mashPhTarget: target }),
     acidAmounts: acidMl === null ? null : { ...noAcid(), phosphoric_75: acidMl },
   },
 });

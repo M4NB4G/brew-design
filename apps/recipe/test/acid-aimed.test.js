@@ -22,6 +22,7 @@ import {
 import { STORAGE_KEY, SCHEMA_VERSION, savePersisted, loadPersisted, BREWERY_VERSION } from '../src/persistence.js';
 import { recipeSheet } from '../src/components/recipe-sheet-data.js';
 import WaterTab from '../src/components/water/WaterTab.jsx';
+import { wcPils, wcPilsMalts } from './west-coast-pils.fixture.js';
 
 function fakeStorage() {
   const m = new Map();
@@ -44,31 +45,6 @@ const malt = (name, weightLb, colorL, type = 'base') => ({
   pricePerLb: NaN,
 });
 const noAcid = () => Object.fromEntries(Object.keys(ACIDS).map((k) => [k, 0]));
-
-// The owner's West Coast Pilsner (acid-in-mash.test.js): 20 lb of base malt,
-// 8 gal of mash water, the example report, Pilsner / Light Lager, the tank
-// treated at 14 gal and topped up to 12, fly sparge 10 gal, kettle salts on,
-// the salts as recommended, 75 % phosphoric as the acid.
-const wcPils = ({ acidPlace = 'salts', treatment = 'tank', target, malts } = {}) => ({
-  ...defaultRecipeState(),
-  name: 'Home Grown WC Pils',
-  malts: malts ?? [malt('Pilsner Northstar', 12, 2), malt('Pilsner Weyermann', 7, 1.8), malt('Carafoam', 1, 2)],
-  mashWaterGal: 8,
-  water: {
-    ...defaultWaterState(),
-    source: { ...EXAMPLE_SOURCE },
-    styleId: 'pilsner',
-    primaryAcid: 'phosphoric_75',
-    treatment,
-    acidPlace,
-    tankTreatedGal: 14,
-    tankTopUpGal: 12,
-    spargeMethod: 'fly',
-    spargeGal: 10,
-    kettleSalts: true,
-    ...(target === undefined ? {} : { mashPhTarget: target }),
-  },
-});
 
 const tab = (recipe, screen = 'salts') =>
   renderToStaticMarkup(
@@ -250,7 +226,7 @@ describe('the acid aimed at a mash pH (S9)', () => {
   it("AA-Q1: when the mash pH cannot be predicted, the acid falls back to the style's alkalinity, with a note naming why", () => {
     const untyped = wcPils({
       acidPlace: 'mash',
-      malts: [malt('Pilsner Northstar', 12, 2), malt('Pilsner Weyermann', 7, 1.8), malt('Carafoam', 1, 2, '')],
+      malts: wcPilsMalts().map((m) => (m.name === 'Carafoam' ? { ...m, type: '' } : m)),
     });
     const f = computeWater(untyped.water, untyped);
     expect(f.mashPh.ph).toBeNaN();
