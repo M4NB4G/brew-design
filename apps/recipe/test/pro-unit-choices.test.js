@@ -44,7 +44,10 @@ import * as f from './pro-unit-choices.fixture.js';
 // capture (docs/items/inverse-solver-ui.md, IS-S7): compared without them.
 import { withoutTargetOgDesign } from './inverse-solver.fixture.js';
 import { docWithBlankPrices } from './blank-prices.js';
-import { withoutBoxNames as noNames } from './box-names.fixture.js';
+import { withoutBoxNames } from './box-names.fixture.js';
+// The box names (F1) and S14's accessibility changes (BA3) are set aside on both sides.
+import { withoutAccessChanges } from './access.fixture.js';
+const noNames = (html) => withoutAccessChanges(withoutBoxNames(html));
 // The weight and volume boxes show the sheet's precision since BA1 (S14).
 import { withBoxFiguresAsDrawn as asDrawn } from './box-figures.fixture.js';
 import { docWithTarget, sheetWithAimedAcid, withoutAcidCards } from './acid-aim.js';

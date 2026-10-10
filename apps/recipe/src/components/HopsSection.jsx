@@ -247,7 +247,9 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temp
               <th style={{ ...TH, width: '90px' }}>Wt ({wUnit})</th>
               <th style={{ ...TH, width: '76px' }}>Alpha ({percentUnit()})</th>
               <th style={{ ...TH, width: '68px', textAlign: 'right' }}>IBU</th>
-              <th style={{ ...TH, width: '36px' }} />
+              <th style={{ ...TH, width: '36px', position: 'relative' }}>
+                <span style={tokens.visuallyHidden}>Remove</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -332,7 +334,9 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temp
             <tr>
               <th style={TH}>Hop</th>
               <th style={{ ...TH, width: '100px' }}>Wt ({wUnit})</th>
-              <th style={{ ...TH, width: '36px' }} />
+              <th style={{ ...TH, width: '36px', position: 'relative' }}>
+                <span style={tokens.visuallyHidden}>Remove</span>
+              </th>
             </tr>
           </thead>
           <tbody>

@@ -130,19 +130,21 @@ export default function Header({
 
           {/* Text lockup */}
           <div>
-            {/* Wordmark */}
-            <div
+            {/* Wordmark: the page's level-one heading, looking as before (BA3-S3) */}
+            <h1
               style={{
                 fontFamily: SS3,
                 fontSize: 'clamp(1.2rem, 5vw, 1.4rem)',
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
                 lineHeight: 1.1,
+                margin: 0,
+                fontWeight: 400,
               }}
             >
               <span style={{ fontWeight: 400, color: colors.textPrimary }}>Brew </span>
               <span style={{ fontWeight: 700, color: colors.accentAmber }}>Design</span>
-            </div>
+            </h1>
 
             {/* Kicker */}
             <div

@@ -10,6 +10,7 @@ import { createRoot } from 'react-dom/client';
 import { createHash } from 'node:crypto';
 import App from '../src/App.jsx';
 import { BA1_BOX } from './box-figures.fixture.js';
+import { withoutAccessChanges } from './access.fixture.js';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -78,12 +79,13 @@ function withFullBoxFigures(serialize) {
 }
 
 // The page as drawn, the app's own HTML and the printed sheet beside it, as
-// its SHA-256 digest. React numbers the ids it makes (`_r_0_`, …) in the
+// its SHA-256 digest, with S14's accessibility changes written back as they
+// were (access.fixture.js, BA3). React numbers the ids it makes (`_r_0_`, …) in the
 // order parts are first drawn in this test file, so they are renumbered in
 // the order they appear on the page.
 function drawn() {
   const ids = new Map();
-  const html = withFullBoxFigures(() => document.body.innerHTML).replace(/_r_[0-9a-z]+_/g, (id) => {
+  const html = withoutAccessChanges(withFullBoxFigures(() => document.body.innerHTML)).replace(/_r_[0-9a-z]+_/g, (id) => {
     if (!ids.has(id)) ids.set(id, `_id${ids.size}_`);
     return ids.get(id);
   });

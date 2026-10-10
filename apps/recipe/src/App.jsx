@@ -389,8 +389,11 @@ export default function App() {
       {/* Recipe · Water · Options tabs (Brew Water Chem's row, in its position) */}
       <TabBar tab={tab} onTab={setTab} />
 
-      {/* Persistent stats bar — sticky so it remains visible while editing, on both tabs */}
+      {/* Persistent stats bar — sticky so it remains visible while editing, on both tabs;
+          a region a screen reader names (docs/items/boxes-and-access.md, BA3-S4) */}
       <div
+        role="region"
+        aria-label="Recipe figures"
         style={{
           position: 'sticky',
           top: 0,

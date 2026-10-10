@@ -115,7 +115,9 @@ export default function CostCard({ recipe, cost, mode, proVolumeUnit, proMaltUni
               <th style={{ ...TH, textAlign: 'right' }}>Quantity</th>
               <th style={{ ...TH, width: '130px' }}>Price</th>
               <th style={{ ...TH, textAlign: 'right' }}>Cost</th>
-              <th style={{ ...TH, width: '36px' }} />
+              <th style={{ ...TH, width: '36px', position: 'relative' }}>
+                <span style={tokens.visuallyHidden}>Remove</span>
+              </th>
             </tr>
           </thead>
           <tbody>

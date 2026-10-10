@@ -215,7 +215,9 @@ export default function GristTable({
               <th style={{ ...TH, width: '80px' }}>Color (°L)</th>
               <th style={{ ...TH, width: '140px' }}>Type</th>
               <th style={{ ...TH, width: '80px', textAlign: 'right' }}>Points</th>
-              <th style={{ ...TH, width: '36px' }} />
+              <th style={{ ...TH, width: '36px', position: 'relative' }}>
+                <span style={tokens.visuallyHidden}>Remove</span>
+              </th>
             </tr>
           </thead>
           <tbody>
