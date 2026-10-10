@@ -219,8 +219,9 @@ describe('scale the recipe when switching Home and Pro', () => {
       return markup.slice(at).match(/<input[^>]*>/)[0].match(/placeholder="([^"]*)"/)?.[1];
     };
     expect(placeholder('Batch (fermentation) volume (bbl)')).toBe('10');
-    expect(placeholder('Pre-boil volume (bbl)')).toBe('12.727273');
-    expect(placeholder('Boil-off rate (bbl/hr)')).toBe('2.727273');
+    // To 0.001 bbl since BA1 (S14): 12.727273 -> 12.727, 2.727273 -> 2.727.
+    expect(placeholder('Pre-boil volume (bbl)')).toBe('12.727');
+    expect(placeholder('Boil-off rate (bbl/hr)')).toBe('2.727');
     expect(placeholder('Boil time (min)')).toBe('60');
     expect(placeholder('Brewhouse efficiency (%)')).toBe('75');
   });

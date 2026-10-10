@@ -39,7 +39,12 @@ import {
 import { emptyFields, emptyFieldsLine } from '../src/empty-fields.js';
 import { newRow, pickIngredient } from '../src/ingredient-search.js';
 import * as f from './economics.fixture.js';
-import { withoutBoxNames as noNames } from './box-names.fixture.js';
+import { withoutBoxNames } from './box-names.fixture.js';
+// The box names (F1) and S14's accessibility changes (BA3) are set aside on both sides.
+import { withoutAccessChanges } from './access.fixture.js';
+const noNames = (html) => withoutAccessChanges(withoutBoxNames(html));
+// The weight and volume boxes show the sheet's precision since BA1 (S14).
+import { withBoxFiguresAsDrawn as asDrawn } from './box-figures.fixture.js';
 import { docWithTarget, sheetWithAimedAcid } from './acid-aim.js';
 
 // Since the engine follows Rev 4 (docs/items/engine-corrections.md, EC-Q7),
@@ -286,8 +291,10 @@ describe('cost of a batch', () => {
     const r = priced();
     const sack = { proVolumeUnit: 'bbl', proMaltUnit: 'sack' };
     // The Recipe tab's other cards, with every price set, as before.
-    expect(noNames(f.recipeTabHtml(r, 'home'))).toEqual(noNames(BEFORE['recipe-tab-home']));
-    expect(noNames(f.recipeTabHtml(r, 'pro', sack))).toEqual(noNames(BEFORE['recipe-tab-pro']));
+    const home = f.recipeTabHtml(r, 'home');
+    const pro = f.recipeTabHtml(r, 'pro', sack);
+    expect(noNames(home)).toEqual(noNames(asDrawn(BEFORE['recipe-tab-home'], home)));
+    expect(noNames(pro)).toEqual(noNames(asDrawn(BEFORE['recipe-tab-pro'], pro)));
     // The printed sheet as before, with no cost on it.
     const sheet = JSON.parse(JSON.stringify(f.sheetData(r, 'home')));
     // Since the acid aimed at a mash pH: the acid's figures and the target (AA-S1, AA-S5).

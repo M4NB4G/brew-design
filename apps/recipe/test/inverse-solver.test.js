@@ -31,7 +31,10 @@ import { defaultWaterState } from '../src/water-state.js';
 import { solveGrist, correctVolumeToRef } from '@brew/engine';
 import * as f from './inverse-solver.fixture.js';
 import { docWithBlankPrices } from './blank-prices.js';
-import { withoutBoxNames as noNames } from './box-names.fixture.js';
+import { withoutBoxNames } from './box-names.fixture.js';
+// The box names (F1) and S14's accessibility changes (BA3) are set aside on both sides.
+import { withoutAccessChanges } from './access.fixture.js';
+const noNames = (html) => withoutAccessChanges(withoutBoxNames(html));
 import { docWithTarget } from './acid-aim.js';
 
 const { computeRecipe } = selectors;

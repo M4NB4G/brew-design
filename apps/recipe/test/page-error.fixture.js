@@ -9,6 +9,8 @@ import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createHash } from 'node:crypto';
 import App from '../src/App.jsx';
+import { BA1_BOX } from './box-figures.fixture.js';
+import { withoutAccessChanges } from './access.fixture.js';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -50,13 +52,40 @@ export function button(label) {
   return found;
 }
 
+// The malt weight, hop weight and volume boxes show the printed sheet's
+// precision since "A weight or volume box shows the printed sheet's precision
+// while the cursor is elsewhere" (docs/items/boxes-and-access.md, BA1, S14),
+// and the full figure, as the capture holds it, with the cursor in the box (My
+// brewery's greyed figures likewise). The page is drawn for its digest with
+// each of those boxes showing what it shows with the cursor in it, read box by
+// box; every other byte is as drawn.
+
+function withFullBoxFigures(serialize) {
+  const boxes = [...document.querySelectorAll('input[type=number]')].filter((b) => BA1_BOX.test(b.getAttribute('aria-label') ?? ''));
+  const full = boxes.map((b) => {
+    act(() => b.focus());
+    const figures = { value: b.value, placeholder: b.getAttribute('placeholder') };
+    act(() => b.blur());
+    return figures;
+  });
+  const shown = boxes.map((b) => ({ value: b.getAttribute('value'), placeholder: b.getAttribute('placeholder') }));
+  const write = (b, figures) => {
+    for (const [name, figure] of Object.entries(figures)) if (figure !== null) b.setAttribute(name, figure);
+  };
+  boxes.forEach((b, i) => write(b, full[i]));
+  const out = serialize();
+  boxes.forEach((b, i) => write(b, shown[i]));
+  return out;
+}
+
 // The page as drawn, the app's own HTML and the printed sheet beside it, as
-// its SHA-256 digest. React numbers the ids it makes (`_r_0_`, …) in the
+// its SHA-256 digest, with S14's accessibility changes written back as they
+// were (access.fixture.js, BA3). React numbers the ids it makes (`_r_0_`, …) in the
 // order parts are first drawn in this test file, so they are renumbered in
 // the order they appear on the page.
 function drawn() {
   const ids = new Map();
-  const html = document.body.innerHTML.replace(/_r_[0-9a-z]+_/g, (id) => {
+  const html = withoutAccessChanges(withFullBoxFigures(() => document.body.innerHTML)).replace(/_r_[0-9a-z]+_/g, (id) => {
     if (!ids.has(id)) ids.set(id, `_id${ids.size}_`);
     return ids.get(id);
   });

@@ -98,8 +98,9 @@ describe('sparge water typed', () => {
     expect(shown).not.toContain('Water kept in the mash tun');
     const markup = await render(exampleWater(), exampleRecipe());
     expect(markup).toMatch(/Sparge water[\s\S]*?value="8\.5"/);
-    // Bbl in Pro: 8.5 / 31 = 0.274194 bbl in the box.
-    expect(await render(exampleWater(), exampleRecipe(), 'pro')).toMatch(/value="0\.274194"/);
+    // Bbl in Pro: 8.5 / 31 = 0.2741935... bbl, in the box to 0.001 bbl as the
+    // printed sheet prints it since BA1 (S14): 0.274.
+    expect(await render(exampleWater(), exampleRecipe(), 'pro')).toMatch(/value="0\.274"/);
 
     // A blank sparge: named, and what needs it shows "—".
     const blank = computeWater(exampleWater({ spargeGal: NaN }), exampleRecipe());

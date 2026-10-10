@@ -17,6 +17,7 @@ import {
   volumeToCanonical,
   volumeFromCanonical,
   volumeUnit,
+  volumesInBarrels,
   tempUnit,
   tempToCanonical,
   tempBoxValue,
@@ -63,12 +64,19 @@ const button = {
 // `fromShown` convert through display.js. A blank box names, greyed, the
 // built-in figure a new recipe gets in its place (`builtIn`, canonical, shown
 // as the box's own value is; none when the built-in figure is itself blank).
-function FigureRow({ label, value, onChange, builtIn, toShown = (v) => v, fromShown = (v) => v, step = 0.1 }) {
+// With `digits`, the box and its greyed figure show that many decimals while
+// the cursor is elsewhere, and the full figure while it is in the box
+// (docs/items/boxes-and-access.md, BA1).
+function FigureRow({ label, value, onChange, builtIn, toShown = (v) => v, fromShown = (v) => v, step = 0.1, digits }) {
   return (
     <InputRow
       label={label}
-      value={value === null ? '' : roundForInput(toShown(value))}
+      value={value === null ? '' : roundForInput(toShown(value), digits)}
+      editValue={value === null ? '' : roundForInput(toShown(value))}
       placeholder={
+        value === null && Number.isFinite(builtIn) ? String(roundForInput(toShown(builtIn), digits)) : undefined
+      }
+      editPlaceholder={
         value === null && Number.isFinite(builtIn) ? String(roundForInput(toShown(builtIn))) : undefined
       }
       onChange={(e) => {
@@ -297,9 +305,12 @@ export default function OptionsSection({
   const vUnit = volumeUnit(mode, proVolumeUnit);
   const tUnit = tempUnit(temperatureUnit);
   const built = newRecipe(brewery).recipe; // the figures a new recipe gets in place of a blank one (scaled to its batch, PD-B2, NB-S4)
+  // A volume shows the printed sheet's precision away from the cursor: gal to
+  // 0.01, bbl to 0.001 (BA1).
   const volume = {
     toShown: (gal) => volumeFromCanonical(gal, mode, proVolumeUnit),
     fromShown: (v) => volumeToCanonical(v, mode, proVolumeUnit),
+    digits: volumesInBarrels(mode, proVolumeUnit) ? 3 : 2,
   };
   const temperature = {
     toShown: (tempF) => tempBoxValue(tempF, temperatureUnit),

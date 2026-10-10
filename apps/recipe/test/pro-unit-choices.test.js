@@ -44,7 +44,12 @@ import * as f from './pro-unit-choices.fixture.js';
 // capture (docs/items/inverse-solver-ui.md, IS-S7): compared without them.
 import { withoutTargetOgDesign } from './inverse-solver.fixture.js';
 import { docWithBlankPrices } from './blank-prices.js';
-import { withoutBoxNames as noNames } from './box-names.fixture.js';
+import { withoutBoxNames } from './box-names.fixture.js';
+// The box names (F1) and S14's accessibility changes (BA3) are set aside on both sides.
+import { withoutAccessChanges } from './access.fixture.js';
+const noNames = (html) => withoutAccessChanges(withoutBoxNames(html));
+// The weight and volume boxes show the sheet's precision since BA1 (S14).
+import { withBoxFiguresAsDrawn as asDrawn } from './box-figures.fixture.js';
 import { docWithTarget, sheetWithAimedAcid, withoutAcidCards } from './acid-aim.js';
 
 // Since the engine follows Rev 4 (docs/items/engine-corrections.md, EC-Q7),
@@ -299,16 +304,21 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     const r = f.recipe();
     for (const units of [BBL_LB, {}]) {
       for (const mode of ['home', 'pro']) {
-        expect(noNames(f.volumesHtml(r, mode, units)), `volumes ${mode}`).toBe(noNames(BEFORE[`volumes-${mode}`]));
-        expect(noNames(withoutTargetOgDesign(f.gristHtml(r, mode, units))), `grist ${mode}`).toBe(noNames(BEFORE[`grist-${mode}`]));
+        const volumes = f.volumesHtml(r, mode, units);
+        expect(noNames(volumes), `volumes ${mode}`).toBe(noNames(asDrawn(BEFORE[`volumes-${mode}`], volumes)));
+        const grist = withoutTargetOgDesign(f.gristHtml(r, mode, units));
+        expect(noNames(grist), `grist ${mode}`).toBe(noNames(asDrawn(BEFORE[`grist-${mode}`], grist)));
         // Since the acid aimed at a mash pH: the acid's figures and the target (AA-S1, AA-S5).
         const sheet = f.sheetData(r, mode, units);
         expect(sheet, `sheet ${mode}`).toEqual(sheetWithAimedAcid(BEFORE[`sheet-data-${mode}`], sheet));
       }
-      expect(noNames(f.hopsHtml(r, 'pro', units))).toBe(noNames(BEFORE.hops));
+      const hops = f.hopsHtml(r, 'pro', units);
+      expect(noNames(hops)).toBe(noNames(asDrawn(BEFORE.hops, hops)));
       // Since the acid aimed at a mash pH: all but the acid's and the predicted profile's cards (AA-S1).
-      expect(noNames(withoutAcidCards(f.waterHtml(r, 'pro', units)))).toBe(noNames(withoutAcidCards(BEFORE.water)));
-      expect(noNames(withoutMyIngredients(withoutNewChoices(f.optionsHtml(f.brewery(), 'pro', units))))).toBe(noNames(withScaledGreyed(BEFORE.options)));
+      const water = withoutAcidCards(f.waterHtml(r, 'pro', units));
+      expect(noNames(water)).toBe(noNames(asDrawn(withoutAcidCards(BEFORE.water), water)));
+      const options = withoutMyIngredients(withoutNewChoices(f.optionsHtml(f.brewery(), 'pro', units)));
+      expect(noNames(options)).toBe(noNames(asDrawn(withScaledGreyed(BEFORE.options), options)));
     }
 
     // The saved documents: as before, at the new versions, with the choices.

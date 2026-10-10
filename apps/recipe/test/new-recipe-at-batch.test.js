@@ -21,13 +21,14 @@
 //   boil-off 1.5    x 930/11 = 1395/11 = 126.818181... gal/hr
 //   In barrels (31 gal/bbl, 465 gal = 15 bbl): pre-boil 6510/11/31 =
 //   210/11 = 19.090909... bbl, boil-off 1395/11/31 = 45/11 = 4.090909...
-//   bbl/hr; the greyed box shows six decimals: 19.090909 and 4.090909.
+//   bbl/hr; the greyed box showed six decimals, 19.090909 and 4.090909, and
+//   shows them to 0.001 bbl since BA1 (S14): 19.091 and 4.091.
 //
 // Home, a brewery batch of 10 gal: ratio = 10 / 5.5 = 20/11 = 1.818181...
 //   Pale    10 lb   x 20/11 = 200/11 = 18.181818... lb
 //   mash     5 gal  x 20/11 = 100/11 =  9.090909... gal
-//   pre-boil 7 gal  x 20/11 = 140/11 = 12.727272... gal (greyed: 12.727273)
-//   boil-off 1.5    x 20/11 =  30/11 =  2.727272... gal/hr (greyed: 2.727273)
+//   pre-boil 7 gal  x 20/11 = 140/11 = 12.727272... gal (greyed: 12.73)
+//   boil-off 1.5    x 20/11 =  30/11 =  2.727272... gal/hr (greyed: 2.73)
 
 import { describe, it, expect } from 'vitest';
 import { createElement } from 'react';
@@ -189,15 +190,17 @@ describe("a new recipe at the brewery's batch", () => {
   it('the greyed figures follow', async () => {
     const pro = await breweryBoxes({ ...blank(), mode: 'pro', fermentVolGal: 465 }, 'pro');
     expect(pro('Batch (fermentation) volume (bbl)')).toEqual({ value: '15', placeholder: undefined });
-    expect(pro('Pre-boil volume (bbl)').placeholder).toBe('19.090909');
-    expect(pro('Boil-off rate (bbl/hr)').placeholder).toBe('4.090909');
+    // To 0.001 bbl since BA1 (S14): 19.090909 -> 19.091, 4.090909 -> 4.091.
+    expect(pro('Pre-boil volume (bbl)').placeholder).toBe('19.091');
+    expect(pro('Boil-off rate (bbl/hr)').placeholder).toBe('4.091');
     expect(pro('Boil time (min)').placeholder).toBe('60');
     expect(pro('Brewhouse efficiency (%)').placeholder).toBe('75');
 
     const home = await breweryBoxes({ ...blank(), fermentVolGal: 10 }, 'home');
     expect(home('Batch (fermentation) volume (gal)')).toEqual({ value: '10', placeholder: undefined });
-    expect(home('Pre-boil volume (gal)').placeholder).toBe('12.727273');
-    expect(home('Boil-off rate (gal/hr)').placeholder).toBe('2.727273');
+    // To 0.01 gal since BA1 (S14): 12.727273 -> 12.73, 2.727273 -> 2.73.
+    expect(home('Pre-boil volume (gal)').placeholder).toBe('12.73');
+    expect(home('Boil-off rate (gal/hr)').placeholder).toBe('2.73');
   });
 
   // NB-S5

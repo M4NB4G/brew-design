@@ -17,11 +17,15 @@ export const colors = {
 
   // Text
   textPrimary: '#1f3147',
-  textSecondary: '#5a7390',
-  textMuted: '#7c8fa6',
+  // The three greys: each Brew Water Chem's, darkened, hue kept, only until
+  // it reaches 4.5:1 on the darkest background it sits on (WCAG 2.2 1.4.3;
+  // docs/items/boxes-and-access.md, BA3-S1; test/contrast.test.js). Before:
+  // #5a7390, #7c8fa6 and the footer's #9faec0.
+  textSecondary: '#536a85',
+  textMuted: '#586a81',
   textNotice: '#3a5680',
   textWarn: '#a04835',
-  textFooter: '#9faec0', // the page footer's company line (Brew Water Chem's footer grey)
+  textFooter: '#5a6f88', // the page footer's company line (Brew Water Chem's footer grey, darkened)
 
   // Borders
   border: '#dde6ef',
@@ -42,6 +46,13 @@ export const colors = {
   matchNear: '#3a8055',
   matchOff: '#a07835',
   matchFar: '#a04835',
+};
+
+// Keyboard focus and hover (docs/items/boxes-and-access.md, BA2): written to
+// the page's root as CSS variables (main.jsx) and read by index.css's rules,
+// which inline styles cannot express. The ring is the navy of textPrimary.
+export const interaction = {
+  '--focus-ring': colors.textPrimary,
 };
 
 // The printed recipe sheet's palette — Brew Water Chem's batch sheet, on white.
@@ -148,6 +159,20 @@ export const tokens = {
     color: colors.textWarn,
     fontSize: '0.82rem',
     fontWeight: 600,
+  },
+  // Text a screen reader reads and the screen does not show (the remove
+  // columns' header, docs/items/boxes-and-access.md, BA3-S2). Its parent is
+  // given position: relative, so the text stays inside a scrolling table.
+  visuallyHidden: {
+    position: 'absolute',
+    width: '1px',
+    height: '1px',
+    padding: 0,
+    margin: '-1px',
+    overflow: 'hidden',
+    clip: 'rect(0, 0, 0, 0)',
+    whiteSpace: 'nowrap',
+    border: 0,
   },
   // Stat-tile grid (used inside cards that show a 2-column tile grid)
   statGrid: {

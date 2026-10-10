@@ -98,6 +98,9 @@ cached values are pinned by the golden-master tests.
    as the reference itself; boxes take tenths of a degree, readouts show
    whole degrees, except the reference, shown in °C as 15.6. The printed sheet uses the screen's
    unit. Switching the unit changes no stored figure.
+   A malt weight, hop weight or volume box shows its figure to the precision
+   the printed sheet prints it while the cursor is elsewhere, and the full
+   figure while the cursor is in it; the stored figure changes only by typing.
    In Pro two more choices sit beside the gravity unit: liquid volumes in
    barrels or gallons — gallons covers every volume except the dry-hop
    rate, which stays lb/bbl, and shows to 0.01 as at Home — and malt weights
@@ -358,7 +361,12 @@ cached values are pinned by the golden-master tests.
 
 14. `apps/recipe/src/components/shared/styles.js` is the only styling source.
     No hex or rgb literals outside it, except data-driven colors (the SRM
-    swatch). The visual language matches Brew Water Chem.
+    swatch). The visual language matches Brew Water Chem, its three text
+    greys darkened, hue kept, to 4.5:1 on the darkest background each sits
+    on (WCAG 2.2 1.4.3). `index.css` holds
+    the global rules inline styles cannot express: resets, the keyboard focus
+    ring and the hover on buttons, and the print rules; the ring's colour is
+    `styles.js`'s, written to the page's root.
 15. Read-only computed values render as plain text, never as an input box.
 
 ## 4. Verification

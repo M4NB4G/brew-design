@@ -8,7 +8,11 @@
 // optional `placeholder` is the figure shown greyed inside an empty box (the
 // browser's own placeholder grey); it is never a value. The box's accessible
 // name is the label the brewer sees, with its unit (guard-rails item 3, F-Q5).
+// The optional `editValue` and `editPlaceholder` are what the box and its
+// greyed figure show while the cursor is in it (the full figure), `value` and
+// `placeholder` what they show otherwise (boxes-and-access, BA1).
 
+import { useState } from 'react';
 import { colors, tokens } from './styles.js';
 
 export default function InputRow({
@@ -24,7 +28,11 @@ export default function InputRow({
   hint,
   placeholder,
   rightAdornment, // optional element rendered to the right of the input (e.g. unit picker)
+  editValue,
+  editPlaceholder,
 }) {
+  const [editing, setEditing] = useState(false);
+
   const rowStyle = {
     display: 'flex',
     justifyContent: 'space-between',
@@ -93,9 +101,11 @@ export default function InputRow({
             step={step}
             min={min}
             max={max}
-            value={value}
-            placeholder={placeholder}
+            value={editing && editValue !== undefined ? editValue : value}
+            placeholder={editing && editPlaceholder !== undefined ? editPlaceholder : placeholder}
             onChange={onChange}
+            onFocus={() => setEditing(true)}
+            onBlur={() => setEditing(false)}
             style={inputStyle}
           />
           {rightAdornment}

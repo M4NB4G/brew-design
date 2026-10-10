@@ -81,10 +81,12 @@ describe('blank brewery figures name the built-in one', () => {
       expect(box(markup, label), label).toEqual({ value: '', placeholder: undefined });
     }
 
-    // In Pro the volumes are in barrels, as the box's own value would show them.
+    // In Pro the volumes are in barrels, as the box's own value would show them,
+    // to 0.001 bbl since BA1 (S14): 5.5 / 31 = 0.17741... -> 0.177; 1.5 / 31 =
+    // 0.04838... -> 0.048.
     const pro = await render(emptyBreweryFigures(), 'pro');
-    expect(box(pro, 'Batch (fermentation) volume (bbl)').placeholder).toBe('0.177419');
-    expect(box(pro, 'Boil-off rate (bbl/hr)').placeholder).toBe('0.048387');
+    expect(box(pro, 'Batch (fermentation) volume (bbl)').placeholder).toBe('0.177');
+    expect(box(pro, 'Boil-off rate (bbl/hr)').placeholder).toBe('0.048');
     expect(box(pro, 'Boil time (min)').placeholder).toBe('60');
     expect(box(pro, 'Brewhouse efficiency (%)').placeholder).toBe('75');
   });
@@ -97,8 +99,9 @@ describe('blank brewery figures name the built-in one', () => {
     expect(box(markup, 'Boil time (min)')).toEqual({ value: '90', placeholder: undefined });
     expect(box(markup, 'Brewhouse efficiency (%)')).toEqual({ value: '93', placeholder: undefined });
     // The ones still blank name the built-in figure, scaled to the set batch
-    // since NB-S4: 7 gal x 12 / 5.5 = 168/11 = 15.272727 gal, by hand.
-    expect(box(markup, 'Pre-boil volume (gal)').placeholder).toBe('15.272727');
+    // since NB-S4: 7 gal x 12 / 5.5 = 168/11 = 15.272727 gal, by hand; to
+    // 0.01 gal since BA1 (S14): 15.27.
+    expect(box(markup, 'Pre-boil volume (gal)').placeholder).toBe('15.27');
   });
 
   // BB-S3, BB-S4

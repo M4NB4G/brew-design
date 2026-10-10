@@ -42,7 +42,12 @@ import { temperatureChange } from '../src/components/VolumesSection.jsx';
 import Header from '../src/components/Header.jsx';
 import * as f from './celsius-toggle.fixture.js';
 import { docWithBlankPrices } from './blank-prices.js';
-import { withoutBoxNames as noNames } from './box-names.fixture.js';
+import { withoutBoxNames } from './box-names.fixture.js';
+// The box names (F1) and S14's accessibility changes (BA3) are set aside on both sides.
+import { withoutAccessChanges } from './access.fixture.js';
+const noNames = (html) => withoutAccessChanges(withoutBoxNames(html));
+// The weight and volume boxes show the sheet's precision since BA1 (S14).
+import { withBoxFiguresAsDrawn as asDrawn } from './box-figures.fixture.js';
 import { docWithTarget, sheetWithAimedAcid } from './acid-aim.js';
 
 // Since the engine follows Rev 4 (docs/items/engine-corrections.md, EC-Q7),
@@ -308,7 +313,8 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
   it('nothing else changes in °F', () => {
     const r = f.recipe();
     for (const mode of ['home', 'pro']) {
-      expect(noNames(f.volumesHtml(r, mode, 'F')), `volumes ${mode}`).toBe(noNames(BEFORE[`volumes-${mode}`]));
+      const volumes = f.volumesHtml(r, mode, 'F');
+      expect(noNames(volumes), `volumes ${mode}`).toBe(noNames(asDrawn(BEFORE[`volumes-${mode}`], volumes)));
       // Since the acid aimed at a mash pH: the acid's figures and the target (AA-S1, AA-S5).
       const sheet = f.sheetData(r, mode, 'F');
       expect(sheet, `sheet ${mode}`).toEqual(sheetWithAimedAcid(BEFORE[`sheet-data-${mode}`], sheet));
