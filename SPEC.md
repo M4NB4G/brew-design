@@ -361,7 +361,10 @@ cached values are pinned by the golden-master tests.
 
 14. `apps/recipe/src/components/shared/styles.js` is the only styling source.
     No hex or rgb literals outside it, except data-driven colors (the SRM
-    swatch). The visual language matches Brew Water Chem.
+    swatch). The visual language matches Brew Water Chem. `index.css` holds
+    the global rules inline styles cannot express: resets, the keyboard focus
+    ring and the hover on buttons, and the print rules; the ring's colour is
+    `styles.js`'s, written to the page's root.
 15. Read-only computed values render as plain text, never as an input box.
 
 ## 4. Verification

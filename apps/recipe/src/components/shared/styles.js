@@ -44,6 +44,13 @@ export const colors = {
   matchFar: '#a04835',
 };
 
+// Keyboard focus and hover (docs/items/boxes-and-access.md, BA2): written to
+// the page's root as CSS variables (main.jsx) and read by index.css's rules,
+// which inline styles cannot express. The ring is the navy of textPrimary.
+export const interaction = {
+  '--focus-ring': colors.textPrimary,
+};
+
 // The printed recipe sheet's palette — Brew Water Chem's batch sheet, on white.
 export const printColors = {
   navy: '#1f3147', // headings, values, product name
