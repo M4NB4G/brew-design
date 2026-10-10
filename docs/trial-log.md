@@ -5,7 +5,7 @@ D trial, then the widened trial). One row per batch. Figures are the owner's
 `/usage` readings at the end of each session, as sent; a session cannot run
 `/usage` itself, and no start reading was taken, so a batch's cost is the
 whole session's, not per item. "Builder" and "advisor" are the trial's two
-models (CLAUDE.md, Models). Last updated 2026-10-09.
+models (CLAUDE.md, Models). Last updated 2026-10-10.
 
 ## Batches
 
@@ -17,11 +17,12 @@ models (CLAUDE.md, Models). Last updated 2026-10-09.
 | F1 | 3 (tests on GitHub; a linter; a name for every box) | D, D, C | $10.02 | API 17m 4s, active 25m 34s | 67 % / 33 % (basis, cost or tokens, not stated) | 0 | 0 |
 | S10b | 1 (the References page) | C and D | $10.02 | API 26m, wall 30m | not split: the report lists only the builder's model line | 0 | 1 (a docs-only note, `597b677`) |
 | F2 | 3 (security headers; browser checks kept in the repo; header unit switches on their own row) | D, D, C | $9.56 | API 17m 35s, wall 34m 57s | $5.52 Sonnet / $4.03 Opus (58 % / 42 %) | 0 | 0 so far (the reading is from before the merge) |
+| S14 | 3 (weight and volume boxes at the sheet's precision; keyboard focus ring and hover; the other accessibility findings) | C, C, C with one Tier B line | $27.14 | API 36m 38s, wall 1h 32m 3s | not split: all Opus 5.5 (builder at high effort, advisor, one inspector); $0.0002 on Haiku 5.5 | 0 | 0 |
 
 S6c and S6d are left blank until their readings are in.
 
 Per item, from the whole session's cost: S6a about $2.57, F1 about $3.34, F2
-about $3.19. F1's items were the heavier kind (a new browser-DOM test suite
+about $3.19, S14 about $9.05 (Opus throughout; see S14 detail). F1's items were the heavier kind (a new browser-DOM test suite
 with two test-only dependencies, a before-and-after browser run, and a strip
 across four older byte-for-byte scenarios); S6a's were a wording fix and a
 print layout; F2's were a config block, a browser suite with its own server and
@@ -88,13 +89,47 @@ a test-only dependency, and a header layout read from measured positions.
 - Not built, put to the roadmap: the GitHub check running the browser suite.
   Put to the owner: what "the test totals" in the roadmap means.
 
+## S14 detail
+
+- The reading (2026-10-10) is the owner's `/usage` after the merge and push,
+  so $27.14 covers the questions, the build, the report, the merge and push,
+  and the questions after it. No start reading was taken.
+- The roadmap planned Sonnet 5.5 building with an Opus advisor; the session
+  ran on Opus 5.5 at high effort (CLAUDE.md asks medium for an Opus Tier C
+  batch), told to the owner before building. The builder, the advisor and
+  item 3's inspector were all Opus, so the reading does not split between
+  them. It is the first Tier C batch measured on Opus, and it is not a clean
+  comparison: item 3 carried a Tier B line with its inspector, each item had
+  a browser check, the session took twelve-screenshot before-and-after
+  comparisons, and nine earlier tests and fixtures changed.
+- Questions to the owner: 4, asked together before building (S14-Q1 to
+  S14-Q4); answered "agree to all". Send-backs after the report: 0.
+- CI: green on each of the three commits on the branch (runs 77 to 79) and
+  queued on `main` at the merge (run 81). Pull request M4NB4G/brew-design#71.
+- The advisor changed the builder's work in these ways: it asked that the
+  measured facts go to the owner before the questions, and that the
+  premise of the focus item (the browser already drew a ring) be said
+  plainly; that My brewery's volume boxes follow the agreed "each volume
+  box"; that the box-figure fixture accept a rounding only on the boxes
+  item 1 changed; that the hover not stick on a touch screen; that the
+  look of items 2 and 3 be proven by screenshots against the build before;
+  and that the axe scan run from the page's own address with the policy on.
+- Every number each item adds was confirmed by the advisor as no recipe
+  value; item 3's after its commit, whose body says before (said in the
+  report). Item 1's commit body gives the browser suite as 17 tests; it was
+  15 (corrected in the item file).
+- Merge: on the owner's word, `main` at fe2d300.
+
 ## Not like for like
 
 - S7 (an all-Opus session, three Tier A/B items with a fresh inspector each, one
   with a FAIL round, and an engine change) read $25.23. It is not a Tier C and
   D comparison.
-- No Opus Tier C and D batch has been measured (CLAUDE.md, Models). Until one
-  is, a saving against Opus cannot be stated, only the cost per item here.
+- S14 is the first Tier C batch measured on Opus ($27.14, about $9.05 per
+  item), but at high effort, with a Tier B line and its inspector, and with
+  heavier proof than the Sonnet batches; it is not a clean Opus baseline, so a
+  saving against Opus still cannot be stated from it.
 - The line counters in the readings ("+280 −0" for F1, "0 added, 0 removed" for
-  S6a, "168 added, 0 removed" for F2, whose commits add 802 lines) do not match
+  S6a, "168 added, 0 removed" for F2, whose commits add 802 lines, "514 added,
+  0 removed" for S14, whose commits add 852 and remove 63) do not match
   the commits and are not used.
