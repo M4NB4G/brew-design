@@ -18,15 +18,19 @@ models (CLAUDE.md, Models). Last updated 2026-10-10.
 | S10b | 1 (the References page) | C and D | $10.02 | API 26m, wall 30m | not split: the report lists only the builder's model line | 0 | 1 (a docs-only note, `597b677`) |
 | F2 | 3 (security headers; browser checks kept in the repo; header unit switches on their own row) | D, D, C | $9.56 | API 17m 35s, wall 34m 57s | $5.52 Sonnet / $4.03 Opus (58 % / 42 %) | 0 | 0 so far (the reading is from before the merge) |
 | S14 | 3 (weight and volume boxes at the sheet's precision; keyboard focus ring and hover; the other accessibility findings) | C, C, C with one Tier B line | $27.14 | API 36m 38s, wall 1h 32m 3s | not split: all Opus 5.5 (builder at high effort, advisor, one inspector); $0.0002 on Haiku 5.5 | 0 | 0 |
+| F3 | 3 (three more response headers; the browser checks on GitHub; one West Coast Pilsner for the acid tests) | D, D, D | $7.03 | API 14m 10s, wall 1h 0m 22s | $3.48 Sonnet / $3.55 Opus (50 % / 50 %); a further $0.0002 on Haiku 5.5 | 0 | 0 |
 
 S6c and S6d are left blank until their readings are in.
 
 Per item, from the whole session's cost: S6a about $2.57, F1 about $3.34, F2
-about $3.19, S14 about $9.05 (Opus throughout; see S14 detail). F1's items were the heavier kind (a new browser-DOM test suite
+about $3.19, F3 about $2.34, S14 about $9.05 (Opus throughout; see S14 detail). F1's items were the heavier kind (a new browser-DOM test suite
 with two test-only dependencies, a before-and-after browser run, and a strip
 across four older byte-for-byte scenarios); S6a's were a wording fix and a
 print layout; F2's were a config block, a browser suite with its own server and
-a test-only dependency, and a header layout read from measured positions.
+a test-only dependency, and a header layout read from measured positions;
+F3's were a config block with its tests, one CI job, and a test-only move of
+three copies of a recipe into one fixture, with no screenshots and no
+inspector.
 
 ## F1 detail
 
@@ -120,6 +124,49 @@ a test-only dependency, and a header layout read from measured positions.
   15 (corrected in the item file).
 - Merge: on the owner's word, `main` at fe2d300.
 
+## F3 detail
+
+- The reading (2026-10-10) is the owner's `/usage` after the merge and push
+  and the check of CI and the deploy on `main`, so $7.03 covers the build, the
+  report, the pull request, the merge, the deploy check and the questions
+  after it. No start reading was taken. By model: $3.48 Sonnet 5.5 (builder),
+  $3.55 Opus 5.5 (advisor), $0.0002 Haiku 5.5.
+- Questions to the owner: 0. F3-Q1 to F3-Q4 were agreed on 2026-10-09, before
+  the session. Send-backs after the report: 0. Fixes after a commit: 0. No
+  inspector (all three items Tier D).
+- CI: green on every push and on the pull request (M4NB4G/brew-design#72):
+  runs 84 (after item 2, the first to run the `browser` job), 85 (item 3),
+  86 (the pull request) and 87 (`main` at the merge). The `browser` job read
+  "23 passed" on GitHub, as it did here. Netlify's header-rules check passed
+  on the deploy preview, and the production deploy of `main` (897b13d) is
+  ready with "1 header rule processed". The live site's headers were not read
+  by the session (the sandbox's proxy refuses the address, as in F2); they are
+  the owner's to read on securityheaders.com.
+- The advisor was called four times: before building, and before each of the
+  three commits. It changed the builder's work in these ways: it asked for the
+  baseline of all four checks (tests, lint, build, browser) on the untouched branch, and for every diff to
+  be taken against `origin/main` (the clone's local `main` was stale); it
+  asked for the permissions feature's name to be checked (`geolocation`; a
+  header written "location" is ignored by the browser) and the claim shown by
+  a planted break in both the unit and the browser check; it replaced a
+  source-file count floor of 50 with a check that each of the two source
+  roots yielded files; it found two coverage rows pointing "the row below" at
+  rows eight to nine rows further down, and three claims in the rows that were
+  untrue or unshown (every other recipe in the suite carries a price field; two
+  kept helpers described as serving the same recipes when one served the
+  stout and the amber ale and the other set acid amounts on the Pilsner; the
+  merge-blocking claim stated as the repository's setting when only the
+  workflow was read); it asked for the old Pilsner builders to be compared with the fixture, for every
+  call shape the tests use, before any was deleted; and it asked for the push
+  after item 2, so a red browser job on GitHub would show while there was
+  still budget to fix it (it was green).
+- Every number each item adds was confirmed by the advisor as no recipe
+  value, before each commit.
+- Not taken: "the test totals" in the roadmap, whose meaning is still the
+  owner's to settle.
+- Merge: on the owner's word, a fast-forward, `main` at 897b13d. This entry
+  was added on the owner's word and merged the same way.
+
 ## Not like for like
 
 - S7 (an all-Opus session, three Tier A/B items with a fresh inspector each, one
@@ -129,6 +176,10 @@ a test-only dependency, and a header layout read from measured positions.
   item), but at high effort, with a Tier B line and its inspector, and with
   heavier proof than the Sonnet batches; it is not a clean Opus baseline, so a
   saving against Opus still cannot be stated from it.
+- F3 ($7.03, about $2.34 per item) is the lowest per-item figure in the log,
+  but its three items carried no browser suite to build, no screenshots and no
+  layout read, unlike F1 and F2; it is not a clean comparison with them. Its
+  split (50 % / 50 %) puts more on the advisor than F2's (58 % / 42 %).
 - The line counters in the readings ("+280 −0" for F1, "0 added, 0 removed" for
   S6a, "168 added, 0 removed" for F2, whose commits add 802 lines, "514 added,
   0 removed" for S14, whose commits add 852 and remove 63) do not match
