@@ -47,8 +47,13 @@ test('Pro scales the recipe on a yes, keeps its gravity, and Home scales it back
 
   // 10 bbl is 310 gal; the recipe's 5.5 gal become 310 gal, so every amount is
   // multiplied by 310 / 5.5 = 56.3636...: Pale 10 lb -> 563.636 lb.
+  // The box shows 563.64 (the sheet's 0.01 lb) and the full figure with the
+  // cursor in it (docs/items/boxes-and-access.md, BA1).
   const pale = page.getByLabel('Weight (lb), Pale 2-Row');
+  await expect(pale).toHaveValue('563.64');
+  await pale.focus();
   expect(Number(await pale.inputValue())).toBeCloseTo(563.6364, 3);
+  await pale.blur();
   // Gravity, colour and bitterness stay (SPEC rule 8): OG is still 1.056 in SG.
   await page.getByRole('button', { name: 'SG', exact: true }).click();
   await expect(stat(page, 'OG')).toHaveText('1.056');

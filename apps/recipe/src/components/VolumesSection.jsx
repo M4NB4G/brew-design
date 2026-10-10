@@ -29,6 +29,7 @@ import {
   volumeToCanonical,
   volumeFromCanonical,
   volumeUnit,
+  volumesInBarrels,
   mashRvUnit,
   mashRUnit,
   tempUnit,
@@ -58,8 +59,11 @@ export const volumeChange = (setField, field, mode, proVolumeUnit) => (e) =>
   setField(field, volumeToCanonical(parseFloat(e.target.value), mode, proVolumeUnit));
 
 // A canonical-gal figure as a volume box shows it: blank shows empty.
-const volumeShown = (gal, mode, proVolumeUnit) =>
-  Number.isFinite(gal) ? Number(volumeFromCanonical(gal, mode, proVolumeUnit).toFixed(6)) : '';
+// Away from the cursor it shows the printed sheet's precision, gal to 0.01
+// and bbl to 0.001; with the cursor in it, the full figure (BA1).
+const volumeShown = (gal, mode, proVolumeUnit, digits = 6) =>
+  Number.isFinite(gal) ? Number(volumeFromCanonical(gal, mode, proVolumeUnit).toFixed(digits)) : '';
+const volumeDigits = (mode, proVolumeUnit) => (volumesInBarrels(mode, proVolumeUnit) ? 3 : 2);
 
 // A measurement temperature box's change: the entry in the header's unit,
 // converted to degF; an emptied box is a blank temperature (NaN).
@@ -110,7 +114,8 @@ export default function VolumesSection({
   // Convert a canonical-gal state field through the display boundary for InputRow.
   // InputRow passes the native event; we parse and convert the value back.
   const volRow = (field) => ({
-    value: volumeShown(recipe[field], mode, proVolumeUnit),
+    value: volumeShown(recipe[field], mode, proVolumeUnit, volumeDigits(mode, proVolumeUnit)),
+    editValue: volumeShown(recipe[field], mode, proVolumeUnit),
     onChange: volumeChange(setField, field, mode, proVolumeUnit),
   });
 

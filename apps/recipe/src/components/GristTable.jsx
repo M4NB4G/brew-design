@@ -92,6 +92,7 @@ export default function GristTable({
           <NumberField
             aria-label={`Weight (${wUnit}), ${rowName(m, 'Malt', i)}`}
             value={maltWeightBoxValue(m.weightLb, mode, proMaltUnit)}
+            digits={2}
             step={sacks ? '0.01' : '0.1'}
             min="0"
             onChange={(v) => setRow('malts', i, 'weightLb', maltWeightToCanonical(v, mode, proMaltUnit))}

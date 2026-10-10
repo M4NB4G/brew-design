@@ -63,8 +63,11 @@ export const volumeText = (gal, mode, proVolumeUnit) =>
   num(volumeFromCanonical(gal, mode, proVolumeUnit), volumesInBarrels(mode, proVolumeUnit) ? 3 : 2);
 
 // A canonical-gal figure as a number box shows it: blank shows empty.
-const volumeShown = (gal, mode, proVolumeUnit) =>
-  Number.isFinite(gal) ? Number(volumeFromCanonical(gal, mode, proVolumeUnit).toFixed(6)) : '';
+// Away from the cursor it shows the printed sheet's precision, gal to 0.01
+// and bbl to 0.001; with the cursor in it, the full figure (BA1).
+const volumeShown = (gal, mode, proVolumeUnit, digits = 6) =>
+  Number.isFinite(gal) ? Number(volumeFromCanonical(gal, mode, proVolumeUnit).toFixed(digits)) : '';
+const volumeDigits = (mode, proVolumeUnit) => (volumesInBarrels(mode, proVolumeUnit) ? 3 : 2);
 
 function Warning({ children }) {
   return (
@@ -113,7 +116,8 @@ export default function WaterGoesCard({ water, figures, mode, proVolumeUnit, set
     <InputRow
       label={label}
       unit={unit}
-      value={volumeShown(water[key], mode, proVolumeUnit)}
+      value={volumeShown(water[key], mode, proVolumeUnit, volumeDigits(mode, proVolumeUnit))}
+      editValue={volumeShown(water[key], mode, proVolumeUnit)}
       onChange={(e) => set(key, volumeToCanonical(parseFloat(e.target.value), mode, proVolumeUnit))}
       step={0.1}
       min={0}

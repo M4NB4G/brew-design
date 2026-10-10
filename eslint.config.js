@@ -46,6 +46,7 @@ export default [
       'apps/recipe/test/reference-typed-in-celsius.test.js',
       'apps/recipe/test/page-error.test.js',
       'apps/recipe/test/page-error.fixture.js',
+      'apps/recipe/test/box-figures.test.js',
     ],
     languageOptions: { globals: globals.browser },
   },

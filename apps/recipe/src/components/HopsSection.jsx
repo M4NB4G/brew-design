@@ -28,6 +28,10 @@ import {
 import { num } from '../format.js';
 import { newRow } from '../ingredient-search.js';
 
+// A hop weight box away from the cursor shows the printed sheet's precision:
+// 0.01 oz at Home, 0.001 lb in Pro (docs/items/boxes-and-access.md, BA1).
+const hopDigits = (mode) => (mode === 'pro' ? 3 : 2);
+
 const TH = {
   padding: '0.45rem 0.6rem',
   background: colors.statBoxBg,
@@ -143,6 +147,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temp
         <NumberField
           aria-label={`Wt (${wUnit}), ${rowName(a, 'Kettle hop', i)}`}
           value={hopWeightFromCanonical(a.weightOz, mode)}
+          digits={hopDigits(mode)}
           step="0.1"
           min="0"
           onChange={(v) => setRow('kettleAdditions', i, 'weightOz', hopWeightToCanonical(v, mode))}
@@ -172,6 +177,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temp
         <NumberField
           aria-label={`Wt (${wUnit}), ${rowName(d, 'Dry hop', i)}`}
           value={hopWeightFromCanonical(d.weightOz, mode)}
+          digits={hopDigits(mode)}
           step="0.1"
           min="0"
           onChange={(v) => setRow('dryHops', i, 'weightOz', hopWeightToCanonical(v, mode))}
