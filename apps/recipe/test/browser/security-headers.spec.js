@@ -14,6 +14,26 @@ test('the page is sent the policy and the anti-framing header', async ({ page })
   expect(headers['x-frame-options']).toBe('DENY');
 });
 
+test('the page is sent nosniff, the referrer policy and the permissions policy, and the browser holds to the last', async ({
+  page,
+}) => {
+  const response = await page.goto('/');
+  const headers = response.headers();
+  expect(headers['x-content-type-options']).toBe('nosniff');
+  expect(headers['referrer-policy']).toBe('strict-origin-when-cross-origin');
+  expect(headers['permissions-policy']).toBe('camera=(), microphone=(), geolocation=()');
+
+  // The header is live, not just sent: the browser refuses the three
+  // features to this page and still allows one the header does not name.
+  await page.waitForSelector('text=Brew');
+  const allowed = await page.evaluate(() =>
+    Object.fromEntries(
+      ['camera', 'microphone', 'geolocation', 'fullscreen'].map((f) => [f, document.featurePolicy.allowsFeature(f)]),
+    ),
+  );
+  expect(allowed).toEqual({ camera: false, microphone: false, geolocation: false, fullscreen: true });
+});
+
 test('the policy blocks a script and a picture from outside the page', async ({ page, problems }) => {
   await page.goto('/');
   await page.waitForSelector('text=Brew');

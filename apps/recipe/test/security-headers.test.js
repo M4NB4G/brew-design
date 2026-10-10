@@ -1,12 +1,15 @@
 // security-headers.test.js
-// Scenarios for the Security headers item (Tier D, batch F2, ROADMAP). The
-// site sends a Content-Security-Policy allowing the page's own files and Google
-// Fonts only, and refuses to be framed. Netlify reads the headers from
-// `apps/recipe/netlify.toml`; this suite reads them the same way and checks the
-// app's own files against the policy. That a browser then runs the built app
-// under the policy without one violation is checked at the far end, not here.
+// Scenarios for the Security headers item (Tier D, batch F2, ROADMAP) and for
+// "Three more response headers" (Tier D, batch F3). The site sends a
+// Content-Security-Policy allowing the page's own files and Google Fonts only,
+// refuses to be framed, trusts the type it sends, tells other sites its name
+// and not the page, and refuses the camera, microphone and location. Netlify
+// reads the headers from `apps/recipe/netlify.toml`; this suite reads them the
+// same way and checks the app's own files against the policy. That a browser
+// then runs the built app under the policy without one violation is checked at
+// the far end, not here.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { readHeaders, headersFor } from '../../../tools/netlify/headers.mjs';
@@ -84,5 +87,47 @@ describe('Security headers', () => {
     const reached = [...css.matchAll(/https?:\/\/[^/'")\s]+/g)].map((m) => m[0]);
     expect([...new Set(reached)]).toEqual([GOOGLE_FONTS_CSS]);
     expect(d['style-src']).toContain(GOOGLE_FONTS_CSS);
+  });
+
+  // SH-S4 (F3)
+  it('every page tells the browser to trust the type it sends', () => {
+    // nosniff is the only value X-Content-Type-Options takes.
+    expect(sent['X-Content-Type-Options']).toBe('nosniff');
+  });
+
+  // SH-S5 (F3)
+  it('every page tells other sites this site\'s name and not the page', () => {
+    // The browsers' default, written down.
+    expect(sent['Referrer-Policy']).toBe('strict-origin-when-cross-origin');
+  });
+
+  // SH-S6 (F3)
+  it('every page refuses the camera, microphone and location, which the app does not use', () => {
+    // "feature=()" is an empty allow-list: no page, frame or script may use it.
+    // The location feature's name in the header is geolocation.
+    const features = Object.fromEntries(
+      (sent['Permissions-Policy'] ?? '').split(',').map((part) => part.trim().split('=')),
+    );
+    expect(features).toEqual({ camera: '()', microphone: '()', geolocation: '()' });
+
+    // The app asks for none of them: nothing in its source, or the engine's,
+    // reaches the camera, the microphone or the location.
+    const walk = (dir, found = []) => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const path = `${dir}${entry.name}`;
+        if (entry.isDirectory()) walk(`${path}/`, found);
+        else if (/\.(jsx?|mjs)$/.test(entry.name)) found.push(path);
+      }
+      return found;
+    };
+    const app = walk(`${APP}src/`);
+    const engine = walk(fileURLToPath(new URL('../../../packages/engine/src/', import.meta.url)));
+    // Each root yielded files, so the search below read something from both.
+    expect(app.length).toBeGreaterThan(0);
+    expect(engine.length).toBeGreaterThan(0);
+    const asked = [...app, ...engine].filter((f) =>
+      /getUserMedia|mediaDevices|geolocation|getCurrentPosition|watchPosition/.test(readFileSync(f, 'utf8')),
+    );
+    expect(asked).toEqual([]);
   });
 });
