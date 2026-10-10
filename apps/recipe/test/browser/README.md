@@ -3,8 +3,10 @@
 The brewer's main paths, run in a real Chromium on the built app, served with
 the response headers `apps/recipe/netlify.toml` sets: edit, save and reload,
 Home and Pro, Design to target OG, the Cost card, print, export and import,
-and the security headers. It is not part of `npm test`: Netlify's build, the
-pre-commit hook and the GitHub check run `npm test`, and none has a browser.
+and the security headers. It is not part of `npm test`: Netlify's build and the
+pre-commit hook run that, and neither has a browser. The GitHub check runs it as
+its own job, `browser`, beside the lint, suites and build, on every push and
+pull request (`.github/workflows/ci.yml`).
 
 ```
 npx playwright install chromium   # once per machine
