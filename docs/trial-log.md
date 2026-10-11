@@ -139,9 +139,12 @@ inspector.
   86 (the pull request) and 87 (`main` at the merge). The `browser` job read
   "23 passed" on GitHub, as it did here. Netlify's header-rules check passed
   on the deploy preview, and the production deploy of `main` (897b13d) is
-  ready with "1 header rule processed". The live site's headers were not read
-  by the session (the sandbox's proxy refuses the address, as in F2); they are
-  the owner's to read on securityheaders.com.
+  ready with "1 header rule processed". The session could not read the live
+  site's headers (the sandbox's proxy refuses the address, as in F2); the
+  owner did, on securityheaders.com (report of 11 Oct 2026 17:52 UTC): grade
+  A+, up from B, with `x-content-type-options`, `referrer-policy` and
+  `permissions-policy` sent as committed, beside the policy and
+  `x-frame-options: DENY` of F2.
 - The advisor was called four times: before building, and before each of the
   three commits. It changed the builder's work in these ways: it asked for the
   baseline of all four checks (tests, lint, build, browser) on the untouched branch, and for every diff to
@@ -165,7 +168,8 @@ inspector.
 - Not taken: "the test totals" in the roadmap, whose meaning is still the
   owner's to settle.
 - Merge: on the owner's word, a fast-forward, `main` at 897b13d. This entry
-  was added on the owner's word and merged the same way.
+  and its live-header note were added on the owner's word and merged the same
+  way.
 
 ## Not like for like
 
