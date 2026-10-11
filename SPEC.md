@@ -272,8 +272,13 @@ cached values are pinned by the golden-master tests.
     then replaces it in its place. The strain box offers the brewer's
     strains first, marked as yours; a pick names the strain and sets ale or
     lager only. For one of them the Yeast card shows what was saved, and
-    warns only from a saved range. Saving or deleting one changes no
-    recipe. They are kept with the brewery's figures (rule 17).
+    warns only from a saved range. One saved before the owner's list gained
+    its name is kept with its own numbers and still offered first, beside
+    the owner's entry; My brewery says, under it, "Now also on the owner's
+    list, with its own numbers.", worked out each time it is drawn; only the
+    brewer's Delete removes it, and saving that name again is refused.
+    Saving or deleting one changes no recipe. They are kept with the
+    brewery's figures (rule 17).
 17. **The brewery's figures are not a recipe.** The brewery's batch
     (fermentation) volume, pre-boil volume, boil-off rate, boil time, three
     measurement temperatures, brewhouse efficiency, Home/Pro, Pro gravity,

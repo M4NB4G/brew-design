@@ -269,6 +269,18 @@ export function withMyIngredient(mine, field, entry) {
   return { ...mine, [list]: next };
 }
 
+// The owner's list each of My ingredients' lists stands beside.
+const OWNERS = { malts: ingredients.malts, hops: ingredients.hops, yeasts: ingredients.yeasts };
+
+/**
+ * Whether one of My ingredients' `list` entries, saved before the owner's list
+ * gained its name, is now also on it (SI-S2): MI-Q4's comparison, worked out
+ * from the owner's list each time it is asked, never stored (K).
+ */
+export function onOwnersList(list, name) {
+  return OWNERS[list].some((item) => sameName(item.name, name));
+}
+
 /** My ingredients without the `list` entry named `name` (MI-S5'). */
 export function withoutMyIngredient(mine, list, name) {
   return { ...mine, [list]: mine[list].filter((item) => item.name !== name) };

@@ -33,7 +33,7 @@ import {
   mashRvUnit,
 } from '../display.js';
 import { roundForInput } from '../format.js';
-import { suggestionDetail } from '../ingredient-search.js';
+import { suggestionDetail, onOwnersList } from '../ingredient-search.js';
 import { DEFAULT_DISPLAY, newRecipe } from '../state.js';
 import { defaultWaterState, TEST_RESULT_KEYS } from '../water-state.js';
 import { REPORT_LABELS } from './water/WaterInScreen.jsx';
@@ -220,7 +220,8 @@ function BreweryWater({ water, setBreweryWater, volume, vUnit }) {
 
 // My ingredients (MI-S5', YS-S6): each malt, hop and strain the brewer saved, with the
 // numbers its suggestion shows and a Delete. A recipe keeps its own copy of
-// every number, so deleting one changes no recipe.
+// every number, so deleting one changes no recipe. One saved before the
+// owner's list gained its name is kept, with a line saying so (SI-S2, SI-Q1).
 function MyIngredients({ mine, onDelete }) {
   const groups = [
     ['malts', 'Malts', 'malts'],
@@ -255,6 +256,11 @@ function MyIngredients({ mine, onDelete }) {
                   Delete
                 </button>
               </span>
+              {onOwnersList(list, item.name) && (
+                <span style={{ flexBasis: '100%', fontSize: '0.8rem', color: colors.textSecondary }}>
+                  Now also on the owner's list, with its own numbers.
+                </span>
+              )}
             </div>
           ))}
         </div>
