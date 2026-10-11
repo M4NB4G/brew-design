@@ -79,7 +79,7 @@ const BREWERY = {
   // Water saved with the recipe: no water figure set.
   water: emptyBreweryWater(),
   // My ingredients: none saved.
-  ingredients: { malts: [], hops: [] },
+  ingredients: { malts: [], hops: [], yeasts: [] },
 };
 
 describe('brewery defaults', () => {
@@ -231,10 +231,10 @@ describe('brewery defaults', () => {
 
     // Their own key, apart from the recipe, in one document carrying version 3.
     expect(BREWERY_KEY).not.toBe(STORAGE_KEY);
-    expect(BREWERY_VERSION).toBe(6);
+    expect(BREWERY_VERSION).toBe(7);
     expect([...s._map.keys()]).toEqual([BREWERY_KEY]);
     const doc = JSON.parse(s._map.get(BREWERY_KEY));
-    expect(doc.version).toBe(6);
+    expect(doc.version).toBe(7);
     expect(doc.brewery.preBoilVolGal).toBe(16); // gallons, not bbl
 
     // A reload reads them back, blanks as blanks.
@@ -248,7 +248,7 @@ describe('brewery defaults', () => {
       return loadBrewery(b);
     };
     expect(bad('{not json')).toEqual(emptyBreweryFigures());
-    expect(bad(JSON.stringify({ version: 7, brewery: BREWERY }))).toEqual(emptyBreweryFigures());
+    expect(bad(JSON.stringify({ version: 8, brewery: BREWERY }))).toEqual(emptyBreweryFigures());
     expect(bad(JSON.stringify({ version: 1, brewery: { ...BREWERY, efficiency: '93' } }))).toEqual(emptyBreweryFigures());
     expect(bad(JSON.stringify({ version: 1, brewery: { ...BREWERY, mode: 'metric' } }))).toEqual(emptyBreweryFigures());
     expect(bad(JSON.stringify({ version: 1 }))).toEqual(emptyBreweryFigures());

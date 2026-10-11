@@ -250,7 +250,7 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
   // CT-S5, C-Q1, PU-Q4
   it('the choice is saved and older documents read as °F', () => {
     expect(SCHEMA_VERSION).toBe(12);
-    expect(BREWERY_VERSION).toBe(6);
+    expect(BREWERY_VERSION).toBe(7);
     expect(DEFAULT_DISPLAY.temperatureUnit).toBe('F');
 
     // Saved with the display settings, read back as saved.
@@ -286,7 +286,7 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
     const b = { ...emptyBreweryFigures(), temperatureUnit: 'C' };
     expect(hasBreweryFigures(b)).toBe(true);
     const bDoc = JSON.parse(exportBreweryDocument(b));
-    expect(bDoc.version).toBe(6);
+    expect(bDoc.version).toBe(7);
     expect(bDoc.brewery.temperatureUnit).toBe('C');
     expect(importBreweryFile(JSON.stringify(bDoc), () => true).brewery.temperatureUnit).toBe('C');
     const bStorage = memoryStorage({ [BREWERY_KEY]: JSON.stringify(bDoc) });
@@ -296,7 +296,7 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
       const old = memoryStorage({ [BREWERY_KEY]: JSON.stringify({ version, brewery: v3brewery }) });
       const loaded = loadBrewery(old);
       expect(loaded.temperatureUnit, `brewery version ${version}`).toBeNull();
-      expect(JSON.parse(old.items[BREWERY_KEY]).version).toBe(6);
+      expect(JSON.parse(old.items[BREWERY_KEY]).version).toBe(7);
     }
     for (const bad of ['K', 1]) {
       const d = { ...bDoc, brewery: { ...bDoc.brewery, temperatureUnit: bad } };
@@ -333,8 +333,8 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
     const bAfter = JSON.parse(exportBreweryDocument({ ...f.brewery(), temperatureUnit: null }));
     // Since My ingredients: version 6, with none saved (MI-Q8').
     expect(bAfter).toEqual({
-      version: 6,
-      brewery: { ...bBefore.brewery, temperatureUnit: null, proVolumeUnit: null, proMaltUnit: null, ingredients: { malts: [], hops: [] } },
+      version: 7,
+      brewery: { ...bBefore.brewery, temperatureUnit: null, proVolumeUnit: null, proMaltUnit: null, ingredients: { malts: [], hops: [], yeasts: [] } },
     });
 
     // Switching the unit changes no stored figure: the recipe saved in °C is

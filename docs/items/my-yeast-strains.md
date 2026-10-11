@@ -1,7 +1,11 @@
 # My yeast strains, Tier B
 
 Status: agreed 2026-10-09 ("agree to all", YS-Q1 to YS-Q4); YS-Q5 answered
-2026-10-11 ("the brewer's entry"); not started.
+2026-10-11 ("the brewer's entry"); landed 2026-10-11 on branch `S15` as "A
+brewer saves a house yeast strain that is not on the owner's list from the
+strain box, with ale or lager and its lab figures optional; it is offered
+first and read by the Yeast card (brewery format 7)"; awaiting the owner's
+"merge and push".
 Written by the S13 session; built in batch S15, item 1 (docs/ROADMAP.md,
 Sessions).
 
@@ -48,3 +52,20 @@ App (`apps/recipe/test/my-yeast-strains.test.js`, new; jsdom where the card is d
 - A saved strain's entry carries the owner's list's keys (`name`, `lab`, `productCode`, `type`, `apparentAttenuation`, `labTempLowF`, `labTempHighF`), `lab` and `productCode` empty, so the search and the information line read it as they read the owner's. Temperatures typed in °C are stored in °F by the engine's `cToF`, as every temperature box (SPEC 9).
 - The attenuation box on the save line is in percent, stored as a fraction (the units table).
 - A strain name in both My ingredients and the owner's list (possible only after the owner's list gains it, "A saved ingredient the owner's list later gains", S15 item 2): answered 2026-10-11, YS-Q5, the brewer's entry. Item 1 looks a strain up by name in My ingredients first, then the owner's list; item 2's scenario covers a name in both.
+
+## Builder's notes (S15, 2026-10-11)
+
+Claims for the inspector to verify; none is a decision the sentences made.
+
+- **YS-S1 read with YS-S5.** The save line shows for any name not on the owner's list, as for malts and hops; for a name already in My ingredients its save asks, then replaces in place (YS-S5). YS-S1's "on neither list" is the first save; YS-S5's replace needs the line on a saved name too.
+- **The save line is a group under the suggestions, not one of them.** A list of suggestions cannot hold boxes, so the list's popup holds the suggestions and, under them, a group "Save to my ingredients · Ale" (or Lager) with the three boxes and a Save button. Focus may move from the strain box into the group without closing it (Tab, or a click); Enter in a box saves; Escape closes it and returns to the strain box. The popup's frame (border, shadow, place) moved from the list to a wrapper around it, so the malt and hop lists look as before; their save line is unchanged and is not shown for a strain.
+- **What a save refuses** (each said in the group, Save then does nothing): a range with one end, a low end above the high end, an attenuation outside 0 to 100 %. These are the brewery reader's checks (the item's notes), so a save never keeps what a load would refuse. A name on the owner's list shows the refusal line only, with no boxes.
+- **After a kept save** the three boxes clear, so the next strain starts blank.
+- **The information line** for the brewer's strain reads "Yours · Ale · lab range 64–72 °F · attenuation 76 %", leaving out a range or attenuation saved blank. The owner's strains' line, and what the card is handed for them, are unchanged.
+- **Lookup.** A strain is looked up in My ingredients with MI-Q4's comparison (capitals, accents, surrounding spaces), then on the owner's list as before (capitals and surrounding spaces).
+- **Temperatures and percent.** The range boxes take the header's unit; °C is stored by the engine's `cToF` through `display.js` (15.6 °C as the reference, as every temperature box). The attenuation box is in percent, stored as the fraction (percent / 100).
+- **Forget my brewery figures** keeps the strains: with only strains saved, the brewery document is kept (the count of saved ingredients now includes strains), as for malts and hops (MI-Q14).
+- **Earlier scenarios changed for the format:** the brewery version pins read 7 (acid-aimed, brewery-defaults, celsius-toggle, my-ingredients, pro-unit-choices, sparge-typed, water-saved); the "another" or "newer" brewery versions read 8 (brewery-defaults, brewery-file, my-ingredients, water-saved); hand-built My ingredients gain an empty strain list (brewery-defaults, celsius-toggle, my-ingredients, pro-unit-choices). No assertion loosened; the smoke test untouched; scenario titles unchanged. `eslint.config.js` gives the new jsdom test the browser's globals.
+- **Numbers introduced:** none that is a recipe value. The brewery format tag is 7; the 0–1 check on a saved attenuation and the low-not-above-high check are what a saved strain may hold; percent / 100 and `cToF` are display.js's and the engine's; the boxes' step, min and max are input attributes; the rest is layout.
+- **Roadmap:** one Tier C line added, in scope: My ingredients' empty note still names malts and boil hops only (its wording is pinned byte for byte by the page-error scenario, so it is its own change).
+- **Far end** 2026-10-11, the built app in Chromium served with netlify.toml's headers: 20 checks, all pass (TEST_COVERAGE's row). It found one defect the scenarios had not: the malt and hop save option also showed among a strain's suggestions; fixed before staging, and scenario 1 now asserts it (it fails with the defect).

@@ -303,7 +303,7 @@ describe('the acid aimed at a mash pH (S9)', () => {
 
   it('AA-Q4, AA-Q5: recipe format 12, every earlier format read with the target 5.4; not a brewery figure', () => {
     expect(SCHEMA_VERSION).toBe(12);
-    expect(BREWERY_VERSION).toBe(6);
+    expect(BREWERY_VERSION).toBe(7);
     const s = fakeStorage();
     const recipe = wcPils({ acidPlace: 'mash', target: 5.5 });
     savePersisted(s, { recipe, ...DEFAULT_DISPLAY });

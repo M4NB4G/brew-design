@@ -80,7 +80,9 @@
 // units; a version-1 to 4 document is read with them blank and saved back
 // as 5. Their version 6 (My ingredients, MI-Q8') carries the brewer's own
 // malts and hops; a version-1 to 5 document is read with none and saved back
-// as 6. A stored brewery that cannot be read is kept aside, as found, under
+// as 6. Their version 7 (My yeast strains, YS-Q4) adds the brewer's own
+// strains; a version-6 document is read with none and saved back as 7, as
+// is a version-1 to 5 one. A stored brewery that cannot be read is kept aside, as found, under
 // its own key before anything overwrites it (K'), as the recipe's is.
 //
 // Saved rows checked inside (2026-09-23): a document is readable only if its
@@ -386,7 +388,7 @@ export const BREWERY_KEY = 'brew-design.brewery';
 // The latest stored brewery that could not be read, kept as found (K');
 // nothing reads it back.
 export const BREWERY_UNREADABLE_KEY = 'brew-design.brewery.unreadable';
-export const BREWERY_VERSION = 6;
+export const BREWERY_VERSION = 7;
 
 // A saved figure: a finite number, or null (blank).
 const isFigure = (v) => v === null || Number.isFinite(v);
@@ -416,13 +418,16 @@ function readBreweryWater(w) {
   return out;
 }
 
-// My ingredients in a document, or null when the two lists are not there or
-// an entry is damaged (MI-Q8'): each entry checked as the owner's list is.
-function readMyIngredients(mine) {
+// My ingredients in a document, or null when its lists are not there or an
+// entry is damaged (MI-Q8', YS-S7): each entry checked as the owner's list
+// is. A version-6 document, saved before My yeast strains, has no strains.
+function readMyIngredients(mine, version) {
   if (!isRecord(mine) || !Array.isArray(mine.malts) || !Array.isArray(mine.hops)) return null;
+  if (version > 6 && !Array.isArray(mine.yeasts)) return null;
   const malts = mine.malts.map((m) => myIngredientOf('malts', m));
   const hops = mine.hops.map((h) => myIngredientOf('hops', h));
-  return [...malts, ...hops].includes(null) ? null : { malts, hops };
+  const yeasts = version > 6 ? mine.yeasts.map((y) => myIngredientOf('yeasts', y)) : [];
+  return [...malts, ...hops, ...yeasts].includes(null) ? null : { malts, hops, yeasts };
 }
 
 // The brewery figures in a document, or null when one is missing or is not
@@ -431,7 +436,8 @@ function readMyIngredients(mine) {
 // blank (WS-S4); a version-1 to 3 document, saved before the temperature
 // unit, has it blank (CT-S5); a version-1 to 4 document, saved before Pro's
 // volume and malt weight units, has them blank (PU-S5); a version-1 to 5
-// document, saved before My ingredients, has none.
+// document, saved before My ingredients, has none; a version-6 one, saved
+// before My yeast strains, has no strains.
 function readBrewery(b, version) {
   const isObject = (o) => !!o && typeof o === 'object' && !Array.isArray(o);
   if (!isObject(b) || !isObject(b.measurementTempF)) return null;
@@ -459,7 +465,7 @@ function readBrewery(b, version) {
     if (out.water === null) return null;
   }
   if (version > 5) {
-    out.ingredients = readMyIngredients(b.ingredients);
+    out.ingredients = readMyIngredients(b.ingredients, version);
     if (out.ingredients === null) return null;
   }
   return out;
@@ -467,14 +473,15 @@ function readBrewery(b, version) {
 
 /**
  * Read the brewery's figures. Nothing saved, unreadable data, a version
- * other than 1 to 5 or BREWERY_VERSION, or unavailable storage yields
+ * other than 1 to 6 or BREWERY_VERSION, or unavailable storage yields
  * `fallback`: every figure blank (the built-in figures) and no saved
  * ingredients, unless given — a save re-reads the stored brewery with the
  * copy on screen as its fallback (K'). A readable version-1 document is read
  * with the water figures blank, a version-2 one without the water kept in
  * the mash tun, a version-1 to 3 one with the temperature unit blank, a
  * version-1 to 4 one with Pro's volume and malt weight units blank, a
- * version-1 to 5 one with no saved ingredients; each is saved back at
+ * version-1 to 5 one with no saved ingredients, a version-6 one with no saved
+ * strains; each is saved back at
  * BREWERY_VERSION (best-effort). A stored copy that cannot be read is first
  * kept aside, as found, under BREWERY_UNREADABLE_KEY, replacing any copy
  * kept before; keeping it is best-effort.
@@ -521,14 +528,14 @@ export function readStoredBrewery(storage) {
 
 // One brewery document's text, read as storage and the brewery file both
 // read it (S4b item 5, K): { brewery, version } when readable at version 1
-// to 5 or BREWERY_VERSION (upgraded as loadBrewery says); { newer: version } for a
+// to 6 or BREWERY_VERSION (upgraded as loadBrewery says); { newer: version } for a
 // later version; otherwise {}. Throws on text that is not JSON.
 function readBreweryDocument(raw) {
   const doc = JSON.parse(raw);
   // A document without the brewery's figures (a recipe file, say) is not one.
   if (!doc || typeof doc !== 'object' || !('brewery' in doc)) return {};
   if (Number.isInteger(doc.version) && doc.version > BREWERY_VERSION) return { newer: doc.version };
-  if (![1, 2, 3, 4, 5, BREWERY_VERSION].includes(doc.version)) return {};
+  if (![1, 2, 3, 4, 5, 6, BREWERY_VERSION].includes(doc.version)) return {};
   const brewery = readBrewery(doc.brewery, doc.version);
   return brewery ? { brewery, version: doc.version } : {};
 }
@@ -557,7 +564,7 @@ export function saveBrewery(storage, brewery) {
 export function clearBrewery(storage, onScreen) {
   const { ingredients } = loadBrewery(storage, onScreen);
   const cleared = { ...emptyBreweryFigures(), ingredients };
-  if (ingredients.malts.length + ingredients.hops.length > 0) {
+  if (savedCount(cleared) > 0) {
     saveBrewery(storage, cleared);
     return cleared;
   }
@@ -665,7 +672,9 @@ export function breweryFileName(date) {
 
 const BREWERY_UNCHANGED = 'Your brewery figures are unchanged.';
 
-const savedCount = (brewery) => (brewery?.ingredients?.malts.length ?? 0) + (brewery?.ingredients?.hops.length ?? 0);
+// Malts, hops and strains alike (YS-S6).
+export const savedCount = (brewery) =>
+  (brewery?.ingredients?.malts.length ?? 0) + (brewery?.ingredients?.hops.length ?? 0) + (brewery?.ingredients?.yeasts.length ?? 0);
 const savedText = (n) => `${n} saved ingredient${n === 1 ? '' : 's'}`;
 
 /**

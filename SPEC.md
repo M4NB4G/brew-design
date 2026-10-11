@@ -251,10 +251,11 @@ cached values are pinned by the golden-master tests.
     Picking an ingredient copies its numbers into the recipe; the recipe never
     refers back to the list. One display reads it again: the Yeast card's
     information line and fermentation-temperature warning look the strain
-    up by name each time they are drawn and show the list's current
-    figures; they are never stored and never feed a number.
-    My ingredients are the brewer's own malts and hops, beside the owner's
-    list and never in it. A malt or boil-hop name box whose typed name is not
+    up by name each time they are drawn, the brewer's own strain of that
+    name first (My ingredients), and show its current figures; they are
+    never stored and never feed a number.
+    My ingredients are the brewer's own malts, hops and yeast strains, beside
+    the owner's list and never in it. A malt or boil-hop name box whose typed name is not
     on the owner's list of its kind (capitals, accents and surrounding spaces
     ignored) offers to save it, showing what it keeps: a malt's FGDB, colour,
     type and two lab figures, a hop's alpha; a dry hop is never saved. A
@@ -263,7 +264,15 @@ cached values are pinned by the golden-master tests.
     ingredients asks, then replaces it in its place. The malt boxes offer the
     brewer's malts, and the boil-hop and dry-hop boxes their hops, first,
     marked as yours, in the order saved; a pick copies their numbers as a
-    pick from the owner's list does. Saving or deleting one changes no
+    pick from the owner's list does. The strain box offers to save a typed
+    name on neither list, with ale or lager (the card's choice) and three
+    boxes, each optional: the lab's attenuation and the two ends of its lab
+    temperature range, both ends or neither, in the header's unit and kept
+    in °F; a name on the owner's list is refused, and one already saved asks,
+    then replaces it in its place. The strain box offers the brewer's
+    strains first, marked as yours; a pick names the strain and sets ale or
+    lager only. For one of them the Yeast card shows what was saved, and
+    warns only from a saved range. Saving or deleting one changes no
     recipe. They are kept with the brewery's figures (rule 17).
 17. **The brewery's figures are not a recipe.** The brewery's batch
     (fermentation) volume, pre-boil volume, boil-off rate, boil time, three
@@ -272,15 +281,18 @@ cached values are pinned by the golden-master tests.
     usual treatment choice and kettle switch, and the water setup (vessels,
     sparge, the tank's treated volume and top-up level, grain absorption)
     — are kept in their own JSON document, under
-    their own key, carrying their own version (6), in the recipe's units; a
+    their own key, carrying their own version (7), in the recipe's units; a
     blank figure is null. The same document carries My ingredients (rule
     16), each entry checked as the owner's list is; a damaged entry makes the
     document unreadable. A version-1 document — saved before the water —
     loads with every water figure blank, a version-2 one without the
     water kept in the mash tun, a version-1 to 3 one with the temperature
     unit blank, a version-1 to 4 one with Pro's volume and malt weight
-    units blank, and a version-1 to 5 one with no saved ingredients; each
-    is saved back as version 6. The sparge
+    units blank, a version-1 to 5 one with no saved ingredients, and a
+    version-6 one with no saved strains; each is saved back as version 7. A
+    saved strain is a name, ale or lager, an attenuation from 0 to 1 or
+    blank, and a lab range of two numbers, low not above high, or both
+    blank. The sparge
     water is never a brewery figure.
     Unreadable data, any other version, or unavailable storage yields every
     figure blank and no saved ingredients, and never throws; a stored copy

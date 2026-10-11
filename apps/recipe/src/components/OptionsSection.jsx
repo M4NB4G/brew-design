@@ -6,8 +6,9 @@
 // the built-in figure. Editing them never touches the recipe on screen.
 // Their Water group (Water saved with the recipe, S7): the usual treatment
 // and kettle switch, the water setup, the usual water report and the salts
-// on hand. My ingredients (MI-S5'): the brewer's own malts and hops, saved
-// from their name boxes, each with a Delete that changes no recipe.
+// on hand. My ingredients (MI-S5', YS-S6): the brewer's own malts, hops and
+// yeast strains, saved from their name boxes, each with a Delete that changes
+// no recipe.
 import { useRef } from 'react';
 import { SALT_CONTRIBUTIONS_PER_G_GAL } from '@brew/engine';
 import Card from './shared/Card.jsx';
@@ -217,13 +218,14 @@ function BreweryWater({ water, setBreweryWater, volume, vUnit }) {
   );
 }
 
-// My ingredients (MI-S5'): each malt and hop the brewer saved, with the
+// My ingredients (MI-S5', YS-S6): each malt, hop and strain the brewer saved, with the
 // numbers its suggestion shows and a Delete. A recipe keeps its own copy of
 // every number, so deleting one changes no recipe.
 function MyIngredients({ mine, onDelete }) {
   const groups = [
     ['malts', 'Malts', 'malts'],
     ['hops', 'Hops', 'kettleAdditions'],
+    ['yeasts', 'Yeast strains', 'yeasts'],
   ].filter(([list]) => mine[list].length > 0);
   return (
     <>

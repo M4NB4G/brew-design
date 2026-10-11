@@ -41,6 +41,7 @@ import {
   saveBrewery,
   clearBrewery,
   breweryImportQuestion,
+  savedCount,
   BREWERY_KEY,
 } from './persistence.js';
 import { saveOffer, withMyIngredient, withoutMyIngredient } from './ingredient-search.js';
@@ -236,7 +237,7 @@ export default function App() {
     setBrewery(clearBrewery(browserStorage(), brewery));
   };
 
-  // My ingredients (MI-S2, MI-S4, MI-S5', MI-S8): saving a malt or hop from
+  // My ingredients (MI-S2, MI-S4, MI-S5', MI-S8, YS-S2): saving a malt, hop or strain from
   // its name box asks first when it replaces one of the brewer's own, then
   // keeps it with the stored brewery, read again first; the recipe is not
   // touched. With storage off, or a stored brewery that cannot be read, it is
@@ -294,7 +295,7 @@ export default function App() {
     );
     if (result.outcome === 'refused') setBreweryFileMessage(result.message);
     if (result.outcome !== 'replaced') return;
-    const n = result.brewery.ingredients.malts.length + result.brewery.ingredients.hops.length;
+    const n = savedCount(result.brewery);
     if (!changeBrewery(result.brewery) && n > 0) {
       setBreweryFileMessage(`The file's ${n} saved ingredient${n === 1 ? '' : 's'} could not be kept: this browser is not keeping this site's data, so they are not in My ingredients.`);
     }

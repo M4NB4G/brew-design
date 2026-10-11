@@ -12,14 +12,21 @@
 // did is said under the box until the name is next typed. The app hands down
 // the brewer's list and the save through MyIngredientsContext.
 //
+// The strain box (My yeast strains, YS-S1): its save line, under the
+// suggestions, shows ale or lager (the card's choice) and three boxes, each
+// optional, the lab's attenuation and the two ends of its temperature range,
+// in the header's unit; a Save button keeps it. Focus may move into the line
+// without closing it.
+//
 // The tables sit in sideways-scrolling boxes that clip their children, so the
 // list is fixed-positioned from the box's on-screen rectangle and follows it
 // on scroll and resize.
 import { createContext, useContext, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { colors, radii, shadows } from './shared/styles.js';
 import { searchIngredients, suggestionDetail, pickIngredient, typeName, saveOffer } from '../ingredient-search.js';
+import { percentUnit, percentToFraction, tempUnit, tempToCanonical } from '../display.js';
 
-// My ingredients as the app holds them, `{ malts, hops }`, and its save:
+// My ingredients as the app holds them, `{ malts, hops, yeasts }`, and its save:
 // onSave(field, row) -> { kept, message }, or null when nothing was saved.
 // Without a provider the boxes offer the owner's list alone.
 export const MyIngredientsContext = createContext({ mine: null, onSave: null });
@@ -50,19 +57,37 @@ function listPlacement(rect) {
   return { left, width, bottom: window.innerHeight - rect.top + gap, maxHeight: Math.min(280, above) };
 }
 
-export default function IngredientSearch({ field, row, index, setRow, label }) {
+// A strain's save line's three boxes, as typed: blank until typed.
+const NO_STRAIN_FIGURES = { attenuation: '', low: '', high: '' };
+
+export default function IngredientSearch({ field, row, index, setRow, label, temperatureUnit }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const [place, setPlace] = useState(null);
   const [said, setSaid] = useState(null); // what the last save did: { kept, message }
+  const [strainFigures, setStrainFigures] = useState(NO_STRAIN_FIGURES);
   const inputRef = useRef(null);
+  const popupRef = useRef(null);
   const listId = useId();
   const { mine, onSave } = useContext(MyIngredientsContext);
 
+  const strain = field === 'yeasts';
+  // A strain is saved with the three figures typed on its save line, in
+  // canonical units (a blank box a blank figure, NaN).
+  const saved = strain
+    ? {
+        ...row,
+        apparentAttenuation: percentToFraction(parseFloat(strainFigures.attenuation)),
+        labTempLowF: tempToCanonical(parseFloat(strainFigures.low), temperatureUnit),
+        labTempHighF: tempToCanonical(parseFloat(strainFigures.high), temperatureUnit),
+      }
+    : row;
   const suggestions = searchIngredients(field, row.name, mine);
-  const offer = onSave ? saveOffer(field, row, mine) : null;
-  // The save line is chosen as a suggestion is, after the last one.
-  const saveAt = offer?.entry ? suggestions.length : -1;
+  const offer = onSave ? saveOffer(field, saved, mine) : null;
+  // The strain's save line, with its boxes: shown unless its name is refused.
+  const strainLine = strain && offer !== null && (offer.entry || offer.figures);
+  // The save line is chosen as a suggestion is, after the last one (a malt or hop).
+  const saveAt = offer?.entry && !strain ? suggestions.length : -1;
   const last = saveAt === -1 ? suggestions.length - 1 : saveAt;
   const showing = open && (suggestions.length > 0 || offer !== null);
 
@@ -82,7 +107,20 @@ export default function IngredientSearch({ field, row, index, setRow, label }) {
   const save = () => {
     setOpen(false);
     setActive(-1);
-    setSaid(onSave(field, row));
+    const result = onSave(field, saved);
+    if (result?.kept) setStrainFigures(NO_STRAIN_FIGURES);
+    setSaid(result);
+  };
+
+  // Leaving the box or its list closes the list, unless focus moves between them.
+  const close = () => {
+    setOpen(false);
+    setActive(-1);
+  };
+  const onLeave = (e) => {
+    const to = e.relatedTarget;
+    if (to && (to === inputRef.current || popupRef.current?.contains(to))) return;
+    close();
   };
 
   // Place the list, and keep it on the box while anything scrolls or resizes.
@@ -146,18 +184,17 @@ export default function IngredientSearch({ field, row, index, setRow, label }) {
           setSaid(null);
         }}
         onKeyDown={onKeyDown}
-        onBlur={() => {
-          setOpen(false);
-          setActive(-1);
-        }}
+        onBlur={onLeave}
         style={INPUT}
       />
       {showing && place && (
-        <ul
-          id={listId}
-          role="listbox"
-          // Keep focus in the box while the list is pressed or scrolled.
-          onMouseDown={(e) => e.preventDefault()}
+        <div
+          ref={popupRef}
+          onBlur={onLeave}
+          // Keep focus where it is when the list's background is pressed.
+          onMouseDown={(e) => {
+            if (!e.target.closest('input, button')) e.preventDefault();
+          }}
           style={{
             position: 'fixed',
             left: place.left,
@@ -167,14 +204,16 @@ export default function IngredientSearch({ field, row, index, setRow, label }) {
             maxHeight: place.maxHeight,
             overflowY: 'auto',
             zIndex: 20,
-            margin: 0,
-            padding: '0.25rem 0',
-            listStyle: 'none',
             background: colors.cardBg,
             border: `1px solid ${colors.border}`,
             borderRadius: radii.input,
             boxShadow: shadows.card,
           }}
+        >
+        <ul
+          id={listId}
+          role="listbox"
+          style={{ margin: 0, padding: '0.25rem 0', listStyle: 'none' }}
         >
           {suggestions.map((item, i) => {
             const detail = suggestionDetail(field, item);
@@ -215,7 +254,7 @@ export default function IngredientSearch({ field, row, index, setRow, label }) {
               </li>
             );
           })}
-          {offer?.entry && (
+          {saveAt !== -1 && (
             <li
               id={`${listId}-${saveAt}`}
               role="option"
@@ -234,12 +273,28 @@ export default function IngredientSearch({ field, row, index, setRow, label }) {
               </span>
             </li>
           )}
-          {offer?.refused && (
+          {offer?.refused && !strainLine && (
             <li role="option" aria-disabled="true" aria-selected={false} style={{ ...saveLineStyle, color: colors.textMuted }}>
               {offer.refused}
             </li>
           )}
         </ul>
+        {strainLine && (
+          <StrainSaveLine
+            name={row.name}
+            kind={suggestionDetail(field, { lab: '', type: row.type })}
+            figures={strainFigures}
+            setFigures={setStrainFigures}
+            temperatureUnit={temperatureUnit}
+            refused={offer.refused}
+            onSave={save}
+            onEscape={() => {
+              close();
+              inputRef.current?.focus();
+            }}
+          />
+        )}
+        </div>
       )}
       {said && (
         <div role="status" style={{ ...saidStyle, color: said.kept ? colors.textSecondary : colors.textWarn }}>
@@ -250,6 +305,74 @@ export default function IngredientSearch({ field, row, index, setRow, label }) {
   );
 }
 
+// A strain's save line (YS-S1): "Save to my ingredients", ale or lager, the
+// lab attenuation and the lab range's two ends, each optional, and Save. What
+// the figures cannot be is said beside a Save that does nothing.
+function StrainSaveLine({ name, kind, figures, setFigures, temperatureUnit, refused, onSave, onEscape }) {
+  const boxesShown = [
+    ['attenuation', `Lab attenuation (${percentUnit()})`, { step: 1, min: 0, max: 100 }],
+    ['low', `Lab range low (${tempUnit(temperatureUnit)})`, { step: temperatureUnit === 'C' ? 0.1 : 1 }],
+    ['high', `Lab range high (${tempUnit(temperatureUnit)})`, { step: temperatureUnit === 'C' ? 0.1 : 1 }],
+  ];
+  const onKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (!refused) onSave();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onEscape();
+    }
+  };
+  return (
+    <div role="group" aria-label={`Save ${String(name).trim()} to my ingredients`} style={saveLineStyle}>
+      <span style={{ fontWeight: 600, color: colors.textNotice }}>Save to my ingredients</span>
+      <span style={{ color: colors.textSecondary }}> · {kind}</span>
+      <div style={strainBoxesStyle}>
+        {boxesShown.map(([key, boxLabel, limits]) => (
+          <label key={key} style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', color: colors.textSecondary, fontSize: '0.75rem' }}>
+            {boxLabel}
+            <input
+              type="number"
+              inputMode="decimal"
+              aria-label={boxLabel}
+              value={figures[key]}
+              onChange={(e) => setFigures({ ...figures, [key]: e.target.value })}
+              onKeyDown={onKeyDown}
+              {...limits}
+              style={{ ...INPUT, padding: '0.3rem 0.45rem', fontSize: '0.88rem' }}
+            />
+          </label>
+        ))}
+      </div>
+      {refused && <div style={{ color: colors.textWarn, fontSize: '0.8rem', marginTop: '0.3rem' }}>{refused}</div>}
+      <button
+        type="button"
+        onClick={onSave}
+        disabled={!!refused}
+        style={{
+          marginTop: '0.4rem',
+          padding: '0.3rem 0.8rem',
+          fontSize: '0.85rem',
+          fontFamily: 'inherit',
+          border: `1px solid ${colors.inputBorder}`,
+          borderRadius: radii.input,
+          background: colors.inputBg,
+          color: refused ? colors.textMuted : colors.textPrimary,
+          cursor: refused ? 'default' : 'pointer',
+        }}
+      >
+        Save
+      </button>
+    </div>
+  );
+}
+
+const strainBoxesStyle = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(6.5rem, 1fr))',
+  gap: '0.4rem',
+  marginTop: '0.35rem',
+};
 const yoursStyle = { marginLeft: '0.45rem', fontSize: '0.72rem', fontWeight: 600, color: colors.textMuted };
 const saveLineStyle = {
   padding: '0.45rem 0.7rem',

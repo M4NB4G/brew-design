@@ -122,12 +122,13 @@ export function emptyBreweryWater() {
 }
 
 // My ingredients (docs/items/my-ingredients.md, MI-Q8'): the brewer's own
-// malts and hops, kept with the brewery's figures and carried by the brewery
+// malts and hops, and strains (docs/items/my-yeast-strains.md, YS-S2), kept
+// with the brewery's figures and carried by the brewery
 // file, each with the keys of the owner's list (ingredients.json). They are
 // not figures: no new recipe reads them, and they neither show nor end the
 // banner (MI-Q12).
 export function emptyMyIngredients() {
-  return { malts: [], hops: [] };
+  return { malts: [], hops: [], yeasts: [] };
 }
 
 /** Every brewery figure blank, and no saved ingredients. */

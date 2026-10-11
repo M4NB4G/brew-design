@@ -155,7 +155,7 @@ const storedMine = () => storedBrewery()?.brewery.ingredients;
 // A brewery whose only change from blank is the brewer's own ingredients.
 const HOUSE_PALE = { name: 'House Pale', fgdb: 0.79, colorL: 3, type: 'base', distilledWaterPh: null, acidityMeqPerKg: null };
 const FARM_CASCADE = { name: 'Farm Cascade', alphaAcidFraction: 0.062 };
-const withMine = (mine) => ({ ...emptyBreweryFigures(), ingredients: { malts: [], hops: [], ...mine } });
+const withMine = (mine) => ({ ...emptyBreweryFigures(), ingredients: { malts: [], hops: [], yeasts: [], ...mine } });
 const breweryDoc = (mine) => exportBreweryDocument(withMine(mine));
 
 // Type a malt in row 1 by hand: FGDB 79 %, colour 3 °L (Pale 2-Row's row,
@@ -364,7 +364,7 @@ describe('My ingredients', () => {
     expect(host.textContent).toContain('My ingredients');
     click(button('Delete House Pale from My ingredients'));
     expect(asked).toEqual([]);
-    expect(storedMine()).toEqual({ malts: [], hops: [FARM_CASCADE] });
+    expect(storedMine()).toEqual({ malts: [], hops: [FARM_CASCADE], yeasts: [] });
     expect(storedRecipe()).toBe(recipeBefore);
     expect(() => button('Delete House Pale from My ingredients')).toThrow();
     expect(() => button('Delete Farm Cascade from My ingredients')).not.toThrow();
@@ -377,14 +377,14 @@ describe('My ingredients', () => {
 
   // MI-Q8', K' (format)
   it('the brewery document carries My ingredients at version 6; a version 1 to 5 document loads with none and is saved back as 6', () => {
-    expect(BREWERY_VERSION).toBe(6);
+    expect(BREWERY_VERSION).toBe(7);
     const s = window.localStorage;
     s.clear();
     const mine = withMine({ malts: [HOUSE_PALE], hops: [FARM_CASCADE] });
     saveBrewery(s, mine);
     const doc = JSON.parse(s.getItem(BREWERY_KEY));
-    expect(doc.version).toBe(6);
-    expect(doc.brewery.ingredients).toEqual({ malts: [HOUSE_PALE], hops: [FARM_CASCADE] });
+    expect(doc.version).toBe(7);
+    expect(doc.brewery.ingredients).toEqual({ malts: [HOUSE_PALE], hops: [FARM_CASCADE], yeasts: [] });
     expect(loadBrewery(s)).toEqual(mine);
 
     // Versions 1 to 5, each in its own shape: read with no ingredients and
@@ -398,11 +398,11 @@ describe('My ingredients', () => {
       s.clear();
       s.setItem(BREWERY_KEY, JSON.stringify({ version, brewery }));
       const loaded = loadBrewery(s);
-      expect(loaded.ingredients, `version ${version}`).toEqual({ malts: [], hops: [] });
+      expect(loaded.ingredients, `version ${version}`).toEqual({ malts: [], hops: [], yeasts: [] });
       expect(loaded.fermentVolGal, `version ${version}`).toBe(12);
       const back = JSON.parse(s.getItem(BREWERY_KEY));
-      expect(back.version, `version ${version}`).toBe(6);
-      expect(back.brewery.ingredients, `version ${version}`).toEqual({ malts: [], hops: [] });
+      expect(back.version, `version ${version}`).toBe(7);
+      expect(back.brewery.ingredients, `version ${version}`).toEqual({ malts: [], hops: [], yeasts: [] });
     }
 
     // A damaged entry makes the document unreadable, as a damaged row does a recipe.
@@ -470,7 +470,7 @@ describe('My ingredients', () => {
     expect(asked.length).toBe(3);
     expect(asked[2]).toMatch(/1 saved ingredient\b/);
     expect(asked[2]).toMatch(/will go/);
-    expect(storedMine()).toEqual({ malts: [], hops: [] });
+    expect(storedMine()).toEqual({ malts: [], hops: [], yeasts: [] });
     expect(storedBrewery().brewery.fermentVolGal).toBe(12);
   });
 
@@ -478,7 +478,7 @@ describe('My ingredients', () => {
   it('an unreadable brewery copy is set aside under its own key before anything overwrites it', () => {
     for (const unreadable of [
       '{not json',
-      JSON.stringify({ version: 7, brewery: withMine({ malts: [HOUSE_PALE] }) }),
+      JSON.stringify({ version: 8, brewery: withMine({ malts: [HOUSE_PALE] }) }),
       JSON.stringify({ version: 6, brewery: { ...withMine({}), fermentVolGal: 'twelve' } }),
     ]) {
       const s = window.localStorage;
@@ -514,7 +514,7 @@ describe('My ingredients', () => {
     window.localStorage.setItem(BREWERY_KEY, breweryDoc({ hops: [FARM_CASCADE] }));
     typeHousePale();
     click(line('Malt 1 name', 'Save to my ingredients'));
-    expect(storedMine()).toEqual({ malts: [HOUSE_PALE], hops: [FARM_CASCADE] });
+    expect(storedMine()).toEqual({ malts: [HOUSE_PALE], hops: [FARM_CASCADE], yeasts: [] });
 
     // A brewery figure set here keeps an ingredient another tab saved.
     window.localStorage.setItem(
@@ -527,7 +527,7 @@ describe('My ingredients', () => {
     expect(storedMine().malts.map((m) => m.name)).toEqual(['House Pale', 'Other Tab Pale']);
     // A delete here keeps the rest, the other tab's included.
     click(button('Delete House Pale from My ingredients'));
-    expect(storedMine()).toEqual({ malts: [{ ...HOUSE_PALE, name: 'Other Tab Pale' }], hops: [FARM_CASCADE] });
+    expect(storedMine()).toEqual({ malts: [{ ...HOUSE_PALE, name: 'Other Tab Pale' }], hops: [FARM_CASCADE], yeasts: [] });
   });
 
   // MI-S8

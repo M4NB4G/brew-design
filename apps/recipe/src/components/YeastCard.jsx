@@ -7,7 +7,14 @@
 // a box. Picking a strain sets ale/lager and nothing else; typing sets the
 // name alone. A fermentation temperature outside the strain's lab range shows
 // a warning, which changes no number and blocks nothing.
-import IngredientSearch from './IngredientSearch.jsx';
+//
+// My yeast strains (docs/items/my-yeast-strains.md): the brewer's own strains
+// are offered first, marked as yours, and a name on neither list can be saved
+// from the strain box (YS-S1, YS-S3). For one of them the information line
+// shows what was saved and the warning reads its range (YS-S4); a name on both
+// lists reads the brewer's (YS-Q5).
+import { useContext } from 'react';
+import IngredientSearch, { MyIngredientsContext } from './IngredientSearch.jsx';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
 import { colors, tokens } from './shared/styles.js';
@@ -32,9 +39,10 @@ const LABEL = {
 
 export default function YeastCard({ yeast, apparentAttenuation, temperatureUnit, setYeast, setField }) {
   const phone = usePhone();
-  const info = strainInfo(yeast.name, temperatureUnit);
+  const { mine } = useContext(MyIngredientsContext);
+  const info = strainInfo(yeast.name, temperatureUnit, mine);
   const named = String(yeast.name ?? '').trim() !== '';
-  const warning = fermTempWarning(yeast.name, yeast.fermTempF, temperatureUnit);
+  const warning = fermTempWarning(yeast.name, yeast.fermTempF, temperatureUnit, mine);
 
   return (
     <Card>
@@ -50,6 +58,7 @@ export default function YeastCard({ yeast, apparentAttenuation, temperatureUnit,
             row={yeast}
             index={0}
             label="Strain"
+            temperatureUnit={temperatureUnit}
             setRow={(field, index, key, value) => setYeast(key, value)}
           />
         </div>
@@ -67,11 +76,12 @@ export default function YeastCard({ yeast, apparentAttenuation, temperatureUnit,
         </div>
       </div>
 
-      {/* The list's figures for the strain, as information */}
+      {/* The list's figures for the strain, or what the brewer saved, as information */}
       {info && (
         <p style={{ margin: '0 0 0.4rem', fontSize: '0.85rem', color: colors.textSecondary, lineHeight: 1.5 }}>
-          {info.lab} · {info.productCode} · {info.type}
-          {info.labRange && <> · lab range {info.labRange}</>} · attenuation {info.attenuation}
+          {info.yours ? 'Yours' : `${info.lab} · ${info.productCode}`} · {info.type}
+          {info.labRange && <> · lab range {info.labRange}</>}
+          {info.attenuation && <> · attenuation {info.attenuation}</>}
         </p>
       )}
       {!info && named && (
