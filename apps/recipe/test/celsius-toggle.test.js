@@ -49,6 +49,7 @@ const noNames = (html) => withoutAccessChanges(withoutBoxNames(html));
 // The weight and volume boxes show the sheet's precision since BA1 (S14).
 import { withBoxFiguresAsDrawn as asDrawn } from './box-figures.fixture.js';
 import { docWithTarget, sheetWithAimedAcid } from './acid-aim.js';
+import { withoutWaterBack, sheetWithoutWaterBack, documentWithoutWaterBack } from './water-back.fixture.js';
 
 // Since the engine follows Rev 4 (docs/items/engine-corrections.md, EC-Q7),
 // the printed sheet's figures it moves are re-pinned in the captured bytes:
@@ -249,14 +250,14 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
 
   // CT-S5, C-Q1, PU-Q4
   it('the choice is saved and older documents read as °F', () => {
-    expect(SCHEMA_VERSION).toBe(12);
+    expect(SCHEMA_VERSION).toBe(13);
     expect(BREWERY_VERSION).toBe(7);
     expect(DEFAULT_DISPLAY.temperatureUnit).toBe('F');
 
     // Saved with the display settings, read back as saved.
     const r = defaultRecipeState();
     const doc = JSON.parse(exportRecipeDocument({ recipe: r, mode: 'pro', proGravityUnit: 'sg', temperatureUnit: 'C' }));
-    expect(doc.version).toBe(12);
+    expect(doc.version).toBe(13);
     expect(doc.temperatureUnit).toBe('C');
     const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify(doc) });
     expect(loadPersisted(storage, defaults()).temperatureUnit).toBe('C');
@@ -313,10 +314,11 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
   it('nothing else changes in °F', () => {
     const r = f.recipe();
     for (const mode of ['home', 'pro']) {
-      const volumes = f.volumesHtml(r, mode, 'F');
+      // Since water back: compared without it, off (water-back.fixture.js, WB-S9).
+      const volumes = withoutWaterBack(f.volumesHtml(r, mode, 'F'));
       expect(noNames(volumes), `volumes ${mode}`).toBe(noNames(asDrawn(BEFORE[`volumes-${mode}`], volumes)));
       // Since the acid aimed at a mash pH: the acid's figures and the target (AA-S1, AA-S5).
-      const sheet = f.sheetData(r, mode, 'F');
+      const sheet = sheetWithoutWaterBack(f.sheetData(r, mode, 'F'));
       expect(sheet, `sheet ${mode}`).toEqual(sheetWithAimedAcid(BEFORE[`sheet-data-${mode}`], sheet));
     }
     expect(noNames(f.hopsHtml(r, 'home', 'F'))).toBe(noNames(BEFORE.hops));
@@ -325,7 +327,10 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
 
     // The saved documents: as before, at the new versions, with the choice.
     const before = JSON.parse(BEFORE['recipe-document']);
-    const after = JSON.parse(exportRecipeDocument({ recipe: r, mode: 'home', proGravityUnit: 'plato', temperatureUnit: 'F' }));
+    // Since water back: compared without it, off, at version 12 (WB-S7, WB-S9).
+    const after = documentWithoutWaterBack(
+      JSON.parse(exportRecipeDocument({ recipe: r, mode: 'home', proGravityUnit: 'plato', temperatureUnit: 'F' })),
+    );
     // Since cost of a batch: version 11, with blank prices (economics EC-S3).
     // Since the acid aimed at a mash pH: version 12, with the target 5.4 (AA-Q4).
     expect(after).toEqual({ ...before, version: 12, recipe: docWithTarget(docWithBlankPrices(before.recipe)), temperatureUnit: 'F', proVolumeUnit: 'bbl', proMaltUnit: 'lb' });
@@ -339,7 +344,9 @@ describe('°C display toggle (docs/items/celsius-toggle.md)', () => {
 
     // Switching the unit changes no stored figure: the recipe saved in °C is
     // the recipe saved in °F, but for the choice.
-    const inC = JSON.parse(exportRecipeDocument({ recipe: r, mode: 'home', proGravityUnit: 'plato', temperatureUnit: 'C' }));
+    const inC = documentWithoutWaterBack(
+      JSON.parse(exportRecipeDocument({ recipe: r, mode: 'home', proGravityUnit: 'plato', temperatureUnit: 'C' })),
+    );
     expect(inC.recipe).toEqual(after.recipe);
   });
 });

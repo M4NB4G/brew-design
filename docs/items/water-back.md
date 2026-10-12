@@ -1,8 +1,10 @@
 # Water back, Tier A + B
 
-Status: agreed 2026-10-09 ("agree to all", S15-Q0, WB-Q1 to WB-Q7); not
-started. Written by the S13 session; built in batch S15b, on its own
-(S15-Q0; docs/ROADMAP.md, Sessions).
+Status: agreed 2026-10-09 ("agree to all", S15-Q0, WB-Q1 to WB-Q7); landed
+2026-10-12 as "With water back on, the knock-out's extract, colour and
+bitterness spread over the volume at pitch, which the stats bar, the cells,
+the dry-hop rate and the cost per gal read". Written by the S13 session;
+built in batch S15b, on its own (S15-Q0; docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -51,3 +53,67 @@ Engine (`packages/engine/test/water-back.test.js`, new): *the extract at knock-o
 - App: `state.js` (the three new fields, default off, volume blank, temperature the reference), `selectors.js` (the volume at pitch through `toReferenceVolume` with a fourth kind, its temperature in `measurementTempF` or beside it: the builder's choice, recorded), `components/VolumesSection.jsx`, `StatsBar.jsx`, the sheet, `persistence.js` (format 13), `display.js` (units), the scale (`packages/engine/src/scale.js`). SPEC 6, 8, 10, 11, 13 and the units table.
 - The empty-fields line names the water back box and its temperature only while water back is on.
 - A roadmap line for the tank's draws including water back (WB-Q6), in this commit.
+
+## Builder's notes (S15b, 2026-10-12)
+
+Choices the sentences did not make, each a claim for the inspector:
+
+- **The extract balance** is the exact one: the sugar's mass, °P × SG ×
+  volume, kept across the dilution (SG by the engine's `platoToSg`). The
+  engine (`packages/engine/src/water-back.js`) finds the °P at pitch by
+  halving an interval until the halves meet in the last digit, with no
+  constant of its own; the test works the same figure by hand by solving
+  the ASBC formula as a quadratic, a different method. The gravity-points
+  balance would read 3.5e-5 lower on the owner's example; the test checks
+  it is not that.
+- **Colour.** The malt colour units at knock-out are the post-boil wort's
+  (computeGrist's, over the post-boil volume: wort lost after the boil
+  leaves at its own colour), times knock-out over pitch volume; SRM is
+  Morey's of that. "The malt colour units over the volume at pitch" is read
+  as the knock-out's colour units spread over it, not Σ(°L × lb) over the
+  pitch volume, which would ignore the losses.
+- **Bitterness.** The unrounded sum of the additions times knock-out over
+  pitch volume, then rounded as the engine rounds its total.
+- **FG and ABV** at pitch are computeGrist's own last two steps, moved into
+  `attenuate` (and Morey into `moreySrm`) in the same order, so the golden
+  master is bit for bit the same; `computeGrist` and `computeHops` also
+  return their unrounded sums (`sumMcu`, `sumIBU`).
+- **The temperature** sits beside the volume, `waterBack: { on, volumeGal,
+  tempF }`, not in `measurementTempF`: the recipe's three measurement
+  temperatures, the brewery's and their checks are untouched. It reaches
+  `toReferenceVolume` as its own kind, `waterBack`.
+- **Turning the check off** keeps the typed volume and temperature in the
+  recipe (saved, with it off); no figure reads them while it is off.
+- **What reads the volume at pitch:** the stats (OG, FG, ABV, SRM, IBU) come
+  from computeRecipe's new `stats`; `grist` and `hops` stay the knock-out's,
+  so the Grist table, the Hops card's total IBU and the printed hop
+  schedule's total are the knock-out's (a Tier C roadmap line asks whether
+  they say so). The dry-hop rate, the cells (°P and volume at pitch) and the
+  Cost card's cost per gal read the volume at pitch. "Design to target OG"
+  still solves for the knock-out OG (a Tier B roadmap line). The warning
+  "Less wort after the boil than the fermenter volume" still compares the
+  post-boil volume with the knock-out volume.
+- **Cells rise a little** with water back (210 → 220 on the built-in recipe
+  with 1 gal): °P × volume grows as SG falls under the sugar balance. Kept,
+  with a `// FLAG:` in `selectors.js`.
+- **The Volumes card** shows, under the fermentation volume and its warning:
+  the check; when on, the volume box (the sheet's precision away from the
+  cursor, as the other volume boxes), its temperature box, then read-only
+  the volume at pitch at 60 °F and the knock-out OG (the screen's gravity
+  unit) and IBU. The water back's own volume at 60 °F is not shown on its
+  own row (WB-S1 names the box and its temperature only).
+- **The Water tab** shows the note on every screen while water back is on;
+  the printed sheet appends it to the Water Treatment section's first line.
+  The sheet's volumes table gains a "Water back" row (its temperature noted
+  when not 60 °F) and a "Volume at pitch at 60 °F" row, each with a measured
+  box; its caption ends "Knock-out OG … · OG at pitch …" in the screen's
+  gravity unit. The headline is the stats bar's (at pitch).
+- **Earlier scenarios.** Twenty-two pins of recipe version 12 became 13; two
+  expected computeRecipe outputs gained the off values; the print-sheet test
+  sets the stats it prints; the "nothing else changes" captures are compared
+  through `apps/recipe/test/water-back.fixture.js`, which takes out the
+  check (unchecked only), the sheet's three off entries and note (null only)
+  and a saved water back that is off, blank and at the reference (with the
+  version), and nothing else. `eslint.config.js` lists the new jsdom test
+  with the others that read the browser's globals.
+

@@ -49,6 +49,7 @@ export default [
       'apps/recipe/test/page-error.test.js',
       'apps/recipe/test/page-error.fixture.js',
       'apps/recipe/test/box-figures.test.js',
+      'apps/recipe/test/water-back.test.js',
     ],
     languageOptions: { globals: globals.browser },
   },

@@ -5,8 +5,9 @@
 // Every amount is multiplied by one ratio, the batch over the recipe's
 // fermentation volume (both US gal, as entered): each malt weight, each kettle
 // and dry hop weight, the mash water, the pre-boil and sparge volumes, the
-// boil-off rate, the hot-liquor tank's treated volume and top-up level, and
-// the brewer's own salt and acid amounts. Percents, times, temperatures, the
+// boil-off rate, the hot-liquor tank's treated volume and top-up level, the
+// brewer's own salt and acid amounts, and the water back (its temperature
+// stays; docs/items/water-back.md, WB-S6). Percents, times, temperatures, the
 // efficiency, the attenuation and the yeast are unchanged, so OG, FG, ABV, SRM
 // and IBU are unchanged. Nothing is rounded; a blank amount (NaN) stays blank,
 // and salt and acid amounts that follow the recommendation (none stored) stay so.
@@ -32,6 +33,7 @@ export function scaleRecipe(recipe, batchGal) {
     preBoilVolGal: by(recipe.preBoilVolGal),
     boilOffRateGalPerHr: by(recipe.boilOffRateGalPerHr),
     fermentVolGal: batchGal,
+    ...(recipe.waterBack && { waterBack: { ...recipe.waterBack, volumeGal: by(recipe.waterBack.volumeGal) } }),
     water: {
       ...w,
       spargeGal: by(w.spargeGal),

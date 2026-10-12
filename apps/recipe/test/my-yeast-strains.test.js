@@ -495,8 +495,8 @@ describe('My yeast strains', () => {
     click(saveButton());
     expect(storedMine().yeasts).toEqual([HOUSE_ALE]);
     // The recipe document (format 12) and the recipe file, byte for byte; the sheet, word for word.
-    expect(SCHEMA_VERSION).toBe(12);
-    expect(read().version).toBe(12);
+    expect(SCHEMA_VERSION).toBe(13);
+    expect(read().version).toBe(13);
     expect(storedRecipe()).toBe(typedDoc);
     expect(exportRecipeDocument(read())).toBe(typedFile);
     expect(sheet()).toBe(typedSheet);

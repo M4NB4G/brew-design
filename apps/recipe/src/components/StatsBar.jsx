@@ -1,7 +1,10 @@
 // StatsBar.jsx
 // Persistent live summary of the derived beer stats, rendered as a horizontal
-// row of compact StatBoxes. Every value is formatted from canonical units at
-// the display boundary; nothing here is computed. The SRM box carries a small
+// row of compact StatBoxes: OG, FG, ABV, SRM and IBU at pitch with water back
+// on, the knock-out's without it (computeRecipe's `stats`,
+// docs/items/water-back.md, WB-S3), and the cells needed. Every value is
+// formatted from canonical units at the display boundary; nothing here is
+// computed. The SRM box carries a small
 // color swatch derived only from the SRM number. On a phone the six tiles sit
 // in two rows of three.
 import StatBox from './shared/StatBox.jsx';
@@ -75,11 +78,11 @@ export default function StatsBar({ derived, mode, proGravityUnit }) {
   const val = phone ? PHONE_VAL : STRIP_VAL;
   const label = phone ? PHONE_LABEL : undefined;
 
-  const { grist, hops, cells, starter } = derived;
+  const { stats, cells, starter } = derived;
   const gu = resolveGravityUnit(mode, proGravityUnit);
   const gLabel = gravityUnitLabel(gu);
 
-  const srmColor = srmToColor(grist.SRM);
+  const srmColor = srmToColor(stats.SRM);
   const starterNote = starter[0]
     ? `Starter ${num(starter[0].volumeL, 2)} L`
     : 'No starter band';
@@ -87,7 +90,7 @@ export default function StatsBar({ derived, mode, proGravityUnit }) {
   return (
     <div style={phone ? PHONE_GRID : { display: 'flex', gap: '0.4rem', overflow: 'hidden' }}>
       <StatBox
-        value={gravity(gravityFromCanonical(grist.OG, gu), gu)}
+        value={gravity(gravityFromCanonical(stats.OG, gu), gu)}
         label="OG"
         sublabel={gLabel}
         sublabelInline={phone}
@@ -96,7 +99,7 @@ export default function StatsBar({ derived, mode, proGravityUnit }) {
         labelStyle={label}
       />
       <StatBox
-        value={gravity(gravityFromCanonical(grist.FG, gu), gu)}
+        value={gravity(gravityFromCanonical(stats.FG, gu), gu)}
         label="FG"
         sublabel={gLabel}
         sublabelInline={phone}
@@ -105,7 +108,7 @@ export default function StatsBar({ derived, mode, proGravityUnit }) {
         labelStyle={label}
       />
       <StatBox
-        value={`${num(fractionToPercent(grist.ABV), 1)}${percentUnit()}`}
+        value={`${num(fractionToPercent(stats.ABV), 1)}${percentUnit()}`}
         label="ABV"
         style={box}
         valueStyle={val}
@@ -125,7 +128,7 @@ export default function StatsBar({ derived, mode, proGravityUnit }) {
                 flexShrink: 0,
               }}
             />
-            {num(grist.SRM, 1)}
+            {num(stats.SRM, 1)}
           </div>
         }
         label="SRM"
@@ -134,7 +137,7 @@ export default function StatsBar({ derived, mode, proGravityUnit }) {
         labelStyle={label}
       />
       <StatBox
-        value={num(hops.totalIBU, 0)}
+        value={num(stats.IBU, 0)}
         label="IBU"
         style={box}
         valueStyle={val}

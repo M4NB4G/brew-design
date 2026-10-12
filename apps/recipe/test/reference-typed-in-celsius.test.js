@@ -227,7 +227,7 @@ describe('15.6 °C typed is the reference', () => {
     const before = startingRecipe();
     const after = saved();
     expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY)).version).toBe(SCHEMA_VERSION);
-    expect(SCHEMA_VERSION).toBe(12);
+    expect(SCHEMA_VERSION).toBe(13);
     expect(Object.keys(after)).toEqual(Object.keys(JSON.parse(exportRecipeDocument({ recipe: before, mode: 'home', proGravityUnit: 'plato', temperatureUnit: 'F', proVolumeUnit: 'bbl', proMaltUnit: 'lb' })).recipe));
     expect(after.measurementTempF.preBoil).toBe(150);
     expect(after.measurementTempF.ferment).toBe(68);

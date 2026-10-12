@@ -69,6 +69,14 @@ export function defaultRecipeState() {
     // numbers are the uncorrected ones.
     measurementTempF: { preBoil: REFERENCE_TEMP_F, postBoil: REFERENCE_TEMP_F, ferment: REFERENCE_TEMP_F },
 
+    // Water back (docs/items/water-back.md, WB-S1): hot-liquor-tank water
+    // added to the fermenter after knock-out, off unless turned on; its volume
+    // (US gal, blank until typed) and the temperature it was measured at
+    // (degF, the reference by default), corrected to 60 degF as the other
+    // volumes are. The fermentation volume stays the volume at knock-out. Not
+    // a brewery figure.
+    waterBack: { on: false, volumeGal: NaN, tempF: REFERENCE_TEMP_F },
+
     // The Water tab's entries (water-state.js): part of the recipe, saved and
     // reset with it (Water saved with the recipe, WS-S1). No recipe figure
     // reads them; the Water tab's figures do (computeWater).

@@ -302,13 +302,13 @@ describe('the acid aimed at a mash pH (S9)', () => {
   });
 
   it('AA-Q4, AA-Q5: recipe format 12, every earlier format read with the target 5.4; not a brewery figure', () => {
-    expect(SCHEMA_VERSION).toBe(12);
+    expect(SCHEMA_VERSION).toBe(13);
     expect(BREWERY_VERSION).toBe(7);
     const s = fakeStorage();
     const recipe = wcPils({ acidPlace: 'mash', target: 5.5 });
     savePersisted(s, { recipe, ...DEFAULT_DISPLAY });
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(doc.version).toBe(12);
+    expect(doc.version).toBe(13);
     const defaults = { recipe: defaultRecipeState(), ...DEFAULT_DISPLAY };
     expect(loadPersisted(s, defaults).recipe.water.mashPhTarget).toBe(5.5);
     // Blank round-trips as blank.
@@ -321,7 +321,7 @@ describe('the acid aimed at a mash pH (S9)', () => {
     expect(read).not.toBe(defaults);
     expect(read.recipe.water.mashPhTarget).toBe(5.4);
     savePersisted(s, read);
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(12);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(13);
     // A version-12 document without it, or with text, is not a recipe.
     s.setItem(STORAGE_KEY, JSON.stringify({ ...doc, recipe: { ...doc.recipe, water: v11water } }));
     expect(loadPersisted(s, defaults)).toBe(defaults);

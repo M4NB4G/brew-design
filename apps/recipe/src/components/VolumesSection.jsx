@@ -20,10 +20,14 @@
 // the value they are about: a mash ratio outside the owner's recommended
 // range (text from the engine's range constants), and less wort after the
 // boil than the fermenter volume. They change no number and block nothing.
+// Water back (docs/items/water-back.md, WB-S1 to WB-S3): a check under the
+// fermentation volume, off by default; when on, the water back's volume box
+// and its measurement temperature, then the volume at pitch at 60 degF and the
+// knock-out OG and IBU (computeRecipe's pitchGal and knockOut), read-only.
 import { MASH_RV_RANGE_QT_PER_LB, MASH_R_RANGE_LB_PER_LB } from '@brew/engine';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
-import { tokens } from './shared/styles.js';
+import { colors, tokens } from './shared/styles.js';
 import usePhone from './shared/usePhone.js';
 import {
   volumeToCanonical,
@@ -37,8 +41,11 @@ import {
   tempBoxValue,
   tempReadout,
   referenceTemp,
+  resolveGravityUnit,
+  gravityFromCanonical,
+  gravityUnitLabel,
 } from '../display.js';
-import { num } from '../format.js';
+import { num, gravity } from '../format.js';
 
 // "Should be 1.25–2 qt/lb": a recommended range, as the owner's cell reads it.
 function shouldBe({ low, high }, unit) {
@@ -70,6 +77,15 @@ const volumeDigits = (mode, proVolumeUnit) => (volumesInBarrels(mode, proVolumeU
 export const temperatureChange = (setMeasurementTemp, kind, temperatureUnit) => (e) =>
   setMeasurementTemp(kind, tempToCanonical(parseFloat(e.target.value), temperatureUnit));
 
+const checkStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  fontSize: '0.85rem',
+  color: colors.textPrimary,
+  cursor: 'pointer',
+  padding: '0.6rem 0 0.4rem',
+};
+
 export default function VolumesSection({
   recipe,
   grist,
@@ -78,17 +94,23 @@ export default function VolumesSection({
   postBoilMeasuredShown,
   refVolumesGal,
   warnings,
+  pitchGal,
+  knockOut,
   mode,
+  proGravityUnit,
   proVolumeUnit,
   temperatureUnit,
   setField,
   setMeasurementTemp,
+  setWaterBack,
 }) {
   const phone = usePhone();
   const vUnit = volumeUnit(mode, proVolumeUnit);
   const fromGal = (gal) => volumeFromCanonical(gal, mode, proVolumeUnit);
   const tUnit = tempUnit(temperatureUnit);
   const refTemp = referenceTemp(temperatureUnit);
+  const gu = resolveGravityUnit(mode, proGravityUnit);
+  const waterBack = recipe.waterBack;
 
   // A volume's measurement temperature box, and that volume at the reference.
   const tempRow = (kind, label) => {
@@ -187,6 +209,47 @@ export default function VolumesSection({
           {tempRow('ferment', 'Fermentation volume')}
           {refRow('ferment', 'Fermentation volume')}
           {warnings.postBoilBelowFerment && <Warning>Less wort after the boil than the fermenter volume</Warning>}
+
+          <label style={checkStyle}>
+            <input
+              type="checkbox"
+              checked={waterBack.on}
+              onChange={(e) => setWaterBack('on', e.target.checked)}
+              style={{ marginRight: '0.4rem', accentColor: colors.accent }}
+            />
+            Water back
+          </label>
+          {waterBack.on && (
+            <>
+              <InputRow
+                label={`Water back (${vUnit})`}
+                step={0.1}
+                min={0}
+                value={volumeShown(waterBack.volumeGal, mode, proVolumeUnit, volumeDigits(mode, proVolumeUnit))}
+                editValue={volumeShown(waterBack.volumeGal, mode, proVolumeUnit)}
+                onChange={(e) => setWaterBack('volumeGal', volumeToCanonical(parseFloat(e.target.value), mode, proVolumeUnit))}
+              />
+              <InputRow
+                label={`Water back measured at (${tUnit})`}
+                value={Number.isFinite(waterBack.tempF) ? tempBoxValue(waterBack.tempF, temperatureUnit) : ''}
+                onChange={(e) => setWaterBack('tempF', tempToCanonical(parseFloat(e.target.value), temperatureUnit))}
+                step={temperatureUnit === 'C' ? 0.1 : 1}
+              />
+              <InputRow
+                label={`Volume at pitch at ${refTemp} ${tUnit} (${vUnit})`}
+                value={num(fromGal(pitchGal), 3)}
+                onChange={() => {}}
+                readOnly
+              />
+              <InputRow
+                label={`Knock-out OG (${gravityUnitLabel(gu)})`}
+                value={gravity(gravityFromCanonical(knockOut?.OG, gu), gu)}
+                onChange={() => {}}
+                readOnly
+              />
+              <InputRow label="Knock-out IBU" value={num(knockOut?.IBU, 0)} onChange={() => {}} readOnly />
+            </>
+          )}
         </div>
       </div>
     </Card>

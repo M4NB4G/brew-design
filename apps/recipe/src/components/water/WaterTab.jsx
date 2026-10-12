@@ -5,14 +5,15 @@
 // any blank test result (W5)
 // and one naming any blank figure the water sums need (water treatment,
 // WT-S9), and one naming any blank malt figure the predicted mash pH needs
-// (mash pH, MP-S5), and one naming a blank target mash pH (AA-S2). Every figure comes from computeWater (selectors.js) as `figures`; the
+// (mash pH, MP-S5), and one naming a blank target mash pH (AA-S2), and with
+// water back on, a note that it is not in the water figures (WB-S5). Every figure comes from computeWater (selectors.js) as `figures`; the
 // entries change only through water-state.js's steps, handed to `setWater`.
 // Nothing here is computed.
 import { colors, tokens } from '../shared/styles.js';
 import WaterInScreen, { REPORT_LABELS } from './WaterInScreen.jsx';
 import StyleScreen from './StyleScreen.jsx';
 import SaltsAcidScreen from './SaltsAcidScreen.jsx';
-import { SETUP_LABELS } from './WaterGoesCard.jsx';
+import { SETUP_LABELS, WATER_BACK_NOTE } from './WaterGoesCard.jsx';
 import NotesScreen from './NotesScreen.jsx';
 import { mashPhNeedLabel } from './mash-ph-needs.js';
 
@@ -89,6 +90,8 @@ export default function WaterTab({ water, figures, mode, proVolumeUnit, screen, 
           Blank figure the acid recommendation needs: Target mash pH
         </p>
       )}
+
+      {figures.waterBack && <p style={{ ...tokens.notice, margin: '0 0 0.9rem' }}>{WATER_BACK_NOTE}</p>}
 
       {screen === 'water' && <WaterInScreen source={water.source} figures={figures} setWater={setWater} />}
       {screen === 'style' && <StyleScreen styleId={water.styleId} figures={figures} setWater={setWater} />}

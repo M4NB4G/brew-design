@@ -43,6 +43,8 @@ import {
   mashPhOutsideRange,
   mashPhTestedRange,
   scaleRecipe,
+  computeWaterBack,
+  volumeAtPitch,
   solveGrist,
   rollupCost,
   costPerUnit,
@@ -51,6 +53,19 @@ import { toReferenceVolume } from './reference-volume.js';
 import { fractionToPercent } from './display.js';
 import { num } from './format.js';
 import { TEST_RESULT_KEYS, effectiveSetup } from './water-state.js';
+
+// Water back (docs/items/water-back.md): the fermentation volume at 60 degF
+// (the volume at knock-out); with water back on, the water back at 60 degF,
+// through the reference-volume slot at its own measurement temperature
+// (WB-S2), and the volume at pitch, the two together by the engine. With
+// water back off the volume at pitch is the fermentation volume, as before.
+function pitchVolumes(recipe) {
+  const fermentRefGal = toReferenceVolume(recipe.fermentVolGal, 'ferment', recipe.measurementTempF);
+  const wb = recipe.waterBack;
+  if (!wb?.on) return { on: false, fermentRefGal, pitchGal: fermentRefGal };
+  const waterBackRefGal = toReferenceVolume(wb.volumeGal, 'waterBack', { waterBack: wb.tempF });
+  return { on: true, fermentRefGal, waterBackRefGal, pitchGal: volumeAtPitch(fermentRefGal, waterBackRefGal) };
+}
 
 // Scale the recipe when switching Home and Pro (docs/items/pro-recipe-default.md):
 // the recipe with every amount multiplied by the batch over its fermentation
@@ -129,7 +144,8 @@ export function solveTargetOG(recipe, targetOG, shares) {
 // priced line whose quantity is blank blanks the total, as any blank figure
 // blanks what needs it. The cost per gal is the total over the fermentation
 // volume at 60 degF (SPEC 11), by the engine's costPerUnit: blank for a zero,
-// negative or blank volume (EC-S4), or a blank total.
+// negative or blank volume (EC-S4), or a blank total. With water back on, the
+// volume at pitch (WB-S4).
 // -> { lines: [{ kind, index, name, quantity, unitPrice, cost }], total, unpriced, perGal }
 export function computeCost(recipe) {
   const line = (kind, index, name, quantity, unitPrice) => ({ kind, index, name, label: name, quantity, unitPrice });
@@ -144,12 +160,12 @@ export function computeCost(recipe) {
   const { items } = rollupCost(lineItems);
   const priced = lineItems.filter((li) => entered(li.unitPrice));
   const total = priced.length > 0 ? rollupCost(priced).total : NaN;
-  const fermentRefGal = toReferenceVolume(recipe.fermentVolGal, 'ferment', recipe.measurementTempF);
+  const { pitchGal } = pitchVolumes(recipe);
   return {
     lines: items.map(({ label, ...li }) => li),
     total,
     unpriced: lineItems.length - priced.length,
-    perGal: costPerUnit(total, fermentRefGal),
+    perGal: costPerUnit(total, pitchGal),
   };
 }
 
@@ -165,7 +181,8 @@ export function computeRecipe(state) {
     state.boilTimeMin,
   );
   const postBoilRefGal = toReferenceVolume(postBoilRawGal, 'postBoil', temps);
-  const fermentRefGal = toReferenceVolume(state.fermentVolGal, 'ferment', temps);
+  const pitch = pitchVolumes(state);
+  const { fermentRefGal, pitchGal } = pitch;
 
   const grist = computeGrist({
     malts: state.malts,
@@ -181,14 +198,40 @@ export function computeRecipe(state) {
     preBoilSg: grist.preBoilSg,
     postBoilVolGal: postBoilRefGal,
     dryHops: state.dryHops,
-    fermentVolGal: fermentRefGal,
+    // The dry-hop rate reads the volume at pitch (WB-S4).
+    fermentVolGal: pitchGal,
   });
 
+  // Water back (WB-S3): the knock-out's extract, colour and bitterness spread
+  // over the volume at pitch, by the engine; the stats bar shows these, the
+  // Volumes card the knock-out OG and IBU beside them. Without it, the stats
+  // are the knock-out's, as before (WB-S9).
+  const atPitch = pitch.on
+    ? computeWaterBack({
+        knockOutGal: fermentRefGal,
+        waterBackGal: pitch.waterBackRefGal,
+        plato: grist.postBoilPlato,
+        mcu: grist.sumMcu,
+        ibu: hops.sumIBU,
+        apparentAttenuation: state.apparentAttenuation,
+      })
+    : null;
+  const stats = atPitch
+    ? { OG: atPitch.OG, FG: atPitch.FG, ABV: atPitch.ABV, SRM: atPitch.SRM, IBU: atPitch.totalIBU }
+    : { OG: grist.OG, FG: grist.FG, ABV: grist.ABV, SRM: grist.SRM, IBU: hops.totalIBU };
+
+  // Cells needed from the gravity and the volume at pitch (WB-S4).
+  // FLAG: with water back on, the cells needed rise a little, though no
+  // sugar is added: the pitch rate is per °P per litre, and the sugar kept is
+  // °P x SG x volume, so °P x volume grows as SG falls (the built-in recipe
+  // with 1 gal of water back: 11.7313 °P x 6.5 gal against 13.7521 °P x 5.5
+  // gal, 216.5 against 214.7 billion, 220 against 210 once rounded to 10).
+  // Kept: the sentences read both from the volume at pitch.
   const pitchRate = selectPitchRate(state.yeast.type, state.yeast.density);
   const cells = computeCellsNeeded({
     pitchRate,
-    postBoilPlato: grist.postBoilPlato,
-    fermentVolGal: fermentRefGal,
+    postBoilPlato: atPitch ? atPitch.plato : grist.postBoilPlato,
+    fermentVolGal: pitchGal,
   });
   const starter = solveStarter(cells);
 
@@ -209,7 +252,19 @@ export function computeRecipe(state) {
     postBoilMeasuredShown,
     // The three volumes as the engine received them (the Volumes card shows
     // each under its measurement temperature).
-    refVolumesGal: { preBoil: preBoilRefGal, postBoil: postBoilRefGal, ferment: fermentRefGal },
+    // With water back on, its volume at 60 degF too.
+    refVolumesGal: {
+      preBoil: preBoilRefGal,
+      postBoil: postBoilRefGal,
+      ferment: fermentRefGal,
+      ...(pitch.on && { waterBack: pitch.waterBackRefGal }),
+    },
+    // The volume at pitch at 60 degF (the fermentation volume without water
+    // back), the figures the stats bar shows, and with water back on the
+    // knock-out OG and IBU (null without it).
+    pitchGal,
+    stats,
+    knockOut: atPitch ? { OG: grist.OG, IBU: hops.totalIBU } : null,
     grist,
     hops,
     pitchRate,
@@ -622,6 +677,9 @@ export function computeWater(water, recipe) {
     mashPh: mashPhFigures,
     tank,
     kettle,
+    // Water back is not in the water figures (WB-S5): the tab and the sheet
+    // say so while it is on; no figure here reads it.
+    waterBack: recipe.waterBack?.on === true,
     warnings: {
       mashOverTreated: tank?.mashOverTreated ?? false,
       spargeOverTopUp: tank?.spargeOverTopUp ?? false,

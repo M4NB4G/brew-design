@@ -41,13 +41,16 @@ export function computeHops(input) {
     };
   });
 
-  const totalIBU = Math.round(additions.reduce((s, a) => s + a.ibu, 0));
+  // The unrounded sum, kept for the figures at pitch (water-back.js).
+  const sumIBU = additions.reduce((s, a) => s + a.ibu, 0);
+  const totalIBU = Math.round(sumIBU);
 
   const sumDryHopOz = dryHops.reduce((s, d) => s + d.weightOz, 0);
   const dryHopRatio = sumDryHopOz / fermentVolGal;
 
   return {
     additions,
+    sumIBU,
     totalIBU,
     dryHopRatio,
   };

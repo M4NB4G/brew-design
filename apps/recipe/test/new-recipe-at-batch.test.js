@@ -210,7 +210,7 @@ describe("a new recipe at the brewery's batch", () => {
     const doc = JSON.parse(exportRecipeDocument(fresh));
     const was = JSON.parse(exportRecipeDocument({ recipe: defaultRecipeState(), ...newRecipe(blank()), mode: 'pro' }));
     expect(doc.version).toBe(SCHEMA_VERSION);
-    expect(SCHEMA_VERSION).toBe(12);
+    expect(SCHEMA_VERSION).toBe(13);
     expect(Object.keys(doc)).toEqual(Object.keys(was));
     expect(Object.keys(doc.recipe)).toEqual(Object.keys(was.recipe));
     expect(Object.keys(doc.recipe.water)).toEqual(Object.keys(was.recipe.water));

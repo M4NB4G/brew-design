@@ -116,6 +116,6 @@ describe('solve with volumes measured hot', () => {
     expect(solved.mashWaterGal).toBe(r.mashWaterGal);
     expect(solveTargetOG(solved, 1.05, SHARES).weightsLb).toEqual(out.weightsLb);
     expect(solveTargetOG(at(212, 212, NaN), 1.05, SHARES).weightsLb).toEqual(out.weightsLb);
-    expect(SCHEMA_VERSION).toBe(12);
+    expect(SCHEMA_VERSION).toBe(13);
   });
 });

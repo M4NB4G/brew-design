@@ -57,6 +57,10 @@
 // Version 12 (the acid aimed at a mash pH, AA-Q4): the water entries carry
 // the target mash pH the acid aims at. A version-1 to 11 document is read
 // with the engine's default target, 5.4, and saved back as 12.
+// Version 13 (water back, WB-S7): the recipe carries its water back — on or
+// off, its volume (gal) and its measurement temperature (degF). A version-1
+// to 12 document is read with water back off, its volume blank and its
+// temperature at the engine's reference, and saved back as 13.
 //
 // Recipe file (2026-09-23): export hands the browser the same document the
 // autosave writes, as a file; import reads a file with the same reader as
@@ -92,7 +96,15 @@
 // found, under its own key before a new recipe replaces it; a refused file
 // is not (it is still on the brewer's disk).
 
-import { PITCH_RATES, SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS, STYLE_FAMILIES, MALT_TYPES, MASH_PH_TARGET } from '@brew/engine';
+import {
+  PITCH_RATES,
+  SALT_CONTRIBUTIONS_PER_G_GAL,
+  ACIDS,
+  STYLE_FAMILIES,
+  MALT_TYPES,
+  MASH_PH_TARGET,
+  REFERENCE_TEMP_F,
+} from '@brew/engine';
 import {
   defaultRecipeState,
   DEFAULT_DISPLAY,
@@ -109,8 +121,8 @@ export const STORAGE_KEY = 'brew-design.recipe';
 // The latest saved copy that could not be read, kept as found (V3); nothing
 // reads it back.
 export const UNREADABLE_KEY = 'brew-design.recipe.unreadable';
-export const SCHEMA_VERSION = 12;
-const READABLE_VERSIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, SCHEMA_VERSION];
+export const SCHEMA_VERSION = 13;
+const READABLE_VERSIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, SCHEMA_VERSION];
 
 const MODES = ['home', 'pro'];
 const GRAVITY_UNITS = ['plato', 'sg'];
@@ -279,7 +291,14 @@ function readDocument(raw, defaults) {
     // Code before version 12 never wrote a target mash pH: the default (AA-Q4).
     recipe = { ...recipe, water: { ...recipe.water, mashPhTarget: MASH_PH_TARGET } };
   }
+  if (doc.version <= 12 && isRecord(recipe)) {
+    // Code before version 13 never wrote water back: off, its volume blank,
+    // its temperature at the reference (WB-S7).
+    recipe = { ...recipe, waterBack: { on: false, volumeGal: NaN, tempF: REFERENCE_TEMP_F } };
+  }
   if (!hasShapeOf(recipe, defaults.recipe) || !hasRowsOf(recipe, defaults.recipe)) return {};
+  // Water back: on or off, its volume and temperature each a number or blank.
+  if (!hasFieldsOf(recipe.waterBack, defaults.recipe.waterBack)) return {};
   // The three measurement temperatures, each a number or blank (MT-S1).
   if (!hasFieldsOf(recipe.measurementTempF, defaults.recipe.measurementTempF)) return {};
   if (!hasWaterOf(recipe.water)) return {};
@@ -301,7 +320,7 @@ function readDocument(raw, defaults) {
 /**
  * Read the persisted document. Returns { recipe, mode, proGravityUnit,
  * temperatureUnit, proVolumeUnit, proMaltUnit } when storage holds a readable
- * document at SCHEMA_VERSION or at version 11, 10, 9, 8, 7, 6, 5, 4, 3, 2 or 1
+ * document at SCHEMA_VERSION or at version 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2 or 1
  * (read as readDocument describes, against `defaults`); otherwise
  * `fallback`, which is `defaults` unless given. A saved copy that cannot be
  * read is first kept aside, as found, under UNREADABLE_KEY, replacing any

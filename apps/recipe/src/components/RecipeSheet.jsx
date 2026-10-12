@@ -169,6 +169,8 @@ export default function RecipeSheet({
         <Caption>
           Mash ratio {s.volumes.mashRv} {s.volumes.mashRvUnit} · {s.volumes.mashR} {s.volumes.mashRUnit}
           {' · '}Boil {s.volumes.boilTime} min at {s.volumes.boilOff} {s.volumes.unit}/hr boil-off
+          {s.volumes.knockOutOG &&
+            ` · Knock-out OG ${s.volumes.knockOutOG} (${s.volumes.gravityUnit}) · OG at pitch ${s.volumes.pitchOG} (${s.volumes.gravityUnit})`}
         </Caption>
       </Section>
 
@@ -181,6 +183,7 @@ export default function RecipeSheet({
           <Caption>
             Treated: {s.water.treated}{s.water.hltNote && ` (${s.water.hltNote})`} · Water ({s.water.volumeUnit}):{' '}
             {s.water.volumes.map((v) => `${v.label} ${v.value}`).join(' · ')}
+            {s.water.waterBackNote && ` · ${s.water.waterBackNote}`}
           </Caption>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
             <table style={{ ...tbl, flex: '1' }}>

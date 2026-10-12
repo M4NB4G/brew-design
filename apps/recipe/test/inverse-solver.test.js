@@ -36,6 +36,7 @@ import { withoutBoxNames } from './box-names.fixture.js';
 import { withoutAccessChanges } from './access.fixture.js';
 const noNames = (html) => withoutAccessChanges(withoutBoxNames(html));
 import { docWithTarget } from './acid-aim.js';
+import { documentWithoutWaterBack } from './water-back.fixture.js';
 
 const { computeRecipe } = selectors;
 const solveTargetOG = (...a) => selectors.solveTargetOG(...a);
@@ -292,7 +293,7 @@ describe('design to a target OG', () => {
     // The saved document carries no target and no percents, at the same version.
     const doc = JSON.parse(exportRecipeDocument({ recipe: after, ...DEFAULT_DISPLAY }));
     expect(doc.version).toBe(SCHEMA_VERSION);
-    expect(SCHEMA_VERSION).toBe(12);
+    expect(SCHEMA_VERSION).toBe(13);
     expect(Object.keys(doc.recipe).sort()).toEqual(Object.keys(r).sort());
     expect(Object.keys(doc.recipe.malts[0]).sort()).toEqual(Object.keys(r.malts[0]).sort());
     // The Water tab's target mash pH (S9, AA-S2) is a recipe figure, saved
@@ -313,9 +314,10 @@ describe('design to a target OG', () => {
     expect(withoutNew(f.gristHtml(r, { mode: 'pro' }))).toBe(noNames(BEFORE['grist-pro-lb']));
     expect(withoutNew(f.gristHtml(r, { mode: 'pro', proMaltUnit: 'sack' }))).toBe(noNames(BEFORE['grist-pro-sack']));
     // Since cost of a batch: version 11, with blank prices (economics EC-S3);
-    // since the acid aimed at a mash pH, version 12 with the target 5.4 (AA-Q4).
+    // since the acid aimed at a mash pH, version 12 with the target 5.4 (AA-Q4);
+    // since water back, compared without it, off (water-back.fixture.js, WB-S9).
     const before = JSON.parse(BEFORE.document);
-    expect(JSON.parse(exportRecipeDocument({ recipe: r, ...DEFAULT_DISPLAY }))).toEqual({
+    expect(documentWithoutWaterBack(JSON.parse(exportRecipeDocument({ recipe: r, ...DEFAULT_DISPLAY })))).toEqual({
       ...before,
       version: 12,
       recipe: docWithTarget(docWithBlankPrices(before.recipe)),

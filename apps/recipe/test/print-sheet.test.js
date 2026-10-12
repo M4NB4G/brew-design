@@ -145,14 +145,17 @@ describe('printed recipe sheet', () => {
     // Given different derived values for the same recipe, the sheet prints
     // those: it reads what it is given and recomputes nothing.
     const other = structuredClone(d);
-    other.grist.OG = 1.111;
-    other.grist.FG = 1.022;
-    other.grist.ABV = 0.0333;
-    other.grist.SRM = 12.34;
+    // The headline is the stats bar's (computeRecipe's `stats`, the
+    // knock-out's without water back; docs/items/water-back.md, WB-S3).
+    other.stats.OG = 1.111;
+    other.stats.FG = 1.022;
+    other.stats.ABV = 0.0333;
+    other.stats.SRM = 12.34;
     other.grist.mashRv = 2.5;
     other.grist.perMalt[0].perMaltWeightFraction = 0.25;
     other.hops.additions[0].ibu = 12.34;
     other.hops.totalIBU = 99;
+    other.stats.IBU = 99;
     other.hops.dryHopRatio = 0.5;
     other.postBoilVolGal = 9.99;
     other.pitchRate = 0.33;
@@ -172,7 +175,9 @@ describe('printed recipe sheet', () => {
     // A blank input prints a dash, never "NaN".
     const blank = structuredClone(d);
     blank.grist.OG = NaN;
+    blank.stats.OG = NaN;
     blank.hops.totalIBU = NaN;
+    blank.stats.IBU = NaN;
     blank.hops.additions[0].ibu = NaN;
     const b = sheetFor(recipe, 'home', 'plato', blank);
     expect(headline(b, 'OG').value).toBe('—');

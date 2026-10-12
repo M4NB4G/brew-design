@@ -116,7 +116,7 @@ describe('a Cost card with no price reads "—"', () => {
     // The saved document: version 12, prices blank as before.
     const doc = JSON.parse(exportRecipeDocument({ recipe: r, mode: 'home', proGravityUnit: 'plato', temperatureUnit: 'F', proVolumeUnit: 'bbl', proMaltUnit: 'lb' }));
     expect(doc.version).toBe(SCHEMA_VERSION);
-    expect(SCHEMA_VERSION).toBe(12);
+    expect(SCHEMA_VERSION).toBe(13);
     expect(doc.recipe.malts[0].pricePerLb).toBeNull();
     expect(doc.recipe.otherCosts).toEqual([]);
   });

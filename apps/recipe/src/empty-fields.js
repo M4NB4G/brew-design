@@ -54,6 +54,17 @@ export function emptyFields(recipe, derived) {
   checkTemp('postBoil', 'Post-boil', derived.postBoilMeasuredGal);
   check(recipe.fermentVolGal, 'Fermentation volume');
   checkTemp('ferment', 'Fermentation', recipe.fermentVolGal);
+  // Water back, only while it is on (WB-S10): its volume, then its
+  // measurement temperature, as the Volumes card shows them.
+  const wb = recipe.waterBack;
+  if (wb?.on) {
+    check(wb.volumeGal, 'Water back');
+    if (blank(wb.tempF)) {
+      names.push('Water back measurement temperature');
+    } else if (blank(derived.refVolumesGal.waterBack) && !blank(wb.volumeGal)) {
+      names.push("Water back measurement temperature (outside the correction's range)");
+    }
+  }
 
   recipe.malts.forEach((m, i) => {
     const name = rowName(m, 'Malt', i);

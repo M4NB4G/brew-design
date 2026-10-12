@@ -51,6 +51,7 @@ import {
   KETTLE_ASSUMPTION,
   KETTLE_BIAS_NOTE,
   KETTLE_HELD_NOTE,
+  WATER_BACK_NOTE,
 } from './water/WaterGoesCard.jsx';
 
 const YEAST_TYPE = { ale: 'Ale', lager: 'Lager' };
@@ -93,7 +94,7 @@ export function recipeSheet({
   brewery,
   today,
 }) {
-  const { grist, hops, pitchRate, cells, starter } = derived;
+  const { grist, hops, pitchRate, cells, starter, stats } = derived;
   const pro = sheetProUnits(brewery, proVolumeUnit, proMaltUnit);
   const sacks = maltInSacks(mode, pro.malt);
   const tUnit = tempUnit(temperatureUnit);
@@ -105,6 +106,9 @@ export function recipeSheet({
   const hopWt = (oz) => num(hopWeightFromCanonical(oz, mode), mode === 'pro' ? 3 : 2);
   const pct = (fraction) => num(fractionToPercent(fraction), 1);
   const temps = recipe.measurementTempF;
+  // Water back (WB-S8): its volume and the volume at pitch under the
+  // fermentation volume, and the knock-out OG and the OG at pitch.
+  const waterBack = recipe.waterBack?.on ? recipe.waterBack : null;
 
   const meta = [];
   if (text(recipe.style)) meta.push({ label: 'Style', value: recipe.style });
@@ -118,13 +122,13 @@ export function recipeSheet({
     title: text(recipe.name),
     meta,
 
-    // The stats bar's six, in its order.
+    // The stats bar's six, in its order (at pitch with water back on).
     headline: [
-      { label: 'OG', value: gravity(gravityFromCanonical(grist.OG, gu), gu), unit: gravityUnitLabel(gu), measuredBox: true },
-      { label: 'FG', value: gravity(gravityFromCanonical(grist.FG, gu), gu), unit: gravityUnitLabel(gu), measuredBox: true },
-      { label: 'ABV', value: pct(grist.ABV), unit: percentUnit(), measuredBox: false },
-      { label: 'SRM', value: num(grist.SRM, 1), unit: '', measuredBox: false },
-      { label: 'IBU', value: num(hops.totalIBU, 0), unit: '', measuredBox: false },
+      { label: 'OG', value: gravity(gravityFromCanonical(stats.OG, gu), gu), unit: gravityUnitLabel(gu), measuredBox: true },
+      { label: 'FG', value: gravity(gravityFromCanonical(stats.FG, gu), gu), unit: gravityUnitLabel(gu), measuredBox: true },
+      { label: 'ABV', value: pct(stats.ABV), unit: percentUnit(), measuredBox: false },
+      { label: 'SRM', value: num(stats.SRM, 1), unit: '', measuredBox: false },
+      { label: 'IBU', value: num(stats.IBU, 0), unit: '', measuredBox: false },
       {
         label: 'Cells',
         value: num(cellsFromCanonical(cells, mode), mode === 'pro' ? 2 : 0),
@@ -176,7 +180,16 @@ export function recipeSheet({
               measuredBox: true,
             },
         { key: 'ferment', label: 'Fermentation volume', value: vol(recipe.fermentVolGal), tempNote: tempNote(temps?.ferment, temperatureUnit), measuredBox: true },
+        ...(waterBack
+          ? [
+              { key: 'waterBack', label: 'Water back', value: vol(waterBack.volumeGal), tempNote: tempNote(waterBack.tempF, temperatureUnit), measuredBox: true },
+              { key: 'pitch', label: `Volume at pitch at ${refTemp} ${tUnit}`, value: vol(derived.pitchGal), tempNote: null, measuredBox: true },
+            ]
+          : []),
       ],
+      knockOutOG: waterBack ? gravity(gravityFromCanonical(derived.knockOut?.OG, gu), gu) : null,
+      pitchOG: waterBack ? gravity(gravityFromCanonical(stats.OG, gu), gu) : null,
+      gravityUnit: waterBack ? gravityUnitLabel(gu) : null,
       boilTime: num(recipe.boilTimeMin, 0),
       boilOff: vol(recipe.boilOffRateGalPerHr),
       mashRv: num(grist.mashRv, 2),
@@ -334,6 +347,8 @@ function waterSection(water, mode, vol, vUnit) {
     mashPhNote: testedRangeNote(water.mashPh.testedRange),
     // HL-S2: the acronym spelled out on the sheet, with the HLT treated.
     hltNote: tank ? 'HLT = Hot Liquor Tank' : null,
+    // WB-S5: water back is not in these figures.
+    waterBackNote: water.waterBack ? WATER_BACK_NOTE : null,
     kettle: kettleSection(water),
   };
 }

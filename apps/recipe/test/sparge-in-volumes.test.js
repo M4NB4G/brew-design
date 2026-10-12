@@ -18,6 +18,7 @@ import { computeRecipe, computeWater } from '../src/selectors.js';
 import { defaultWaterState } from '../src/water-state.js';
 import { recipeSheet } from '../src/components/recipe-sheet-data.js';
 import { sheetWithAimedAcid } from './acid-aim.js';
+import { sheetWithoutWaterBack } from './water-back.fixture.js';
 
 const TODAY = new Date(2026, 9, 5);
 // Since the engine follows Rev 4 (docs/items/engine-corrections.md, EC-Q7),
@@ -153,7 +154,8 @@ describe('sparge water in the printed sheet\'s volumes', () => {
     // (SV-S4), which goes from the captured one.
     for (const method of ['fly', 'none']) {
       for (const mode of ['home', 'pro']) {
-        const after = sheetOf(recipeWith({ spargeMethod: method }), mode);
+        // Since water back: compared without it, off (water-back.fixture.js, WB-S9).
+        const after = sheetWithoutWaterBack(sheetOf(recipeWith({ spargeMethod: method }), mode));
         const before = JSON.parse(JSON.stringify(BEFORE[`${method}-${mode}`]));
         before.water.volumes = before.water.volumes.filter((v) => !v.label.startsWith('Sparge water'));
         // Since the acid aimed at a mash pH: the acid's figures and the target (AA-S1, AA-S5).
@@ -163,7 +165,7 @@ describe('sparge water in the printed sheet\'s volumes', () => {
 
     // Given no water, the sheet is exactly what it was.
     const r = defaultRecipeState();
-    const bare = recipeSheet({ recipe: r, derived: computeRecipe(r), mode: 'home', proGravityUnit: 'plato', today: TODAY });
+    const bare = sheetWithoutWaterBack(recipeSheet({ recipe: r, derived: computeRecipe(r), mode: 'home', proGravityUnit: 'plato', today: TODAY }));
     expect(bare).toEqual(BEFORE['no-water-arg']);
   });
 });

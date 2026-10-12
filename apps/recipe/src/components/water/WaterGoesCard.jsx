@@ -41,6 +41,10 @@ export const KETTLE_BIAS_NOTE =
 // KS1 (docs/items/kettle-share-limits.md, KS-S2): a share held at its limit.
 export const KETTLE_HELD_NOTE =
   "A share was held at its limit: the brewhouse efficiency does not fit these volumes (it also counts the mash's conversion), so the kettle salts are an estimate.";
+// Water back (docs/items/water-back.md, WB-S5): the Water tab and the printed
+// sheet say, while it is on, that no water figure counts it.
+export const WATER_BACK_NOTE =
+  'Water back is not in the water figures: no water volume, salt, acid or predicted figure counts it.';
 export const TREATMENT_LABELS = { mash: 'The mash water', tank: 'The Hot Liquor Tank (HLT) first fill' };
 // Where the acid goes, with the tank treated (S5b item C, AM-S1).
 export const ACID_PLACE_LABELS = { salts: 'With the salts (HLT)', mash: 'Into the mash' };

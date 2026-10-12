@@ -51,6 +51,7 @@ const noNames = (html) => withoutAccessChanges(withoutBoxNames(html));
 // The weight and volume boxes show the sheet's precision since BA1 (S14).
 import { withBoxFiguresAsDrawn as asDrawn } from './box-figures.fixture.js';
 import { docWithTarget, sheetWithAimedAcid, withoutAcidCards } from './acid-aim.js';
+import { withoutWaterBack, sheetWithoutWaterBack, documentWithoutWaterBack } from './water-back.fixture.js';
 
 // Since the engine follows Rev 4 (docs/items/engine-corrections.md, EC-Q7),
 // the printed sheet's figures it moves are re-pinned in the captured bytes:
@@ -135,7 +136,8 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     // The Volumes card in Pro gallons is the card at Home: every volume and
     // readout in gallons, to Home's precision.
     expect(f.volumesHtml(r, 'pro', GAL)).toBe(f.volumesHtml(r, 'home', GAL));
-    expect(noNames(f.volumesHtml(r, 'pro', GAL))).toBe(noNames(BEFORE['volumes-home']));
+    // Since water back: compared without it, off (water-back.fixture.js, WB-S9).
+    expect(noNames(withoutWaterBack(f.volumesHtml(r, 'pro', GAL)))).toBe(noNames(BEFORE['volumes-home']));
     expect(text(f.volumesHtml(r, 'pro', GAL))).not.toContain('bbl');
 
     // My brewery's volumes and water setup in gallons, as at Home.
@@ -223,11 +225,11 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
 
     // The brewery's barrels and pounds over a screen in gallons and sacks:
     // the sheet as before.
-    const back = f.sheetData(r, 'pro', { proVolumeUnit: 'gal', proMaltUnit: 'sack' }, brewery(BBL_LB));
+    const back = sheetWithoutWaterBack(f.sheetData(r, 'pro', { proVolumeUnit: 'gal', proMaltUnit: 'sack' }, brewery(BBL_LB)));
     expect(back).toEqual(sheetWithAimedAcid(BEFORE['sheet-data-pro'], back));
 
     // Home prints gallons and pounds, whatever the brewery's Pro choices.
-    const homeSheet = f.sheetData(r, 'home', BBL_LB, brewery({ proVolumeUnit: 'bbl', proMaltUnit: 'sack' }));
+    const homeSheet = sheetWithoutWaterBack(f.sheetData(r, 'home', BBL_LB, brewery({ proVolumeUnit: 'bbl', proMaltUnit: 'sack' })));
     expect(homeSheet).toEqual(
       sheetWithAimedAcid(BEFORE['sheet-data-home'], homeSheet),
     );
@@ -235,7 +237,7 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
 
   // PU-S5, PU-Q4
   it('the choices are saved and older documents read as barrels and pounds', () => {
-    expect(SCHEMA_VERSION).toBe(12);
+    expect(SCHEMA_VERSION).toBe(13);
     expect(BREWERY_VERSION).toBe(7);
     expect(DEFAULT_DISPLAY.proVolumeUnit).toBe('bbl');
     expect(DEFAULT_DISPLAY.proMaltUnit).toBe('lb');
@@ -243,7 +245,7 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     const r = defaultRecipeState();
     const state = { recipe: r, mode: 'pro', proGravityUnit: 'sg', temperatureUnit: 'C', proVolumeUnit: 'gal', proMaltUnit: 'sack' };
     const doc = JSON.parse(exportRecipeDocument(state));
-    expect(doc.version).toBe(12);
+    expect(doc.version).toBe(13);
     expect(doc.proVolumeUnit).toBe('gal');
     expect(doc.proMaltUnit).toBe('sack');
     const loaded = loadPersisted(memoryStorage({ [STORAGE_KEY]: JSON.stringify(doc) }), defaults());
@@ -304,12 +306,13 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     const r = f.recipe();
     for (const units of [BBL_LB, {}]) {
       for (const mode of ['home', 'pro']) {
-        const volumes = f.volumesHtml(r, mode, units);
+        // Since water back: compared without it, off (water-back.fixture.js, WB-S9).
+        const volumes = withoutWaterBack(f.volumesHtml(r, mode, units));
         expect(noNames(volumes), `volumes ${mode}`).toBe(noNames(asDrawn(BEFORE[`volumes-${mode}`], volumes)));
         const grist = withoutTargetOgDesign(f.gristHtml(r, mode, units));
         expect(noNames(grist), `grist ${mode}`).toBe(noNames(asDrawn(BEFORE[`grist-${mode}`], grist)));
         // Since the acid aimed at a mash pH: the acid's figures and the target (AA-S1, AA-S5).
-        const sheet = f.sheetData(r, mode, units);
+        const sheet = sheetWithoutWaterBack(f.sheetData(r, mode, units));
         expect(sheet, `sheet ${mode}`).toEqual(sheetWithAimedAcid(BEFORE[`sheet-data-${mode}`], sheet));
       }
       const hops = f.hopsHtml(r, 'pro', units);
@@ -323,7 +326,9 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
 
     // The saved documents: as before, at the new versions, with the choices.
     const before = JSON.parse(BEFORE['recipe-document']);
-    const after = JSON.parse(exportRecipeDocument({ recipe: r, mode: 'pro', proGravityUnit: 'plato', temperatureUnit: 'F', ...BBL_LB }));
+    const after = documentWithoutWaterBack(
+      JSON.parse(exportRecipeDocument({ recipe: r, mode: 'pro', proGravityUnit: 'plato', temperatureUnit: 'F', ...BBL_LB })),
+    );
     // Since cost of a batch: version 11, with blank prices (economics EC-S3).
     // Since the acid aimed at a mash pH: version 12, with the target 5.4 (AA-Q4).
     expect(after).toEqual({ ...before, version: 12, recipe: docWithTarget(docWithBlankPrices(before.recipe)), ...BBL_LB });
@@ -333,7 +338,9 @@ describe('Pro unit choices (docs/items/pro-unit-choices.md)', () => {
     expect(bAfter).toEqual({ version: 7, brewery: { ...bBefore.brewery, proVolumeUnit: null, proMaltUnit: null, ingredients: { malts: [], hops: [], yeasts: [] } } });
 
     // Switching the choices changes no stored figure.
-    const inGal = JSON.parse(exportRecipeDocument({ recipe: r, mode: 'pro', proGravityUnit: 'plato', temperatureUnit: 'F', proVolumeUnit: 'gal', proMaltUnit: 'sack' }));
+    const inGal = documentWithoutWaterBack(
+      JSON.parse(exportRecipeDocument({ recipe: r, mode: 'pro', proGravityUnit: 'plato', temperatureUnit: 'F', proVolumeUnit: 'gal', proMaltUnit: 'sack' })),
+    );
     expect(inGal.recipe).toEqual(after.recipe);
   });
 });

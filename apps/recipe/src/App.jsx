@@ -349,6 +349,11 @@ export default function App() {
   const setYeast = (key, value) =>
     setRecipe((r) => ({ ...r, yeast: { ...r.yeast, [key]: value } }));
 
+  // Water back (WB-S1): on or off, its volume (gal) and its measurement
+  // temperature (degF; the Volumes card converts a °C entry).
+  const setWaterBack = (key, value) =>
+    setRecipe((r) => ({ ...r, waterBack: { ...r.waterBack, [key]: value } }));
+
   // Measurement temperature (degF; the Volumes card converts a °C entry) for one corrected volume kind.
   const setMeasurementTemp = (kind, tempF) =>
     setRecipe((r) => ({ ...r, measurementTempF: { ...r.measurementTempF, [kind]: tempF } }));
@@ -428,11 +433,15 @@ export default function App() {
               postBoilMeasuredShown={derived.postBoilMeasuredShown}
               refVolumesGal={derived.refVolumesGal}
               warnings={derived.warnings}
+              pitchGal={derived.pitchGal}
+              knockOut={derived.knockOut}
               mode={mode}
+              proGravityUnit={proGravityUnit}
               proVolumeUnit={proVolumeUnit}
               temperatureUnit={temperatureUnit}
               setField={setField}
               setMeasurementTemp={setMeasurementTemp}
+              setWaterBack={setWaterBack}
             />
 
             <GristTable

@@ -29,7 +29,9 @@ cached values are pinned by the golden-master tests.
 5. The public surface is `src/index.js` only. Nothing imports engine internals.
 6. `computeGrist` / `computeHops` take volumes at the 60 °F reference
    (`REFERENCE_TEMP_F`, stated once in `units.js`); the caller corrects first. `mashWaterGal` is used as entered — the 2.055 qt→lb
-   constant embeds its own density assumption.
+   constant embeds its own density assumption. Water back is not in Rev 4:
+   `computeWaterBack` adds no constant, only the engine's own formulas on
+   the volume at pitch (rule 10), each figure pinned by hand.
 
 ## 2. App (`apps/recipe`)
 
@@ -70,6 +72,11 @@ cached values are pinned by the golden-master tests.
    setup figure or target is NaN. The volume treated is the recipe's mash water or
    the tank's treated volume; the sparge water is typed and the water left
    in the mash tun is worked out.
+   The recipe carries its water back (`waterBack`), hot-liquor-tank water
+   added to the fermenter after knock-out: off unless turned on, its volume
+   in US gal (blank until typed) and the temperature it was measured at in
+   °F, the reference by default. The fermentation volume stays the volume
+   at knock-out. Water back is not a brewery figure.
    Switching Home ↔ Pro asks whether to scale the recipe to that side's
    batch — My brewery's batch volume when it is set, in either direction;
    where it is blank, 10 bbl (310 gal) for Pro and the built-in recipe's
@@ -77,8 +84,9 @@ cached values are pinned by the golden-master tests.
    multiplies, by the engine, every amount by the batch ÷ the recipe's
    fermentation volume: each malt weight, each kettle and dry hop weight,
    the mash water, the pre-boil and sparge volumes, the boil-off rate, the
-   tank's treated volume and top-up level, and the brewer's own salt and
-   acid amounts; the fermentation volume becomes the batch. Percents,
+   tank's treated volume and top-up level, the brewer's own salt and
+   acid amounts, and the water back (its temperature stays); the
+   fermentation volume becomes the batch. Percents,
    times, temperatures, the efficiency, the attenuation and the yeast stay,
    so OG, FG, ABV, SRM and IBU stay; nothing is rounded. Nothing is asked
    when the recipe is already at the batch, or when its fermentation volume
@@ -157,9 +165,22 @@ cached values are pinned by the golden-master tests.
     the water the mash draws — the tank's treated water with the acid over
     the mash water — and the sparge, the tank's leftover and the kettle carry
     no acid; the printed sheet names the acid's place, Mash or HLT.
+    With water back on, the stats bar's OG, FG, ABV, SRM and IBU are those at
+    pitch: the engine's `computeWaterBack` spreads the knock-out's sugar (°P ×
+    SG × volume kept), malt colour units and unrounded IBU over the volume at
+    pitch, the fermentation volume plus the water back, each at 60 °F
+    (`volumeAtPitch`); FG and ABV are the grist's own steps on the OG at
+    pitch, SRM Morey's of the colour units at pitch. The Volumes card shows
+    the volume at pitch and the knock-out OG and IBU; cells needed (from the
+    °P and the volume at pitch), the dry-hop rate and the cost per gal read
+    the volume at pitch. No water figure counts it, the hot-liquor tank's
+    draws included; the Water tab and the printed sheet say so while it is
+    on. The printed sheet prints the water back, the volume at pitch, the
+    knock-out OG and the OG at pitch. With water back off every figure is as
+    without it.
     The Cost card renders from `computeCost(recipe)`: each line's cost, the
     total of the priced lines (counting the rest) and the cost per gal at the
-    fermentation volume at 60 °F, by the engine's `rollupCost` and
+    volume at pitch at 60 °F (the fermentation volume without water back), by the engine's `rollupCost` and
     `costPerUnit`, blank for a zero, negative or blank volume. With no line
     priced, the total and the cost per gal are blank ("—"), not $0.00. It is
     not on the printed sheet.
@@ -183,7 +204,8 @@ cached values are pinned by the golden-master tests.
     through it and reach the engine corrected to the engine's reference
     (`REFERENCE_TEMP_F`, 60 °F) by `correctVolumeToRef` at the measurement
     temperature of their kind (`measurementTempF[kind]`, °F, held in the
-    recipe state, the reference by default); mash water does not. Every
+    recipe state, the reference by default); so does the water back, while
+    it is on, at its own (`waterBack.tempF`); mash water does not. Every
     "at 60 °F" the app shows or prints, and the printed sheet's rule for
     when to note a measurement temperature, read `REFERENCE_TEMP_F` (in °C
     shown as its `fToC`, 15.6); no app file writes the figure itself. A temperature the engine cannot correct — cleared
@@ -197,7 +219,7 @@ cached values are pinned by the golden-master tests.
     only when the canonical state does, at the value that leaves every pinned
     number the same.
 13. Persisted state is the canonical state, under one key, in one JSON
-    document carrying a schema version (12). A version-1 document — saved
+    document carrying a schema version (13). A version-1 document — saved
     before the measurement temperatures existed — loads as the same recipe
     with the three at 60 °F; a version-1 or version-2 document — saved
     before the recipe had a name, style and notes — loads with those three
@@ -215,8 +237,10 @@ cached values are pinned by the golden-master tests.
     saved before Pro's volume and malt weight choices — loads in barrels and
     pounds; a version-1 to 10 document — saved before prices — loads with
     every price blank and no other cost lines; a version-1 to 11 document —
-    saved before the target mash pH — loads with the target 5.4; each is
-    saved back as version 12. Unreadable data,
+    saved before the target mash pH — loads with the target 5.4; a
+    version-1 to 12 document — saved before water back — loads with water
+    back off, its volume blank and its temperature at the reference; each is
+    saved back as version 13. Unreadable data,
     any other version, or unavailable storage yields a new recipe (rule 17) and never
     throws. A document is readable only if, after its upgrade, every malt,
     kettle-hop and dry-hop row and the yeast carry every field of the
@@ -224,7 +248,8 @@ cached values are pinned by the golden-master tests.
     number or blank — with ale/lager and the yeast character among the
     engine's pitch-rate choices, each malt's type blank or one the mash pH
     model knows, each other cost line a name and a cost (a number or blank), the
-    three measurement temperatures each a number or blank, and the water
+    three measurement temperatures each a number or blank, the water back on
+    or off with its volume and temperature each a number or blank, and the water
     entries carry every field,
     each of its kind — a number as a number or blank, a choice among the
     Water tab's, a salt, acid or style the engine knows; extra fields are

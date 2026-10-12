@@ -31,6 +31,7 @@ import {
 } from '../src/ingredient-search.js';
 import { recipeSheet } from '../src/components/recipe-sheet-data.js';
 import { withBlankPrices } from './blank-prices.js';
+import { withWaterBackOff } from './water-back.fixture.js';
 
 const names = (list) => list.map((i) => i.name);
 const strain = (name) => ingredients.yeasts.find((y) => y.name === name);
@@ -211,8 +212,8 @@ describe('yeast card', () => {
     savePersisted(s, state);
 
     const doc = JSON.parse(s._map.get(STORAGE_KEY));
-    expect(SCHEMA_VERSION).toBe(12);
-    expect(doc.version).toBe(12);
+    expect(SCHEMA_VERSION).toBe(13);
+    expect(doc.version).toBe(13);
     expect(doc.recipe.yeast).toEqual({ type: 'lager', density: 'high', name: 'Hausstamm Kölner ÄLE', fermTempF: 52.5, pricePerBatch: null });
     expect(loadPersisted(s, defaults())).toEqual(state);
     // The recipe file is the same document, and imports as the same recipe.
@@ -261,7 +262,8 @@ describe('yeast card', () => {
       // Water saved with the recipe (WS-S3): read with the built-in water.
       // Mash pH item 2 (MP-Q8): read with each malt's type blank.
       // Cost of a batch (EC-S3): read with every price blank.
-      const expected = withBlankPrices({ ...before5, water: defaultWaterState(), malts: untyped(before5.malts) });
+      // Water back (WB-S7): read with it off.
+      const expected = withWaterBackOff(withBlankPrices({ ...before5, water: defaultWaterState(), malts: untyped(before5.malts) }));
       const text = JSON.stringify({ version, recipe, mode: 'pro', proGravityUnit: 'sg' });
       const s = fakeStorage();
       s.setItem(STORAGE_KEY, text);
@@ -278,7 +280,7 @@ describe('yeast card', () => {
       expect(importRecipeFile(text, defaults(), () => true).state.recipe, `version ${version}`).toEqual(expected);
 
       savePersisted(s, loaded);
-      expect(JSON.parse(s._map.get(STORAGE_KEY)).version, `version ${version}`).toBe(12);
+      expect(JSON.parse(s._map.get(STORAGE_KEY)).version, `version ${version}`).toBe(13);
     }
   });
 

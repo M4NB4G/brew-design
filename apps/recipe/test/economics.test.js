@@ -46,6 +46,7 @@ const noNames = (html) => withoutAccessChanges(withoutBoxNames(html));
 // The weight and volume boxes show the sheet's precision since BA1 (S14).
 import { withBoxFiguresAsDrawn as asDrawn } from './box-figures.fixture.js';
 import { docWithTarget, sheetWithAimedAcid } from './acid-aim.js';
+import { withoutWaterBack, sheetWithoutWaterBack, documentWithoutWaterBack } from './water-back.fixture.js';
 
 // Since the engine follows Rev 4 (docs/items/engine-corrections.md, EC-Q7),
 // the printed sheet's figures it moves are re-pinned in the captured bytes:
@@ -215,11 +216,11 @@ describe('cost of a batch', () => {
 
   // EC-S3, K
   it('prices are saved and older documents read blank', () => {
-    expect(SCHEMA_VERSION).toBe(12);
+    expect(SCHEMA_VERSION).toBe(13);
     const r = priced();
     const s = memoryStorage();
     savePersisted(s, { recipe: r, ...DEFAULT_DISPLAY });
-    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(12);
+    expect(JSON.parse(s._map.get(STORAGE_KEY)).version).toBe(13);
     const back = loadPersisted(s, { recipe: defaultRecipeState(), ...DEFAULT_DISPLAY });
     expect(back.recipe).toEqual(r);
     // A blank price round-trips as blank.
@@ -291,15 +292,16 @@ describe('cost of a batch', () => {
     const r = priced();
     const sack = { proVolumeUnit: 'bbl', proMaltUnit: 'sack' };
     // The Recipe tab's other cards, with every price set, as before.
-    const home = f.recipeTabHtml(r, 'home');
-    const pro = f.recipeTabHtml(r, 'pro', sack);
+    // Since water back: compared without it, off (water-back.fixture.js, WB-S9).
+    const home = withoutWaterBack(f.recipeTabHtml(r, 'home'));
+    const pro = withoutWaterBack(f.recipeTabHtml(r, 'pro', sack));
     expect(noNames(home)).toEqual(noNames(asDrawn(BEFORE['recipe-tab-home'], home)));
     expect(noNames(pro)).toEqual(noNames(asDrawn(BEFORE['recipe-tab-pro'], pro)));
     // The printed sheet as before, with no cost on it.
-    const sheet = JSON.parse(JSON.stringify(f.sheetData(r, 'home')));
+    const sheet = sheetWithoutWaterBack(f.sheetData(r, 'home'));
     // Since the acid aimed at a mash pH: the acid's figures and the target (AA-S1, AA-S5).
     expect(sheet).toEqual(sheetWithAimedAcid(BEFORE['sheet-home'], sheet));
-    const proSheet = JSON.parse(JSON.stringify(f.sheetData(r, 'pro', sack)));
+    const proSheet = sheetWithoutWaterBack(f.sheetData(r, 'pro', sack));
     expect(proSheet).toEqual(sheetWithAimedAcid(BEFORE['sheet-pro'], proSheet));
     expect(JSON.stringify(sheet)).not.toContain('$');
     // Every recipe figure as before.
@@ -311,7 +313,7 @@ describe('cost of a batch', () => {
     // The saved document: as before, at version 11, with blank prices and no other lines;
     // since the acid aimed at a mash pH, version 12 with the target 5.4 (AA-Q4).
     const before = JSON.parse(BEFORE.document);
-    const after = JSON.parse(exportRecipeDocument({ recipe: plain, ...DEFAULT_DISPLAY }));
+    const after = documentWithoutWaterBack(JSON.parse(exportRecipeDocument({ recipe: plain, ...DEFAULT_DISPLAY })));
     expect(after).toEqual({
       ...before,
       version: 12,
