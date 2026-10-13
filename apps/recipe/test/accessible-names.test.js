@@ -116,14 +116,17 @@ async function nameless() {
 const boxes = () => [...host.querySelectorAll('input, select, textarea')].filter((el) => el.type !== 'file');
 
 describe('every box has an accessible name (GR3-S1, GR3-S3)', () => {
-  it('the Recipe tab, Home, on a screen and on a phone', async () => {
+  // On a screen and on a phone, one test each: each draws the whole app,
+  // and the two together took most of a test's time limit.
+  it('the Recipe tab, Home, on a screen', async () => {
     mount();
     expect(boxes().length).toBeGreaterThan(40);
     expect(await nameless()).toEqual([]);
     click(button('Design to target OG'));
     expect(await nameless()).toEqual([]);
-    act(() => root.unmount());
-    host.remove();
+  });
+
+  it('the Recipe tab, Home, on a phone', async () => {
     mount({ phone: true });
     expect(await nameless()).toEqual([]);
     click(button('Design to target OG'));
