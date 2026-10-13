@@ -222,7 +222,15 @@ cached values are pinned by the golden-master tests.
     temperatures, within the gravity conversions' mismatch; it changes
     nothing, and says why, when the percents' total, shown to one decimal, is
     not 100.0, a figure it needs is blank, or the pre- or post-boil
-    measurement temperature cannot be used. The mash water
+    measurement temperature cannot be used. With water back on, the target is
+    the OG at pitch and the card says so ("Target OG at pitch"): the engine's
+    `knockOutPlato` works it back to the OG from the kettle by the figures at
+    pitch's sugar balance (°P × SG × volume kept), over the wort from kettle
+    and the water back each at 60 °F as the stats read them, and the bill is
+    solved for that; after Solve the stats bar's OG and the predicted OG the
+    card shows are the target, within the same mismatch; a blank or
+    uncorrectable wort from kettle or water back refuses Solve and is named.
+    The mash water
     is not touched. The target and the percents are never saved; "Undo solve"
     restores the weights until the next edit.
 11. `toReferenceVolume(measuredGal, kind, measurementTempF)` is the

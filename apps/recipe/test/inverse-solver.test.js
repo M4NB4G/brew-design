@@ -80,6 +80,8 @@ async function panelHtml(r, { mode = 'home', proGravityUnit = 'plato', solved = 
     createElement(TargetOgSolver, {
       malts: r.malts,
       grist: d.grist,
+      // The stats bar's OG, as the page passes it (S15c item 2, TO-S2).
+      predictedOG: d.stats.OG,
       mode,
       proGravityUnit,
       solved,

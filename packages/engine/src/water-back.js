@@ -77,3 +77,18 @@ export function computeWaterBack(input) {
     totalIBU: Math.round(pitchIbu),
   };
 }
+
+/**
+ * The °P from the kettle for a °P at pitch (docs/items/target-og-with-water-
+ * back.md, TO-S1): the figures at pitch's sugar balance read the other way.
+ * The sugar at pitch, °P x SG x volume at pitch, is the sugar from the kettle,
+ * so °P x SG from the kettle is it over the wort from kettle's volume, and the
+ * °P is found as computeWaterBack finds the °P at pitch. Volumes at 60 F; a
+ * blank one blanks the figure.
+ *
+ * input = { plato, knockOutGal, waterBackGal } -> °P from the kettle
+ */
+export function knockOutPlato({ plato, knockOutGal, waterBackGal }) {
+  const pitchGal = volumeAtPitch(knockOutGal, waterBackGal);
+  return platoHolding((plato * platoToSg(plato) * pitchGal) / knockOutGal);
+}

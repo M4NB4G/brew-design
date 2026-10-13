@@ -45,7 +45,7 @@ export { solveGrist } from './solver.js';
 
 export { scaleRecipe } from './scale.js';
 
-export { computeWaterBack, volumeAtPitch } from './water-back.js';
+export { computeWaterBack, volumeAtPitch, knockOutPlato } from './water-back.js';
 
 export { rollupCost, costPerUnit } from './economics.js';
 

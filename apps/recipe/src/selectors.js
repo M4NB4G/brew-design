@@ -48,6 +48,9 @@ import {
   solveGrist,
   rollupCost,
   costPerUnit,
+  knockOutPlato,
+  sgToPlato,
+  platoToSg,
 } from '@brew/engine';
 import { toReferenceVolume } from './reference-volume.js';
 import { fractionToPercent } from './display.js';
@@ -101,6 +104,12 @@ export function percentTotal(shares) {
 // post-boil volume then corrected at its own measurement temperature and the
 // pre-boil volume at its own; a temperature the correction cannot use
 // refuses Solve and is named (SH-S4).
+// With water back on (docs/items/target-og-with-water-back.md, TO-S1 to
+// TO-S3), the target is the OG at pitch: the engine works it back to the OG
+// from the kettle by the figures at pitch's sugar balance, over the same
+// corrected volumes computeRecipe reads, and the bill is solved for that. A
+// blank or uncorrectable wort from kettle or water back refuses Solve and is
+// named.
 export function solveTargetOG(recipe, targetOG, shares) {
   const preBoilRefGal = toReferenceVolume(recipe.preBoilVolGal, 'preBoil', recipe.measurementTempF);
   const postBoilRawGal = computePostBoilVol(recipe.preBoilVolGal, recipe.boilOffRateGalPerHr, recipe.boilTimeMin);
@@ -120,6 +129,13 @@ export function solveTargetOG(recipe, targetOG, shares) {
   if (!entered(recipe.boilOffRateGalPerHr)) blank.push({ field: 'boilOffRateGalPerHr' });
   if (!entered(recipe.boilTimeMin)) blank.push({ field: 'boilTimeMin' });
   if (entered(postBoilRawGal) && !entered(postBoilRefGal)) blank.push({ field: 'postBoilTemp' });
+  const pitch = pitchVolumes(recipe);
+  if (pitch.on) {
+    if (!entered(recipe.fermentVolGal)) blank.push({ field: 'fermentVolGal' });
+    else if (!entered(pitch.fermentRefGal)) blank.push({ field: 'fermentTemp' });
+    if (!entered(recipe.waterBack.volumeGal)) blank.push({ field: 'waterBackGal' });
+    else if (!entered(pitch.waterBackRefGal)) blank.push({ field: 'waterBackTemp' });
+  }
 
   // The boxes total 100 when their total, shown to one decimal, reads 100.0
   // (IS-Q7); blank while a box is.
@@ -127,9 +143,16 @@ export function solveTargetOG(recipe, targetOG, shares) {
   const totalOff = num(totalPercent, 1) !== num(100, 1);
   if (blank.length > 0 || totalOff) return { ok: false, totalPercent, totalOff, blank };
 
+  // The OG from the kettle the target asks for (TO-S1): the target itself
+  // without water back.
+  const knockOutOG = pitch.on
+    ? platoToSg(
+        knockOutPlato({ plato: sgToPlato(targetOG), knockOutGal: pitch.fermentRefGal, waterBackGal: pitch.waterBackRefGal }),
+      )
+    : targetOG;
   const { weights } = solveGrist({
     malts: recipe.malts.map((m, i) => ({ fgdb: m.fgdb, percent: shares[i] })),
-    targetOG,
+    targetOG: knockOutOG,
     efficiency: recipe.efficiency,
     preBoilVolGal: preBoilRefGal,
     boilOffRateGalPerHr: recipe.boilOffRateGalPerHr,

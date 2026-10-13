@@ -449,6 +449,8 @@ export default function App() {
               malts={recipe.malts}
               efficiency={recipe.efficiency}
               grist={derived.grist}
+              predictedOG={derived.stats.OG}
+              waterBackOn={recipe.waterBack.on}
               setRow={setRow}
               addRow={addRow}
               removeRow={removeRow}

@@ -1,8 +1,10 @@
 # Design to target OG with water back on, Tier A + B
 
-Status: agreed 2026-10-13 ("agree to all", TO-Q1, TO-Q2, M); not started.
-Written by the S15b session; built in batch S15c, item 2, after item 1
-(docs/ROADMAP.md, Sessions).
+Status: agreed 2026-10-13 ("agree to all", TO-Q1, TO-Q2, M); landed
+2026-10-13 as "With water back on, Design to target OG takes the OG at
+pitch, works it back to the OG from the kettle and solves the grain bill for
+that". Written by the S15b session; built in batch S15c, item 2, after
+item 1 (docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -46,3 +48,35 @@ nothing changes*.
   way, so no new constant.
 - `selectors.js` `solveTargetOG`; `components/TargetOgSolver.jsx` for the
   label; the solved OG it shows after Solve should be the one at pitch.
+
+## Builder's notes (S15c, 2026-10-13)
+
+Choices the sentences did not make, each a claim for the inspector:
+
+- **The engine's step takes °P.** `knockOutPlato({ plato, knockOutGal,
+  waterBackGal })` (`water-back.js`) is the forward balance read the other
+  way: °P × SG (SG by `platoToSg`) × the volume at pitch over the wort from
+  kettle's volume, then the same halving search the forward step uses. The
+  selector turns the target SG into °P by the engine's `sgToPlato` and the
+  °P from the kettle back by `platoToSg`, so the target passes through one
+  more pair of the two conversions the solver already carries; the stats
+  bar lands on the target to 1e-4 (the scenario's tolerance), as Solve did
+  without water back. No new constant.
+- **The volumes** are the ones `computeRecipe` reads (`pitchVolumes`): the
+  wort from kettle at the fermentation volume's measurement temperature and
+  the water back at its own (K, ordering).
+- **What is named.** TO-S3 names the water back and its temperature; the
+  balance also reads the wort from kettle, so a blank wort from kettle
+  ("the wort from kettle") or one the correction cannot use is named the
+  same way. The temperature lines follow the pre- and post-boil ones ("…
+  cannot be corrected at its measurement temperature."), a blank and an
+  out-of-range temperature alike, as SH-S4 did.
+- **The predicted OG** after Solve is the stats bar's (at pitch with water
+  back on, the same figure as before without it); the page passes it to the
+  card. The inverse-solver scenarios draw the card alone, so their helper now
+  passes the stats bar's OG too; nothing they assert changed.
+- **Solve changes only the malt weights.** With water back on the hops are
+  untouched, so the IBU at pitch moves with the gravity (the built-in recipe
+  at 1.056 at pitch: 40 → 37), as it does without water back.
+- **Recorded failure.** Engine 3 of 3. App 3 of 4; TO-S4 (off, as today)
+  passed before, a guard.

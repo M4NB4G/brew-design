@@ -8,7 +8,9 @@
 // the target with one line on why they differ slightly, and "Undo solve"
 // (IS-S5, IS-S6). The target and the boxes are this card's alone: never saved.
 // Computes nothing: the shares and the predicted OG come from the engine
-// through computeRecipe, the boxes' total from the selector.
+// through computeRecipe, the boxes' total from the selector. With water back
+// on (docs/items/target-og-with-water-back.md, TO-S1, TO-S2) the target is the
+// OG at pitch, and the card says so; the predicted OG is the stats bar's.
 import { useState } from 'react';
 import NumberField from './NumberField.jsx';
 import InputRow from './shared/InputRow.jsx';
@@ -34,6 +36,16 @@ const BLANK_NAMES = {
   preBoilVolGal: () => 'the pre-boil volume',
   boilOffRateGalPerHr: () => 'the boil-off rate',
   boilTimeMin: () => 'the boil time',
+  fermentVolGal: () => 'the wort from kettle',
+  waterBackGal: () => 'the water back',
+};
+
+// A volume whose measurement temperature the correction cannot use (SH-S4, TO-S3).
+const TEMP_NAMES = {
+  preBoilTemp: 'The pre-boil volume',
+  postBoilTemp: 'The post-boil volume',
+  fermentTemp: 'The wort from kettle',
+  waterBackTemp: 'The water back',
 };
 
 // Why Solve changed nothing, as the card says it: the total when the boxes
@@ -46,11 +58,8 @@ export function solveRefusalText(result) {
     parts.push(`The percents total ${num(result.totalPercent, 1)} ${percentUnit()}, not 100 ${percentUnit()}.`);
   }
   if (named.length > 0) parts.push(`Blank: ${named.map((b) => BLANK_NAMES[b.field](b)).join(', ')}.`);
-  if (blanks.some((b) => b.field === 'preBoilTemp')) {
-    parts.push('The pre-boil volume cannot be corrected at its measurement temperature.');
-  }
-  if (blanks.some((b) => b.field === 'postBoilTemp')) {
-    parts.push('The post-boil volume cannot be corrected at its measurement temperature.');
+  for (const [field, volume] of Object.entries(TEMP_NAMES)) {
+    if (blanks.some((b) => b.field === field)) parts.push(`${volume} cannot be corrected at its measurement temperature.`);
   }
   if (result.unusable && parts.length === 0) parts.push('These figures give no usable weights.');
   parts.push('Nothing changed.');
@@ -78,7 +87,7 @@ const rowStyle = {
 };
 const lineStyle = { fontSize: '0.88rem', color: colors.textPrimary, margin: '0.5rem 0 0' };
 
-export default function TargetOgSolver({ malts, grist, mode, proGravityUnit, solved, onSolve, onUndoSolve, defaultOpen = false }) {
+export default function TargetOgSolver({ malts, grist, predictedOG, waterBackOn, mode, proGravityUnit, solved, onSolve, onUndoSolve, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
   const [target, setTarget] = useState(''); // the box's text, in the screen's gravity unit, as typed
   // Each % box the brewer typed in, by row; a box not typed in holds the
@@ -109,7 +118,7 @@ export default function TargetOgSolver({ malts, grist, mode, proGravityUnit, sol
   // The prediction, in the unit the target was typed in.
   const solvedUnit = solved?.unit ?? unit;
   const predicted = solved
-    ? num(gravityFromCanonical(grist.OG, solvedUnit), solvedUnit === 'plato' ? 3 : 4)
+    ? num(gravityFromCanonical(predictedOG, solvedUnit), solvedUnit === 'plato' ? 3 : 4)
     : null;
   const solvedLabel = solvedUnit === 'plato' ? ` ${gravityUnitLabel(solvedUnit)}` : '';
 
@@ -130,7 +139,7 @@ export default function TargetOgSolver({ malts, grist, mode, proGravityUnit, sol
       {open && (
         <div style={{ marginTop: '0.5rem' }}>
           <InputRow
-            label="Target OG"
+            label={waterBackOn ? 'Target OG at pitch' : 'Target OG'}
             unit={gravityUnitLabel(unit)}
             value={target}
             onChange={(e) => {

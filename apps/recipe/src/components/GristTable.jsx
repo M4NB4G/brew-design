@@ -66,6 +66,8 @@ export default function GristTable({
   malts,
   efficiency,
   grist,
+  predictedOG,
+  waterBackOn,
   setRow,
   addRow,
   removeRow,
@@ -283,6 +285,8 @@ export default function GristTable({
       <TargetOgSolver
         malts={malts}
         grist={grist}
+        predictedOG={predictedOG}
+        waterBackOn={waterBackOn}
         mode={mode}
         proGravityUnit={proGravityUnit}
         solved={solved}
