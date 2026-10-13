@@ -51,7 +51,9 @@ import {
   KETTLE_ASSUMPTION,
   KETTLE_BIAS_NOTE,
   KETTLE_HELD_NOTE,
-  WATER_BACK_NOTE,
+  WATER_BACK_NOTES,
+  WATER_BACK_LABEL,
+  waterBackCarries,
 } from './water/WaterGoesCard.jsx';
 
 const YEAST_TYPE = { ale: 'Ale', lager: 'Lager' };
@@ -303,6 +305,10 @@ function waterSection(water, mode, vol, vUnit) {
     { label: 'Water left in the mash tun', value: vol(v.mashTunLeftGal) },
     { label: 'Total water', value: vol(v.totalGal) },
   ];
+  // The water back as typed (WD-S4): beside the total with the mash water
+  // treated, among the HLT's draws with the tank treated.
+  const waterBackRow = water.waterBack ? [{ label: WATER_BACK_LABEL, value: vol(water.waterBack.volumeGal) }] : [];
+  if (!tank) volumes.push(...waterBackRow);
   if (tank) {
     const share = water.tank.treatedShare;
     volumes.push(
@@ -312,6 +318,7 @@ function waterSection(water, mode, vol, vUnit) {
         label: 'Treated share of the sparge liquor',
         value: Number.isFinite(share) ? `${num(fractionToPercent(share), 0)} %` : '—',
       },
+      ...waterBackRow,
       { label: 'Left in the HLT, not used', value: vol(water.tank.leftGal) },
     );
   }
@@ -352,8 +359,13 @@ function waterSection(water, mode, vol, vUnit) {
     mashPhNote: testedRangeNote(water.mashPh.testedRange),
     // HL-S2: the acronym spelled out on the sheet, with the HLT treated.
     hltNote: tank ? 'HLT = Hot Liquor Tank' : null,
-    // WB-S5: water back is not in these figures.
-    waterBackNote: water.waterBack ? WATER_BACK_NOTE : null,
+    // WD-S4: what the water back carries, and what it is in.
+    waterBackNote: water.waterBack
+      ? [
+          ...(water.waterBack.fromTank ? [`Water back carries ${waterBackCarries(water, mode).join(', ') || 'nothing'}.`] : []),
+          WATER_BACK_NOTES[water.waterBack.fromTank ? 'tank' : 'mash'],
+        ].join(' ')
+      : null,
     kettle: kettleSection(water),
   };
 }

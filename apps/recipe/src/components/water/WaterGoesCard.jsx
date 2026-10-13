@@ -5,7 +5,9 @@
 // absorption, and the sparge water (typed; S4b) — the treatment choice and the
 // kettle switch, then the water volumes from the recipe (the water left in
 // the mash tun worked out) and, for the tank,
-// what the mash draws, what the sparge carries and what is left, not used.
+// what the mash draws, what the sparge carries, what the water back carries
+// (docs/items/water-back-from-the-hlt.md, WD-S1, WD-S4) and what is left, not
+// used; with the mash water treated, the water back as untreated water.
 // Every figure comes from computeWater as `figures`; the entries change only
 // through water-state.js's setWaterSetup. Nothing here is computed.
 import Card from '../shared/Card.jsx';
@@ -19,6 +21,10 @@ import {
   saltUnit,
   mashRvUnit,
   fractionToPercent,
+  liquidAcidUnit,
+  liquidAcidDigits,
+  acidMaltUnit,
+  acidMaltFromCanonical,
 } from '../../display.js';
 import { num } from '../../format.js';
 import { setWaterSetup } from '../../water-state.js';
@@ -41,10 +47,31 @@ export const KETTLE_BIAS_NOTE =
 // KS1 (docs/items/kettle-share-limits.md, KS-S2): a share held at its limit.
 export const KETTLE_HELD_NOTE =
   "A share was held at its limit: the brewhouse efficiency does not fit these volumes (it also counts the mash's conversion), so the kettle salts are an estimate.";
-// Water back (docs/items/water-back.md, WB-S5): the Water tab and the printed
-// sheet say, while it is on, that no water figure counts it.
-export const WATER_BACK_NOTE =
-  'Water back is not in the water figures: no water volume, salt, acid or predicted figure counts it.';
+// Water back (docs/items/water-back-from-the-hlt.md, WD-S4, in place of
+// WB-S5's note that no water figure counts it): the Water tab and the printed
+// sheet say, while it is on, what it is in, by where the water is treated.
+export const WATER_BACK_NOTES = {
+  tank: "Water back is drawn from the HLT after the sparge and carries its share of the HLT's salts (and of the acid when it goes with the salts); no mineral figure for the beer is worked out.",
+  mash: 'Water back is untreated source water and carries no salts; no mineral figure for the beer is worked out.',
+};
+export const WATER_BACK_LABEL = 'Water back, to the fermenter';
+
+// What the water back carries, one "name amount unit" per salt and acid
+// (WD-S4), in the screen's units and precision, as computeWater gives it.
+export function waterBackCarries(figures, mode) {
+  const wb = figures.waterBack;
+  if (!wb) return [];
+  const saltName = (k) => figures.salts.concat(figures.raiseSalt).find((r) => r.key === k)?.name ?? k;
+  const acidRow = (k) => figures.acid.rows.find((r) => r.key === k);
+  return [
+    ...Object.entries(wb.salts).map(([k, g]) => `${saltName(k)} ${num(g, mode === 'pro' ? 0 : 1)} ${saltUnit(mode)}`),
+    ...Object.entries(wb.acids).map(([k, a]) =>
+      acidRow(k)?.solid
+        ? `${acidRow(k).name} ${num(acidMaltFromCanonical(a, mode), 2)} ${acidMaltUnit(mode)}`
+        : `${acidRow(k)?.name ?? k} ${num(a, liquidAcidDigits(mode))} ${liquidAcidUnit(mode)}`,
+    ),
+  ];
+}
 export const TREATMENT_LABELS = { mash: 'The mash water', tank: 'The Hot Liquor Tank (HLT) first fill' };
 // Where the acid goes, with the tank treated (S5b item C, AM-S1).
 export const ACID_PLACE_LABELS = { salts: 'With the salts (HLT)', mash: 'Into the mash' };
@@ -59,6 +86,7 @@ export const SETUP_LABELS = {
   spargeGal: 'Sparge water',
   tankTreatedGal: 'Treated volume',
   tankTopUpGal: 'Top-up level',
+  waterBackGal: 'Water back',
 };
 
 // A canonical-gal figure in the screen's volume unit (Home gal; Pro bbl, or
@@ -220,6 +248,9 @@ export default function WaterGoesCard({ water, figures, mode, proVolumeUnit, set
       <ReadRow label="Water absorbed by the grain" unit={unit} value={v(volumes.absorptionGal)} />
       <ReadRow label="Water left in the mash tun" unit={unit} value={v(volumes.mashTunLeftGal)} />
       <ReadRow label="Total water" unit={unit} value={v(volumes.totalGal)} />
+      {figures.waterBack && !tank && (
+        <ReadRow label={WATER_BACK_LABEL} unit={unit} value={v(figures.waterBack.volumeGal)} note="untreated, no salts" />
+      )}
 
       {warnings.kettleShortGal > 0 && (
         <Warning>
@@ -236,7 +267,29 @@ export default function WaterGoesCard({ water, figures, mode, proVolumeUnit, set
           />
           {draw('Into the mash', volumes.mashWaterGal, tank.mashSalts)}
           {draw('Carried by the sparge', volumes.spargeGal, tank.spargeSalts)}
+          {figures.waterBack && (
+            <div style={drawRowStyle}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem' }}>
+                <span style={readLabelStyle}>{WATER_BACK_LABEL}</span>
+                <span style={readValueStyle}>
+                  {v(figures.waterBack.volumeGal)} {unit}
+                </span>
+              </div>
+              {waterBackCarries(figures, mode).map((line) => (
+                <div key={line} style={drawSaltStyle}>
+                  {line}
+                </div>
+              ))}
+            </div>
+          )}
           {draw('Left in the HLT, not used', tank.leftGal, tank.leftSalts)}
+          {warnings.waterBackOverTank && (
+            <Warning>
+              The water back ({v(figures.waterBack.volumeGal)} {unit}) is more than the HLT holds after the sparge (
+              {v(tank.toWaterBackGal)} {unit}): the other {v(tank.waterBackUntreatedGal)} {unit} is untreated water and
+              carries no salts
+            </Warning>
+          )}
           {warnings.mashOverTreated && (
             <Warning>
               The mash water ({v(volumes.mashWaterGal)} {unit}) is more than the HLT's treated volume (

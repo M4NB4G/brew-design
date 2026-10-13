@@ -388,6 +388,12 @@ export function computeWater(water, recipe) {
         ]
       : []),
   ];
+  // Water back drawn from the HLT (docs/items/water-back-from-the-hlt.md,
+  // WD-S1): its volume as typed; while it is on with the tank treated, the
+  // tank's draws need it.
+  const waterBackOn = recipe.waterBack?.on === true;
+  const waterBackGal = waterBackOn ? recipe.waterBack.volumeGal : 0;
+  if (waterBackOn && tankTreated) needed.push(['waterBackGal', waterBackGal]);
   const blank = needed.filter(([, v]) => !entered(v)).map(([k]) => k);
 
   const overrides = water.saltOverrides;
@@ -615,6 +621,7 @@ export function computeWater(water, recipe) {
       topUpGal: water.tankTopUpGal,
       mashWaterGal,
       spargeGal: sums.spargeGal,
+      waterBackGal,
     });
     tank = {
       ...draws,
@@ -622,6 +629,23 @@ export function computeWater(water, recipe) {
       mashSalts: shareOfSalts(added, draws.toMash),
       spargeSalts: shareOfSalts(added, draws.toSparge),
       leftSalts: shareOfSalts(added, draws.left),
+    };
+  }
+
+  // What the water back carries (WD-S1, WD-S3): from the treated tank, its
+  // share of the tank's salts, and of the acid when the acid goes with the
+  // salts; with the mash water treated, it is untreated source water and
+  // carries nothing. No mineral figure for the beer is worked out (WD-Q5).
+  // Null with water back off.
+  let waterBack = null;
+  if (waterBackOn) {
+    const acidInTank = tank && !acidInMash && acidKnown;
+    const acidsIn = acidInTank ? Object.fromEntries(Object.entries(amounts).filter(([, a]) => a > 0)) : {};
+    waterBack = {
+      volumeGal: recipe.waterBack.volumeGal,
+      fromTank: !!tank,
+      salts: tank ? shareOfSalts(added, tank.toWaterBack) : {},
+      acids: tank ? shareOfSalts(acidsIn, tank.toWaterBack) : {},
     };
   }
 
@@ -712,12 +736,12 @@ export function computeWater(water, recipe) {
     mashPh: mashPhFigures,
     tank,
     kettle,
-    // Water back is not in the water figures (WB-S5): the tab and the sheet
-    // say so while it is on; no figure here reads it.
-    waterBack: recipe.waterBack?.on === true,
+    // Water back (WD-S1 to WD-S4): what it carries, or null while it is off.
+    waterBack,
     warnings: {
       mashOverTreated: tank?.mashOverTreated ?? false,
       spargeOverTank: tank?.spargeOverTank ?? false,
+      waterBackOverTank: tank?.waterBackOverTank ?? false,
       topUpBelowTreated: tank?.topUpBelowTreated ?? false,
       kettleShortGal: sums.kettleShortGal,
     },

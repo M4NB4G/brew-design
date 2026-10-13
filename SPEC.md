@@ -147,7 +147,8 @@ cached values are pinned by the golden-master tests.
     water is added; mash water more than the treated volume takes all of it
     and every salt, the sparge liquor's treated share 0 (warned); each share
     of the tank's salts is held between 0 and 1, and the shares add to 1.
-    The water left in the tank after the sparge is never below 0, and the
+    The water left in the tank after the sparge (and the water back, while
+    it is on) is never below 0, and the
     warning that the sparge is more than the tank holds compares it with
     the water the tank holds: the top-up level, or the treated water the
     mash leaves when that is more.
@@ -198,9 +199,17 @@ cached values are pinned by the golden-master tests.
     schedule's say "from kettle"; the warning of less wort after the boil
     compares the post-boil volume with the wort from kettle. Cells needed
     (from the °P and the volume at pitch), the dry-hop rate and the cost per
-    gal read the fermentation volume at 60 °F. No water figure counts it, the hot-liquor tank's
-    draws included; the Water tab and the printed sheet say so while it is
-    on. The printed sheet prints the wort from kettle, the water back and the
+    gal read the fermentation volume at 60 °F. With the hot-liquor tank
+    treated, the water back is drawn from the tank after the sparge, as
+    typed: it carries its share of the tank's salts, and of the acid when the
+    acid goes with the salts, the shares of the mash, the sparge, the water
+    back and what is left adding to 1; a water back more than the sparge
+    leaves draws all of it, the water left is 0, and a warning says the rest
+    is untreated water carrying no salts. With the mash water treated it is
+    untreated source water and carries none. The Water tab and the printed
+    sheet list, on its own row ("Water back, to the fermenter"), what it
+    carries, and say what it is in; "Total water" stays the mash and sparge
+    water. No mineral figure for the beer counts it. The printed sheet prints the wort from kettle, the water back and the
     fermentation volume, its batch volume the fermentation volume, and the
     OG from kettle and the OG at pitch. With water back off every figure is as
     without it.

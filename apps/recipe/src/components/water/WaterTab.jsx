@@ -13,7 +13,7 @@ import { colors, tokens } from '../shared/styles.js';
 import WaterInScreen, { REPORT_LABELS } from './WaterInScreen.jsx';
 import StyleScreen from './StyleScreen.jsx';
 import SaltsAcidScreen from './SaltsAcidScreen.jsx';
-import { SETUP_LABELS, WATER_BACK_NOTE } from './WaterGoesCard.jsx';
+import { SETUP_LABELS, WATER_BACK_NOTES } from './WaterGoesCard.jsx';
 import NotesScreen from './NotesScreen.jsx';
 import { mashPhNeedLabel } from './mash-ph-needs.js';
 
@@ -91,7 +91,9 @@ export default function WaterTab({ water, figures, mode, proVolumeUnit, screen, 
         </p>
       )}
 
-      {figures.waterBack && <p style={{ ...tokens.notice, margin: '0 0 0.9rem' }}>{WATER_BACK_NOTE}</p>}
+      {figures.waterBack && (
+        <p style={{ ...tokens.notice, margin: '0 0 0.9rem' }}>{WATER_BACK_NOTES[figures.waterBack.fromTank ? 'tank' : 'mash']}</p>
+      )}
 
       {screen === 'water' && <WaterInScreen source={water.source} figures={figures} setWater={setWater} />}
       {screen === 'style' && <StyleScreen styleId={water.styleId} figures={figures} setWater={setWater} />}

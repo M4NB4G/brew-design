@@ -204,17 +204,19 @@ describe('water back (S15b)', () => {
     expect(computeCost(priced(defaultRecipeState())).perGal).toBeCloseTo(17 / 5.5, 12);
   });
 
-  it('WB-S5: no mineral figure changes; the Water tab and the sheet say water back is not in the water figures', () => {
+  it('WB-S5: no mineral figure changes; the Water tab and the sheet say what water back is in', () => {
+    // Since S15c item 3 (docs/items/water-back-from-the-hlt.md, WD-S1, WD-S4)
+    // the HLT's draws count the water back and the note says what it is in;
+    // still no mineral figure counts it.
     const off = withWater(defaultRecipeState());
     const on = withWaterBack({}, off);
     const figuresOff = computeWater(off.water, off);
     const figuresOn = computeWater(on.water, on);
-    // Every water figure, the HLT's draws included, as without water back.
-    const { waterBack, ...rest } = figuresOn;
-    expect(waterBack).toBe(true);
-    const { waterBack: offFlag, ...restOff } = figuresOff;
-    expect(offFlag).toBe(false);
-    expect(rest).toEqual(restOff);
+    expect(figuresOff.waterBack).toBeNull();
+    expect(figuresOn.waterBack).not.toBeNull();
+    for (const k of ['recommendation', 'salts', 'raiseSalt', 'acid', 'final', 'mashPh', 'kettle', 'volumes']) {
+      expect(figuresOn[k], k).toEqual(figuresOff[k]);
+    }
 
     const tab = (r, figures) =>
       flat(
@@ -222,9 +224,9 @@ describe('water back (S15b)', () => {
           createElement(WaterTab, { water: r.water, figures, mode: 'home', screen: 'water', onScreen: () => {}, setWater: () => {} }),
         ),
       );
-    const NOTE = 'Water back is not in the water figures';
+    const NOTE = 'Water back is drawn from the HLT after the sparge';
     expect(tab(on, figuresOn)).toContain(NOTE);
-    expect(tab(off, figuresOff)).not.toContain(NOTE);
+    expect(tab(off, figuresOff)).not.toContain('Water back');
     const sheetOn = recipeSheet({ recipe: on, derived: computeRecipe(on), water: figuresOn, mode: 'home', proGravityUnit: 'plato', today: TODAY });
     expect(sheetOn.water.waterBackNote).toContain(NOTE);
     const sheetOff = recipeSheet({ recipe: off, derived: computeRecipe(off), water: figuresOff, mode: 'home', proGravityUnit: 'plato', today: TODAY });
