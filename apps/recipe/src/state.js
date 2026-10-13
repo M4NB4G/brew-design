@@ -11,7 +11,7 @@ import { REFERENCE_TEMP_F } from '@brew/engine';
 import { defaultWaterState, TEST_RESULT_KEYS, TREATMENTS, SPARGE_METHODS, VESSEL_COUNTS } from './water-state.js';
 import { TEMPERATURE_UNITS, PRO_VOLUME_UNITS, PRO_MALT_UNITS, volumeToCanonical, volumeFromCanonical, volumeUnit } from './display.js';
 import { roundForInput } from './format.js';
-import { scaleRecipeTo } from './selectors.js';
+import { scaleRecipeTo, fermentationVolume } from './selectors.js';
 
 export function defaultRecipeState() {
   return {
@@ -198,6 +198,9 @@ const figure = (v) => (Number.isFinite(v) ? v : null);
 export function breweryFiguresFromRecipe(recipe, mode, proGravityUnit, temperatureUnit, proVolumeUnit, proMaltUnit) {
   const out = emptyBreweryFigures();
   for (const k of BREWERY_NUMBERS) out[k] = figure(recipe[k]);
+  // The batch is what is in the fermenter: with water back on, the wort from
+  // kettle plus the water back (WF-S5).
+  out.fermentVolGal = figure(fermentationVolume(recipe));
   for (const k of MEASUREMENT_KINDS) out.measurementTempF[k] = figure(recipe.measurementTempF?.[k]);
   out.mode = MODES.includes(mode) ? mode : null;
   out.proGravityUnit = GRAVITY_UNITS.includes(proGravityUnit) ? proGravityUnit : null;
@@ -288,7 +291,9 @@ function batchGalFor(mode, brewery) {
 export function switchMode({ recipe, mode, proVolumeUnit }, next, brewery, ask) {
   if (next === mode) return { recipe, mode };
   const batchGal = batchGalFor(next, brewery);
-  const from = recipe.fermentVolGal;
+  // The fermentation volume, with water back on the wort from kettle plus the
+  // water back (WF-S5).
+  const from = fermentationVolume(recipe);
   const scalable = from > 0 && batchGal > 0 && Number.isFinite(from) && Number.isFinite(batchGal);
   if (!scalable || from === batchGal) return { recipe, mode: next };
   const side = next === 'pro' ? 'Pro' : 'Home';

@@ -67,6 +67,15 @@ function pitchVolumes(recipe) {
   return { on: true, fermentRefGal, waterBackRefGal, pitchGal: volumeAtPitch(fermentRefGal, waterBackRefGal) };
 }
 
+// The fermentation volume as typed (docs/items/water-back-in-fermentation-
+// volume.md, WF-S2, WF-S5): with water back on, the wort from kettle (the
+// recipe's fermentVolGal) plus the water back, by the engine; without it, the
+// fermentation volume box. Blank while either is.
+export function fermentationVolume(recipe) {
+  const wb = recipe.waterBack;
+  return wb?.on ? volumeAtPitch(recipe.fermentVolGal, wb.volumeGal) : recipe.fermentVolGal;
+}
+
 // Scale the recipe when switching Home and Pro (docs/items/pro-recipe-default.md):
 // the recipe with every amount multiplied by the batch over its fermentation
 // volume, by the engine (PD-S4).
@@ -259,9 +268,11 @@ export function computeRecipe(state) {
       ferment: fermentRefGal,
       ...(pitch.on && { waterBack: pitch.waterBackRefGal }),
     },
-    // The volume at pitch at 60 degF (the fermentation volume without water
-    // back), the figures the stats bar shows, and with water back on the
-    // knock-out OG and IBU (null without it).
+    // The fermentation volume as typed (with water back on, the wort from
+    // kettle plus the water back, WF-S2) and at 60 degF (the two corrected
+    // volumes added, WF-S3), the figures the stats bar shows, and with water
+    // back on the OG and IBU of the wort from kettle (null without it).
+    fermentGal: fermentationVolume(state),
     pitchGal,
     stats,
     knockOut: atPitch ? { OG: grist.OG, IBU: hops.totalIBU } : null,
@@ -272,8 +283,9 @@ export function computeRecipe(state) {
     starter,
     // Design warnings (true = warn), shown on the Volumes card; they change no
     // number. The mash ratios against the engine's recommended ranges; the
-    // post-boil volume against the fermentation volume, both at the 60 degF
-    // reference. A blank (NaN) volume compares false: no warning.
+    // post-boil volume against the fermentation volume (with water back on,
+    // the wort from kettle, WF-S6), both at the 60 degF reference. A blank
+    // (NaN) volume compares false: no warning.
     warnings: {
       ...mashRatioWarnings(grist),
       postBoilBelowFerment: postBoilRefGal < fermentRefGal,

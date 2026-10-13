@@ -106,13 +106,14 @@ export function recipeSheet({
   const hopWt = (oz) => num(hopWeightFromCanonical(oz, mode), mode === 'pro' ? 3 : 2);
   const pct = (fraction) => num(fractionToPercent(fraction), 1);
   const temps = recipe.measurementTempF;
-  // Water back (WB-S8): its volume and the volume at pitch under the
-  // fermentation volume, and the knock-out OG and the OG at pitch.
+  // Water back (WB-S8; docs/items/water-back-in-fermentation-volume.md,
+  // WF-S8): the wort from kettle, the water back and the fermentation volume,
+  // their sum, and the OG from kettle and the OG at pitch.
   const waterBack = recipe.waterBack?.on ? recipe.waterBack : null;
 
   const meta = [];
   if (text(recipe.style)) meta.push({ label: 'Style', value: recipe.style });
-  meta.push({ label: 'Batch volume', value: `${vol(recipe.fermentVolGal)} ${vUnit}` });
+  meta.push({ label: 'Batch volume', value: `${vol(derived.fermentGal)} ${vUnit}` });
   meta.push({
     label: 'Date',
     value: today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
@@ -179,13 +180,15 @@ export function recipeSheet({
               tempNote: tempNote(temps?.postBoil, temperatureUnit),
               measuredBox: true,
             },
-        { key: 'ferment', label: 'Fermentation volume', value: vol(recipe.fermentVolGal), tempNote: tempNote(temps?.ferment, temperatureUnit), measuredBox: true },
         ...(waterBack
           ? [
+              { key: 'ferment', label: 'Wort from kettle', value: vol(recipe.fermentVolGal), tempNote: null, measuredBox: true },
               { key: 'waterBack', label: 'Water back', value: vol(waterBack.volumeGal), tempNote: tempNote(waterBack.tempF, temperatureUnit), measuredBox: true },
-              { key: 'pitch', label: `Volume at pitch at ${refTemp} ${tUnit}`, value: vol(derived.pitchGal), tempNote: null, measuredBox: true },
+              { key: 'fermentTotal', label: 'Fermentation volume', value: vol(derived.fermentGal), tempNote: tempNote(temps?.ferment, temperatureUnit), measuredBox: true },
             ]
-          : []),
+          : [
+              { key: 'ferment', label: 'Fermentation volume', value: vol(recipe.fermentVolGal), tempNote: tempNote(temps?.ferment, temperatureUnit), measuredBox: true },
+            ]),
       ],
       knockOutOG: waterBack ? gravity(gravityFromCanonical(derived.knockOut?.OG, gu), gu) : null,
       pitchOG: waterBack ? gravity(gravityFromCanonical(stats.OG, gu), gu) : null,
@@ -212,6 +215,8 @@ export function recipeSheet({
       // The engine rounds the sum of the unrounded additions; the sheet
       // prints that total, not a sum of the printed parts.
       totalIbu: num(hops.totalIBU, 0),
+      // With water back on, the total is the wort from kettle's (WF-S7).
+      ...(waterBack && { totalFromKettle: true }),
       dry: recipe.dryHops.map((d) => ({ name: d.name, weight: hopWt(d.weightOz) })),
       dryRate: num(dryHopRateFromCanonical(hops.dryHopRatio, mode), 2),
       dryRateUnit: dryHopRateUnit(mode),

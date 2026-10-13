@@ -21,9 +21,13 @@
 // range (text from the engine's range constants), and less wort after the
 // boil than the fermenter volume. They change no number and block nothing.
 // Water back (docs/items/water-back.md, WB-S1 to WB-S3): a check under the
-// fermentation volume, off by default; when on, the water back's volume box
-// and its measurement temperature, then the volume at pitch at 60 degF and the
-// knock-out OG and IBU (computeRecipe's pitchGal and knockOut), read-only.
+// fermentation volume, off by default. When on
+// (docs/items/water-back-in-fermentation-volume.md, WF-S2, WF-S7), the
+// fermentation volume box is the wort from kettle, the check under it, then
+// the water back's volume box and its measurement temperature; at the bottom
+// the fermentation volume, worked out (computeRecipe's fermentGal), its
+// measurement temperature and its volume at 60 degF (pitchGal), and the OG
+// and IBU of the wort from kettle (knockOut), read-only.
 import { MASH_RV_RANGE_QT_PER_LB, MASH_R_RANGE_LB_PER_LB } from '@brew/engine';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
@@ -94,6 +98,7 @@ export default function VolumesSection({
   postBoilMeasuredShown,
   refVolumesGal,
   warnings,
+  fermentGal,
   pitchGal,
   knockOut,
   mode,
@@ -131,6 +136,18 @@ export default function VolumesSection({
       onChange={() => {}}
       readOnly
     />
+  );
+
+  const waterBackCheck = (
+    <label style={checkStyle}>
+      <input
+        type="checkbox"
+        checked={waterBack.on}
+        onChange={(e) => setWaterBack('on', e.target.checked)}
+        style={{ marginRight: '0.4rem', accentColor: colors.accent }}
+      />
+      Water back
+    </label>
   );
 
   // Convert a canonical-gal state field through the display boundary for InputRow.
@@ -205,22 +222,19 @@ export default function VolumesSection({
           {tempRow('postBoil', 'Post-boil volume')}
 
           <span style={{ ...tokens.cardLabel, marginTop: '0.85rem', marginBottom: '0.3rem', fontSize: '0.65rem' }}>Ferment</span>
-          <InputRow label={`Fermentation volume (${vUnit})`} step={0.1} min={0} {...volRow('fermentVolGal')} />
-          {tempRow('ferment', 'Fermentation volume')}
-          {refRow('ferment', 'Fermentation volume')}
-          {warnings.postBoilBelowFerment && <Warning>Less wort after the boil than the fermenter volume</Warning>}
-
-          <label style={checkStyle}>
-            <input
-              type="checkbox"
-              checked={waterBack.on}
-              onChange={(e) => setWaterBack('on', e.target.checked)}
-              style={{ marginRight: '0.4rem', accentColor: colors.accent }}
-            />
-            Water back
-          </label>
-          {waterBack.on && (
+          {!waterBack.on ? (
             <>
+              <InputRow label={`Fermentation volume (${vUnit})`} step={0.1} min={0} {...volRow('fermentVolGal')} />
+              {tempRow('ferment', 'Fermentation volume')}
+              {refRow('ferment', 'Fermentation volume')}
+              {warnings.postBoilBelowFerment && <Warning>Less wort after the boil than the fermenter volume</Warning>}
+              {waterBackCheck}
+            </>
+          ) : (
+            <>
+              <InputRow label={`Wort from kettle (${vUnit})`} step={0.1} min={0} {...volRow('fermentVolGal')} />
+              {warnings.postBoilBelowFerment && <Warning>Less wort after the boil than the wort from kettle</Warning>}
+              {waterBackCheck}
               <InputRow
                 label={`Water back (${vUnit})`}
                 step={0.1}
@@ -235,19 +249,21 @@ export default function VolumesSection({
                 onChange={(e) => setWaterBack('tempF', tempToCanonical(parseFloat(e.target.value), temperatureUnit))}
                 step={temperatureUnit === 'C' ? 0.1 : 1}
               />
+              <InputRow label={`Fermentation volume (${vUnit})`} value={num(fromGal(fermentGal), 3)} onChange={() => {}} readOnly />
+              {tempRow('ferment', 'Fermentation volume')}
               <InputRow
-                label={`Volume at pitch at ${refTemp} ${tUnit} (${vUnit})`}
+                label={`Fermentation volume at ${refTemp} ${tUnit} (${vUnit})`}
                 value={num(fromGal(pitchGal), 3)}
                 onChange={() => {}}
                 readOnly
               />
               <InputRow
-                label={`Knock-out OG (${gravityUnitLabel(gu)})`}
+                label={`Wort from kettle OG (${gravityUnitLabel(gu)})`}
                 value={gravity(gravityFromCanonical(knockOut?.OG, gu), gu)}
                 onChange={() => {}}
                 readOnly
               />
-              <InputRow label="Knock-out IBU" value={num(knockOut?.IBU, 0)} onChange={() => {}} readOnly />
+              <InputRow label="Wort from kettle IBU" value={num(knockOut?.IBU, 0)} onChange={() => {}} readOnly />
             </>
           )}
         </div>

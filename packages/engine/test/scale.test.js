@@ -177,3 +177,33 @@ describe('scale the recipe to a batch', () => {
     expect(scaled.water.saltOverrides).toEqual({});
   });
 });
+
+// Water back as part of the fermentation volume (S15c item 1,
+// docs/items/water-back-in-fermentation-volume.md, WF-S5): with water back on
+// the fermentation volume is the wort from kettle (the recipe's
+// fermentVolGal) plus the water back, and the ratio is the batch over it.
+// By hand, 5.5 + 1 = 6.5 gal to 310 gal: ratio = 310 / 6.5 = 47.6923077;
+//   wort from kettle 5.5 x 310 / 6.5 = 262.3076923 gal
+//   water back       1 x 310 / 6.5 =  47.6923077 gal
+//   malt            10 x 310 / 6.5 = 476.9230769 lb
+//   mash water       5 x 310 / 6.5 = 238.4615385 gal
+// and the two volumes add to the batch, 310.
+describe('scale with water back on (WF-S5)', () => {
+  const withWaterBack = (on, volumeGal = 1) => ({ ...recipe(), waterBack: { on, volumeGal, tempF: 170 } });
+
+  it('the ratio is the batch over the wort from kettle plus the water back', () => {
+    const scaled = scaleRecipe(withWaterBack(true), 310);
+    expect(scaled.fermentVolGal).toBeCloseTo(262.3076923, 7);
+    expect(scaled.waterBack.volumeGal).toBeCloseTo(47.6923077, 7);
+    expect(scaled.waterBack.tempF).toBe(170);
+    expect(scaled.malts[0].weightLb).toBeCloseTo(476.9230769, 7);
+    expect(scaled.mashWaterGal).toBeCloseTo(238.4615385, 7);
+    expect(scaled.fermentVolGal + scaled.waterBack.volumeGal).toBe(310);
+  });
+
+  it('with water back off the water back typed is not counted', () => {
+    const scaled = scaleRecipe(withWaterBack(false), 310);
+    expect(scaled.fermentVolGal).toBe(310);
+    expect(scaled.malts[0].weightLb).toBeCloseTo(563.636363636, 8);
+  });
+});

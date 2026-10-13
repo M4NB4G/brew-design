@@ -55,6 +55,8 @@ function engineNumbers(s) {
     refVolumesGal: { preBoil: preBoilVolGal, postBoil: postBoilVolGal, ferment: fermentVolGal },
     // Water back off (docs/items/water-back.md, WB-S9): the volume at pitch is
     // the fermentation volume and the stats are the knock-out's.
+    // The fermentation volume as typed: the box, with water back off (WF-S10).
+    fermentGal: s.fermentVolGal,
     pitchGal: fermentVolGal,
     stats: { OG: grist.OG, FG: grist.FG, ABV: grist.ABV, SRM: grist.SRM, IBU: hops.totalIBU },
     knockOut: null,

@@ -3,7 +3,8 @@
 // list; each name box searches the owner's ingredient list (IngredientSearch). Hop weight is oz in Home and lb in Pro, converted at the boundary;
 // the wort temperature is in the header's unit (stored degF, converted at the
 // boundary); time (min) and alpha acid (fraction) are fixed-unit.
-// Total IBU and the dry-hop rate come from the engine. On a phone each hop is
+// Total IBU and the dry-hop rate come from the engine; with water back on the
+// total says it is the wort from kettle's (WF-S7). On a phone each hop is
 // a block (IngredientBlock) holding the same boxes instead of a table row.
 import NumberField from './NumberField.jsx';
 import IngredientSearch from './IngredientSearch.jsx';
@@ -112,7 +113,7 @@ function IbuBadge({ ibu }) {
   );
 }
 
-export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temperatureUnit, setRow, addRow, removeRow }) {
+export default function HopsSection({ kettleAdditions, dryHops, hops, waterBackOn, mode, temperatureUnit, setRow, addRow, removeRow }) {
   const phone = usePhone();
   const wUnit = hopWeightUnit(mode);
 
@@ -218,7 +219,7 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, mode, temp
             fontVariantNumeric: 'tabular-nums',
           }}
         >
-          {num(hops.totalIBU, 0)} IBU
+          {num(hops.totalIBU, 0)} IBU{waterBackOn && ' from kettle'}
         </span>
       </div>
 

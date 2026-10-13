@@ -170,7 +170,7 @@ export default function RecipeSheet({
           Mash ratio {s.volumes.mashRv} {s.volumes.mashRvUnit} · {s.volumes.mashR} {s.volumes.mashRUnit}
           {' · '}Boil {s.volumes.boilTime} min at {s.volumes.boilOff} {s.volumes.unit}/hr boil-off
           {s.volumes.knockOutOG &&
-            ` · Knock-out OG ${s.volumes.knockOutOG} (${s.volumes.gravityUnit}) · OG at pitch ${s.volumes.pitchOG} (${s.volumes.gravityUnit})`}
+            ` · OG from kettle ${s.volumes.knockOutOG} (${s.volumes.gravityUnit}) · OG at pitch ${s.volumes.pitchOG} (${s.volumes.gravityUnit})`}
         </Caption>
       </Section>
 
@@ -312,7 +312,7 @@ export default function RecipeSheet({
             ))}
             <tr style={{ background: C.headerBg }}>
               <td style={{ ...td, textAlign: 'left', fontWeight: 700 }} colSpan={5}>
-                Total IBU
+                Total IBU{s.hops.totalFromKettle && ' from kettle'}
                 <span style={{ fontWeight: 400, color: C.gray }}> — the rounded total of the unrounded additions</span>
               </td>
               <td style={{ ...td, fontWeight: 700 }}>{s.hops.totalIbu}</td>

@@ -1,8 +1,11 @@
 # Water back as part of the fermentation volume, Tier A + B
 
 Status: agreed 2026-10-13 ("agree to all else", WF-Q1 to WF-Q9 and R, with
-WF-Q2 as the owner changed it); not started. Written by the S15b session;
-built in batch S15c, item 1 (docs/ROADMAP.md, Sessions).
+WF-Q2 as the owner changed it); landed 2026-10-13 as "With water back on,
+the fermentation volume is the wort from kettle plus the water back, worked
+out at the bottom of the Volumes card, and the scale and the brewery's batch
+read it". Written by the S15b session; built in batch S15c, item 1
+(docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -70,3 +73,42 @@ changes with water back off*. Engine: the scale's ratio over the total
   "already at the batch" comparison is the app's (`state.js`, `switchMode`).
 - The S15b roadmap line "The hop schedule's total IBU with water back on"
   (Tier C) is folded in here (WF-Q7) and goes when this lands.
+
+## Builder's notes (S15c, 2026-10-13)
+
+Choices the sentences did not make, each a claim for the inspector:
+
+- **The scale's exact batch.** With water back on, the engine multiplies the
+  water back by the ratio and sets the wort from kettle to the batch less
+  it: the same figure as the wort from kettle times the ratio, but the two
+  then add to the batch exactly, so "already at the batch" holds after a
+  scale (multiplying both left a last-digit difference in about one case in
+  four). With water back off the fermentation volume becomes the batch, as
+  before. A blank water back while on gives no ratio: the switch changes
+  units only, as for a blank fermentation volume.
+- **Where the check sits.** Off, the card is as today, the check last. On,
+  the check sits under the wort from kettle box, heading the water back's
+  rows, so the check moves up when ticked. The Volumes card's order of
+  WF-S2 is otherwise as written.
+- **The post-boil warning's words.** It compared the post-boil volume with
+  the wort from kettle already (S15b kept the box as the knock-out volume);
+  while water back is on it now reads "Less wort after the boil than the
+  wort from kettle", since "the fermenter volume" now names the total
+  (WF-Q7, one name for one volume). Off, the words are as today. It sits
+  under the wort from kettle box while on.
+- **The fermentation volume shown.** As typed, read-only, to 0.001 like the
+  card's other read-only volumes (6.500 gal); worked out by the engine's
+  `volumeAtPitch` through `selectors.js` (`fermentationVolume`), never
+  stored. The sheet prints it to the volume boxes' precision (6.50 gal),
+  with no 60 °F row (WF-S8 names three rows).
+- **The line under the stats bar** names "Wort from kettle" in place of
+  "Fermentation volume" while on, and the fermentation volume's temperature
+  after the water back's, the card's order.
+- **Earlier scenarios rebased.** S15b's WB-S1, WB-S2, WB-S6 and WB-S8 pinned
+  the old ratio (310 / 5.5) and names ("Volume at pitch", "Knock-out");
+  they now pin 310 / 6.5 and the new names. The two guards that list every
+  figure `computeRecipe` returns (`design-warnings`, `empty-fields`) carry
+  the new one, the fermentation volume as typed.
+- **Recorded failure.** Engine 1 of 2 (the off guard passed). App 8 of 10;
+  WF-S1 (the card off) and WF-S4 (the stats, cells, dry-hop rate and cost
+  read the total, which S15b already did) passed before, as guards.

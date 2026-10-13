@@ -144,12 +144,13 @@ describe('water back (S15b)', () => {
 
     click(button('°C'));
     expect(box('Water back measured at (°C)').value).toBe('76.7');
-    // Pro: barrels, or gallons by Pro's choice (the switch scales: 5.5 -> 310 gal).
+    // Pro: barrels, or gallons by Pro's choice (the switch scales the
+    // fermentation volume, 5.5 + 1 gal since S15c item 1, WF-S5, to 310 gal).
     click(button('Pro'));
     const bbl = Number(box('Water back (bbl)').value);
-    expect(bbl).toBeCloseTo((1 * 310) / 5.5 / 31, 3);
+    expect(bbl).toBeCloseTo((1 * 310) / 6.5 / 31, 3);
     click(button('gal'));
-    expect(Number(box('Water back (gal)').value)).toBeCloseTo(310 / 5.5, 2);
+    expect(Number(box('Water back (gal)').value)).toBeCloseTo(310 / 6.5, 2);
 
     click(check('Water back'));
     expect(box('Water back (gal)')).toBeUndefined();
@@ -179,10 +180,12 @@ describe('water back (S15b)', () => {
     expect(statsBar()).toContain('4.8%ABV');
     expect(statsBar()).toContain('4.2SRM');
     expect(statsBar()).toContain('40IBU');
+    // Named since S15c item 1 (WF-S2, WF-S7): the fermentation volume at
+    // 60 °F, and the wort from kettle's OG and IBU.
     const card = text(page());
-    expect(card).toContain(`Volume at pitch at ${REFERENCE_TEMP_F} °F (gal)6.500`);
-    expect(card).toContain('Knock-out OG (SG)1.056');
-    expect(card).toContain('Knock-out IBU47');
+    expect(card).toContain(`Fermentation volume at ${REFERENCE_TEMP_F} °F (gal)6.500`);
+    expect(card).toContain('Wort from kettle OG (SG)1.056');
+    expect(card).toContain('Wort from kettle IBU47');
   });
 
   it('WB-S4: cells needed, the dry-hop rate and the cost per gal read the volume at pitch', () => {
@@ -231,8 +234,8 @@ describe('water back (S15b)', () => {
   it('WB-S6: switching Home and Pro, the scale multiplies the water back with the other amounts; its temperature stays', () => {
     const r = withWaterBack({ tempF: 170 });
     const out = switchMode({ recipe: r, mode: 'home', proVolumeUnit: 'bbl' }, 'pro', null, () => true);
-    // 5.5 gal -> 310 gal: 1 gal x 310 / 5.5 = 56.3636... gal.
-    expect(out.recipe.waterBack.volumeGal).toBeCloseTo(310 / 5.5, 12);
+    // 5.5 + 1 = 6.5 gal -> 310 gal (S15c item 1, WF-S5): 1 gal x 310 / 6.5 = 47.6923... gal.
+    expect(out.recipe.waterBack.volumeGal).toBeCloseTo(310 / 6.5, 12);
     expect(out.recipe.waterBack.tempF).toBe(170);
     expect(out.recipe.waterBack.on).toBe(true);
     // The figures at pitch stay.
@@ -291,12 +294,13 @@ describe('water back (S15b)', () => {
     expect(row.label).toBe('Water back');
     expect(row.value).toBe('1.00');
     expect(row.tempNote).toBe('measured at 170 °F');
-    expect(s.volumes.rows.find((v) => v.key === 'pitch').value).toBe('6.47');
+    // Since S15c item 1 (WF-S8): the fermentation volume, 5.5 + 1.
+    expect(s.volumes.rows.find((v) => v.key === 'fermentTotal').value).toBe('6.50');
     expect(s.volumes.knockOutOG).toBe('1.056');
     expect(s.volumes.pitchOG).toBe('1.047');
     const printed = flat(renderToStaticMarkup(createElement(RecipeSheet, { recipe: r, derived: d, mode: 'home', proGravityUnit: 'plato' })));
     expect(printed).toContain('Water back measured at 170 °F 1.00');
-    expect(printed).toContain('Knock-out OG 1.056 (SG) · OG at pitch 1.047 (SG)');
+    expect(printed).toContain('OG from kettle 1.056 (SG) · OG at pitch 1.047 (SG)');
     // Without water back the sheet has neither.
     const off = recipeSheet({ recipe: defaultRecipeState(), derived: computeRecipe(defaultRecipeState()), mode: 'home', proGravityUnit: 'plato', today: TODAY });
     expect(off.volumes.rows.map((v) => v.key)).not.toContain('waterBack');

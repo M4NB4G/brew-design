@@ -433,6 +433,7 @@ export default function App() {
               postBoilMeasuredShown={derived.postBoilMeasuredShown}
               refVolumesGal={derived.refVolumesGal}
               warnings={derived.warnings}
+              fermentGal={derived.fermentGal}
               pitchGal={derived.pitchGal}
               knockOut={derived.knockOut}
               mode={mode}
@@ -472,6 +473,7 @@ export default function App() {
               kettleAdditions={recipe.kettleAdditions}
               dryHops={recipe.dryHops}
               hops={derived.hops}
+              waterBackOn={recipe.waterBack.on}
               mode={mode}
               temperatureUnit={temperatureUnit}
               setRow={setRow}

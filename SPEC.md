@@ -75,18 +75,24 @@ cached values are pinned by the golden-master tests.
    The recipe carries its water back (`waterBack`), hot-liquor-tank water
    added to the fermenter after knock-out: off unless turned on, its volume
    in US gal (blank until typed) and the temperature it was measured at in
-   °F, the reference by default. The fermentation volume stays the volume
-   at knock-out. Water back is not a brewery figure.
+   °F, the reference by default. With water back on, the fermentation
+   volume is what is in the fermenter: the box that was the fermentation
+   volume holds the wort from kettle (the recipe's `fermentVolGal`, so no
+   saved field changes), and the fermentation volume is worked out by the
+   engine, the wort from kettle plus the water back as typed. Water back is
+   not a brewery figure.
    Switching Home ↔ Pro asks whether to scale the recipe to that side's
    batch — My brewery's batch volume when it is set, in either direction;
    where it is blank, 10 bbl (310 gal) for Pro and the built-in recipe's
    5.5 gal for Home — and changes no figure without the brewer's yes. Yes
    multiplies, by the engine, every amount by the batch ÷ the recipe's
-   fermentation volume: each malt weight, each kettle and dry hop weight,
+   fermentation volume (with water back on, the wort from kettle plus the
+   water back): each malt weight, each kettle and dry hop weight,
    the mash water, the pre-boil and sparge volumes, the boil-off rate, the
    tank's treated volume and top-up level, the brewer's own salt and
    acid amounts, and the water back (its temperature stays); the
-   fermentation volume becomes the batch. Percents,
+   fermentation volume becomes the batch (with water back on, the wort from
+   kettle and the water back, multiplied alike, add to it). Percents,
    times, temperatures, the efficiency, the attenuation and the yeast stay,
    so OG, FG, ABV, SRM and IBU stay; nothing is rounded. Nothing is asked
    when the recipe is already at the batch, or when its fermentation volume
@@ -181,19 +187,26 @@ cached values are pinned by the golden-master tests.
     With water back on, the stats bar's OG, FG, ABV, SRM and IBU are those at
     pitch: the engine's `computeWaterBack` spreads the knock-out's sugar (°P ×
     SG × volume kept), malt colour units and unrounded IBU over the volume at
-    pitch, the fermentation volume plus the water back, each at 60 °F
-    (`volumeAtPitch`); FG and ABV are the grist's own steps on the OG at
-    pitch, SRM Morey's of the colour units at pitch. The Volumes card shows
-    the volume at pitch and the knock-out OG and IBU; cells needed (from the
-    °P and the volume at pitch), the dry-hop rate and the cost per gal read
-    the volume at pitch. No water figure counts it, the hot-liquor tank's
+    pitch, the fermentation volume at 60 °F: the wort from kettle corrected at
+    the fermentation volume's measurement temperature plus the water back
+    corrected at its own (`volumeAtPitch`); FG and ABV are the grist's own
+    steps on the OG at pitch, SRM Morey's of the colour units at pitch. The
+    Volumes card shows the wort from kettle box, the water back and its
+    measurement temperature, then the fermentation volume worked out, its
+    measurement temperature and its volume at 60 °F, and the wort from
+    kettle's OG and IBU; the Hops card's total IBU and the printed hop
+    schedule's say "from kettle"; the warning of less wort after the boil
+    compares the post-boil volume with the wort from kettle. Cells needed
+    (from the °P and the volume at pitch), the dry-hop rate and the cost per
+    gal read the fermentation volume at 60 °F. No water figure counts it, the hot-liquor tank's
     draws included; the Water tab and the printed sheet say so while it is
-    on. The printed sheet prints the water back, the volume at pitch, the
-    knock-out OG and the OG at pitch. With water back off every figure is as
+    on. The printed sheet prints the wort from kettle, the water back and the
+    fermentation volume, its batch volume the fermentation volume, and the
+    OG from kettle and the OG at pitch. With water back off every figure is as
     without it.
     The Cost card renders from `computeCost(recipe)`: each line's cost, the
     total of the priced lines (counting the rest) and the cost per gal at the
-    volume at pitch at 60 °F (the fermentation volume without water back), by the engine's `rollupCost` and
+    fermentation volume at 60 °F (with water back on, the wort from kettle plus the water back), by the engine's `rollupCost` and
     `costPerUnit`, blank for a zero, negative or blank volume. With no line
     priced, the total and the cost per gal are blank ("—"), not $0.00. It is
     not on the printed sheet.
@@ -318,7 +331,8 @@ cached values are pinned by the golden-master tests.
     Saving or deleting one changes no recipe. They are kept with the
     brewery's figures (rule 17).
 17. **The brewery's figures are not a recipe.** The brewery's batch
-    (fermentation) volume, pre-boil volume, boil-off rate, boil time, three
+    (fermentation) volume (what is in the fermenter: taken from a recipe with
+    water back on, the wort from kettle plus the water back), pre-boil volume, boil-off rate, boil time, three
     measurement temperatures, brewhouse efficiency, Home/Pro, Pro gravity,
     volume and malt weight units, temperature unit (°F/°C), and their water — the usual water report, the salts on hand, the
     usual treatment choice and kettle switch, and the water setup (vessels,
