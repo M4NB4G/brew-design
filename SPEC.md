@@ -109,6 +109,11 @@ cached values are pinned by the golden-master tests.
    A malt weight, hop weight or volume box shows its figure to the precision
    the printed sheet prints it while the cursor is elsewhere, and the full
    figure while the cursor is in it; the stored figure changes only by typing.
+   So does a salt or acid box on the Water tab, at its screen precision
+   (salts 0.1 g at Home and whole g in Pro, liquid acid 0.1 mL at Home and
+   whole mL in Pro, acidulated malt 0.01 oz or lb): leaving it without typing
+   changes nothing, a dose that follows the recommendation keeps following
+   it, and a box emptied and left reads 0.
    In Pro two more choices sit beside the gravity unit: liquid volumes in
    barrels or gallons — gallons covers every volume except the dry-hop
    rate, which stays lb/bbl, and shows to 0.01 as at Home — and malt weights

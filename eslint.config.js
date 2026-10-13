@@ -50,6 +50,7 @@ export default [
       'apps/recipe/test/page-error.fixture.js',
       'apps/recipe/test/box-figures.test.js',
       'apps/recipe/test/water-back.test.js',
+      'apps/recipe/test/water-box-keeps-its-figure.test.js',
     ],
     languageOptions: { globals: globals.browser },
   },

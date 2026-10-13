@@ -7,8 +7,9 @@
 // the entries change only through water-state.js's steps.
 //
 // Salt and acid amounts are editable boxes that hold a draft while typing
-// (the water app's DraftInput): the brewer's amount is taken as it is typed
-// and a box left empty reads 0 when left, as in the water app. While a test
+// (the water app's DraftInput): the brewer's amount is taken as it is typed,
+// a box left without typing keeps its figure (LB-S1), and a box left empty
+// reads 0 when left, as in the water app. While a test
 // result is blank the recommendation is blank: its boxes show empty and its
 // figures "—" (W5). Salts are grams and liquid acid mL in both modes;
 // acidulated malt shows oz (Home) or lb (Pro) and is held in grams (W-S4).
@@ -28,7 +29,7 @@
 // aims at, and beside the predicted mash pH the target shows as the other
 // figures' targets do (AA-S1, AA-S2); a note says when the acid falls back to
 // the style's alkalinity and why (AA-Q1).
-import { useEffect, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { SALT_CONTRIBUTIONS_PER_G_GAL, ACIDS, MASH_PH_RANGE } from '@brew/engine';
 import { testedRangeNote } from './tested-range-note.js';
 import { mashPhNeedLabel } from './mash-ph-needs.js';
@@ -53,7 +54,7 @@ import {
   acidMaltFromCanonical,
   acidMaltToCanonical,
 } from '../../display.js';
-import { num, trimmed } from '../../format.js';
+import { num, trimmed, roundForInput } from '../../format.js';
 import {
   setRaiseAlkSource,
   toggleSaltOnHand,
@@ -67,44 +68,42 @@ import {
 
 const ACID_KEYS = Object.keys(ACIDS);
 
-// A number box holding a local draft while the brewer types; the parsed
-// value goes to the parent as it is typed, and the box is tidied when left.
-// When the value changes from outside (a reset, a new recommendation) the
-// draft follows it, unless the brewer is mid-way through typing (the draft
-// does not parse). A blank value shows an empty box.
-function DraftInput({ initialValue, format, parse, onChange, style, label }) {
-  const [draft, setDraft] = useState(() => format(initialValue));
-
-  useEffect(() => {
-    if (Number.isNaN(initialValue)) {
-      setDraft('');
-      return;
-    }
-    const parsed = parse(draft);
-    if (parsed === null ? draft === '' : Math.abs(parsed - initialValue) > 1e-6) {
-      setDraft(format(initialValue));
-    }
-    // parse/format are stable; intentionally not in deps to avoid resync loops.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialValue]);
+// A number box holding the brewer's typing as a draft; the parsed value goes
+// to the parent as it is typed. Until the brewer types, the box shows the
+// figure itself: to the screen's precision while the cursor is elsewhere and
+// in full while it is in the box, so a recommendation that moves moves the
+// box, and leaving the box changes nothing (docs/items/
+// water-box-keeps-its-figure.md, LB-S1, LB-S2). A box emptied and left reads
+// 0, as in the water app (LB-S3). A blank value shows an empty box.
+function DraftInput({ initialValue, format, full, parse, onChange, style, label }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(null); // null: not typed in
+  const ref = useRef(null);
+  // Select the full figure once it is shown, so typing replaces it.
+  useLayoutEffect(() => {
+    if (editing) ref.current?.select();
+  }, [editing]);
+  const figure = Number.isFinite(initialValue) ? (editing ? full : format)(initialValue) : '';
 
   return (
     <input
+      ref={ref}
       type="text"
       inputMode="decimal"
       aria-label={label}
-      value={draft}
+      value={draft ?? figure}
       onChange={(e) => {
         setDraft(e.target.value);
         const v = parse(e.target.value);
         if (v !== null) onChange(v);
       }}
-      onFocus={(e) => e.target.select()}
+      onFocus={() => setEditing(true)}
       onBlur={() => {
+        setEditing(false);
+        if (draft === null) return; // not typed in: nothing changes
+        setDraft(null);
         if (draft === '' && Number.isNaN(initialValue)) return; // still blank
-        const v = parse(draft) ?? 0;
-        setDraft(format(v));
-        onChange(v);
+        onChange(parse(draft) ?? 0);
       }}
       style={style}
     />
@@ -117,6 +116,7 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
   // Grams: whole in Pro, one decimal at Home (the water app's precision).
   const gramDigits = mode === 'pro' ? 0 : 1;
   const formatGrams = (g) => (Number.isFinite(g) ? g.toFixed(gramDigits) : '');
+  const fullGrams = (g) => String(roundForInput(g));
   const parseGrams = (s) => {
     const v = parseFloat(s);
     return isNaN(v) || v < 0 ? null : v;
@@ -140,6 +140,7 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
             label={`${row.name} (${saltUnit(mode)})`}
             initialValue={row.amount}
             format={formatGrams}
+            full={fullGrams}
             parse={parseGrams}
             onChange={(v) => setWater((w) => setSaltAmount(w, row.key, v))}
             style={{
@@ -559,6 +560,7 @@ function AcidRow({ row, mode, onChangeAmount, primary = false, single = false, p
   const shown = (v) => (solid ? acidMaltFromCanonical(v, mode) : v);
   const digits = solid ? 2 : liquidAcidDigits(mode);
   const format = (v) => (Number.isFinite(v) ? shown(v).toFixed(digits) : '');
+  const full = (v) => String(roundForInput(shown(v)));
   const parse = (raw) => {
     const v = parseFloat(raw);
     const amount = isNaN(v) || v < 0 ? 0 : v;
@@ -598,6 +600,7 @@ function AcidRow({ row, mode, onChangeAmount, primary = false, single = false, p
             label={`${row.name} (${unit})`}
             initialValue={row.amount}
             format={format}
+            full={full}
             parse={parse}
             onChange={onChangeAmount}
             style={{

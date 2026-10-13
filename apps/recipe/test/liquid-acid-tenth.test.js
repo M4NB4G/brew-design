@@ -99,8 +99,11 @@ describe('liquid acid to 0.1 mL at Home, whole mL in Pro', () => {
       expect(acidOnSheet(OWN, mode)).toMatchObject({ place: 'Mash', amount: want.own, unit: 'mL' });
     });
 
-    it(`leaving the acid box without typing saves the dose as the box shows it, ${precision}`, () => {
-      // LT-S3: as today, the box saves what it shows; the decimals decide it.
+    it(`leaving the acid box without typing keeps the recommendation, ${precision}`, () => {
+      // LT-S3 saved the dose as the box showed it; "A water box keeps its
+      // figure until typed in" (LB-S1, LB-Q1, 2026-10-12) replaced it: leaving
+      // the box without typing changes nothing
+      // (water-box-keeps-its-figure.test.js).
       let saved = null;
       host = document.createElement('div');
       document.body.appendChild(host);
@@ -115,7 +118,8 @@ describe('liquid acid to 0.1 mL at Home, whole mL in Pro', () => {
         box.focus();
         box.blur();
       });
-      expect(saved.acidAmounts.phosphoric_75).toBe(Number(want.tank));
+      expect(saved).toBeNull();
+      expect(box.value).toBe(want.tank);
     });
   }
 

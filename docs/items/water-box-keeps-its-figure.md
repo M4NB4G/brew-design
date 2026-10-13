@@ -1,8 +1,10 @@
 # A water box keeps its figure until typed in, Tier B
 
-Status: agreed 2026-10-12 ("agree to all", S16-Q0, LB-Q1, LB-Q2); not
-started. Written by the S15b session; built in batch S16, item 1
-(docs/ROADMAP.md, Sessions).
+Status: agreed 2026-10-12 ("agree to all", S16-Q0, LB-Q1, LB-Q2); landed
+2026-10-13 as "Leaving a salt or acid box without typing changes nothing,
+and a typed dose is kept as typed, shown to the screen's precision away
+from the cursor and in full in it". Written by the S15b session; built in
+batch S16, item 1 (docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -52,3 +54,27 @@ is as today*; *nothing else changes*.
 - The salt and acid boxes are the only text boxes on the Water tab; the
   other Water tab boxes are number boxes.
 - With the comma item (S16 item 2) in the same boxes, build this one first.
+
+## Builder's notes (S16, 2026-10-13)
+
+Choices the sentences did not make, each a claim for the inspector:
+
+- **The full figure** with the cursor in the box is the figure to six
+  decimals, as the volume boxes show it (`NumberField`, BA1): the
+  Pilsner's 22.6874642283088 mL reads 22.687464; acidulated malt shows its
+  oz or lb figure that way. Display only.
+- **Until the brewer types**, the box draws its figure from the recipe
+  each time, so the old step that copied a new recommendation into the
+  box's text is gone; that is what makes a moved recommendation move an
+  untouched box (row K, ordering).
+- **What typing does is unchanged**: each readable entry is stored as it is
+  typed; on leaving, the typed text is read once more (an emptied box, or
+  text that does not read, gives 0, as before; a box whose figure was
+  blank and is left empty stays blank). The comma item (S16 item 2)
+  changes the text that does not read.
+- **The earlier scenario that pinned the old behaviour**,
+  `liquid-acid-tenth.test.js`'s "leaving the acid box without typing saves
+  the dose as the box shows it" (LT-S3), now asserts the opposite, citing
+  LB-Q1; its count stays 8.
+- **Tooling**: the new jsdom test is added to `eslint.config.js`'s list of
+  tests that read the browser's globals (Tier D).
