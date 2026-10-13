@@ -145,7 +145,7 @@ describe('sparge water typed', () => {
       computeWater(exampleWater({ treatment: 'tank', tankTreatedGal: 12, tankTopUpGal: 12, spargeGal }), exampleRecipe());
     expect(hlt(8.5).tank.leftGal).toBeCloseTo(3.5, 12);
     expect(hlt(10).tank.leftGal).toBeCloseTo(2, 12);
-    expect(hlt(13).warnings.spargeOverTopUp).toBe(true);
+    expect(hlt(13).warnings.spargeOverTank).toBe(true);
     // Mash water treated: no HLT figure.
     expect(computeWater(exampleWater(), exampleRecipe()).tank).toBeNull();
   });

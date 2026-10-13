@@ -84,7 +84,7 @@ describe('water treatment choice — the engine', () => {
     expect(t.toSparge).toBeCloseTo(42.5 / 144, 12);
     expect(t.left).toBeCloseTo(17.5 / 144, 12);
     expect(t.mashOverTreated).toBe(false);
-    expect(t.spargeOverTopUp).toBe(false);
+    expect(t.spargeOverTank).toBe(false);
 
     // 1.2 g/gal of gypsum in 12 gal is 14.4 g; by hand the mash draws
     // 14.4 x 7/12 = 8.4 g; the sparge carries 14.4 x 42.5/144 = 4.25 g; 14.4 x
@@ -106,8 +106,8 @@ describe('water treatment choice — the engine', () => {
     // water than the top-up level. Equal is not more.
     expect(tankDraws({ treatedGal: 12, topUpGal: 12, mashWaterGal: 13, spargeGal: 8.5 }).mashOverTreated).toBe(true);
     expect(tankDraws({ treatedGal: 12, topUpGal: 12, mashWaterGal: 12, spargeGal: 8.5 }).mashOverTreated).toBe(false);
-    expect(tankDraws({ treatedGal: 12, topUpGal: 8, mashWaterGal: 7, spargeGal: 8.5 }).spargeOverTopUp).toBe(true);
-    expect(tankDraws({ treatedGal: 12, topUpGal: 8.5, mashWaterGal: 7, spargeGal: 8.5 }).spargeOverTopUp).toBe(false);
+    expect(tankDraws({ treatedGal: 12, topUpGal: 8, mashWaterGal: 7, spargeGal: 8.5 }).spargeOverTank).toBe(true);
+    expect(tankDraws({ treatedGal: 12, topUpGal: 8.5, mashWaterGal: 7, spargeGal: 8.5 }).spargeOverTank).toBe(false);
 
     // WT-S9: a blank treated volume or top-up level blanks what needs it and
     // warns of nothing.
@@ -121,7 +121,7 @@ describe('water treatment choice — the engine', () => {
     expect(noTopUp.leftGal).toBeNaN();
     expect(noTopUp.toSparge).toBeNaN();
     expect(noTopUp.toMash).toBeCloseTo(7 / 12, 12);
-    expect(noTopUp.spargeOverTopUp).toBe(false);
+    expect(noTopUp.spargeOverTank).toBe(false);
   });
 
   it('salts in the kettle bring the whole water to the target', () => {

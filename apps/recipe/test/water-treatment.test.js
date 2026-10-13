@@ -164,7 +164,7 @@ describe('water treatment choice', () => {
     expect(f.tank.leftGal).toBeCloseTo(3.5, 12);
     expect(f.tank.leftSalts.gypsum).toBeCloseTo(1.75, 9);
     expect(f.warnings.mashOverTreated).toBe(false);
-    expect(f.warnings.spargeOverTopUp).toBe(false);
+    expect(f.warnings.spargeOverTank).toBe(false);
 
     const shown = text(await render(tankWater(), exampleRecipe()));
     expect(shown).toContain("Into the HLT's first fill (12.00 gal)");
@@ -181,7 +181,7 @@ describe('water treatment choice', () => {
       "The mash water (13.00 gal) is more than the HLT's treated volume (12.00 gal)",
     );
     const low = tankWater({ tankTopUpGal: 8 });
-    expect(computeWater(low, exampleRecipe()).warnings.spargeOverTopUp).toBe(true);
+    expect(computeWater(low, exampleRecipe()).warnings.spargeOverTank).toBe(true);
     expect(text(await render(low, exampleRecipe()))).toContain(
       "The sparge water (8.50 gal) is more than the HLT's top-up level (8.00 gal)",
     );

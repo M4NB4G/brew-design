@@ -243,10 +243,18 @@ export default function WaterGoesCard({ water, figures, mode, proVolumeUnit, set
               {v(volumes.treatedGal)} {unit})
             </Warning>
           )}
-          {warnings.spargeOverTopUp && (
+          {/* The sparge against the water the tank holds: the top-up level, or
+              the treated water the mash leaves when that is more (HT-S2). */}
+          {warnings.spargeOverTank && !warnings.topUpBelowTreated && (
             <Warning>
               The sparge water ({v(volumes.spargeGal)} {unit}) is more than the HLT's top-up level ({v(tank.topUpGal)}{' '}
               {unit})
+            </Warning>
+          )}
+          {warnings.spargeOverTank && warnings.topUpBelowTreated && (
+            <Warning>
+              The sparge water ({v(volumes.spargeGal)} {unit}) is more than the treated water the HLT holds (
+              {v(tank.tankGal)} {unit})
             </Warning>
           )}
           {warnings.topUpBelowTreated && (

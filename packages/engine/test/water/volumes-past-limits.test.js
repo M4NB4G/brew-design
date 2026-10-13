@@ -29,7 +29,7 @@ describe('water volumes past their limits', () => {
     // WV-S2: the engine says so, and nothing else is warned.
     expect(t.topUpBelowTreated).toBe(true);
     expect(t.mashOverTreated).toBe(false);
-    expect(t.spargeOverTopUp).toBe(false);
+    expect(t.spargeOverTank).toBe(false);
     // Equal is not below: topped up to the 7 gal it holds, nothing is warned.
     expect(tankDraws({ treatedGal: 12, topUpGal: 7, mashWaterGal: 5, spargeGal: 4 }).topUpBelowTreated).toBe(false);
   });
@@ -79,7 +79,7 @@ describe('water volumes past their limits', () => {
     const over = tankDraws({ treatedGal: 12, topUpGal: 6, mashWaterGal: 5, spargeGal: 9 });
     expect(over.toSparge).toBeCloseTo(7 / 12, 12);
     expect(over.left).toBe(0);
-    expect(over.spargeOverTopUp).toBe(true);
+    expect(over.spargeOverTank).toBe(true);
   });
 
   it('within the limits nothing changes', () => {

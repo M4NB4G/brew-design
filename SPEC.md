@@ -141,6 +141,10 @@ cached values are pinned by the golden-master tests.
     water is added; mash water more than the treated volume takes all of it
     and every salt, the sparge liquor's treated share 0 (warned); each share
     of the tank's salts is held between 0 and 1, and the shares add to 1.
+    The water left in the tank after the sparge is never below 0, and the
+    warning that the sparge is more than the tank holds compares it with
+    the water the tank holds: the top-up level, or the treated water the
+    mash leaves when that is more.
     Beside the treated
     water's predicted profile, with kettle salts on, the kettle water before
     the boil: the source water plus the salts in the kettle over the pre-boil

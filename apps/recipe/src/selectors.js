@@ -682,7 +682,7 @@ export function computeWater(water, recipe) {
     waterBack: recipe.waterBack?.on === true,
     warnings: {
       mashOverTreated: tank?.mashOverTreated ?? false,
-      spargeOverTopUp: tank?.spargeOverTopUp ?? false,
+      spargeOverTank: tank?.spargeOverTank ?? false,
       topUpBelowTreated: tank?.topUpBelowTreated ?? false,
       kettleShortGal: sums.kettleShortGal,
     },

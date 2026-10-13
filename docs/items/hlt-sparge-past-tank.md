@@ -1,8 +1,9 @@
 # The HLT's figures when the sparge is more than the tank holds, Tier A + B
 
-Status: agreed 2026-10-12 ("agree to all", HT-Q1, HT-Q2); not started.
-Written by the S15b session; built in batch S16, item 3 (docs/ROADMAP.md,
-Sessions).
+Status: agreed 2026-10-12 ("agree to all", HT-Q1, HT-Q2); landed
+2026-10-13 as "The water left in the HLT is never below 0, and the sparge
+warning compares the sparge with the water the tank holds". Written by the
+S15b session; built in batch S16, item 3 (docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -52,3 +53,31 @@ tank*.
   the text against HT-S2.
 - The sheet reads `water.tank.leftGal` in `components/recipe-sheet-data.js`.
 - Each held figure is arithmetic: pin it by hand with the working in the test.
+
+## Builder's notes (S16, 2026-10-13)
+
+Choices the sentences did not make, each a claim for the inspector:
+
+- **The water the tank holds** is the figure `tankDraws` already worked out
+  for the shares (the top-up level, or the treated water left when that
+  is more); it is now returned as `tankGal`, and the warning compares the
+  sparge with it. The water left is that less the sparge, held at 0; a
+  blank stays blank.
+- **Round-off.** A sparge typed as exactly the treated water left would
+  warn by floating-point round-off (5 − 3.2 comes to 1.7999999999999998),
+  so the warning allows the engine's existing same-volume tolerance,
+  1e-9 gal, as the top-up warning beside it does. Below every shown
+  precision; pinned by hand in the engine scenario.
+- **The warning's wording.** With the tank topped up to its level, the
+  existing text stays word for word ("… is more than the HLT's top-up
+  level (8.00 gal)", HT-S1). With the top-up level below the treated water
+  left, it names what the tank then holds: "The sparge water (7.50 gal) is
+  more than the treated water the HLT holds (7.00 gal)", beside the
+  existing top-up warning. The printed sheet carries neither warning, as
+  before.
+- **The name.** The engine's and the Water tab's warning is renamed from
+  `spargeOverTopUp` to `spargeOverTank`, since it no longer reads the
+  top-up level alone; four existing tests that read it change that name
+  only.
+- The share of the salts left already read the held volume; that line is
+  unchanged.
