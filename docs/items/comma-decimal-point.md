@@ -1,8 +1,10 @@
 # A comma typed as the decimal point, Tier B
 
-Status: agreed 2026-10-12 ("agree to all", CM-Q1, CM-Q2); not started.
-Written by the S15b session; built in batch S16, item 2 (docs/ROADMAP.md,
-Sessions).
+Status: agreed 2026-10-12 ("agree to all", CM-Q1, CM-Q2); landed
+2026-10-13 as "In a salt or acid box a comma typed as the only separator is
+the decimal point, and any other entry that is not a number is refused with
+a line under the box and nothing saved". Written by the S15b session; built
+in batch S16, item 2 (docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -43,3 +45,31 @@ line under the box, the saved recipe unchanged); *a point reads as today*;
   and `AcidRow`'s `parse` both use `parseFloat`, which stops at the comma.
 - Build after "A water box keeps its figure until typed in" (S16 item 1),
   which changes what leaving the box does.
+
+## Builder's notes (S16, 2026-10-13)
+
+Choices the sentences did not make, each a claim for the inspector:
+
+- **What reads as a number**: after surrounding spaces are dropped, digits
+  with at most one point (“2.4”, “.5”, “5.”), or digits with exactly one
+  comma and no point (“2,4”, “,5”, “2,”), each with an optional sign. A
+  negative figure reads as before (a salt box ignores it and reads 0 when
+  left; an acid box reads 0). An empty box reads as before (0 when left).
+  Everything else is refused, “1e3” included (letters, CM-S2), where it
+  used to read 1000.
+- **Nothing is saved, typed key by key.** The boxes store each readable
+  entry as it is typed (unchanged), so “2,4.1” passes through “2,4”, which
+  reads 2.4. When an entry is refused, the water goes back to what it was
+  when the typing in that box began, so the saved recipe ends as it was
+  (a dose following the recommendation keeps following it). Only that
+  box's typing can change the water in between.
+- **The line** reads “Not a number, so nothing is saved. Type it as 2.4 or
+  2,4.”, in the warning colour, under the box and above the “rec” hint.
+  It shows while the entry is refused and stays once the brewer leaves,
+  until the next entry the box can read (row K); a lone “.” or “,” on the
+  way to “.5” shows it for that one key.
+- **Markup**: the box's row (the box and its unit) moved inside the box's
+  own component so the line can sit under it; the screen's markup is
+  unchanged with nothing refused (the earlier screen captures still pass).
+- **Tooling**: the new jsdom test is added to `eslint.config.js`'s list of
+  tests that read the browser's globals (Tier D).

@@ -51,6 +51,7 @@ export default [
       'apps/recipe/test/box-figures.test.js',
       'apps/recipe/test/water-back.test.js',
       'apps/recipe/test/water-box-keeps-its-figure.test.js',
+      'apps/recipe/test/comma-decimal-point.test.js',
     ],
     languageOptions: { globals: globals.browser },
   },

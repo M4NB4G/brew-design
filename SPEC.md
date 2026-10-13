@@ -113,7 +113,11 @@ cached values are pinned by the golden-master tests.
    (salts 0.1 g at Home and whole g in Pro, liquid acid 0.1 mL at Home and
    whole mL in Pro, acidulated malt 0.01 oz or lb): leaving it without typing
    changes nothing, a dose that follows the recommendation keeps following
-   it, and a box emptied and left reads 0.
+   it, and a box emptied and left reads 0. In a salt or acid box a figure
+   typed with one comma and no point reads the comma as the decimal point
+   ("2,4" is 2.4); any other entry that is not a number is refused with a
+   line under the box, nothing is saved, and the box shows its figure again
+   once left.
    In Pro two more choices sit beside the gravity unit: liquid volumes in
    barrels or gallons — gallons covers every volume except the dry-hop
    rate, which stays lb/bbl, and shows to 0.01 as at Home — and malt weights

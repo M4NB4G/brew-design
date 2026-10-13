@@ -9,7 +9,9 @@
 // Salt and acid amounts are editable boxes that hold a draft while typing
 // (the water app's DraftInput): the brewer's amount is taken as it is typed,
 // a box left without typing keeps its figure (LB-S1), and a box left empty
-// reads 0 when left, as in the water app. While a test
+// reads 0 when left, as in the water app. A comma typed as the decimal point
+// is read as one; any other entry that is not a number is refused, with a
+// line under the box (CM-S1, CM-S2). While a test
 // result is blank the recommendation is blank: its boxes show empty and its
 // figures "—" (W5). Salts are grams and liquid acid mL in both modes;
 // acidulated malt shows oz (Home) or lb (Pro) and is held in grams (W-S4).
@@ -68,16 +70,38 @@ import {
 
 const ACID_KEYS = Object.keys(ACIDS);
 
-// A number box holding the brewer's typing as a draft; the parsed value goes
-// to the parent as it is typed. Until the brewer types, the box shows the
-// figure itself: to the screen's precision while the cursor is elsewhere and
-// in full while it is in the box, so a recommendation that moves moves the
-// box, and leaving the box changes nothing (docs/items/
-// water-box-keeps-its-figure.md, LB-S1, LB-S2). A box emptied and left reads
-// 0, as in the water app (LB-S3). A blank value shows an empty box.
-function DraftInput({ initialValue, format, full, parse, onChange, style, label }) {
+// A figure as the brewer types it: a point, or one comma and no point, is the
+// decimal point ("2,4" is 2.4); an empty box is a blank (NaN); any other
+// entry is not a number (undefined), never read up to its first character
+// that is not a number (docs/items/comma-decimal-point.md, CM-S1 to CM-S3).
+const WITH_POINT = /^[+-]?(\d+\.?\d*|\.\d+)$/;
+const WITH_COMMA = /^[+-]?(\d+,\d*|,\d+)$/;
+function readDecimal(text) {
+  const t = text.trim();
+  if (t === '') return NaN;
+  if (WITH_POINT.test(t)) return Number(t);
+  if (WITH_COMMA.test(t)) return Number(t.replace(',', '.'));
+  return undefined;
+}
+
+const REFUSED_LINE = 'Not a number, so nothing is saved. Type it as 2.4 or 2,4.';
+
+// A number box, with its unit beside it, holding the brewer's typing as a
+// draft; the parsed value goes to the parent as it is typed. Until the
+// brewer types, the box shows the figure itself: to the screen's precision
+// while the cursor is elsewhere and in full while it is in the box, so a
+// recommendation that moves moves the box, and leaving the box changes
+// nothing (docs/items/water-box-keeps-its-figure.md, LB-S1, LB-S2). A box
+// emptied and left reads 0, as in the water app (LB-S3). A blank value
+// shows an empty box. An entry that is not a number is refused (CM-S2): the
+// water goes back to what it was when the typing began (`snapshot`, through
+// `onRestore`), a line under the box says so until the next entry the box
+// can read, and the box shows that figure again once left.
+function DraftInput({ initialValue, format, full, parse, onChange, snapshot, onRestore, style, label, unit }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(null); // null: not typed in
+  const [refused, setRefused] = useState(false);
+  const before = useRef(null); // the water when the typing began
   const ref = useRef(null);
   // Select the full figure once it is shown, so typing replaces it.
   useLayoutEffect(() => {
@@ -86,27 +110,45 @@ function DraftInput({ initialValue, format, full, parse, onChange, style, label 
   const figure = Number.isFinite(initialValue) ? (editing ? full : format)(initialValue) : '';
 
   return (
-    <input
-      ref={ref}
-      type="text"
-      inputMode="decimal"
-      aria-label={label}
-      value={draft ?? figure}
-      onChange={(e) => {
-        setDraft(e.target.value);
-        const v = parse(e.target.value);
-        if (v !== null) onChange(v);
-      }}
-      onFocus={() => setEditing(true)}
-      onBlur={() => {
-        setEditing(false);
-        if (draft === null) return; // not typed in: nothing changes
-        setDraft(null);
-        if (draft === '' && Number.isNaN(initialValue)) return; // still blank
-        onChange(parse(draft) ?? 0);
-      }}
-      style={style}
-    />
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', justifyContent: 'flex-end' }}>
+        <input
+          ref={ref}
+          type="text"
+          inputMode="decimal"
+          aria-label={label}
+          value={draft ?? figure}
+          onChange={(e) => {
+            if (draft === null) before.current = snapshot;
+            setDraft(e.target.value);
+            if (readDecimal(e.target.value) === undefined) {
+              setRefused(true);
+              onRestore(before.current);
+              return;
+            }
+            setRefused(false);
+            const v = parse(e.target.value);
+            if (v !== null) onChange(v);
+          }}
+          onFocus={() => setEditing(true)}
+          onBlur={() => {
+            setEditing(false);
+            if (draft === null) return; // not typed in: nothing changes
+            setDraft(null);
+            if (refused) return; // not a number: the figure as it was
+            if (draft === '' && Number.isNaN(initialValue)) return; // still blank
+            onChange(parse(draft) ?? 0);
+          }}
+          style={style}
+        />
+        <span style={unitLabelStyle}>{unit}</span>
+      </div>
+      {refused && (
+        <div role="alert" style={refusedStyle}>
+          {REFUSED_LINE}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -118,9 +160,11 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
   const formatGrams = (g) => (Number.isFinite(g) ? g.toFixed(gramDigits) : '');
   const fullGrams = (g) => String(roundForInput(g));
   const parseGrams = (s) => {
-    const v = parseFloat(s);
-    return isNaN(v) || v < 0 ? null : v;
+    const v = readDecimal(s);
+    return v === undefined || isNaN(v) || v < 0 ? null : v;
   };
+  // A refused entry puts the water back as it was when the typing began.
+  const restoreWater = (w) => setWater(() => w);
 
   // Where the treated water's additions go (water treatment, WT-S1).
   const tankTreated = figures.setup.treatment === 'tank';
@@ -134,23 +178,23 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
         {warnings}
       </div>
       <div style={{ textAlign: 'right' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', justifyContent: 'flex-end' }}>
-          <DraftInput
-            key={`${row.key}-${mode}`}
-            label={`${row.name} (${saltUnit(mode)})`}
-            initialValue={row.amount}
-            format={formatGrams}
-            full={fullGrams}
-            parse={parseGrams}
-            onChange={(v) => setWater((w) => setSaltAmount(w, row.key, v))}
-            style={{
-              ...tokens.numberInput,
-              width: '80px',
-              background: row.overridden ? colors.inputBgOverride : colors.inputBg,
-            }}
-          />
-          <span style={unitLabelStyle}>{saltUnit(mode)}</span>
-        </div>
+        <DraftInput
+          key={`${row.key}-${mode}`}
+          label={`${row.name} (${saltUnit(mode)})`}
+          unit={saltUnit(mode)}
+          initialValue={row.amount}
+          format={formatGrams}
+          full={fullGrams}
+          parse={parseGrams}
+          onChange={(v) => setWater((w) => setSaltAmount(w, row.key, v))}
+          snapshot={water}
+          onRestore={restoreWater}
+          style={{
+            ...tokens.numberInput,
+            width: '80px',
+            background: row.overridden ? colors.inputBgOverride : colors.inputBg,
+          }}
+        />
         <div style={hintStyle}>
           rec {num(row.recommended, gramDigits)} {saltUnit(mode)}
         </div>
@@ -310,6 +354,8 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
                 row={primaryRow}
                 mode={mode}
                 onChangeAmount={onChangeAcid(acid.primary)}
+                water={water}
+                onRestore={restoreWater}
                 primary
                 single
                 primaryAcidType={acid.primary}
@@ -332,7 +378,14 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
                   Add secondary acids (optional)
                 </div>
                 {ACID_KEYS.filter((k) => k !== acid.primary).map((k) => (
-                  <AcidRow key={k} row={rowOf(k)} mode={mode} onChangeAmount={onChangeAcid(k)} />
+                  <AcidRow
+                    key={k}
+                    row={rowOf(k)}
+                    mode={mode}
+                    onChangeAmount={onChangeAcid(k)}
+                    water={water}
+                    onRestore={restoreWater}
+                  />
                 ))}
 
                 <div style={totalRowStyle}>
@@ -551,7 +604,7 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
 // reason line and "rec X" hint) or a secondary (its name, and a hint of its
 // mEq and the recommendation's). Acidulated malt shows oz or lb; the amount
 // stays in grams.
-function AcidRow({ row, mode, onChangeAmount, primary = false, single = false, primaryAcidType, onSetPrimaryAcid, reason }) {
+function AcidRow({ row, mode, onChangeAmount, water, onRestore, primary = false, single = false, primaryAcidType, onSetPrimaryAcid, reason }) {
   const solid = row.solid;
   const unit = solid ? acidMaltUnit(mode) : liquidAcidUnit(mode);
 
@@ -562,8 +615,8 @@ function AcidRow({ row, mode, onChangeAmount, primary = false, single = false, p
   const format = (v) => (Number.isFinite(v) ? shown(v).toFixed(digits) : '');
   const full = (v) => String(roundForInput(shown(v)));
   const parse = (raw) => {
-    const v = parseFloat(raw);
-    const amount = isNaN(v) || v < 0 ? 0 : v;
+    const v = readDecimal(raw);
+    const amount = v === undefined || isNaN(v) || v < 0 ? 0 : v;
     return solid ? acidMaltToCanonical(amount, mode) : amount;
   };
 
@@ -594,23 +647,23 @@ function AcidRow({ row, mode, onChangeAmount, primary = false, single = false, p
         {reason && <div style={recipeReasonStyle}>{reason}</div>}
       </div>
       <div style={{ textAlign: 'right' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', justifyContent: 'flex-end' }}>
-          <DraftInput
-            key={`${row.key}-${mode}`}
-            label={`${row.name} (${unit})`}
-            initialValue={row.amount}
-            format={format}
-            full={full}
-            parse={parse}
-            onChange={onChangeAmount}
-            style={{
-              ...tokens.numberInput,
-              width: '90px',
-              background: isOverridden ? colors.inputBgOverride : colors.inputBg,
-            }}
-          />
-          <span style={unitLabelStyle}>{unit}</span>
-        </div>
+        <DraftInput
+          key={`${row.key}-${mode}`}
+          label={`${row.name} (${unit})`}
+          unit={unit}
+          initialValue={row.amount}
+          format={format}
+          full={full}
+          parse={parse}
+          onChange={onChangeAmount}
+          snapshot={water}
+          onRestore={onRestore}
+          style={{
+            ...tokens.numberInput,
+            width: '90px',
+            background: isOverridden ? colors.inputBgOverride : colors.inputBg,
+          }}
+        />
         <div style={hintStyle}>{hintText}</div>
       </div>
     </div>
@@ -648,6 +701,14 @@ const hintStyle = {
 const unitLabelStyle = {
   fontSize: '0.78rem',
   color: colors.textMuted,
+};
+
+const refusedStyle = {
+  fontSize: '0.72rem',
+  color: colors.textWarn,
+  marginTop: '0.2rem',
+  maxWidth: '12rem',
+  textAlign: 'right',
 };
 
 const profileSectionLabel = {
