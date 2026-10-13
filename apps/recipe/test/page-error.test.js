@@ -90,8 +90,10 @@ afterEach(() => {
 });
 
 describe('page keeps working after an error', () => {
-  it('an error in a tab shows the message and keeps the header', async () => {
-    for (const { place, part, open } of PLACES) {
+  // One test per place: each draws the whole app afresh, and the four
+  // together took most of a test's time limit when they shared one test.
+  for (const { place, part, open } of PLACES) {
+    it(`an error in a tab shows the message and keeps the header: ${place}`, async () => {
       mount({ [STORAGE_KEY]: savedRecipe('My IPA') });
       expect(shown(), `${place}: before the error`).toBe(false);
       parts.throwing.add(part);
@@ -128,12 +130,8 @@ describe('page keeps working after an error', () => {
         click(button(part === 'OptionsSection' ? 'Recipe' : 'Options'));
         expect(shown(), `${place}: another tab chosen`).toBe(false);
       }
-      vi.restoreAllMocks();
-      vi.spyOn(console, 'error').mockImplementation(() => {});
-      parts.throwing.clear();
-      unmount();
-    }
-  });
+    });
+  }
 
   it('the saved recipe is kept', () => {
     const before = {
