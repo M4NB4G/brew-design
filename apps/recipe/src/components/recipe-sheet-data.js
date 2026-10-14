@@ -53,6 +53,8 @@ import {
   KETTLE_HELD_NOTE,
   WATER_BACK_NOTES,
   WATER_BACK_LABEL,
+  FERMENTER_LABEL,
+  FERMENTER_NOTE,
   waterBackCarries,
 } from './water/WaterGoesCard.jsx';
 
@@ -297,6 +299,10 @@ function waterSection(water, mode, vol, vUnit) {
   for (const k of water.kettle?.salts ?? []) {
     if (k.amount !== 0) additions.push({ place: 'Kettle', name: k.name, amount: grams(k.amount), unit: saltUnit(mode) });
   }
+  // FM-S6: the grams to add to the water back.
+  for (const a of water.fermenter?.add ?? []) {
+    additions.push({ place: 'Water back', name: a.name, amount: grams(a.grams), unit: saltUnit(mode) });
+  }
 
   const v = water.volumes;
   const volumes = [
@@ -367,6 +373,28 @@ function waterSection(water, mode, vol, vUnit) {
         ].join(' ')
       : null,
     kettle: kettleSection(water),
+    // FM-S9: no entry with water back off, so the sheet is as before.
+    ...(water.fermenter && { fermenter: fermenterSection(water) }),
+  };
+}
+
+// The fermenter's sulfate and chloride with water back on (FM-S6), as the
+// Water tab shows them. A blank prints "—".
+function fermenterSection(water) {
+  const f = water.fermenter;
+  const t = water.target;
+  return {
+    label: FERMENTER_LABEL,
+    note: FERMENTER_NOTE,
+    rows: [
+      { label: 'Sulfate', predicted: num(f.SO4, 0), target: num(t.SO4, 0) },
+      { label: 'Chloride', predicted: num(f.Cl, 0), target: num(t.Cl, 0) },
+      {
+        label: 'SO₄:Cl ratio',
+        predicted: f.match ? (Number.isFinite(f.ratio) ? num(f.ratio, 2) : '∞') : '—',
+        target: num(water.style.so4_cl_target, 2),
+      },
+    ],
   };
 }
 

@@ -103,3 +103,5 @@ export {
   kettleShares,
   sumSalts,
 } from './water/volumes.js';
+
+export { fermenterSulfateChloride, waterBackSaltsToTarget } from './water/fermenter.js';

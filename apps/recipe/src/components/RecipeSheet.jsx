@@ -282,6 +282,40 @@ export default function RecipeSheet({
               </table>
             </>
           )}
+          {s.water.fermenter && (
+            <>
+              <Caption>
+                {s.water.fermenter.label} (mg/L). {s.water.fermenter.note}
+              </Caption>
+              <table style={tbl}>
+                <thead>
+                  <tr style={{ background: C.headerBg }}>
+                    <th style={th} />
+                    {s.water.fermenter.rows.map((r) => (
+                      <th key={r.label} style={th}>
+                        {r.label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ['Predicted', 'predicted'],
+                    ['Target', 'target'],
+                  ].map(([label, key], i) => (
+                    <tr key={key} style={{ background: i % 2 ? C.rowAlt : C.page }}>
+                      <td style={{ ...td, textAlign: 'left' }}>{label}</td>
+                      {s.water.fermenter.rows.map((r) => (
+                        <td key={r.label} style={td}>
+                          {r[key]}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
         </Section>
       )}
 

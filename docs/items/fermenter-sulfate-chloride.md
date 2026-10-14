@@ -2,8 +2,11 @@
 
 Status: agreed 2026-10-14 ("agree to all", FM-Q1r, FM-Q3 to FM-Q6r,
 FM-Q8 to FM-Q10, M; FM-Q1 and FM-Q2 of 2026-10-13 replaced by FM-Q1r and
-FM-Q6r on the owner's word); not started. Written by the S15c session;
-built in batch S17, item 1 (docs/ROADMAP.md, Sessions).
+FM-Q6r on the owner's word); landed 2026-10-14 as "With water back on, the
+Salts & Acid screen and the sheet show the fermenter's sulfate, chloride
+and SO4:Cl ratio from the water and salts, beside the style's targets, and
+the grams to add to the water back when below them". Written by the S15c
+session; built in batch S17, item 1 (docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -84,3 +87,57 @@ on hand is named*; *off, nothing changes*.
   not the app (SPEC 7).
 - The label's wording, the screen's layout and the sheet's line are the
   builder's, in the item's words.
+
+## Builder's notes (S17, 2026-10-14)
+
+Choices the sentences did not make, each a claim for the inspector:
+
+- **Where the arithmetic lives.** A new engine file,
+  `packages/engine/src/water/fermenter.js`, exported from `index.js`:
+  `fermenterSulfateChloride` (the boil, × pre-boil ÷ post-boil, then the mix
+  by mass over the wort from kettle plus the water back, `volumeAtPitch`)
+  and `waterBackSaltsToTarget` (the shortfall × the fermentation volume ÷
+  the salt's mg/L per g per gal, never below 0). No constant of its own;
+  147.4 and 127.4 are the salt table's. A blank stays blank (the ratio is
+  blank when either ion is; `Math.max(0, NaN)` is NaN). Exactly at target
+  gives 0 with no round-off allowance.
+- **The kettle sums.** The salts reaching the kettle from the mash and the
+  sparge (`kettleShares`, `shareOfSalts`) now run whatever the kettle
+  switch, so the fermenter reads them with kettle salts off (FM-Q3); with
+  kettle salts on it adds the kettle balance, the same salts the kettle
+  water readout shows. The kettle readout's figures are unchanged.
+- **When the figures are blank.** Until there is a recommendation (a full
+  water report and a positive treated volume): before that the salts in the
+  water are not known. The card sits inside the Salts & Acid section that
+  every other card needs a treated volume for.
+- **The water back's own.** From the HLT, the source water plus the salts it
+  carries (S15c item 3) over its volume at 60 °F; the acid it carries is not
+  counted (no acid in the engine's table carries sulfate or chloride).
+  Mash water treated: the source water's.
+- **Blank figures named (FM-S8).** While water back is on, the Water tab's
+  "Blank figures the water sums need" line also names the brewhouse
+  efficiency (with a sparge), the boil-off rate, the boil time, the wort
+  from kettle and the water back (the water back now with the mash water
+  treated too). A measurement temperature the correction cannot use is not
+  added there: the line under the stats bar names it on the same tab.
+- **Not on hand (FM-S5).** The grams are worked out but not shown; the tab
+  says "Sulfate is below the target and needs Gypsum (CaSO₄·2H₂O), which
+  is not on hand." The sheet prints only the grams (FM-S6).
+- **The screen.** A card "Fermenter" after the Kettle Water card, titled
+  "Fermenter, with the water back", the label FM-S1 gives, three tiles with
+  the near / far colours (`targetMatch`), each salt to add as "Add to the
+  water back: <salt> <g>" at the salts' screen precision (0.1 g Home, whole
+  g Pro), and a line saying the kettle water is boiled and mixed.
+- **The sheet.** The grams as additions, "Water back"; a table after the
+  kettle water's, "Fermenter, with the water back (mg/L)" with the label.
+  With water back off the sheet's data carries no fermenter entry, so it is
+  as before byte for byte.
+- **The water back note (FM-S10).** Both notes ended "no mineral figure for
+  the beer is worked out"; they now end "of the beer's minerals, only the
+  fermenter's sulfate and chloride count it."
+- **Recorded failure.** Engine 6 of 6, "fermenterSulfateChloride is not a
+  function"; app 7 of 7 ("Cannot read properties of undefined (reading
+  'SO4')", and "expected undefined to be null" for FM-S9). After recording,
+  the FM-S9 assertion on the sheet changed from `toBeNull()` to
+  `toBeUndefined()`, when the sheet's data was made to carry no entry with
+  water back off.

@@ -46,6 +46,8 @@ import WaterGoesCard, {
   KETTLE_ASSUMPTION,
   KETTLE_BIAS_NOTE,
   KETTLE_HELD_NOTE,
+  FERMENTER_LABEL,
+  FERMENTER_NOTE,
 } from './WaterGoesCard.jsx';
 import {
   volumeUnit,
@@ -233,6 +235,7 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
   const ions = final?.ions;
   const kettleProfile = figures.kettle?.profile;
   const kettleIons = kettleProfile?.ions;
+  const fermenter = figures.fermenter;
 
   return (
     <>
@@ -591,6 +594,46 @@ export default function SaltsAcidScreen({ water, figures, mode, proVolumeUnit, s
               <p style={tokens.notice}>
                 A kettle sample may read lower in calcium and higher in magnesium: calcium partly reacts with the
                 malt's phosphate, and the malt adds its own magnesium.
+              </p>
+            </Card>
+          )}
+
+          {fermenter && (
+            <Card>
+              <div style={tokens.cardLabel}>Fermenter</div>
+              <div style={tokens.cardTitle}>{FERMENTER_LABEL}</div>
+              <p style={{ ...tokens.notice, marginTop: 0 }}>{FERMENTER_NOTE}</p>
+              <div style={tokens.statGrid}>
+                {[['SO4', 'Sulfate'], ['Cl', 'Chloride']].map(([key, label]) => (
+                  <StatBox
+                    key={key}
+                    value={num(fermenter[key], 0)}
+                    label={label}
+                    sublabel={`tgt ${target[key]}`}
+                    valueStyle={tileStyle(fermenter.match?.[key])}
+                  />
+                ))}
+                <StatBox
+                  value={
+                    fermenter.match ? (Number.isFinite(fermenter.ratio) ? num(fermenter.ratio, 2) : '∞') : '—'
+                  }
+                  label="SO₄:Cl Ratio"
+                  sublabel={`tgt ${style.so4_cl_target.toFixed(2)}`}
+                  valueStyle={tileStyle(fermenter.match?.ratio)}
+                />
+              </div>
+              {fermenter.add.map((a) => (
+                <p key={a.key} style={tokens.notice}>
+                  Add to the water back: {a.name} {num(a.grams, gramDigits)} {saltUnit(mode)}
+                </p>
+              ))}
+              {fermenter.notOnHand.map((a) => (
+                <p key={a.key} role="status" style={tokens.warning}>
+                  {a.ion} is below the target and needs {a.name}, which is not on hand.
+                </p>
+              ))}
+              <p style={tokens.notice}>
+                The kettle water, boiled by the pre-boil ÷ post-boil volume, then mixed with the water back.
               </p>
             </Card>
           )}

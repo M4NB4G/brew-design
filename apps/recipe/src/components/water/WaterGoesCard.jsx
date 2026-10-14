@@ -50,10 +50,16 @@ export const KETTLE_HELD_NOTE =
 // Water back (docs/items/water-back-from-the-hlt.md, WD-S4, in place of
 // WB-S5's note that no water figure counts it): the Water tab and the printed
 // sheet say, while it is on, what it is in, by where the water is treated.
+// Of the beer's minerals, only the fermenter's sulfate and chloride count it
+// (docs/items/fermenter-sulfate-chloride.md, FM-S10).
 export const WATER_BACK_NOTES = {
-  tank: "Water back is drawn from the HLT after the sparge and carries its share of the HLT's salts (and of the acid when it goes with the salts); no mineral figure for the beer is worked out.",
-  mash: 'Water back is untreated source water and carries no salts; no mineral figure for the beer is worked out.',
+  tank: "Water back is drawn from the HLT after the sparge and carries its share of the HLT's salts (and of the acid when it goes with the salts); of the beer's minerals, only the fermenter's sulfate and chloride count it.",
+  mash: "Water back is untreated source water and carries no salts; of the beer's minerals, only the fermenter's sulfate and chloride count it.",
 };
+// The fermenter's sulfate and chloride with water back on (FM-S1, FM-S6):
+// their title and label, on screen and on the printed sheet.
+export const FERMENTER_LABEL = 'Fermenter, with the water back';
+export const FERMENTER_NOTE = 'Water and salts only; the style targets do not count the malt either.';
 export const WATER_BACK_LABEL = 'Water back, to the fermenter';
 
 // What the water back carries, one "name amount unit" per salt and acid
@@ -87,6 +93,11 @@ export const SETUP_LABELS = {
   tankTreatedGal: 'Treated volume',
   tankTopUpGal: 'Top-up level',
   waterBackGal: 'Water back',
+  // With water back on, for the fermenter's sulfate and chloride (FM-S8).
+  efficiency: 'Brewhouse efficiency',
+  boilOffRateGalPerHr: 'Boil-off rate',
+  boilTimeMin: 'Boil time',
+  fermentVolGal: 'Wort from kettle',
 };
 
 // A canonical-gal figure in the screen's volume unit (Home gal; Pro bbl, or

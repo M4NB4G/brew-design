@@ -51,6 +51,8 @@ import {
   knockOutPlato,
   sgToPlato,
   platoToSg,
+  fermenterSulfateChloride,
+  waterBackSaltsToTarget,
 } from '@brew/engine';
 import { toReferenceVolume } from './reference-volume.js';
 import { fractionToPercent } from './display.js';
@@ -335,9 +337,10 @@ export function computeRecipe(state) {
 // volume is the recipe's mash water, or the hot-liquor tank's typed first
 // fill. The water volumes come from the recipe — its grain, its mash water and
 // its pre-boil volume at 60 degF (Q2) — by the engine's sums; so do the tank's
-// draws and the kettle salts. No wort mineral figure is worked out; beside the
-// treated water's predicted profile, with kettle salts on, the kettle water
-// before the boil (S4b item 2).
+// draws and the kettle salts. No wort mineral figure is worked out, except,
+// with water back on, the fermenter's sulfate and chloride (S17 item 1,
+// FM-S10); beside the treated water's predicted profile, with kettle salts on,
+// the kettle water before the boil (S4b item 2).
 //
 // Mash pH from the grain bill (docs/items/mash-ph.md, item 2): the predicted
 // mash pH of a cooled sample, by the engine's model, from the recipe's malts
@@ -393,7 +396,18 @@ export function computeWater(water, recipe) {
   // tank's draws need it.
   const waterBackOn = recipe.waterBack?.on === true;
   const waterBackGal = waterBackOn ? recipe.waterBack.volumeGal : 0;
-  if (waterBackOn && tankTreated) needed.push(['waterBackGal', waterBackGal]);
+  // With water back on, the fermenter's sulfate and chloride
+  // (docs/items/fermenter-sulfate-chloride.md, FM-S8) also need the boil, the
+  // wort from kettle and the water back.
+  if (waterBackOn) {
+    needed.push(
+      ...(setup.spargeMethod !== 'none' ? [['efficiency', recipe.efficiency]] : []),
+      ['boilOffRateGalPerHr', recipe.boilOffRateGalPerHr],
+      ['boilTimeMin', recipe.boilTimeMin],
+      ['fermentVolGal', recipe.fermentVolGal],
+      ['waterBackGal', waterBackGal],
+    );
+  }
   const blank = needed.filter(([, v]) => !entered(v)).map(([k]) => k);
 
   const overrides = water.saltOverrides;
@@ -635,7 +649,8 @@ export function computeWater(water, recipe) {
   // What the water back carries (WD-S1, WD-S3): from the treated tank, its
   // share of the tank's salts, and of the acid when the acid goes with the
   // salts; with the mash water treated, it is untreated source water and
-  // carries nothing. No mineral figure for the beer is worked out (WD-Q5).
+  // carries nothing. Of the beer's minerals, only the fermenter's sulfate and
+  // chloride count it (FM-S10).
   // Null with water back off.
   let waterBack = null;
   if (waterBackOn) {
@@ -656,19 +671,23 @@ export function computeWater(water, recipe) {
   // brewhouse efficiency (no sparge: the mash well mixed) and the share of
   // the sparge's that reaches it. No acid. The kettle water's figures are the
   // source water's plus every salt in the kettle over its volume.
+  // The salts that reach the kettle from the mash and the sparge, for the
+  // kettle salts and, with water back on, the fermenter (FM-S2, FM-Q3).
+  const kettleGal = preBoilGal;
+  const shares = kettleShares({
+    efficiency: recipe.efficiency,
+    mashWaterGal,
+    spargeGal: sums.spargeGal,
+    preBoilGal: kettleGal,
+    spargeMethod: setup.spargeMethod,
+  });
+  const fromMash = shareOfSalts(tank ? tank.mashSalts : added, shares.mash);
+  const fromSparge = shareOfSalts(tank ? tank.spargeSalts : {}, shares.sparge);
+  const fromLauter = sumSalts(fromMash, fromSparge);
+  // Every salt in the kettle: with kettle salts off, what the lauter brings.
+  let inKettle = fromLauter;
   let kettle = null;
   if (setup.kettleSalts) {
-    const kettleGal = preBoilGal;
-    const shares = kettleShares({
-      efficiency: recipe.efficiency,
-      mashWaterGal,
-      spargeGal: sums.spargeGal,
-      preBoilGal: kettleGal,
-      spargeMethod: setup.spargeMethod,
-    });
-    const fromMash = shareOfSalts(tank ? tank.mashSalts : added, shares.mash);
-    const fromSparge = shareOfSalts(tank ? tank.spargeSalts : {}, shares.sparge);
-    const fromLauter = sumSalts(fromMash, fromSparge);
     const whole =
       complete && entered(kettleGal) && kettleGal > 0 && entered(shares.mash) && entered(shares.sparge)
         ? saltTotals(
@@ -684,7 +703,7 @@ export function computeWater(water, recipe) {
     const balance = whole
       ? kettleSalts({ needed: whole, fromMash, fromSparge })
       : Object.fromEntries(Object.keys(fromLauter).map((k) => [k, NaN]));
-    const inKettle = sumSalts(fromLauter, balance);
+    inKettle = sumSalts(fromLauter, balance);
     let profile = null;
     if (whole && Object.values(inKettle).every(entered)) {
       const ions = predictFinalProfile({ source: s, additions: inKettle, acids: {}, volumeGallons: kettleGal });
@@ -717,6 +736,61 @@ export function computeWater(water, recipe) {
     };
   }
 
+  // The fermenter's sulfate and chloride with water back on
+  // (docs/items/fermenter-sulfate-chloride.md, FM-S1 to FM-S5): the kettle
+  // water before the boil (the source water and every salt in the kettle over
+  // the pre-boil volume at 60 degF, the kettle water readout's sums), boiled
+  // and mixed with the water back's own (the source water, plus with the HLT
+  // treated the salts it carries over its volume at 60 degF), by the engine;
+  // beside the style's targets; and the grams to add to the water back, from
+  // the salts on hand. Blank until there is a recommendation (the salts in the
+  // water are not known before). Null with water back off (FM-S9).
+  let fermenter = null;
+  if (waterBackOn) {
+    const blankIons = { SO4: NaN, Cl: NaN };
+    const known = (salts) => Object.values(salts).every(entered);
+    const kettleIons =
+      recommendation && entered(kettleGal) && kettleGal > 0 && known(inKettle)
+        ? predictFinalProfile({ source: s, additions: inKettle, acids: {}, volumeGallons: kettleGal })
+        : blankIons;
+    const pitch = pitchVolumes(recipe);
+    const postBoilRefGal = toReferenceVolume(
+      computePostBoilVol(recipe.preBoilVolGal, recipe.boilOffRateGalPerHr, recipe.boilTimeMin),
+      'postBoil',
+      recipe.measurementTempF,
+    );
+    const waterBackIons = !recommendation
+      ? blankIons
+      : !waterBack.fromTank
+        ? { SO4: s.SO4, Cl: s.Cl }
+        : entered(pitch.waterBackRefGal) && known(waterBack.salts)
+          ? predictFinalProfile({ source: s, additions: waterBack.salts, acids: {}, volumeGallons: pitch.waterBackRefGal })
+          : blankIons;
+    const f = fermenterSulfateChloride({
+      kettle: kettleIons,
+      preBoilGal: kettleGal,
+      postBoilGal: postBoilRefGal,
+      wortGal: pitch.fermentRefGal,
+      waterBack: waterBackIons,
+      waterBackGal: pitch.waterBackRefGal,
+    });
+    const grams = waterBackSaltsToTarget({ fermenter: f, target, pitchGal: f.pitchGal });
+    const short = [
+      ['gypsum', 'Sulfate'],
+      ['calcium_chloride', 'Chloride'],
+    ].filter(([k]) => grams[k] > 0);
+    const onHand = ([k]) => water.enabledSalts.includes(k);
+    const saltName = (k) => SALT_CONTRIBUTIONS_PER_G_GAL[k].name;
+    fermenter = {
+      ...f,
+      match: entered(f.SO4)
+        ? { SO4: targetMatch(f.SO4, target.SO4), Cl: targetMatch(f.Cl, target.Cl), ratio: targetMatch(f.ratio, style.so4_cl_target) }
+        : null,
+      add: short.filter(onHand).map(([k]) => ({ key: k, name: saltName(k), grams: grams[k] })),
+      notOnHand: short.filter((x) => !onHand(x)).map(([k, ion]) => ({ key: k, name: saltName(k), ion })),
+    };
+  }
+
   return {
     style,
     target,
@@ -738,6 +812,9 @@ export function computeWater(water, recipe) {
     kettle,
     // Water back (WD-S1 to WD-S4): what it carries, or null while it is off.
     waterBack,
+    // The fermenter's sulfate and chloride (FM-S1 to FM-S5), or null while
+    // water back is off.
+    fermenter,
     warnings: {
       mashOverTreated: tank?.mashOverTreated ?? false,
       spargeOverTank: tank?.spargeOverTank ?? false,

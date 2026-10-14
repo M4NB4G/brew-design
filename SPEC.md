@@ -31,7 +31,9 @@ cached values are pinned by the golden-master tests.
    (`REFERENCE_TEMP_F`, stated once in `units.js`); the caller corrects first. `mashWaterGal` is used as entered — the 2.055 qt→lb
    constant embeds its own density assumption. Water back is not in Rev 4:
    `computeWaterBack` adds no constant, only the engine's own formulas on
-   the volume at pitch (rule 10), each figure pinned by hand.
+   the volume at pitch (rule 10), each figure pinned by hand; nor do
+   `fermenterSulfateChloride` and `waterBackSaltsToTarget`, the fermenter's
+   sulfate and chloride with water back on, on the salt table.
 
 ## 2. App (`apps/recipe`)
 
@@ -140,7 +142,8 @@ cached values are pinned by the golden-master tests.
     each predicted figure is to its target, the water volumes from the
     recipe (its grain, mash water and pre-boil volume at 60 °F), the
     hot-liquor tank's draws and the kettle salts, comes from the engine
-    through it. No wort mineral figure is worked out. The hot-liquor tank
+    through it. No wort mineral figure is worked out, except, with water
+    back on, the fermenter's sulfate, chloride and SO₄:Cl ratio (below). The hot-liquor tank
     is never topped up below the treated water the mash leaves: with the
     top-up level below it, the tank holds only that water, all treated, the
     sparge and the water left drawn from it, and a warning says no untreated
@@ -209,7 +212,25 @@ cached values are pinned by the golden-master tests.
     untreated source water and carries none. The Water tab and the printed
     sheet list, on its own row ("Water back, to the fermenter"), what it
     carries, and say what it is in; "Total water" stays the mash and sparge
-    water. No mineral figure for the beer counts it. The printed sheet prints the wort from kettle, the water back and the
+    water. Of the beer's minerals only the fermenter's sulfate, chloride
+    and their ratio count it: with water back on, the Salts & Acid screen
+    shows them from the water and salts only, the malt not counted, as the
+    style's targets do not count it ("Water and salts only; the style
+    targets do not count the malt either."), beside the style's targets
+    with the near / far marks, whether or not salts go in the kettle: the
+    kettle water before the boil (the source water and every salt that
+    reaches the kettle, the kettle water readout's sums) concentrated by
+    the boil (pre-boil ÷ post-boil volume) and mixed with the water back's
+    own (the source water, plus with the hot-liquor tank treated the salts
+    it carries over its volume) at the wort from kettle's and the water
+    back's volumes, every volume at 60 °F, by the engine; sulfate and
+    chloride in whole mg/L, the ratio to 0.01. Below a target, the grams
+    to add to the water back that bring the fermenter to it, by the engine:
+    gypsum for sulfate, calcium chloride for chloride, each when on hand
+    (when not, the tab names the salt it needs); nothing at or above it.
+    A blank figure the sums need blanks them and the tab names it. The
+    printed sheet prints the three, their targets and the grams (in the
+    additions, "Water back"). With water back off none of this shows. The printed sheet prints the wort from kettle, the water back and the
     fermentation volume, its batch volume the fermentation volume, and the
     OG from kettle and the OG at pitch. With water back off every figure is as
     without it.
