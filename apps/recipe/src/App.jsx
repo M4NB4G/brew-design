@@ -22,7 +22,7 @@ import {
   solveUndoable,
 } from './state.js';
 import { computeRecipe, computeWater, solveTargetOG, computeCost } from './selectors.js';
-import { mashWaterChanged } from './water-state.js';
+import { mashWaterChanged, grainBillChanged, MASH_PH_MALT_FIELDS } from './water-state.js';
 import { emptyFields, emptyFieldsLine } from './empty-fields.js';
 import {
   loadStartingState,
@@ -316,7 +316,9 @@ export default function App() {
   const solve = (targetOG, shares, typed) => {
     const out = solveTargetOG(recipe, targetOG, shares);
     if (out.ok) {
-      const next = withMaltWeights(recipe, out.weightsLb);
+      // New weights return the brewer's own acid; "Undo solve" puts back the
+      // weights only (GA-S3).
+      const next = { ...withMaltWeights(recipe, out.weightsLb), water: grainBillChanged(recipe.water) };
       setRecipe(next);
       setSolved({ before: recipe.malts.map((m) => m.weightLb), after: next, ...typed });
     }
@@ -330,21 +332,32 @@ export default function App() {
 
   // Top-level scalar field setter.
   // A new mash water, when it is the treated water, returns the brewer's own
-  // salt and acid amounts to the recommendation (water treatment K).
+  // salt and acid amounts to the recommendation (water treatment K); when it
+  // is not, the acid (GA-S1).
   const setField = (field, value) => {
     setRecipe((r) => ({ ...r, [field]: value }));
     if (field === 'mashWaterGal') setWater(mashWaterChanged);
   };
 
   // Row helpers for the array fields (malts, kettleAdditions, dryHops).
-  const setRow = (field, index, key, value) =>
+  // A malt figure the predicted mash pH reads, or a malt added or removed,
+  // returns the brewer's own acid to the recommendation in the same step
+  // (GA-S1, K).
+  const setRow = (field, index, key, value) => {
     setRecipe((r) => ({
       ...r,
       [field]: r[field].map((row, i) => (i === index ? { ...row, [key]: value } : row)),
     }));
-  const addRow = (field, row) => setRecipe((r) => ({ ...r, [field]: [...r[field], row] }));
-  const removeRow = (field, index) =>
+    if (field === 'malts' && MASH_PH_MALT_FIELDS.includes(key)) setWater(grainBillChanged);
+  };
+  const addRow = (field, row) => {
+    setRecipe((r) => ({ ...r, [field]: [...r[field], row] }));
+    if (field === 'malts') setWater(grainBillChanged);
+  };
+  const removeRow = (field, index) => {
     setRecipe((r) => ({ ...r, [field]: r[field].filter((_, i) => i !== index) }));
+    if (field === 'malts') setWater(grainBillChanged);
+  };
 
   const setYeast = (key, value) =>
     setRecipe((r) => ({ ...r, yeast: { ...r.yeast, [key]: value } }));
@@ -455,6 +468,7 @@ export default function App() {
               addRow={addRow}
               removeRow={removeRow}
               setField={setField}
+              onMaltPick={() => setWater(grainBillChanged)}
               mode={mode}
               proMaltUnit={proMaltUnit}
               proGravityUnit={proGravityUnit}

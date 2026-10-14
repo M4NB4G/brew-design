@@ -137,11 +137,25 @@ export function setWaterSetup(water, key, value) {
 
 // The recipe's mash water changed: when it is the treated water, the
 // brewer's own amounts return to the recommendation (water treatment K);
-// when the acid goes into the mash, the acid does (AM-S2).
+// otherwise the acid does, as the predicted mash pH reads the mash water
+// (AM-S2; docs/items/grain-bill-edits-return-acid.md, GA-S1).
+// FLAG: with the mash water treated, a new mash water returns the brewer's
+// own salts too, though GA-S4 keeps them on every grain bill edit: the
+// salts were dosed for that volume. The owner's ruling, 2026-10-14 (GA-Q5).
 export function mashWaterChanged(water) {
   const setup = effectiveSetup(water);
   if (setup.treatment === 'mash') return toRecommendation(water);
-  return setup.acidPlace === 'mash' ? { ...water, acidAmounts: null } : water;
+  return grainBillChanged(water);
+}
+
+// The malt figures the predicted mash pH reads (the engine's mashPh): an
+// edit of one, a malt added or removed, or Solve's new weights return the
+// brewer's own acid to the recommendation, the brewer's salts staying
+// (GA-S1, GA-S3, GA-S4). A malt's name, price or FGDB does not (GA-S2).
+export const MASH_PH_MALT_FIELDS = ['weightLb', 'type', 'colorL', 'distilledWaterPh', 'acidityMeqPerKg'];
+
+export function grainBillChanged(water) {
+  return { ...water, acidAmounts: null };
 }
 
 // The target mash pH moves the acid recommendation: the brewer's own acid

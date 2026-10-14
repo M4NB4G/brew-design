@@ -54,6 +54,7 @@ export default [
       'apps/recipe/test/target-og-with-water-back.test.js',
       'apps/recipe/test/water-box-keeps-its-figure.test.js',
       'apps/recipe/test/comma-decimal-point.test.js',
+      'apps/recipe/test/grain-bill-edits-return-acid.test.js',
     ],
     languageOptions: { globals: globals.browser },
   },

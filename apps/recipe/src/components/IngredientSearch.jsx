@@ -60,7 +60,7 @@ function listPlacement(rect) {
 // A strain's save line's three boxes, as typed: blank until typed.
 const NO_STRAIN_FIGURES = { attenuation: '', low: '', high: '' };
 
-export default function IngredientSearch({ field, row, index, setRow, label, temperatureUnit }) {
+export default function IngredientSearch({ field, row, index, setRow, label, temperatureUnit, onPick }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const [place, setPlace] = useState(null);
@@ -98,8 +98,11 @@ export default function IngredientSearch({ field, row, index, setRow, label, tem
     }
   };
 
+  // A pick is an edit of its own, whatever figures it changes: the page is
+  // told (a malt's pick returns the brewer's own acid, GA-S1).
   const pick = (item) => {
     apply(pickIngredient(field, row, item));
+    onPick?.();
     setOpen(false);
     setActive(-1);
   };

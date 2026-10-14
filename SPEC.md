@@ -181,7 +181,14 @@ cached values are pinned by the golden-master tests.
     alkalinity, and a note names what the pH needs. A blank target blanks the
     acid recommendation, and what reads it while the brewer follows it, and
     the tab names it; changing the target returns the brewer's own acid to the
-    recommendation. The salts follow the style's mineral targets; its
+    recommendation, and so does any edit the predicted mash pH reads — a
+    malt's weight, type, colour or lab figures (a pick from the ingredient
+    list among them), a malt added or removed, Solve's new weights, and the
+    mash water — in the same step, the brewer's own salts staying (the mash
+    water, when it is the treated water, returns them too, as before); a
+    malt's name, price or FGDB, a hop, yeast, volume or cost edit leaves
+    them, "Undo solve" restores the weights only, and the Home/Pro scale
+    multiplies them. The salts follow the style's mineral targets; its
     alkalinity and residual alkalinity show as targets beside the profile.
     With the hot-liquor tank treated and the acid going into the mash, the
     salts stay in the tank as before, the acid recommended is dosed for the

@@ -72,6 +72,7 @@ export default function GristTable({
   addRow,
   removeRow,
   setField,
+  onMaltPick,
   mode,
   proMaltUnit,
   proGravityUnit,
@@ -187,7 +188,7 @@ export default function GristTable({
               striped={i % 2 === 1}
               name={
                 <>
-                  <IngredientSearch field="malts" row={m} index={i} setRow={setRow} label={`Malt ${i + 1} name`} />
+                  <IngredientSearch field="malts" row={m} index={i} setRow={setRow} onPick={onMaltPick} label={`Malt ${i + 1} name`} />
                   <label style={phoneTypeStyle}>
                     <span style={phoneTypeLabelStyle}>Type</span>
                     {typeInput(m, i)}
@@ -226,7 +227,7 @@ export default function GristTable({
             {malts.map((m, i) => (
               <tr key={i} style={{ background: i % 2 === 1 ? colors.noticeBg : 'transparent' }}>
                 <td style={TD}>
-                  <IngredientSearch field="malts" row={m} index={i} setRow={setRow} label={`Malt ${i + 1} name`} />
+                  <IngredientSearch field="malts" row={m} index={i} setRow={setRow} onPick={onMaltPick} label={`Malt ${i + 1} name`} />
                 </td>
                 {maltInputs(m, i).map(({ label, input }, k) => [
                   <td key={label} style={TD_NUM}>
