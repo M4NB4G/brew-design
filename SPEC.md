@@ -174,7 +174,8 @@ cached values are pinned by the golden-master tests.
     pH to the recipe's target, for the water the mash draws before the acid —
     the salts on screen, less the alkalinity-raising salt the style's
     alkalinity recommends — dosed where the acid goes. Above the target
-    without that salt, no raising salt is recommended; at or below it, no
+    without that salt, no raising salt is recommended, and with kettle salts
+    on the kettle gets none either, its other salts as before; at or below it, no
     acid, and the raising salt follows the style's alkalinity. While the mash
     pH cannot be predicted, the acid is the solver's for the style's
     alkalinity, and a note names what the pH needs. A blank target blanks the

@@ -502,7 +502,11 @@ export function computeWater(water, recipe) {
   const acidAcids = aimed ? aimed.acids : styleAcid ? styleAcid.acids : null;
 
   // Salts: the recommendation per salt, the brewer's own amounts over it.
-  const recommendedSalts = aimed && Object.keys(aimed.acids).length > 0 ? withoutRaise : solverSalts;
+  // While the acid aims (the mash above the target without the raising
+  // salt), the raising salt is left out (AA-Q7), and the kettle gets none
+  // either (docs/items/kettle-salts-when-acid-aims.md, KA-S1).
+  const acidAims = !!aimed && Object.keys(aimed.acids).length > 0;
+  const recommendedSalts = acidAims ? withoutRaise : solverSalts;
   const effectiveSalts = { ...recommendedSalts, ...overrides };
   const recommendedOf = (k) => (recommendation ? recommendedSalts[k] ?? 0 : NaN);
   const saltRow = (k) => ({
@@ -703,6 +707,16 @@ export function computeWater(water, recipe) {
     const balance = whole
       ? kettleSalts({ needed: whole, fromMash, fromSparge })
       : Object.fromEntries(Object.keys(fromLauter).map((k) => [k, NaN]));
+    // KA-S1: while the acid aims, no raising salt in the kettle; dropped from
+    // the result, not the solve, so the other kettle salts stay (KA-S3).
+    // FLAG: the kettle water readout then counts no raising salt, so it is
+    // lower than before by what that salt added: alkalinity for both, sodium
+    // for baking soda, calcium for pickling lime (the amber ale of
+    // kettle-salts-when-acid-aims.test.js at 5.4 with lime: calcium 76.06 ->
+    // 71.97 mg/L, its mark against the style's 90 near -> off). The
+    // sentences keep only the other salts as before; this readout counts
+    // what is in the kettle.
+    if (acidAims && water.raiseAlkSource in balance) balance[water.raiseAlkSource] = 0;
     inKettle = sumSalts(fromLauter, balance);
     let profile = null;
     if (whole && Object.values(inKettle).every(entered)) {
