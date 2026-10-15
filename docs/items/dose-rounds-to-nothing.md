@@ -1,8 +1,10 @@
 # A dose too small to show is left off the printed sheet, Tier C
 
-Status: agreed 2026-10-15 ("agree to all", R-1, DZ-Q1, O-1 to O-5); not
-started. Written by the S19 session; built in the orchestrated run, batch O1,
-item 1 (docs/ROADMAP.md, Sessions).
+Status: landed 2026-10-15 in batch O1 of run S20, as "On the printed sheet, an
+addition whose amount shows as zero at its printed precision is left off";
+agreed 2026-10-15 ("agree to all", R-1, DZ-Q1, O-1 to O-5). Written by the S19
+session; built in the orchestrated run, batch O1, item 1 (docs/ROADMAP.md,
+Sessions).
 
 ## Why
 
@@ -48,3 +50,32 @@ sheet, at Home and in Pro* · *a dose that shows a figure prints as before* ·
 - `docs/TEST_COVERAGE.md` gets a scenario row; the roadmap line "A dose
   that rounds to nothing prints a row" is removed. SPEC rule 8's printed
   sheet wording needs no change unless it lists the additions printed.
+
+## Builder's notes (landed 2026-10-15)
+
+- Builder Sonnet 5.5; advisor Opus confirmed the one literal added, the 0 in
+  the zero test on the printed text, is not a recipe value.
+- "Shows as zero" is read from the printed text (`Number(text) !== 0`), no
+  threshold. Every addition row goes through one helper: mash and raising
+  salts, the acid rows (liquid and acidulated malt), kettle salts and the
+  water back's salts. A blank "—" is not zero and prints as before, as does
+  the "Additions —" row when there is no recommendation. The existing
+  `> 0` and `!== 0` guards stay.
+- With nothing left, the additions list is empty: the sheet prints the table
+  header and an empty body, exactly what it printed when nothing was added
+  (DZ-S4); the sheet component is unchanged.
+- The mash salt and acid doses in the scenarios are the Water tab's own
+  recommendations (calcium 119.5 mg/L against 120 gives gypsum 0.0407 g; a
+  mash pH target of 5.589 gives lactic 0.0405 mL; 5.5905 gives acidulated
+  malt 0.10 g, under 0.005 oz). The kettle's and water back's salts are handed
+  to the sheet as derived values, since the Water tab does not yield tiny
+  ones naturally.
+- Scenarios: "a dose that shows as zero is left off the sheet, at Home and in
+  Pro", "a dose that shows a figure prints as before", "the Water tab still
+  shows the small dose", "with every addition left off the sheet prints what
+  it prints when nothing is added". The Water tab scenario is a pin of the
+  unchanged tab and passes before the change by design; the other three fail
+  before it.
+- Far end: built app in headless Chromium, print media, screenshots
+  `O1-1-small-home.png`, `O1-1-shown-home.png`, `O1-1-small-pro.png` and
+  `O1-1-water-tab-small-home.png` (run scratchpad); no page errors.

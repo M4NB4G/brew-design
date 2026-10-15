@@ -280,16 +280,21 @@ function waterSection(water, mode, vol, vUnit) {
   const acidPlace = water.setup.acidPlace === 'mash' ? PLACES.mash : place;
   const grams = (g) => num(g, mode === 'pro' ? 0 : 1);
 
+  // DZ-S1: an addition whose printed figure reads as zero is left off; a
+  // blank ("—") is not a figure and prints as before.
   const additions = [];
+  const add = (row) => {
+    if (Number(row.amount) !== 0) additions.push(row);
+  };
   if (!water.recommendation) {
     additions.push({ place, name: 'Additions', amount: '—', unit: '' });
   } else {
     for (const r of [...water.salts, water.raiseSalt]) {
-      if (r.amount > 0) additions.push({ place, name: r.name, amount: grams(r.amount), unit: saltUnit(mode) });
+      if (r.amount > 0) add({ place, name: r.name, amount: grams(r.amount), unit: saltUnit(mode) });
     }
     for (const r of water.acid.rows) {
       if (!(r.amount > 0)) continue;
-      additions.push(
+      add(
         r.solid
           ? { place: acidPlace, name: r.name, amount: num(acidMaltFromCanonical(r.amount, mode), 2), unit: acidMaltUnit(mode) }
           : { place: acidPlace, name: r.name, amount: num(r.amount, liquidAcidDigits(mode)), unit: liquidAcidUnit(mode) },
@@ -297,11 +302,11 @@ function waterSection(water, mode, vol, vUnit) {
     }
   }
   for (const k of water.kettle?.salts ?? []) {
-    if (k.amount !== 0) additions.push({ place: 'Kettle', name: k.name, amount: grams(k.amount), unit: saltUnit(mode) });
+    if (k.amount !== 0) add({ place: 'Kettle', name: k.name, amount: grams(k.amount), unit: saltUnit(mode) });
   }
   // FM-S6: the grams to add to the water back.
   for (const a of water.fermenter?.add ?? []) {
-    additions.push({ place: 'Water back', name: a.name, amount: grams(a.grams), unit: saltUnit(mode) });
+    add({ place: 'Water back', name: a.name, amount: grams(a.grams), unit: saltUnit(mode) });
   }
 
   const v = water.volumes;
