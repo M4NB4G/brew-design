@@ -72,6 +72,8 @@ vi.mock('react-dom/client', async (importOriginal) => {
 
 const MESSAGE = 'Something went wrong drawing this page. Your saved recipe is kept as it was.';
 const EXPORT_RESET = 'Export in the header saves a copy, and Reset to defaults starts a new recipe.';
+// The whole-page message's buttons, with a saved recipe (NW-S1).
+const WHOLE_PAGE_BUTTONS = ['Reload', 'Export saved recipe', 'Start a new recipe'];
 
 // EO-S1's places outside the tabs, each with the part made to throw.
 const PLACES = [
@@ -171,9 +173,11 @@ describe('an error outside the tabs shows a message', () => {
 
       // EO-S1: the message and its Reload button, in place of the whole page;
       // the line on Export and Reset is left out, the header being gone.
+      // Since "A saved recipe the page cannot draw has a way out" (NW-S1), the
+      // two ways out stand beside Reload.
       expect(pageText(), place).toContain(MESSAGE);
       expect(pageText(), place).not.toContain(EXPORT_RESET);
-      expect(buttons(), place).toEqual(['Reload']);
+      expect(buttons(), place).toEqual(WHOLE_PAGE_BUTTONS);
       expect(document.body.querySelector('[role=alert]'), place).not.toBeNull();
 
       // EO-S2: no saved document changed, byte for byte.
@@ -190,7 +194,7 @@ describe('an error outside the tabs shows a message', () => {
     parts.throwing.add('StatsBar');
     click('Water');
     expect(pageText()).toContain(MESSAGE);
-    expect(buttons()).toEqual(['Reload']);
+    expect(buttons()).toEqual(WHOLE_PAGE_BUTTONS);
     expect(stored()).toEqual(before);
   });
 

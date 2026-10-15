@@ -57,6 +57,7 @@ export default [
       'apps/recipe/test/grain-bill-edits-return-acid.test.js',
       'apps/recipe/test/error-outside-the-tabs.test.js',
       'apps/recipe/test/references-names.test.js',
+      'apps/recipe/test/way-out-of-page-error.test.js',
     ],
     languageOptions: { globals: globals.browser },
   },

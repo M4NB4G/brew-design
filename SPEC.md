@@ -450,7 +450,16 @@ cached values are pinned by the golden-master tests.
     it draws: the recipe's, the water's, the Cost card's) shows the same
     message and the Reload button in place of the whole page, without the
     line on Export and Reset, the header being gone; it changes no saved
-    document, and Reload draws the page again from what is saved. An error
+    document, and Reload draws the page again from what is saved. Beside
+    Reload it offers "Export saved recipe" and "Start a new recipe", with
+    the line "Export saved recipe keeps a copy; Start a new recipe replaces
+    it.": Export saved recipe downloads the saved recipe exactly as storage
+    holds it, byte for byte, readable or not, and changes nothing, and is
+    not offered with no saved recipe (none stored, or storage unavailable);
+    Start a new recipe asks, then removes only the saved recipe and draws
+    the page again, which starts a new recipe (rule 17) as Reset to defaults
+    does, the brewery's figures, My ingredients and the banner's "Not now"
+    kept; on no nothing changes. An error
     in a tab or the References page is caught below the header first.
 
 ### Display units

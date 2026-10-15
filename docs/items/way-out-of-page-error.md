@@ -1,8 +1,10 @@
 # A saved recipe the page cannot draw has a way out, Tier B
 
-Status: agreed 2026-10-15 ("agree to all", S19-Q0, NW-Q1 to NW-Q4, M); not
-started. Written by the S18 session; built in batch S19, item 1
-(docs/ROADMAP.md, Sessions).
+Status: agreed 2026-10-15 ("agree to all", S19-Q0, NW-Q1 to NW-Q4, M); landed
+2026-10-15 as "The whole-page message offers Export saved recipe and Start a
+new recipe beside Reload, and a new recipe keeps the brewery's figures".
+Written by the S18 session; built in batch S19, item 1 (docs/ROADMAP.md,
+Sessions).
 
 ## Why
 
@@ -62,3 +64,67 @@ nothing changes*. Fails before: the buttons do not exist.
 - SPEC rule 18 gains the two buttons; `docs/TEST_COVERAGE.md` rule 18's row
   and a scenario row. The roadmap line "A saved recipe the page cannot draw
   leaves no way out" is removed.
+
+## Builder's notes (S19, 2026-10-15)
+
+Choices the sentences did not make, each a claim for the inspector:
+
+- **Order and place.** The buttons read Reload, Export saved recipe, Start a
+  new recipe, in one row that wraps on a phone; the line sits between the
+  message and the buttons, where the tab's Export/Reset line sits. The
+  tab's own card is drawn exactly as before (its Reload is not wrapped), so
+  its markup and the byte-for-byte page digests are unchanged (NW-S5).
+- **The line stays with no saved recipe.** NW-S1 gives the message the line;
+  NW-S4 takes away only the Export button, so with nothing saved the line
+  still names Export saved recipe. Rare: the whole-page error with no saved
+  recipe means the brewery's document or a fault of the app's own, not the
+  recipe.
+- **The file's name.** "When it can be read" is read as: the stored text is
+  JSON whose recipe carries a name as text. Then the file is named from it
+  and the date, as Export in the header names one ("Cannot be drawn
+  2026-10-15.json"); otherwise the nameless recipe's name ("Brew Design
+  recipe 2026-10-15.json"). The full recipe check is not run: it would keep
+  the unreadable copy aside, a write Export must not make.
+- **The question.** "Start a new recipe? The saved recipe will be removed;
+  your brewery's figures and My ingredients are kept." Reset's question is
+  the model; this one names what stays, as NW-S3 does.
+- **Drawn again = reloaded.** On yes the saved recipe is removed through
+  `clearPersisted`, then the page reloads (the builder note's suggestion),
+  so the load's own `loadStartingState` builds the new recipe and no
+  new-recipe logic is written twice. jsdom cannot reload; the scenario sees
+  the reload asked on the console jsdom reports it on, and a second draw
+  stands for it, as error-outside-the-tabs.test.js's Reload does.
+- **Storage read each time it is drawn.** Whether Export is offered is read
+  from storage when the message is drawn, guarded as App.jsx guards it.
+- **Outside the named files.** `error-outside-the-tabs.test.js`'s EO-S1
+  scenarios expected Reload as the only button; they now expect the three
+  (NW-S1 changes that sentence of rule 18). `eslint.config.js` lists the new
+  test among the jsdom tests that read the browser's globals, as every such
+  test is listed.
+- **How the page is made to fail.** The recipe's figures (`computeRecipe`,
+  wrapped as error-outside-the-tabs wraps it) throw for a saved recipe named
+  "Cannot be drawn", so the cause is the saved recipe itself and a new
+  recipe draws. NW-S5's no-error check passes before the change by design.
+- **Far end.** On the built app in Chromium (2026-10-15), with a script in
+  the browser making the stats bar's number formatting throw while the
+  saved recipe is named "Cannot be drawn" (not committed): the message, its
+  line and the three buttons; the download "Cannot be drawn
+  2026-10-15.json" byte for byte the stored text, storage unchanged; the
+  question asked, No changing nothing; Yes reloaded to a new recipe with no
+  name and no message, the brewery's document unchanged, no page error.
+
+Failure recorded before the change (the scenario run alone, trimmed):
+
+```
+× the whole-page message offers Export saved recipe and Start a new recipe, with their line
+  AssertionError: expected 'Something went wrong drawing this pag…' to contain 'Export saved recipe keeps a copy; Sta…'
+  Received: "Something went wrong drawing this page. Your saved recipe is kept as it was.Reload"
+× Export saved recipe downloads the stored document byte for byte, an unreadable one too, and changes nothing
+  Error: no button "Export saved recipe"
+× Start a new recipe asks, then removes only the saved recipe and draws a new recipe from the brewery's figures; no changes nothing
+  Error: no button "Start a new recipe"
+× with no saved recipe, Export saved recipe is not offered
+  AssertionError: expected [ 'Reload' ] to deeply equal [ 'Reload', 'Start a new recipe' ]
+✓ an error in a tab is caught as before, and with no error nothing changes (a guard: passes before by design)
+Tests  4 failed | 1 passed (5)
+```

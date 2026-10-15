@@ -18,8 +18,79 @@
 // and Reload in place of the whole page. The header is gone with it, so the
 // line on Export and Reset is left out; it has no keys and clears only on
 // Reload. An error in a tab reaches the catch below the header first.
+//
+// When the saved recipe itself causes that error, every Reload shows it again,
+// so the whole-page message offers a way out of its own
+// (docs/items/way-out-of-page-error.md, NW-S1 to NW-S4): "Export saved recipe"
+// downloads the saved recipe exactly as storage holds it, readable or not,
+// and changes nothing; "Start a new recipe" asks, removes only the saved
+// recipe and reloads, and the load starts a new recipe from the brewery's
+// figures (loadStartingState), as Reset to defaults does. With no saved
+// recipe, or no storage, Export saved recipe is not offered.
 import { Component } from 'react';
+import { STORAGE_KEY, clearPersisted, recipeFileName } from '../persistence.js';
 import { colors, radii, shadows, tokens } from './shared/styles.js';
+
+// window.localStorage itself can throw when storage is blocked; treat that as
+// no storage, as App.jsx does.
+function browserStorage() {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+// The saved recipe as storage holds it, or null with none (or no storage).
+function savedRecipeText() {
+  try {
+    return browserStorage()?.getItem(STORAGE_KEY) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// The saved recipe's name where its text can be read, else none, so the file
+// gets the name a nameless recipe gets.
+function savedRecipeName(text) {
+  try {
+    const name = JSON.parse(text)?.recipe?.name;
+    return typeof name === 'string' ? name : '';
+  } catch {
+    return '';
+  }
+}
+
+// NW-S2: the stored text, byte for byte, handed to the browser as a download.
+// Reads only.
+function exportSavedRecipe() {
+  const text = savedRecipeText();
+  if (text === null) return;
+  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = recipeFileName(savedRecipeName(text), new Date());
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url));
+}
+
+// NW-S3: on yes, the saved recipe is removed before the page is drawn again,
+// so the new draw cannot read it; the brewery's figures, My ingredients and
+// the banner's "Not now" are other keys and stay. A removal that fails
+// changes nothing, and the reload draws the page again as Reload would.
+function startNewRecipe() {
+  if (
+    !window.confirm(
+      "Start a new recipe? The saved recipe will be removed; your brewery's figures and My ingredients are kept.",
+    )
+  ) {
+    return;
+  }
+  clearPersisted(browserStorage());
+  window.location.reload();
+}
 
 export default class PageError extends Component {
   constructor(props) {
@@ -45,6 +116,11 @@ export default class PageError extends Component {
   render() {
     if (!this.state.failed) return this.props.children;
     const { whole } = this.props;
+    const reload = (
+      <button type="button" onClick={() => window.location.reload()} style={buttonStyle}>
+        Reload
+      </button>
+    );
     const card = (
       <div role="alert" style={cardStyle}>
         <p style={{ margin: whole ? '0 0 0.9rem' : 0, fontWeight: 600, color: colors.textPrimary }}>
@@ -55,9 +131,30 @@ export default class PageError extends Component {
             Export in the header saves a copy, and Reset to defaults starts a new recipe.
           </p>
         )}
-        <button type="button" onClick={() => window.location.reload()} style={buttonStyle}>
-          Reload
-        </button>
+        {/* FLAG: with no saved recipe the line still names Export saved recipe,
+            which is not offered then: NW-S1 gives the message the line and
+            NW-S4 takes away only the button (way-out-of-page-error.md,
+            builder's notes). */}
+        {whole && (
+          <p style={{ ...tokens.notice, fontStyle: 'normal', margin: '0 0 0.9rem' }}>
+            Export saved recipe keeps a copy; Start a new recipe replaces it.
+          </p>
+        )}
+        {whole ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {reload}
+            {savedRecipeText() !== null && (
+              <button type="button" onClick={exportSavedRecipe} style={buttonStyle}>
+                Export saved recipe
+              </button>
+            )}
+            <button type="button" onClick={startNewRecipe} style={buttonStyle}>
+              Start a new recipe
+            </button>
+          </div>
+        ) : (
+          reload
+        )}
       </div>
     );
     // In place of the whole page, the card sits where the page's content would.
