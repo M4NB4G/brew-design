@@ -1,8 +1,9 @@
 # Figures that depend on an empty box read "—" on the Volumes card, Tier C
 
-Status: agreed 2026-10-15 ("agree to all", S19-Q0, NV-Q1); not started.
-Written by the S18 session; built in batch S19, item 3 (docs/ROADMAP.md,
-Sessions).
+Status: agreed 2026-10-15 ("agree to all", S19-Q0, NV-Q1); landed
+2026-10-15 as "Mash Rv, Mash R and the post-boil volumes read "—" on the
+Volumes card when a box they need is empty". Written by the S18 session;
+built in batch S19, item 3 (docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -45,3 +46,30 @@ filled each figure reads as before*. Fails before on "NaN".
   it is not.
 - The page-error and error-outside-the-tabs digests draw the built-in
   recipe, every box filled, so they must stay unchanged.
+
+## Builder's notes (S19, 2026-10-15)
+
+- **The change.** The four readouts use `format.js`'s `trimmed(x, 3)`: "—"
+  for a blank, else the figure to three decimals with trailing zeros
+  dropped, the same text `Number(x.toFixed(3))` gave (NV-S3). The other
+  helper, `num`, would have padded ("1.700"), as the item's note says.
+- **Numbers.** None added that makes a recipe value: the 3 is display
+  precision, excluded by the catch-all; so no inspector (Tier C).
+- **Outside the named file.** `eslint.config.js` lists the new jsdom test
+  among the tests that read the browser's globals.
+- **SPEC.** No change: rule 8 already says such figures show "—".
+- **Looked at it.** The built app in Chromium (2026-10-15), the mash water,
+  the boil time and the post-boil measurement temperature emptied: Mash Rv,
+  Mash R and the post-boil volume at 60 °F read "—", no "NaN" on the page,
+  no console error.
+
+Failure recorded before the change (the scenario run alone, trimmed):
+
+```
+× each emptied box makes the figures that need it read "—", never "NaN"
+  AssertionError: expected 'NaN' to be '—' // Object.is equality
+  Expected: "—"
+  Received: "NaN"
+✓ with every box filled each figure reads as before (a guard: passes before by design)
+Tests  1 failed | 1 passed (2)
+```

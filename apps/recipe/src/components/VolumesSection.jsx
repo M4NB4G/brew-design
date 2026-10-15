@@ -16,6 +16,9 @@
 // is computed here). An emptied temperature is a blank one (NaN), never the
 // old one: it shows as an empty box and its reference volume as "—", like
 // any cleared field.
+// Mash Rv, Mash R and the post-boil volumes read "—" too when a box they
+// need is empty, and otherwise to three decimals, trailing zeros dropped
+// (docs/items/volumes-card-blank-figures.md, NV-S1 to NV-S3).
 // Design warnings (computeRecipe's `warnings`) show as an amber line under
 // the value they are about: a mash ratio outside the owner's recommended
 // range (text from the engine's range constants), and less wort after the
@@ -49,7 +52,7 @@ import {
   gravityFromCanonical,
   gravityUnitLabel,
 } from '../display.js';
-import { num, gravity } from '../format.js';
+import { num, gravity, trimmed } from '../format.js';
 
 // "Should be 1.25–2 qt/lb": a recommended range, as the owner's cell reads it.
 function shouldBe({ low, high }, unit) {
@@ -173,14 +176,14 @@ export default function VolumesSection({
           <InputRow label={`Mash water (${vUnit})`} step={0.1} min={0} {...volRow('mashWaterGal')} />
           <InputRow
             label={`Mash Rv (${mashRvUnit()})`}
-            value={Number(grist.mashRv.toFixed(3))}
+            value={trimmed(grist.mashRv, 3)}
             onChange={() => {}}
             readOnly
           />
           {warnings.mashRv && <Warning>{shouldBe(MASH_RV_RANGE_QT_PER_LB, mashRvUnit())}</Warning>}
           <InputRow
             label={`Mash R (${mashRUnit()})`}
-            value={Number(grist.mashR.toFixed(3))}
+            value={trimmed(grist.mashR, 3)}
             onChange={() => {}}
             readOnly
           />
@@ -208,14 +211,14 @@ export default function VolumesSection({
           {postBoilMeasuredShown && (
             <InputRow
               label={`Post-boil volume at ${tempReadout(recipe.measurementTempF.postBoil, temperatureUnit)} ${tUnit} (${vUnit})`}
-              value={Number(fromGal(postBoilMeasuredGal).toFixed(3))}
+              value={trimmed(fromGal(postBoilMeasuredGal), 3)}
               onChange={() => {}}
               readOnly
             />
           )}
           <InputRow
             label={`Post-boil volume at ${refTemp} ${tUnit} (${vUnit})`}
-            value={Number(fromGal(postBoilVolGal).toFixed(3))}
+            value={trimmed(fromGal(postBoilVolGal), 3)}
             onChange={() => {}}
             readOnly
           />
