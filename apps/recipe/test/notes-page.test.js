@@ -145,7 +145,7 @@ describe('the References page', () => {
     const html = await pageHtml();
     expect(html).toMatch(/<button[^>]*>← Back to the recipe<\/button>/);
     expect(text(html)).toMatch(/^References/);
-    expect(html).toMatch(/<h1\b[^>]*>References<\/h1>/);
+    expect(html).toMatch(/<h2\b[^>]*>References<\/h2>/);
 
     // The link is in the size of the page's back button.
     const sizeOf = (markup, label) =>
@@ -385,8 +385,9 @@ describe('the References page', () => {
       },
     ];
 
-    // Dimensional analysis has no card of its own (RF-S3): the cards are the models.
-    expect(Object.keys(cards)).toEqual(models.map((x) => x.heading));
+    // Dimensional analysis has no card of its own (RF-S3): the cards are the models,
+    // under the page's own heading, a level-two heading since RH-S1.
+    expect(Object.keys(cards)).toEqual(['References', ...models.map((x) => x.heading)]);
 
     for (const model of models) {
       const card = cards[model.heading];

@@ -300,7 +300,7 @@ export default function ReferencesPage({ onBack, temperatureUnit }) {
   return (
     <>
       <Card>
-        <h1 style={{ ...tokens.cardTitle, marginTop: 0 }}>References</h1>
+        <h2 style={{ ...tokens.cardTitle, marginTop: 0 }}>References</h2>
         <p style={{ ...bodyStyle, margin: 0 }}>
           The equation behind each model the Recipe tab uses, each symbol with its unit, and where the model comes
           from. The mash pH is the Water tab&apos;s; its salts and acids have their own notes there.
