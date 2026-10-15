@@ -56,6 +56,7 @@ export default [
       'apps/recipe/test/comma-decimal-point.test.js',
       'apps/recipe/test/grain-bill-edits-return-acid.test.js',
       'apps/recipe/test/error-outside-the-tabs.test.js',
+      'apps/recipe/test/references-names.test.js',
     ],
     languageOptions: { globals: globals.browser },
   },

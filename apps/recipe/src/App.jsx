@@ -61,7 +61,7 @@ import WaterTab from './components/water/WaterTab.jsx';
 import BreweryBanner from './components/BreweryBanner.jsx';
 import RecipeSheet from './components/RecipeSheet.jsx';
 import Footer from './components/Footer.jsx';
-import NotesPage from './components/NotesPage.jsx';
+import ReferencesPage from './components/ReferencesPage.jsx';
 import PageError from './components/PageError.jsx';
 import { MyIngredientsContext } from './components/IngredientSearch.jsx';
 import { colors } from './components/shared/styles.js';
@@ -91,11 +91,11 @@ export default function App() {
   const [proVolumeUnit, setProVolumeUnit] = useState(initial.proVolumeUnit); // Pro: 'bbl' | 'gal'
   const [proMaltUnit, setProMaltUnit] = useState(initial.proMaltUnit); // Pro: 'lb' | 'sack'
   const [tab, setTab] = useState('recipe'); // 'recipe' | 'water' | 'options'; every load opens on Recipe
-  // The methods and sources page (notes page, NM-S1): opened from the footer,
+  // The References page (references-page.md, RF-S1): opened from the footer,
   // left by its Back; not saved, every load opens on the app.
-  const [notesOpen, setNotesOpen] = useState(false);
-  const openNotes = (open) => {
-    setNotesOpen(open);
+  const [referencesOpen, setReferencesOpen] = useState(false);
+  const openReferences = (open) => {
+    setReferencesOpen(open);
     window.scrollTo(0, 0);
   };
   const [fileMessage, setFileMessage] = useState(''); // an import refusal, shown under the header controls
@@ -397,10 +397,10 @@ export default function App() {
         fileMessage={fileMessage}
       />
 
-      {notesOpen ? (
+      {referencesOpen ? (
         <main style={{ maxWidth: '900px', margin: '0 auto', padding: '1rem 1.25rem' }}>
           <PageError resetKeys={pageKeys}>
-            <NotesPage onBack={() => openNotes(false)} temperatureUnit={temperatureUnit} />
+            <ReferencesPage onBack={() => openReferences(false)} temperatureUnit={temperatureUnit} />
           </PageError>
         </main>
       ) : (
@@ -555,7 +555,7 @@ export default function App() {
       )}
 
       {/* Persyn attribution (Brew Water Chem's footer); on screen only, inside #root */}
-      <Footer onNotes={() => openNotes(true)} />
+      <Footer onReferences={() => openReferences(true)} />
 
       {/* The print-only recipe sheet, from the same derived values; portaled
           beside the app root so the print rules can hide the root alone. */}

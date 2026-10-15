@@ -37,7 +37,7 @@ const parts = vi.hoisted(() => ({
 vi.mock('../src/components/CostCard.jsx', (io) => parts.wrap('CostCard', io, (p) => p.recipe?.name === 'Boom'));
 vi.mock('../src/components/water/WaterTab.jsx', (io) => parts.wrap('WaterTab', io));
 vi.mock('../src/components/OptionsSection.jsx', (io) => parts.wrap('OptionsSection', io));
-vi.mock('../src/components/NotesPage.jsx', (io) => parts.wrap('NotesPage', io));
+vi.mock('../src/components/ReferencesPage.jsx', (io) => parts.wrap('ReferencesPage', io));
 
 const MESSAGE = 'Something went wrong drawing this page. Your saved recipe is kept as it was.';
 const EXPORT_RESET = 'Export in the header saves a copy, and Reset to defaults starts a new recipe.';
@@ -47,7 +47,7 @@ const PLACES = [
   { place: 'the Recipe tab', part: 'CostCard', open: () => click(button('Recipe')) },
   { place: 'the Water tab', part: 'WaterTab', open: () => click(button('Water')) },
   { place: 'the Options tab', part: 'OptionsSection', open: () => click(button('Options')) },
-  { place: 'the References page', part: 'NotesPage', open: () => click(button('References')) },
+  { place: 'the References page', part: 'ReferencesPage', open: () => click(button('References')) },
 ];
 
 // Every key storage holds, and its text.
@@ -108,7 +108,7 @@ describe('page keeps working after an error', () => {
       expect(button('Reload').type, place).toBe('button');
       // In place of that place's content: the part's neighbours are not drawn either.
       if (part === 'CostCard') expect(pageText, place).not.toContain('Grist');
-      if (part === 'NotesPage') expect(pageText, place).not.toContain('Back to the recipe');
+      if (part === 'ReferencesPage') expect(pageText, place).not.toContain('Back to the recipe');
 
       // PE-S3: the header's actions and choices are there and work.
       for (const label of ['Export', 'Import', 'Reset to defaults', 'Print recipe', '°F', '°C', 'Pro', 'Home']) {
@@ -125,7 +125,7 @@ describe('page keeps working after an error', () => {
 
       // The tab choices: another tab draws (on the References page there are
       // none, as before; Reload leaves it).
-      if (part !== 'NotesPage') {
+      if (part !== 'ReferencesPage') {
         parts.throwing.clear();
         click(button(part === 'OptionsSection' ? 'Recipe' : 'Options'));
         expect(shown(), `${place}: another tab chosen`).toBe(false);

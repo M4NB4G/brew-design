@@ -3,8 +3,9 @@
 // RF-S8, decisions RF-Q1 to RF-Q13), which replaces the methods and sources
 // page of docs/items/notes-page.md. A "References" link in the footer opens a
 // page that shows, for each model, its equation in symbols, each symbol with
-// its unit, and its citation, with a way back to the app. The file keeps the
-// name NotesPage.jsx because App.jsx, a Tier B file, imports it by that name.
+// its unit, and its citation, with a way back to the app. This test file
+// keeps the name it was written under (docs/items/references-names.md, RN-Q1);
+// the page's file is ReferencesPage.jsx.
 //
 // The coefficients the engine does not export are written on the page, from
 // one list the page exports (COEFFICIENTS); the scenarios below evaluate each
@@ -45,7 +46,7 @@ import {
   ACIDS,
 } from '@brew/engine';
 
-const page = () => import('../src/components/NotesPage.jsx');
+const page = () => import('../src/components/ReferencesPage.jsx');
 
 async function pageHtml(props = {}) {
   const { default: ReferencesPage } = await page();
@@ -54,7 +55,7 @@ async function pageHtml(props = {}) {
 
 async function footerHtml() {
   const { default: Footer } = await import('../src/components/Footer.jsx');
-  const markup = renderToStaticMarkup(createElement(Footer, { onNotes: () => {} }));
+  const markup = renderToStaticMarkup(createElement(Footer, { onReferences: () => {} }));
   return markup.match(/<footer\b.*<\/footer>/s)?.[0] ?? '';
 }
 

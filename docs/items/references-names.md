@@ -1,6 +1,8 @@
 # The References page's names say References, Tier B
 
-Status: agreed 2026-10-14 ("agree to all", S18-Q0, RN-Q1, M); not started.
+Status: agreed 2026-10-14 ("agree to all", S18-Q0, RN-Q1, M); landed
+2026-10-15 as "The References page's file and the app's names for it say
+References, and the commit check's one exception names the new file".
 Written by the S17 session; built in batch S18, item 3 (docs/ROADMAP.md,
 Sessions).
 
@@ -45,3 +47,41 @@ file does not exist.
   the file).
 - Historical item files (`docs/items/notes-page.md`, `references-page.md`)
   keep the old name: they record what was built then.
+
+## Builder's notes (S18, 2026-10-15)
+
+Choices the sentences did not make, each a claim for the inspector:
+
+- **The new names.** The file `ReferencesPage.jsx` (its component was
+  already `ReferencesPage`); in `App.jsx` `referencesOpen` and its setter
+  `setReferencesOpen` (the setter goes with the state's name), and
+  `openReferences`; the footer's prop `onReferences`. The footer's style
+  for the link, `notesStyle`, is `referencesStyle`: it is the footer's link
+  to the page (RN-S1). The file is moved with `git mv`; its only changes are
+  its first comment line and the sentence saying why it kept its old name,
+  now untrue.
+- **Comments.** `App.jsx`'s comment on the page's state called it "the
+  methods and sources page (notes page, NM-S1)"; it now says the References
+  page (references-page.md, RF-S1). `notes-page.test.js`'s head says why it
+  keeps its name (RN-Q1). The Water tab's own Notes (`NotesScreen.jsx`)
+  and the page's own text ("the Water tab's Notes") are a different page
+  and are untouched.
+- **The commit check (K).** The hook's one exception changes from
+  `NotesPage.jsx` to `ReferencesPage.jsx`; nothing else in the hook. The
+  scenario reads the hook's own pattern, comment filter and search command
+  and runs them, as the hook does, on a scratch repository holding
+  `apps/recipe/src` staged (`git` and `bash`, as `netlify-skip.test.js`
+  uses `git`). The search also ran on the real staged change before commit
+  (no hits); the commit's own pre-commit run checks it again.
+- **RN-S4.** The page-error and error-outside-the-tabs digests (the
+  References page among them, byte for byte) pass unchanged. The built
+  bundle differs from before only in the footer's prop name (`onNotes` →
+  `onReferences`, two places), read by comparing the two builds.
+- **The linter.** The new test draws the app in jsdom, so it joins the list
+  of jsdom tests in `eslint.config.js` (one line).
+- **Historical files** (`docs/items/notes-page.md`, `references-page.md`)
+  keep the old name, as the item's notes say.
+- **Far end.** The browser suite passed 23/23 on the change's build; in
+  Chromium the footer's "References" opened the page (its heading and its
+  "Back to the recipe") and Back returned to the recipe.
+- **Roadmap.** "Names that still say Notes" is removed.

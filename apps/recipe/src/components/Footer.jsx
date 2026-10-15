@@ -9,7 +9,7 @@ import { colors } from './shared/styles.js';
 
 // The "References" link opens the references page (docs/items/references-page.md,
 // RF-S1), in the size of the page's back button.
-const notesStyle = {
+const referencesStyle = {
   background: 'none',
   border: 'none',
   padding: 0,
@@ -22,7 +22,7 @@ const notesStyle = {
   display: 'block',
 };
 
-export default function Footer({ onNotes }) {
+export default function Footer({ onReferences }) {
   return (
     <footer style={{ maxWidth: '900px', margin: '0 auto', padding: '1.5rem 1.25rem' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.25rem' }}>
@@ -39,7 +39,7 @@ export default function Footer({ onNotes }) {
           <p style={{ fontSize: '0.72rem', lineHeight: 1.6, margin: 0, color: colors.textFooter }}>
             Persyn Chemical Engineering and Consulting
           </p>
-          <button type="button" onClick={onNotes} style={notesStyle}>References</button>
+          <button type="button" onClick={onReferences} style={referencesStyle}>References</button>
         </div>
       </div>
     </footer>

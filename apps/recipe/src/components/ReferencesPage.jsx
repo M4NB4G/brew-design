@@ -1,10 +1,9 @@
-// NotesPage.jsx
+// ReferencesPage.jsx
 // The References page (docs/items/references-page.md, RF-S1 to RF-S8): for each
 // model the Recipe tab and the Water tab's mash pH use, its equation in
 // symbols, each symbol with its unit, and its citation. Reached from the
 // footer's "References" and left by "Back to the recipe". The Water tab keeps
-// its own Notes. The file keeps its old name because App.jsx (Tier B) imports
-// it by that name.
+// its own Notes.
 //
 // Reference text, not brewing math (SPEC rule 7): the equations are written
 // out for the reader and nothing here is computed. What the engine exports
