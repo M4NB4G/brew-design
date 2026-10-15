@@ -4,9 +4,9 @@
 // cells needed, and a fitted growth curve P(Q) = aQ^2 + bQ + c (Q in liters).
 //
 // Pure functions. Every constant and inequality reproduced exactly from the
-// spreadsheet, with one exception: the 400B band's 800-1000 boundary is the
-// owner's own rule, a recorded deviation from Rev 3 (SPEC.md rule 2,
-// 2026-09-21), not a transcription. Do not alter the boundary logic.
+// spreadsheet. The 400B band's 800-1000 boundary is Rev 4's own rule: the
+// owner's correction of Rev 3's N11 (2026-10-08), his rule since 2026-09-21
+// (SPEC.md rule 2). Do not alter the boundary logic.
 
 // DME loading: 115 g per liter of starter.
 const DME_GRAMS_PER_LITER = 115;
@@ -75,10 +75,10 @@ const BANDS = [
       // cells<800 -> not usable
       // 800<=cells<=1000 -> N=cells (400B starter alone)
       // cells>1000 -> N=cells-200 (400B starter + one extra 200B pack)
-      // Owner's rule (2026-09-21), superseding Rev 3's strict 900 boundary:
-      // the 400B band serves 800-1000 billion cells inclusive from the pack
-      // alone, and above 1000 with one extra 200B pack. SPEC.md rule 2 notes
-      // the deviation.
+      // Rev 4's own rule (Starter Vol Solver N11): the owner's correction of
+      // Rev 3's strict 900 boundary (2026-10-08), his rule since 2026-09-21.
+      // The 400B band serves 800-1000 billion cells inclusive from the pack
+      // alone, and above 1000 with one extra 200B pack (SPEC.md rule 2).
       if (cells < 800) return null;
       if (cells <= 1000) return { N: cells, packNote: '' };
       return { N: cells - 200, packNote: '400B starter plus one extra 200B pack' };

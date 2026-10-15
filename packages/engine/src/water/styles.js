@@ -3,8 +3,8 @@
 // Sources:
 //   Palmer, J.J., & Kaminski, C. (2013). Water: A Comprehensive Guide
 //     for Brewers. Brewers Publications.
-//   Palmer, J.J. (2006). How to Brew. Brewers Publications.
-//   Janish, S. (2019). The New IPA. White Mule Press.
+//   Palmer, J.J. (2017). How to Brew (4th ed.). Brewers Publications.
+//   Janish, S. (2019). The New IPA. Self-published.
 //   BJCP 2021 Style Guidelines — https://www.bjcp.org/style/2021/
 //
 // RA = Alkalinity − (Ca/1.4 + Mg/1.7), all as CaCO₃ mg/L (Kolbach 1953).

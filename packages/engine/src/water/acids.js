@@ -1,10 +1,9 @@
 // Acid concentration data and alkalinity-reduction math.
 //
 // References:
-//   Troester, K. (2009). "An Overview of pH." Braukaiser.com.
+//   CRC Handbook of Chemistry and Physics, 97th ed.
 //     — Phosphoric acid is treated as monoprotic at mash pH 5.4
 //       (pKa1 = 2.15, pKa2 = 7.20; only the first proton is fully active).
-//   CRC Handbook of Chemistry and Physics, 97th ed.
 //     — Acid densities at the listed concentrations.
 //   Weyermann Specialty Malts. Acidulated Malt spec sheet (weyermann.de).
 //     — ~2% lactic acid by weight (published range 1–2%; midpoint used).

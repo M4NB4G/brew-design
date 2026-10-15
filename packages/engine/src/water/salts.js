@@ -1,7 +1,7 @@
 // Salt ion contribution constants.
 //
 // Source: Palmer, J.J. & Kaminski, C. (2013). Water: A Comprehensive Guide
-// for Brewers. Brewers Publications. Appendix A, pp. 281–283.
+// for Brewers. Brewers Publications. Appendix C, p. 263.
 //
 // Each entry gives the mg/L (ppm) of each ion contributed when 1 gram of
 // the salt is dissolved in 1 US gallon of water. To convert per-liter,
