@@ -10,6 +10,14 @@
 // boundary). The message clears, and the content is drawn again, when any of
 // `resetKeys` changes after the error: another tab, Reset or an import (a new
 // recipe), a unit choice (K, ordering).
+//
+// A second catch, `whole`, sits around the whole app where main.jsx draws it
+// (docs/items/error-outside-the-tabs.md, EO-S1, EO-S2, EO-Q1): an error in the
+// stats bar, the line under it, the header, the footer or the printed sheet,
+// or in the figures the app works out before drawing, shows the same message
+// and Reload in place of the whole page. The header is gone with it, so the
+// line on Export and Reset is left out; it has no keys and clears only on
+// Reload. An error in a tab reaches the catch below the header first.
 import { Component } from 'react';
 import { colors, radii, shadows, tokens } from './shared/styles.js';
 
@@ -27,8 +35,8 @@ export default class PageError extends Component {
     // Only once the message is already shown: the update that drew it first
     // still carries the keys from before the error.
     if (!this.state.failed || !prevState.failed) return;
-    const before = prevProps.resetKeys;
-    const now = this.props.resetKeys;
+    const before = prevProps.resetKeys ?? [];
+    const now = this.props.resetKeys ?? [];
     if (before.length !== now.length || before.some((k, i) => !Object.is(k, now[i]))) {
       this.setState({ failed: false });
     }
@@ -36,19 +44,24 @@ export default class PageError extends Component {
 
   render() {
     if (!this.state.failed) return this.props.children;
-    return (
+    const { whole } = this.props;
+    const card = (
       <div role="alert" style={cardStyle}>
-        <p style={{ margin: 0, fontWeight: 600, color: colors.textPrimary }}>
+        <p style={{ margin: whole ? '0 0 0.9rem' : 0, fontWeight: 600, color: colors.textPrimary }}>
           Something went wrong drawing this page. Your saved recipe is kept as it was.
         </p>
-        <p style={{ ...tokens.notice, fontStyle: 'normal', margin: '0.5rem 0 0.9rem' }}>
-          Export in the header saves a copy, and Reset to defaults starts a new recipe.
-        </p>
+        {!whole && (
+          <p style={{ ...tokens.notice, fontStyle: 'normal', margin: '0.5rem 0 0.9rem' }}>
+            Export in the header saves a copy, and Reset to defaults starts a new recipe.
+          </p>
+        )}
         <button type="button" onClick={() => window.location.reload()} style={buttonStyle}>
           Reload
         </button>
       </div>
     );
+    // In place of the whole page, the card sits where the page's content would.
+    return whole ? <main style={{ maxWidth: '900px', margin: '0 auto', padding: '1rem 1.25rem' }}>{card}</main> : card;
   }
 }
 

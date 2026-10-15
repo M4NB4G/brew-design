@@ -1,8 +1,9 @@
 # An error outside the tabs shows a message, Tier B
 
-Status: agreed 2026-10-14 ("agree to all", S18-Q0, EO-Q1, EO-Q2, M); not
-started. Written by the S17 session; built in batch S18, item 1
-(docs/ROADMAP.md, Sessions).
+Status: agreed 2026-10-14 ("agree to all", S18-Q0, EO-Q1, EO-Q2, M); landed
+2026-10-15 as "An error outside the tabs shows the message and Reload in
+place of the whole page, and changes no saved document". Written by the S17
+session; built in batch S18, item 1 (docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -50,3 +51,55 @@ tab is still caught below the header, with the Export and Reset line* ·
   drawing; `main.jsx` is not in the path table, so it is gated as Tier B.
 - SPEC rule 18 gains the outer catch; `docs/TEST_COVERAGE.md` rule 18's row.
 - The message's wording is rule 18's; the card's layout is the builder's.
+
+## Builder's notes (S18, 2026-10-15)
+
+Choices the sentences did not make, each a claim for the inspector:
+
+- **Where the second catch sits.** Around `<App />` where `main.jsx` draws
+  it, inside `StrictMode`: the same `PageError` component with a new
+  `whole` switch. Only a catch outside `App` can take an error in what
+  `App` works out before it draws (`computeRecipe`, `computeWater`,
+  `computeCost`, run in `App`'s own body), so it cannot sit in `App.jsx`;
+  `App.jsx` is unchanged. `main.jsx` is outside the path table, gated as
+  Tier B (the item's notes).
+- **What `whole` changes.** The line on Export and Reset is left out (EO-Q1)
+  and the card sits in the page's content column (900 px, the same padding
+  as the tabs' `main`), since there is no header above it; the message, the
+  Reload button and its action (`window.location.reload()`) are the inner
+  catch's own. With no keys the whole-page message clears only on Reload;
+  `resetKeys` now reads as none when not given (`?? []`), which changes
+  nothing for the inner catch, which always passes them.
+- **Ordering (K).** An error in a tab or the References page reaches the
+  inner catch first and stops there: the scenario shows the message once,
+  with the Export/Reset line and the header's actions.
+- **Storage (K).** Nothing in either catch writes. A recipe that is not
+  drawn is not autosaved: the autosave is an effect of `App`, which runs
+  only once `App` is drawn.
+- **The scenario draws `main.jsx` itself.** Each draw resets the module
+  registry and imports `main.jsx` on an empty `#root`, so what is tested is
+  what the browser runs; `react-dom/client`'s `createRoot` is wrapped only
+  to keep the roots it makes, so each test takes its page down. Before the
+  change, an error no catch takes makes React hand the error back to the
+  test; the draw keeps the page as it was left (blank) for the test to read.
+- **Two scenarios pass before by design.** "An error in a tab is still
+  caught below the header" (EO-S3, "as today") and "with no error, nothing
+  changes" (EO-S5) guard what must not change; the eight places and the
+  error after the page is drawn and the reload (EO-S1, EO-S2, EO-S4) failed
+  before. EO-S5's digests (`error-outside-the-tabs.before.json`) were taken
+  from `main.jsx`'s page before the change.
+- **Reload.** jsdom cannot reload a page, so EO-S4 is shown as a fresh draw
+  from storage as it is (the reload), as `page-error.test.js` does; the far
+  end clicked Reload itself in Chromium.
+- **The linter.** The new test reads the browser's globals, so it joins the
+  list of jsdom tests in `eslint.config.js` (one line).
+- **Roadmap (K).** "An error outside the tabs still blanks the page" is
+  removed; "A saved recipe the page cannot draw leaves no way out" records
+  the idempotence row: a saved recipe that itself causes the whole-page
+  error shows it on every Reload, with no Export or Reset (EO-Q1 leaves it
+  so).
+- **Far end.** On a build of the change with the stats bar made to throw
+  (not committed; `StatsBar.jsx` restored byte for byte), in Chromium: the
+  message and Reload alone, storage the same, and Reload, the failure gone,
+  drew the saved recipe "My IPA". The browser suite passed 23/23 on the
+  change's own build.

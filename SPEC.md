@@ -445,6 +445,13 @@ cached values are pinned by the golden-master tests.
     recipe. The header keeps working, and the error changes no saved
     document, the recipe's or the brewery's. Another tab, a new recipe or a
     unit choice draws the page again.
+    An error anywhere else (the stats bar, the line under it, the header,
+    the footer or the printed sheet, or the figures the app works out before
+    it draws: the recipe's, the water's, the Cost card's) shows the same
+    message and the Reload button in place of the whole page, without the
+    line on Export and Reset, the header being gone; it changes no saved
+    document, and Reload draws the page again from what is saved. An error
+    in a tab or the References page is caught below the header first.
 
 ### Display units
 
