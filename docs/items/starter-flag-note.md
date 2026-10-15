@@ -1,8 +1,9 @@
 # The starter's note says the 400B band's boundaries leave no gap, Tier A
 
-Status: agreed 2026-10-15 ("agree to all", S19-Q0, SF-Q1, M); not started.
-Written by the S18 session; built in batch S19, item 2 (docs/ROADMAP.md,
-Sessions).
+Status: agreed 2026-10-15 ("agree to all", S19-Q0, SF-Q1, M); landed
+2026-10-15 as "The starter's note says the 400B band's boundaries, 800 and
+1000, leave no gap". Written by the S18 session; built in batch S19, item 2
+(docs/ROADMAP.md, Sessions).
 
 ## Why
 
@@ -40,3 +41,31 @@ at 900".
   stripped, as S18 item 2 did.
 - No SPEC change; `docs/TEST_COVERAGE.md`'s row for the comment sources
   gains the test. The roadmap line is removed.
+
+## Builder's notes (S19, 2026-10-15)
+
+Choices the sentences did not make, each a claim for the inspector:
+
+- **The words.** The note's last sentence now reads "The 400B band's
+  boundaries, 800 and 1000, leave no gap -- see its effectiveCells() for the
+  owner's rule." Only that sentence changes; the rest of the FLAG note (the
+  gaps at 500 and 800 in the 100B and 200B bands) stands, being still true
+  of those bands.
+- **The scenario's assertion.** It looks for that sentence's opening words
+  and for the absence of "boundary at 900", in the comment text the file's
+  existing reader gives (white space collapsed across lines).
+- **No figure.** `starter.js` with its comments stripped is identical before
+  and after (checked by a script, not committed), and the built app is byte
+  for byte the same: `index-kFlZ0vbl.js`, SHA-256 abe5fa99…caf75 before and
+  after. The far end is therefore the same page as item 1's far end; no
+  separate browser check shows anything a comment could change.
+- **No SPEC change**: rule 2 already states the band's Rev 4 boundaries.
+
+Failure recorded before the change (the scenario run alone, trimmed):
+
+```
+× the starter's note says the 400B band's boundaries leave no gap and names no 900 (SF-S1)
+  AssertionError: expected ' Band definitions. `effectiveCells(ce…' to contain 'The 400B band\'s boundaries, 800 and …'
+  Expected: "The 400B band's boundaries, 800 and 1000, leave no gap"
+Tests  1 failed | 4 passed (5)
+```

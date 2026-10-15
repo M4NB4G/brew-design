@@ -53,4 +53,15 @@ describe('engine comments cite their sources as the owner gave them', () => {
     expect(c).toContain("the owner's correction of Rev 3's N11 (2026-10-08)");
     expect(c).not.toMatch(/deviation/i);
   });
+
+  it("the starter's note says the 400B band's boundaries leave no gap and names no 900 (SF-S1)", () => {
+    // "The starter's note says the 400B band's boundaries leave no gap"
+    // (docs/items/starter-flag-note.md): the FLAG note above the bands names
+    // the band's boundaries, 800 and 1000, as leaving no gap, and no longer
+    // Rev 3's boundary at 900. SF-S2 (no figure changes) is every other test
+    // in both suites passing as before.
+    const c = comments('starter.js');
+    expect(c).toContain("The 400B band's boundaries, 800 and 1000, leave no gap");
+    expect(c).not.toContain('boundary at 900');
+  });
 });

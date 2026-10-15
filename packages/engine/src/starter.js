@@ -20,9 +20,9 @@ const DME_GRAMS_PER_LITER = 115;
  * exact-boundary gaps at 500 and 800 billion -- a value landing exactly on
  * one of those boundaries matches no branch and yields no option from the
  * affected band(s). This is transcribed as-is per the spec (faithfulness over
- * "fixing" it). See each band's effectiveCells() below. The 400B band's own
- * boundary at 900 is not one of these gaps -- see its effectiveCells() for
- * the owner's rule.
+ * "fixing" it). See each band's effectiveCells() below. The 400B band's
+ * boundaries, 800 and 1000, leave no gap -- see its effectiveCells() for the
+ * owner's rule.
  */
 const BANDS = [
   {
