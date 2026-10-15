@@ -154,8 +154,8 @@ export default function NotesScreen() {
           <li style={{ marginBottom: '0.8rem' }}>
             Phosphoric acid is treated as effectively monoprotic at mash pH. Only the
             first dissociation (pK<sub>a1</sub> ≈ 2.15) is active in the mash pH range;
-            the second (pK<sub>a2</sub> ≈ 7.20) is not. This follows standard aqueous
-            acid–base chemistry, not a single proprietary source.
+            the second (pK<sub>a2</sub> ≈ 7.20) is not. Source: CRC Handbook of
+            Chemistry and Physics, 97th ed.
           </li>
           <li style={{ marginBottom: '0.8rem' }}>
             Residual alkalinity is calculated per the Kolbach (1953) formulation.

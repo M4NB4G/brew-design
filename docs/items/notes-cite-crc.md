@@ -1,8 +1,11 @@
 # The Water Notes cite the CRC Handbook for phosphoric acid, Tier C
 
-Status: agreed 2026-10-15 ("agree to all", R-1, CR-Q1, O-1 to O-5); not
-started. Written by the S19 session; built in the orchestrated run, batch O1,
-item 3 (docs/ROADMAP.md, Sessions).
+Status: landed 2026-10-15 as "The Notes' line on phosphoric acid ends "Source:
+CRC Handbook of Chemistry and Physics, 97th ed." in place of "This follows
+standard aqueous acid–base chemistry, not a single proprietary source."" (agreed
+2026-10-15: "agree to all", R-1, CR-Q1, O-1 to O-5). Written by the S19
+session; built in the orchestrated run, batch O1, item 3 (docs/ROADMAP.md,
+Sessions).
 
 ## Why
 
@@ -39,3 +42,24 @@ sentence.
   if it reads that sentence.
 - `docs/TEST_COVERAGE.md` gets a scenario row; the roadmap line "Water Notes
   cite the CRC Handbook for phosphoric acid" is removed.
+
+## Builder's notes (landed 2026-10-15)
+
+- Scenario `the Notes cite the CRC Handbook, 97th edition, for phosphoric acid
+  as monoprotic, and not "a single proprietary source"`
+  (`apps/recipe/test/notes-cite-crc.test.js`) failed before on the old
+  sentence, passes after. It renders the Notes to text with react-dom/server,
+  as `notes-wording.test.js` does.
+- No digest changed. None of the seven `apps/recipe/test/*.before.json` files
+  carries the Notes' text (no "proprietary", no "Application Assumptions" in
+  any), so nothing was re-captured.
+- Notes tests checked: `notes-wording.test.js`, `notes-mash-ph.test.js`,
+  `notes-page.test.js` and `water-tab.test.js` read the Notes; none reads the
+  replaced sentence (`water-tab.test.js` pins only "Phosphoric acid is treated
+  as effectively monoprotic at mash pH."), so none needed a change.
+- `eslint.config.js` is unchanged. The new test renders to text and uses no
+  jsdom globals, so lint passes without a line for it (the Opus advisor
+  suggested leaving it out; a first draft had added one).
+- Far end: the built app in headless Chromium, Water tab, Notes:
+  `screens/O1-3-phosphoric-line.png` (the phosphoric acid line alone) and
+  `screens/O1-3-notes-page.png` (the Notes page), in the session's scratchpad.
