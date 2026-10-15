@@ -178,76 +178,80 @@ export default function RecipeSheet({
           treated water against the style target, the measured mash pH
           box with the predicted mash pH and its target beside it */}
       {s.water && (
-        <Section>
-          <Heading>Water Treatment</Heading>
-          <Caption>
-            Treated: {s.water.treated}{s.water.hltNote && ` (${s.water.hltNote})`} · Water ({s.water.volumeUnit}):{' '}
-            {s.water.volumes.map((v) => `${v.label} ${v.value}`).join(' · ')}
-            {s.water.waterBackNote && ` · ${s.water.waterBackNote}`}
-          </Caption>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-            <table style={{ ...tbl, flex: '1' }}>
+        <Section breakable>
+          <Block>
+            <Heading>Water Treatment</Heading>
+            <Caption>
+              Treated: {s.water.treated}{s.water.hltNote && ` (${s.water.hltNote})`} · Water ({s.water.volumeUnit}):{' '}
+              {s.water.volumes.map((v) => `${v.label} ${v.value}`).join(' · ')}
+              {s.water.waterBackNote && ` · ${s.water.waterBackNote}`}
+            </Caption>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+              <table style={{ ...tbl, flex: '1' }}>
+                <thead>
+                  <tr style={{ background: C.headerBg }}>
+                    <th style={{ ...th, textAlign: 'left' }}>Where</th>
+                    <th style={{ ...th, textAlign: 'left' }}>Addition</th>
+                    <th style={th}>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {s.water.additions.map((a, i) => (
+                    <tr key={`${a.place}-${a.name}`} style={{ background: i % 2 ? C.rowAlt : C.page }}>
+                      <td style={{ ...td, textAlign: 'left' }}>{a.place}</td>
+                      <td style={{ ...td, textAlign: 'left' }}>{a.name}</td>
+                      <td style={td}>
+                        {a.amount} {a.unit}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div>
+                  <div style={mashPhLine}>{s.water.mashPhLabel}</div>
+                  <div style={mashPhLine}>predicted {s.water.mashPhPredicted}</div>
+                  <div style={mashPhLine}>target {s.water.mashPhTarget}</div>
+                </div>
+                <MeasuredBox />
+              </div>
+              {s.water.mashPhNote && <p style={{ ...noData, flex: '0 1 200px' }}>{s.water.mashPhNote}</p>}
+            </div>
+          </Block>
+          <Block>
+            <Caption>
+              {s.water.profileLabel}, against the {s.water.style} target (mg/L)
+            </Caption>
+            <table style={tbl}>
               <thead>
                 <tr style={{ background: C.headerBg }}>
-                  <th style={{ ...th, textAlign: 'left' }}>Where</th>
-                  <th style={{ ...th, textAlign: 'left' }}>Addition</th>
-                  <th style={th}>Amount</th>
+                  <th style={th} />
+                  {s.water.profile.map((p) => (
+                    <th key={p.label} style={th}>
+                      {p.label}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {s.water.additions.map((a, i) => (
-                  <tr key={`${a.place}-${a.name}`} style={{ background: i % 2 ? C.rowAlt : C.page }}>
-                    <td style={{ ...td, textAlign: 'left' }}>{a.place}</td>
-                    <td style={{ ...td, textAlign: 'left' }}>{a.name}</td>
-                    <td style={td}>
-                      {a.amount} {a.unit}
-                    </td>
+                {[
+                  ['Predicted', 'predicted'],
+                  ['Target', 'target'],
+                ].map(([label, key], i) => (
+                  <tr key={key} style={{ background: i % 2 ? C.rowAlt : C.page }}>
+                    <td style={{ ...td, textAlign: 'left' }}>{label}</td>
+                    {s.water.profile.map((p) => (
+                      <td key={p.label} style={td}>
+                        {p[key]}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
             </table>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <div>
-                <div style={mashPhLine}>{s.water.mashPhLabel}</div>
-                <div style={mashPhLine}>predicted {s.water.mashPhPredicted}</div>
-                <div style={mashPhLine}>target {s.water.mashPhTarget}</div>
-              </div>
-              <MeasuredBox />
-            </div>
-            {s.water.mashPhNote && <p style={{ ...noData, flex: '0 1 200px' }}>{s.water.mashPhNote}</p>}
-          </div>
-          <Caption>
-            {s.water.profileLabel}, against the {s.water.style} target (mg/L)
-          </Caption>
-          <table style={tbl}>
-            <thead>
-              <tr style={{ background: C.headerBg }}>
-                <th style={th} />
-                {s.water.profile.map((p) => (
-                  <th key={p.label} style={th}>
-                    {p.label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                ['Predicted', 'predicted'],
-                ['Target', 'target'],
-              ].map(([label, key], i) => (
-                <tr key={key} style={{ background: i % 2 ? C.rowAlt : C.page }}>
-                  <td style={{ ...td, textAlign: 'left' }}>{label}</td>
-                  {s.water.profile.map((p) => (
-                    <td key={p.label} style={td}>
-                      {p[key]}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          </Block>
           {s.water.kettle && (
-            <>
+            <Block>
               <Caption>
                 {s.water.kettle.label} ({s.water.kettle.assumption}; mg/L). {s.water.kettle.caveat} The boil concentrates each figure by the
                 pre-boil ÷ post-boil volume.{s.water.kettle.biasNote && ` ${s.water.kettle.biasNote}`}
@@ -280,10 +284,10 @@ export default function RecipeSheet({
                   ))}
                 </tbody>
               </table>
-            </>
+            </Block>
           )}
           {s.water.fermenter && (
-            <>
+            <Block>
               <Caption>
                 {s.water.fermenter.label} (mg/L). {s.water.fermenter.note}
               </Caption>
@@ -314,7 +318,7 @@ export default function RecipeSheet({
                   ))}
                 </tbody>
               </table>
-            </>
+            </Block>
           )}
         </Section>
       )}
@@ -468,9 +472,16 @@ export default function RecipeSheet({
   );
 }
 
-// One heading and its tables: kept whole on one page (index.css, print).
-function Section({ children }) {
-  return <section className="print-section">{children}</section>;
+// One heading and its tables: kept whole on one page (index.css, print), unless
+// `breakable`, which leaves the page to break between its Blocks.
+function Section({ children, breakable }) {
+  return <section className={breakable ? undefined : 'print-section'}>{children}</section>;
+}
+
+// A caption and its table (the first Block also the section's heading): kept
+// whole on one page, inside a breakable Section.
+function Block({ children }) {
+  return <div className="print-block">{children}</div>;
 }
 
 function Heading({ children }) {

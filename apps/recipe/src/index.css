@@ -86,8 +86,11 @@ input[type='number'] {
   }
 
   /* A section (heading and its tables) is never split across the page break,
-     and a heading never prints alone at the foot of a page. */
-  .print-section {
+     and a heading never prints alone at the foot of a page. The Water
+     Treatment section may break between its blocks, each a caption and its
+     table, the first also the heading; no block is split. */
+  .print-section,
+  .print-block {
     break-inside: avoid;
   }
 
