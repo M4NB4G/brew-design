@@ -233,7 +233,7 @@ function MyIngredients({ mine, onDelete }) {
       <span style={{ ...tokens.cardLabel, marginTop: '0.85rem', marginBottom: '0.3rem', fontSize: '0.65rem' }}>My ingredients</span>
       {groups.length === 0 && (
         <p style={{ ...tokens.notice, marginTop: 0, marginBottom: '0.3rem' }}>
-          None saved yet. Type a malt or boil hop that is not on the ingredient list in its name box, then choose
+          None saved yet. Type a malt, boil hop or yeast strain that is not on the ingredient list in its name box, then choose
           “Save to my ingredients”.
         </p>
       )}
