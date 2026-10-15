@@ -79,3 +79,11 @@ sheet, at Home and in Pro* · *a dose that shows a figure prints as before* ·
 - Far end: built app in headless Chromium, print media, screenshots
   `O1-1-small-home.png`, `O1-1-shown-home.png`, `O1-1-small-pro.png` and
   `O1-1-water-tab-small-home.png` (run scratchpad); no page errors.
+- Batch O1 reviewer finding (confirmed, documents only): SPEC rule 10 said the
+  printed sheet prints the fermenter's grams "in the additions, Water back"
+  with no exception, so a water-back dose of 0.03 g (shown "0.0 g") left off the
+  sheet by this item contradicted it; the item file had pointed to rule 8,
+  which lists no additions. Fixed in a new commit: rule 10 now says an addition
+  whose figure prints as zero at its printed precision is left off the sheet.
+  No other SPEC sentence lists the sheet's additions (the acid's place, rule 8,
+  and the water back's volume row are unchanged).

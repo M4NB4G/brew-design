@@ -238,7 +238,8 @@ cached values are pinned by the golden-master tests.
     (when not, the tab names the salt it needs); nothing at or above it.
     A blank figure the sums need blanks them and the tab names it. The
     printed sheet prints the three, their targets and the grams (in the
-    additions, "Water back"). With water back off none of this shows. The printed sheet prints the wort from kettle, the water back and the
+    additions, "Water back"; an addition whose figure prints as zero at its
+    printed precision is left off the sheet). With water back off none of this shows. The printed sheet prints the wort from kettle, the water back and the
     fermentation volume, its batch volume the fermentation volume, and the
     OG from kettle and the OG at pitch. With water back off every figure is as
     without it.
