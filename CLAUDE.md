@@ -142,7 +142,9 @@ roadmap, and the rest land. A Tier C or D item needs no scope table beyond
 its roadmap line unless building it raises a question for the owner.
 
 A batch holds at most three items (the owner's decision, 2026-10-02):
-shorter sessions cost less per step and leave less to go wrong.
+shorter sessions cost less per step and leave less to go wrong. A batch
+whose items are all Tier C or D and change no figure may hold up to five
+(the owner's decision, 2026-10-15, for cost and review count).
 
 After its report, while the owner reads it, the session writes the scope
 tables for the next batch (procedure step 1) and puts their questions to
@@ -179,6 +181,75 @@ the trial as well. The batch kickoff prompt, with `<batch>` and
 
 For a Tier C and D trial batch, the prompt ends at the report: it leaves
 out the scope tables for the next batch.
+
+## Orchestrated run — one planning round, one summary
+
+The owner's decision (2026-10-15, O-1 to O-5): the remaining work is
+planned in one session and built in one more, unattended. Nothing per item
+changes: each item runs the procedure from step 2, with its own scenario,
+recorded failure, commit, and, for Tier A/B, its own fresh inspector and
+box. What changes is who starts each role, and when the owner is asked.
+
+- **Planning session.** Writes every scope table for the run in one
+  decision table, gets the owner's reply, commits the agreed tables (and
+  the Sessions rows naming the run's batches, in order) on their own
+  branch with their own PR, and gives the owner the orchestrator's kickoff
+  prompt. It builds nothing.
+- **Orchestrator** (a new session, Opus). Builds the batches one after
+  another, never in parallel: they edit the same documents. Batch 1
+  branches from `main`; each later batch branches from the one before. For
+  each item it spawns the roles as fresh subagents, each with its model
+  named and only its own prompt: the **builder** (writes the scenario, runs
+  it alone, makes the change, proves it, writes the docs, stages, and
+  stops); for Tier A/B the **inspector**, exactly as this file specifies,
+  on the staged change; for Tier C/D the **advisor**, an Opus subagent that
+  reads the staged diff and confirms no number it adds is a recipe value
+  (the catch-all). On PASS (or the advisor's confirmation) the builder is
+  resumed to commit; on FAIL it is resumed with the reasons, then the same
+  inspector is resumed with the delta. The orchestrator writes no code and
+  no box.
+- **A question stops the item, not the run.** An item whose builder meets a
+  question the item file does not answer, a row it thinks wrong, or a
+  catch-all promotion it cannot take (a Tier B number in a Sonnet-built
+  item) is not committed; the summary names it with the question in the
+  decision-table form (Roles), and the rest of the run goes on.
+- **Reviewer.** When a batch's items are committed, its branch is pushed
+  and its PR opened (base: the batch before, or `main` for the first, so
+  each PR shows its own diff). A fresh Opus reviewer then reads the PR's
+  diff against its item files and `SPEC.md`, and runs `npm test`,
+  `npm run build`, `npm run lint` and `npm run e2e` itself. A finding it
+  confirms is fixed by the builder in a new commit, recorded in the
+  summary, re-reviewed; one it does not confirm is listed.
+- **Models.** Tier C and D: Sonnet 5.5 builds, the Opus
+  advisor confirms the numbers. Tier A and B: Opus builds (high effort), a
+  fresh Opus inspector (default effort) returns the box. One fresh Opus
+  reviewer per batch. An item file's model rows govern where they differ.
+- **Summary.** At the end the orchestrator returns one summary to the
+  owner, in engineering language (Roles): per batch, what changed for the
+  brewer, every box and advisor confirmation, every FAIL round and
+  reviewer finding, anything not built and its question, the far-end
+  checks' screenshots, and each PR's link (the PRs carry the full diffs).
+  Then it stops. One "merge and push" fast-forwards `main` to the last
+  batch's branch and pushes it: one deploy.
+
+The kickoff prompt for the orchestrator, with `<run>` filled in:
+
+> You are the orchestrator for the run `<run>` in Brew Design
+> (C:/Users/micha/Documents/Code/Brew-Design). Read, in order: `CLAUDE.md`
+> (its "Orchestrated run" section above all), `SPEC.md`, `docs/ROADMAP.md`
+> (its Sessions table names the run's batches and items, in order), and
+> each item's file in `docs/items/`. Do not re-open agreed decisions.
+>
+> Build the batches in order, each on its own branch from the one before
+> (the first from `main`), each item by `CLAUDE.md`'s procedure from step
+> 2, every role a fresh subagent you spawn with its model named: the
+> builder, then the inspector (Tier A/B) or the advisor (Tier C/D), then,
+> per batch, the reviewer. You write no code and no box. An item that
+> cannot pass, or that raises a question, is not committed; it goes in the
+> summary with its question. Push each batch and open its PR. Then return
+> one summary as `CLAUDE.md` specifies, and stop. `main` is merged and
+> pushed only when the owner replies "merge and push", never on your own
+> initiative.
 
 ## Models
 
