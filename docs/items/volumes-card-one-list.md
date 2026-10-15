@@ -1,7 +1,10 @@
 # The Volumes card and the line under the stats bar read one list, Tier B
 
-Status: agreed 2026-10-15 ("agree to all", R-1, VO-Q1, S20-Q2 superseded by
-the orchestrated run, O-1 to O-5, M); not started. Written by the S19
+Status: landed 2026-10-15 in batch O2 as "The line under the stats bar names
+the Volumes card's empty boxes in the order the card shows them, read from one
+list of the card's rows that the card and the line share" (agreed 2026-10-15:
+"agree to all", R-1, VO-Q1, S20-Q2 superseded by the orchestrated run, O-1 to
+O-5, M). Written by the S19
 session; built in the orchestrated run, batch O2 (docs/ROADMAP.md, Sessions).
 
 ## Why
@@ -52,3 +55,45 @@ the card's list.
 - SPEC rule 8 says the line is "read from the recipe's own figures": unchanged.
   `docs/TEST_COVERAGE.md` gets a scenario row; the roadmap line "The Volumes
   card's order is written twice" is removed.
+
+## Builder's notes (landed 2026-10-15)
+
+- Builder: Opus 5.5, high effort. Inspector: Opus 5.5, default effort, a fresh
+  session: PASS, no FAIL rounds.
+- Scenarios (`apps/recipe/test/volumes-card-one-list.test.js`): *the line's
+  order is the card's order, read from one list* (VO-S1, VO-S3) failed before:
+  with the list substituted (Boil time moved above the pre-boil volume), the
+  line kept its own order, Boil time after the boil-off rate. *nothing changes
+  on screen* (VO-S2) is a pin of today's behaviour and passed before and after.
+- The shared list is `apps/recipe/src/volumes-card-rows.js`: the card's three
+  parts (Mash, Boil, Ferment) in screen order, each row a key, a name for a box
+  the brewer types in (the line's name for it; worked-out figures, the warning
+  and the check have none) and a water-back flag (`true` only with it on,
+  `false` only with it off, absent always); `rowsShown` is the one filter both
+  readers use. The fermentation measurement temperature sits twice under one
+  key, once for each water-back state, as its place differs between them today.
+- The card draws each part's shown rows in the list's order from a map of the
+  rows' existing markup, unedited, by key; only shown rows are drawn. The parts
+  are taken by position, the headings and columns unchanged. The two "less
+  wort" warnings became one row whose text follows water back, both strings
+  unchanged.
+- The line walks the same list and names each empty box with a name; the four
+  temperatures share one check (blank, or its volume at 60 °F blank while the
+  measured volume is not), the water back's included. Grist, Yeast and Hops
+  untouched.
+- Byte for byte: `volumes-card-one-list.before.json`, captured from the
+  unchanged code by `volumes-card-one-list.fixture.js` (a temporary capture
+  test, then deleted): 248 line texts and 408 SHA-256 hashes of the card's
+  markup, water back off and on, temperatures at the reference and measured
+  hot, Home, Pro in barrels and in gallons, °F and °C; identical after. All
+  other page digests unchanged.
+- No number added to app code. Suites: engine 260, app 437, browser 23; build
+  and lint pass.
+- Far end 2026-10-15, built app in Chromium at 1200 px and 390 px, Home and
+  Pro, several boxes emptied, water back off, on, off and on again: the line
+  reads the boxes in the card's order each time; screenshots
+  `O2-{home,pro,phone-home,phone-pro}-water-back-{off,on,off-again,on-again}.png`
+  in the session's scratchpad `screens/`.
+- Roadmap line added (Tier C): "The boil time box hands its blank figure to
+  the page as is" (React's development warning "Received NaN for the `value`
+  attribute"; the built app shows the box empty).

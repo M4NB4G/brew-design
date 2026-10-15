@@ -31,6 +31,10 @@
 // the fermentation volume, worked out (computeRecipe's fermentGal), its
 // measurement temperature and its volume at 60 degF (pitchGal), and the OG
 // and IBU of the wort from kettle (knockOut), read-only.
+// The rows are drawn in the order of the shared list of the card's rows,
+// volumes-card-rows.js, which the line under the stats bar reads too
+// (docs/items/volumes-card-one-list.md, VO-S1 to VO-S3).
+import { Fragment } from 'react';
 import { MASH_RV_RANGE_QT_PER_LB, MASH_R_RANGE_LB_PER_LB } from '@brew/engine';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
@@ -53,6 +57,7 @@ import {
   gravityUnitLabel,
 } from '../display.js';
 import { num, gravity, trimmed } from '../format.js';
+import { VOLUMES_CARD_ROWS, rowsShown } from '../volumes-card-rows.js';
 
 // "Should be 1.25–2 qt/lb": a recommended range, as the owner's cell reads it.
 function shouldBe({ low, high }, unit) {
@@ -161,6 +166,126 @@ export default function VolumesSection({
     onChange: volumeChange(setField, field, mode, proVolumeUnit),
   });
 
+  // Each row of the card by its key in the shared list of the card's rows
+  // (volumes-card-rows.js), drawn only when the list shows it.
+  const draw = {
+    mashWater: () => <InputRow label={`Mash water (${vUnit})`} step={0.1} min={0} {...volRow('mashWaterGal')} />,
+    mashRv: () => (
+      <>
+        <InputRow
+          label={`Mash Rv (${mashRvUnit()})`}
+          value={trimmed(grist.mashRv, 3)}
+          onChange={() => {}}
+          readOnly
+        />
+        {warnings.mashRv && <Warning>{shouldBe(MASH_RV_RANGE_QT_PER_LB, mashRvUnit())}</Warning>}
+      </>
+    ),
+    mashR: () => (
+      <>
+        <InputRow
+          label={`Mash R (${mashRUnit()})`}
+          value={trimmed(grist.mashR, 3)}
+          onChange={() => {}}
+          readOnly
+        />
+        {warnings.mashR && <Warning>{shouldBe(MASH_R_RANGE_LB_PER_LB, mashRUnit())}</Warning>}
+      </>
+    ),
+    preBoilVolume: () => <InputRow label={`Pre-boil volume (${vUnit})`} step={0.1} min={0} {...volRow('preBoilVolGal')} />,
+    preBoilTemp: () => tempRow('preBoil', 'Pre-boil volume'),
+    preBoilAtReference: () => refRow('preBoil', 'Pre-boil volume'),
+    boilOffRate: () => (
+      <InputRow
+        label={`Boil-off rate (${vUnit}/hr)`}
+        step={0.1}
+        min={0}
+        {...volRow('boilOffRateGalPerHr')}
+      />
+    ),
+    boilTime: () => (
+      <InputRow
+        label="Boil time (min)"
+        value={recipe.boilTimeMin}
+        onChange={(e) => setField('boilTimeMin', parseFloat(e.target.value))}
+        step={1}
+        min={0}
+      />
+    ),
+    postBoilMeasured: () =>
+      postBoilMeasuredShown && (
+        <InputRow
+          label={`Post-boil volume at ${tempReadout(recipe.measurementTempF.postBoil, temperatureUnit)} ${tUnit} (${vUnit})`}
+          value={trimmed(fromGal(postBoilMeasuredGal), 3)}
+          onChange={() => {}}
+          readOnly
+        />
+      ),
+    postBoilAtReference: () => (
+      <InputRow
+        label={`Post-boil volume at ${refTemp} ${tUnit} (${vUnit})`}
+        value={trimmed(fromGal(postBoilVolGal), 3)}
+        onChange={() => {}}
+        readOnly
+      />
+    ),
+    postBoilTemp: () => tempRow('postBoil', 'Post-boil volume'),
+    fermentVolume: () => <InputRow label={`Fermentation volume (${vUnit})`} step={0.1} min={0} {...volRow('fermentVolGal')} />,
+    fermentTemp: () => tempRow('ferment', 'Fermentation volume'),
+    fermentAtReference: () => refRow('ferment', 'Fermentation volume'),
+    wortFromKettle: () => <InputRow label={`Wort from kettle (${vUnit})`} step={0.1} min={0} {...volRow('fermentVolGal')} />,
+    lessWortWarning: () =>
+      warnings.postBoilBelowFerment && (
+        <Warning>
+          {waterBack.on ? 'Less wort after the boil than the wort from kettle' : 'Less wort after the boil than the fermenter volume'}
+        </Warning>
+      ),
+    waterBackCheck: () => waterBackCheck,
+    waterBack: () => (
+      <InputRow
+        label={`Water back (${vUnit})`}
+        step={0.1}
+        min={0}
+        value={volumeShown(waterBack.volumeGal, mode, proVolumeUnit, volumeDigits(mode, proVolumeUnit))}
+        editValue={volumeShown(waterBack.volumeGal, mode, proVolumeUnit)}
+        onChange={(e) => setWaterBack('volumeGal', volumeToCanonical(parseFloat(e.target.value), mode, proVolumeUnit))}
+      />
+    ),
+    waterBackTemp: () => (
+      <InputRow
+        label={`Water back measured at (${tUnit})`}
+        value={Number.isFinite(waterBack.tempF) ? tempBoxValue(waterBack.tempF, temperatureUnit) : ''}
+        onChange={(e) => setWaterBack('tempF', tempToCanonical(parseFloat(e.target.value), temperatureUnit))}
+        step={temperatureUnit === 'C' ? 0.1 : 1}
+      />
+    ),
+    fermentWorkedOut: () => (
+      <InputRow label={`Fermentation volume (${vUnit})`} value={num(fromGal(fermentGal), 3)} onChange={() => {}} readOnly />
+    ),
+    pitchAtReference: () => (
+      <InputRow
+        label={`Fermentation volume at ${refTemp} ${tUnit} (${vUnit})`}
+        value={num(fromGal(pitchGal), 3)}
+        onChange={() => {}}
+        readOnly
+      />
+    ),
+    knockOutOG: () => (
+      <InputRow
+        label={`Wort from kettle OG (${gravityUnitLabel(gu)})`}
+        value={gravity(gravityFromCanonical(knockOut?.OG, gu), gu)}
+        onChange={() => {}}
+        readOnly
+      />
+    ),
+    knockOutIBU: () => <InputRow label="Wort from kettle IBU" value={num(knockOut?.IBU, 0)} onChange={() => {}} readOnly />,
+  };
+  // A part of the card: its rows in the list's order, those shown with water
+  // back as it is.
+  const rows = (part) =>
+    rowsShown(part.rows, waterBack.on).map((row) => <Fragment key={row.key}>{draw[row.key]()}</Fragment>);
+  const [mash, boil, ferment] = VOLUMES_CARD_ROWS;
+
   return (
     <Card>
       <span style={tokens.cardLabel}>Volumes</span>
@@ -173,102 +298,15 @@ export default function VolumesSection({
       <div style={{ display: 'grid', gridTemplateColumns: phone ? '1fr' : '1fr 1fr', gap: '0 1.5rem' }}>
         <div>
           <span style={{ ...tokens.cardLabel, marginBottom: '0.3rem', fontSize: '0.65rem' }}>Mash</span>
-          <InputRow label={`Mash water (${vUnit})`} step={0.1} min={0} {...volRow('mashWaterGal')} />
-          <InputRow
-            label={`Mash Rv (${mashRvUnit()})`}
-            value={trimmed(grist.mashRv, 3)}
-            onChange={() => {}}
-            readOnly
-          />
-          {warnings.mashRv && <Warning>{shouldBe(MASH_RV_RANGE_QT_PER_LB, mashRvUnit())}</Warning>}
-          <InputRow
-            label={`Mash R (${mashRUnit()})`}
-            value={trimmed(grist.mashR, 3)}
-            onChange={() => {}}
-            readOnly
-          />
-          {warnings.mashR && <Warning>{shouldBe(MASH_R_RANGE_LB_PER_LB, mashRUnit())}</Warning>}
+          {rows(mash)}
         </div>
 
         <div>
           <span style={{ ...tokens.cardLabel, ...(phone && { marginTop: '0.85rem' }), marginBottom: '0.3rem', fontSize: '0.65rem' }}>Boil</span>
-          <InputRow label={`Pre-boil volume (${vUnit})`} step={0.1} min={0} {...volRow('preBoilVolGal')} />
-          {tempRow('preBoil', 'Pre-boil volume')}
-          {refRow('preBoil', 'Pre-boil volume')}
-          <InputRow
-            label={`Boil-off rate (${vUnit}/hr)`}
-            step={0.1}
-            min={0}
-            {...volRow('boilOffRateGalPerHr')}
-          />
-          <InputRow
-            label="Boil time (min)"
-            value={recipe.boilTimeMin}
-            onChange={(e) => setField('boilTimeMin', parseFloat(e.target.value))}
-            step={1}
-            min={0}
-          />
-          {postBoilMeasuredShown && (
-            <InputRow
-              label={`Post-boil volume at ${tempReadout(recipe.measurementTempF.postBoil, temperatureUnit)} ${tUnit} (${vUnit})`}
-              value={trimmed(fromGal(postBoilMeasuredGal), 3)}
-              onChange={() => {}}
-              readOnly
-            />
-          )}
-          <InputRow
-            label={`Post-boil volume at ${refTemp} ${tUnit} (${vUnit})`}
-            value={trimmed(fromGal(postBoilVolGal), 3)}
-            onChange={() => {}}
-            readOnly
-          />
-          {tempRow('postBoil', 'Post-boil volume')}
+          {rows(boil)}
 
           <span style={{ ...tokens.cardLabel, marginTop: '0.85rem', marginBottom: '0.3rem', fontSize: '0.65rem' }}>Ferment</span>
-          {!waterBack.on ? (
-            <>
-              <InputRow label={`Fermentation volume (${vUnit})`} step={0.1} min={0} {...volRow('fermentVolGal')} />
-              {tempRow('ferment', 'Fermentation volume')}
-              {refRow('ferment', 'Fermentation volume')}
-              {warnings.postBoilBelowFerment && <Warning>Less wort after the boil than the fermenter volume</Warning>}
-              {waterBackCheck}
-            </>
-          ) : (
-            <>
-              <InputRow label={`Wort from kettle (${vUnit})`} step={0.1} min={0} {...volRow('fermentVolGal')} />
-              {warnings.postBoilBelowFerment && <Warning>Less wort after the boil than the wort from kettle</Warning>}
-              {waterBackCheck}
-              <InputRow
-                label={`Water back (${vUnit})`}
-                step={0.1}
-                min={0}
-                value={volumeShown(waterBack.volumeGal, mode, proVolumeUnit, volumeDigits(mode, proVolumeUnit))}
-                editValue={volumeShown(waterBack.volumeGal, mode, proVolumeUnit)}
-                onChange={(e) => setWaterBack('volumeGal', volumeToCanonical(parseFloat(e.target.value), mode, proVolumeUnit))}
-              />
-              <InputRow
-                label={`Water back measured at (${tUnit})`}
-                value={Number.isFinite(waterBack.tempF) ? tempBoxValue(waterBack.tempF, temperatureUnit) : ''}
-                onChange={(e) => setWaterBack('tempF', tempToCanonical(parseFloat(e.target.value), temperatureUnit))}
-                step={temperatureUnit === 'C' ? 0.1 : 1}
-              />
-              <InputRow label={`Fermentation volume (${vUnit})`} value={num(fromGal(fermentGal), 3)} onChange={() => {}} readOnly />
-              {tempRow('ferment', 'Fermentation volume')}
-              <InputRow
-                label={`Fermentation volume at ${refTemp} ${tUnit} (${vUnit})`}
-                value={num(fromGal(pitchGal), 3)}
-                onChange={() => {}}
-                readOnly
-              />
-              <InputRow
-                label={`Wort from kettle OG (${gravityUnitLabel(gu)})`}
-                value={gravity(gravityFromCanonical(knockOut?.OG, gu), gu)}
-                onChange={() => {}}
-                readOnly
-              />
-              <InputRow label="Wort from kettle IBU" value={num(knockOut?.IBU, 0)} onChange={() => {}} readOnly />
-            </>
-          )}
+          {rows(ferment)}
         </div>
       </div>
     </Card>

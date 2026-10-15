@@ -12,6 +12,12 @@
 // That is read from the recipe's own figures — its volume at 60 degF is blank
 // while the measured volume is not — never from a range written here.
 // Computes nothing: every figure is the recipe's or computeRecipe's.
+//
+// The Volumes card's boxes are named in the order of the shared list of the
+// card's rows (volumes-card-rows.js), which the card draws from too
+// (docs/items/volumes-card-one-list.md, VO-S1 to VO-S3).
+
+import { VOLUMES_CARD_ROWS, rowsShown } from './volumes-card-rows.js';
 
 const blank = (v) => !Number.isFinite(v);
 
@@ -33,41 +39,47 @@ export function emptyFields(recipe, derived) {
     if (blank(value)) names.push(name);
   };
 
-  // A volume's measurement temperature, named where its box sits on the
-  // Volumes card: blank, or one the correction cannot use (see above).
-  const checkTemp = (kind, label, measuredGal) => {
-    const tempF = recipe.measurementTempF?.[kind];
+  // A measurement temperature box, named when blank, or when the correction
+  // cannot use it (see above): its volume at 60 degF blank while the measured
+  // volume is not.
+  const checkTemp = (name, tempF, refGal, measuredGal) => {
     if (blank(tempF)) {
-      names.push(`${label} measurement temperature`);
-    } else if (blank(derived.refVolumesGal[kind]) && !blank(measuredGal)) {
-      names.push(`${label} measurement temperature (outside the correction's range)`);
+      names.push(name);
+    } else if (blank(refGal) && !blank(measuredGal)) {
+      names.push(`${name} (outside the correction's range)`);
     }
   };
 
-  check(recipe.mashWaterGal, 'Mash water');
-  check(recipe.preBoilVolGal, 'Pre-boil volume');
-  checkTemp('preBoil', 'Pre-boil', recipe.preBoilVolGal);
-  check(recipe.boilOffRateGalPerHr, 'Boil-off rate');
-  check(recipe.boilTimeMin, 'Boil time');
-  // The post-boil volume is worked out, not entered: its temperature box sits
-  // after the boil rows.
-  checkTemp('postBoil', 'Post-boil', derived.postBoilMeasuredGal);
-  // Water back, only while it is on (WB-S10): the wort from kettle, its
-  // volume, then its measurement temperature, then the fermentation volume's
-  // temperature, as the Volumes card shows them (WF-S2).
+  // The Volumes card's boxes, by their keys in the shared list of the card's
+  // rows (volumes-card-rows.js), named in that list's order: the order the
+  // card shows them. Water back's rows only while it is on (WB-S10), the
+  // fermentation volume's box then the wort from kettle (WF-S2).
   const wb = recipe.waterBack;
-  if (wb?.on) {
-    check(recipe.fermentVolGal, 'Wort from kettle');
-    check(wb.volumeGal, 'Water back');
-    if (blank(wb.tempF)) {
-      names.push('Water back measurement temperature');
-    } else if (blank(derived.refVolumesGal.waterBack) && !blank(wb.volumeGal)) {
-      names.push("Water back measurement temperature (outside the correction's range)");
+  const refs = derived.refVolumesGal;
+  const boxes = {
+    mashWater: recipe.mashWaterGal,
+    preBoilVolume: recipe.preBoilVolGal,
+    boilOffRate: recipe.boilOffRateGalPerHr,
+    boilTime: recipe.boilTimeMin,
+    fermentVolume: recipe.fermentVolGal,
+    wortFromKettle: recipe.fermentVolGal,
+    waterBack: wb?.volumeGal,
+  };
+  // Each temperature with its volume at 60 degF and the volume it corrects.
+  // The post-boil volume is worked out, not entered.
+  const temps = {
+    preBoilTemp: [recipe.measurementTempF?.preBoil, refs.preBoil, recipe.preBoilVolGal],
+    postBoilTemp: [recipe.measurementTempF?.postBoil, refs.postBoil, derived.postBoilMeasuredGal],
+    fermentTemp: [recipe.measurementTempF?.ferment, refs.ferment, recipe.fermentVolGal],
+    waterBackTemp: [wb?.tempF, refs.waterBack, wb?.volumeGal],
+  };
+  for (const part of VOLUMES_CARD_ROWS) {
+    for (const row of rowsShown(part.rows, Boolean(wb?.on))) {
+      if (!row.name) continue;
+      if (row.key in temps) checkTemp(row.name, ...temps[row.key]);
+      else check(boxes[row.key], row.name);
     }
-  } else {
-    check(recipe.fermentVolGal, 'Fermentation volume');
   }
-  checkTemp('ferment', 'Fermentation', recipe.fermentVolGal);
 
   recipe.malts.forEach((m, i) => {
     const name = rowName(m, 'Malt', i);
