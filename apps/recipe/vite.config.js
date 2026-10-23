@@ -15,5 +15,10 @@ export default defineConfig({
     // way-out-of-page-error.test.js) would watch a console jsdom never uses.
     // With it, the tests and jsdom share the one console, as under Vitest 3.
     disableConsoleIntercept: true,
+    // Under Vitest 4 the on-screen tests run past Vitest's 5-second limit for
+    // one test on the owner's Windows computer (slowest seen 8.5 s warm, 59 s
+    // on the first run after an install); this limit covers them with a
+    // margin (the owner's decision T-1, 2026-10-23).
+    testTimeout: 120000,
   },
 });
