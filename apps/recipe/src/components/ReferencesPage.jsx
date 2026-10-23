@@ -45,15 +45,18 @@ export const COEFFICIENTS = {
   mgPerLPerOzPerGal: 7489.1, // mg/L of alpha acid per oz/gal
   starter: {
     dmeGPerL: 115,
-    // Each band: its pack, its curve, and the cells needed, C, it serves; the
-    // cells an extra pack supplies are taken off (takes), else N = C.
+    // The calculator's growth: its fit's three constants, the stir plate's
+    // boost, and the saturation rate (million cells per mL).
+    growth: { k: 12.54793776, p: 0.4594858324, offset: 0.9994994906, stirPlate: 1.0, saturation: 200 },
+    // Each band: its pack and the cells needed, C, it serves; the cells an
+    // extra pack supplies are taken off (takes), else N = C. No starter is
+    // larger than 5 L, so the 200B pack takes its extra pack from 670 and
+    // the range ends at 1,270.
+    maxStarterL: 5,
     bands: [
       {
         band: '100B',
         packCells: 100,
-        a: -0.055,
-        b: 0.729,
-        c: 1.86,
         ranges: [
           { from: 250, to: 400, toIncluded: false },
           { from: 400, to: 500, toIncluded: false, takes: 100 },
@@ -62,23 +65,17 @@ export const COEFFICIENTS = {
       {
         band: '200B',
         packCells: 200,
-        a: -0.03,
-        b: 0.482,
-        c: 1.674,
         ranges: [
-          { from: 400, to: 700, toIncluded: false },
-          { from: 700, to: 800, toIncluded: false, takes: 200 },
+          { from: 400, to: 670, toIncluded: false },
+          { from: 670, to: 800, toIncluded: false, takes: 200 },
         ],
       },
       {
         band: '400B',
         packCells: 400,
-        a: -0.006,
-        b: 0.222,
-        c: 1.738,
         ranges: [
           { from: 800, to: 1000, toIncluded: true },
-          { from: 1000, fromIncluded: false, to: Infinity, takes: 200 },
+          { from: 1000, fromIncluded: false, to: 1270, toIncluded: true, takes: 200 },
         ],
       },
     ],
@@ -126,8 +123,8 @@ const MEINERS = <>Meiners, L., &amp; Cavanna, M. (2022). Skeptical Brewing, Part
 const WHITE = (
   <>White, C., &amp; Zainasheff, J. (2010). <em>Yeast: The Practical Guide to Beer Fermentation</em>. Brewers Publications.</>
 );
-const STARTER_CURVES = (
-  <>A quadratic fit to the output of MoreBeer&apos;s yeast starter calculator (morebeer.com), by Persyn Chemical Engineering.</>
+const STARTER_GROWTH = (
+  <>Brewer&apos;s Friend. Yeast Pitch Rate and Starter Calculator, notes on the C. White model: a formula fitted to C. White&apos;s data that reproduces MoreBeer&apos;s yeast starter calculator (morebeer.com). brewersfriend.com/yeast-pitch-rate-and-starter-calculator</>
 );
 const WAGNER = (
   <>Wagner, W., &amp; Pruß, A. (2002). The IAPWS formulation 1995 for the thermodynamic properties of ordinary water substance. <em>J. Phys. Chem. Ref. Data</em>, 31(2), 387–535.</>
@@ -285,7 +282,7 @@ const range = (r) => `${r.low}–${r.high}`;
 const rangeText = (r) =>
   r.to === Infinity
     ? `C ${r.fromIncluded === false ? '>' : '≥'} ${r.from}`
-    : `${r.from} ≤ C ${r.toIncluded ? '≤' : '<'} ${r.to}`;
+    : `${r.from} ${r.fromIncluded === false ? '<' : '≤'} C ${r.toIncluded ? '≤' : '<'} ${r.to}`;
 
 export default function ReferencesPage({ onBack, temperatureUnit }) {
   const ref = `${referenceTemp(temperatureUnit)} ${tempUnit(temperatureUnit)}`;
@@ -293,6 +290,7 @@ export default function ReferencesPage({ onBack, temperatureUnit }) {
   const ra = MASH_PH_TESTED_RANGE.residualAlkalinityMeq;
   const thickness = MASH_PH_TESTED_RANGE.thicknessLPerKg;
   const lactic = ACIDS.acidulated_malt;
+  const growth = k.starter.growth;
   const litresPerGal = String(LITERS_PER_GALLON);
   const gPerLb = String(G_PER_LB);
   const p = k.mashPh;
@@ -463,19 +461,28 @@ export default function ReferencesPage({ onBack, temperatureUnit }) {
 
       <Model title="Starters">
         <Block
-          label="Growth curve"
-          equations={['G(V) = a V^{2} + b V + c', 'V = (−b ± √(b^{2} − 4 a (c − N / S))) / (2 a)']}
+          label="Growth"
+          equations={[
+            'N = S × (1 + g)',
+            `g = ${growth.k} × x^{−${growth.p}} − ${growth.offset} + g_{stir}`,
+            'x = S / V',
+            `V = S × ((N / S − 1 − g_{stir} + ${growth.offset}) / ${growth.k})^{1 / ${growth.p}}, and V ≥ S / ${growth.saturation}`,
+          ]}
           symbols={[
-            ['G', 'growth, cells in the starter per cell in the pack', '×'],
-            ['V', 'starter volume, the smaller positive root', 'L'],
-            ['a', 'curve coefficient of the band', '×/L²'],
-            ['b', 'curve coefficient of the band', '×/L'],
-            ['c', 'curve coefficient of the band', '×'],
             ['N', 'cells the starter must reach', 'billion cells'],
-            ['S', 'cells in the band’s pack', 'billion cells'],
+            ['S', 'cells in the band’s pack, a fresh pack', 'billion cells'],
+            ['g', 'growth, cells grown in the starter per cell in the pack', '×'],
+            ['x', 'inoculation rate, the pack’s cells per volume of starter', 'million cells/mL'],
+            ['V', 'starter volume', 'L'],
+            ['g_{stir}', `growth a stir plate adds, ${growth.stirPlate}`, '×'],
+            [
+              String(growth.saturation),
+              `saturation: at this inoculation rate and above the starter grows one doubling, so it is never smaller than S / ${growth.saturation}`,
+              'million cells/mL',
+            ],
             ['C', 'cells needed, as under Pitch rates', 'billion cells'],
           ]}
-          source={STARTER_CURVES}
+          source={STARTER_GROWTH}
         />
         <Block
           label="Dry malt extract"
@@ -492,9 +499,6 @@ export default function ReferencesPage({ onBack, temperatureUnit }) {
               <tr>
                 <th scope="col" style={headStyle}>Band</th>
                 <th scope="col" style={headStyle}>S</th>
-                <th scope="col" style={headStyle}>a</th>
-                <th scope="col" style={headStyle}>b</th>
-                <th scope="col" style={headStyle}>c</th>
               </tr>
             </thead>
             <tbody>
@@ -502,9 +506,6 @@ export default function ReferencesPage({ onBack, temperatureUnit }) {
                 <tr key={b.band}>
                   <th scope="row" style={cellStyle}>{b.band}</th>
                   <td style={cellStyle}>{b.packCells}</td>
-                  <td style={cellStyle}>{m(b.a)}</td>
-                  <td style={cellStyle}>{m(b.b)}</td>
-                  <td style={cellStyle}>{m(b.c)}</td>
                 </tr>
               ))}
             </tbody>
@@ -519,6 +520,9 @@ export default function ReferencesPage({ onBack, temperatureUnit }) {
               )),
             )}
           </ul>
+          <p style={bodyStyle}>
+            No starter is larger than {k.starter.maxStarterL} L; the limits keep every starter within it.
+          </p>
           <Source>none; the bands are the app&apos;s own rule.</Source>
         </Block>
       </Model>

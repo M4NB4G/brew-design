@@ -117,8 +117,8 @@ const TINSETH = "Tinseth, G. Glenn's Hop Utilization Numbers. realbeer.com/hops/
 const MEINERS = 'Meiners, L., & Cavanna, M. (2022). Skeptical Brewing, Part 3. Zymurgy, May/June 2022.';
 const WHITE =
   'White, C., & Zainasheff, J. (2010). Yeast: The Practical Guide to Beer Fermentation. Brewers Publications.';
-const STARTER_CURVES =
-  "A quadratic fit to the output of MoreBeer's yeast starter calculator (morebeer.com), by Persyn Chemical Engineering.";
+const STARTER_GROWTH =
+  "Brewer's Friend. Yeast Pitch Rate and Starter Calculator, notes on the C. White model: a formula fitted to C. White's data that reproduces MoreBeer's yeast starter calculator (morebeer.com). brewersfriend.com/yeast-pitch-rate-and-starter-calculator";
 const WAGNER =
   'Wagner, W., & Pruß, A. (2002). The IAPWS formulation 1995 for the thermodynamic properties of ordinary water substance. J. Phys. Chem. Ref. Data, 31(2), 387–535.';
 const KOLBACH =
@@ -132,7 +132,7 @@ const PALMER_KAMINSKI =
 const rangeText = (r) =>
   r.to === Infinity
     ? `C ${r.fromIncluded === false ? '>' : '≥'} ${r.from}`
-    : `${r.from} ≤ C ${r.toIncluded ? '≤' : '<'} ${r.to}`;
+    : `${r.from} ${r.fromIncluded === false ? '<' : '≤'} C ${r.toIncluded ? '≤' : '<'} ${r.to}`;
 const effectiveText = (r) => (r.takes ? `N = C − ${r.takes}` : 'N = C');
 
 describe('the References page', () => {
@@ -267,27 +267,34 @@ describe('the References page', () => {
       {
         heading: 'Starters',
         equations: [
-          'G(V) = a V^2 + b V + c',
-          'V = (−b ± √(b^2 − 4 a (c − N / S))) / (2 a)',
+          'N = S × (1 + g)',
+          `g = ${k.starter.growth.k} × x^−${k.starter.growth.p} − ${k.starter.growth.offset} + g_stir`,
+          'x = S / V',
+          `V = S × ((N / S − 1 − g_stir + ${k.starter.growth.offset}) / ${k.starter.growth.k})^1 / ${k.starter.growth.p}, and V ≥ S / ${k.starter.growth.saturation}`,
           `m = ${k.starter.dmeGPerL} × V`,
         ],
         symbols: [
-          ['G', '×'],
-          ['V', 'L'],
-          ['a', 'L²'],
-          ['b', '/L'],
-          ['c', '×'],
           ['N', 'billion cells'],
           ['S', 'billion cells'],
+          ['g', '×'],
+          ['x', 'million cells/mL'],
+          ['V', 'L'],
+          ['g_stir', '×'],
+          [String(k.starter.growth.saturation), 'million cells/mL'],
           ['C', 'billion cells'],
           ['m', 'g'],
           [String(k.starter.dmeGPerL), 'g/L'],
         ],
-        citations: [STARTER_CURVES, PALMER, "none; the bands are the app's own rule"],
-        also: k.starter.bands.flatMap((b) => [
-          `${b.band} ${b.packCells} ${m(b.a)} ${m(b.b)} ${m(b.c)}`,
-          ...b.ranges.map((r) => `${rangeText(r)}: ${effectiveText(r)}`),
-        ]),
+        citations: [STARTER_GROWTH, PALMER, "none; the bands are the app's own rule"],
+        also: [
+          // The stir plate's boost, its figure in its definition.
+          `g_stir growth a stir plate adds, ${k.starter.growth.stirPlate} (×)`,
+          `No starter is larger than ${k.starter.maxStarterL} L; the limits keep every starter within it.`,
+          ...k.starter.bands.flatMap((b) => [
+            `${b.band} ${b.packCells}`,
+            ...b.ranges.map((r) => `${rangeText(r)}: ${effectiveText(r)}`),
+          ]),
+        ],
       },
       {
         heading: 'Volumes at the reference temperature',
@@ -516,7 +523,7 @@ describe('every coefficient on the page reproduces the engine\'s result', () => 
     }
   });
 
-  it('starters: each band\'s curve and limits, and the malt extract per litre', async () => {
+  it('starters: each band\'s growth, its step and limits, and the malt extract per litre', async () => {
     const k = await coefficients();
     const covers = (r, cells) => {
       const lo = r.fromIncluded === false ? cells > r.from : cells >= r.from;
@@ -524,7 +531,8 @@ describe('every coefficient on the page reproduces the engine\'s result', () => 
       return lo && hi;
     };
     // The bands present at each cells-needed count, with the limits' neighbours.
-    const counts = [249, 250, 300, 399, 400, 450, 499, 500, 699, 700, 750, 799, 800, 900, 1000, 1001, 1100];
+    const counts = [249, 250, 300, 399, 400, 450, 499, 500, 660, 669, 670, 699, 700, 750, 799, 800, 830, 850, 900, 1000, 1001, 1010, 1100, 1270, 1271, 1280, 1700];
+    const g = k.starter.growth;
     for (const cells of counts) {
       const options = solveStarter(cells);
       for (const band of k.starter.bands) {
@@ -535,12 +543,25 @@ describe('every coefficient on the page reproduces the engine\'s result', () => 
         expect(option.startCells).toBe(band.packCells);
         const n = cells - (range.takes ?? 0);
         const v = option.volumeL;
-        // The engine's volume sits on the page's curve at the multiple N / S, as its smaller positive root.
-        near(band.a * v * v + band.b * v + band.c, n / band.packCells);
-        const disc = band.b ** 2 - 4 * band.a * (band.c - n / band.packCells);
-        const roots = [(-band.b + Math.sqrt(disc)) / (2 * band.a), (-band.b - Math.sqrt(disc)) / (2 * band.a)].filter((x) => x > 0);
-        near(Math.min(...roots), v);
+        const S = band.packCells;
+        // The page's growth at a volume: g = k x^-p - offset + stir plate, x = S / V.
+        const grow = (V) => g.k * (S / V) ** -g.p - g.offset + g.stirPlate;
+        const step = S / g.saturation;
+        if (n <= S * (1 + grow(step))) {
+          // The pack reaches N at the step volume: the starter is the step.
+          near(v, step);
+        } else {
+          // The engine's volume sits on the page's formula: N = S (1 + g).
+          near(S * (1 + grow(v)), n);
+        }
+        // And it is the page's volume equation, the step its floor.
+        near(Math.max(step, S * ((n / S - 1 - g.stirPlate + g.offset) / g.k) ** (1 / g.p)), v);
         near(k.starter.dmeGPerL * v, option.dmeGrams);
+        // No starter the engine offers for a count in tens (cells needed is
+        // rounded to the nearest 10) is larger than the page says.
+        if (cells % 10 === 0) {
+          expect(v, `${band.band} at ${cells}`).toBeLessThanOrEqual(k.starter.maxStarterL);
+        }
       }
     }
   });

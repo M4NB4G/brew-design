@@ -124,6 +124,12 @@ describe('yeast golden master', () => {
   });
 });
 
+// The starter is not Rev 4's cached cells: it follows the yeast starter
+// calculator's published growth formula on a fresh pack (SPEC.md rule 2,
+// docs/items/starter-calculator-formula.md), pinned by hand: 570 / 200 = 2.85,
+// g = 1.85; 1.85 - 1.0 + 0.9994994906 = 1.8494994906; / 12.54793776 =
+// 0.1473942...; x = 0.1473942^(-1 / 0.4594858324) = 64.517 million cells per
+// mL; V = 200 / 64.517 = 3.09998 L; 3.09998 x 115 = 356.498 g.
 describe('starter golden master (cellsNeeded 570)', () => {
   const options = solveStarter(570);
 
@@ -134,10 +140,10 @@ describe('starter golden master (cellsNeeded 570)', () => {
   it('neededMultiple = 2.85', () => {
     expect(options[0].neededMultiple).toBeCloseTo(2.85, 6);
   });
-  it('volumeL ~ 3.00', () => {
-    expect(options[0].volumeL).toBeCloseTo(3.0, 2);
+  it('volumeL ~ 3.10 (Rev 4: 3.00)', () => {
+    expect(options[0].volumeL).toBeCloseTo(3.09998, 2);
   });
-  it('dmeGrams ~ 345.0', () => {
-    expect(options[0].dmeGrams).toBeCloseTo(345.0, 1);
+  it('dmeGrams ~ 356.5 (Rev 4: 345.0)', () => {
+    expect(options[0].dmeGrams).toBeCloseTo(356.498, 1);
   });
 });

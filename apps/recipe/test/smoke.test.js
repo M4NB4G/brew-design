@@ -91,8 +91,11 @@ describe('parity through the UI selector (computeRecipe)', () => {
   it('cells needed = 570 billion (exact)', () => {
     expect(d.cells).toBe(570);
   });
-  it('first starter option volume ~ 3.00 L', () => {
-    expect(d.starter[0].volumeL).toBeCloseTo(3.0, 2);
+  it('first starter option volume ~ 3.10 L', () => {
+    // The golden master's figure: the calculator's growth formula on a fresh
+    // pack (docs/items/starter-calculator-formula.md, SC-S6), 3.09998 L by
+    // hand there; Rev 4's curve gave 3.00 L.
+    expect(d.starter[0].volumeL).toBeCloseTo(3.09998, 2);
   });
 });
 

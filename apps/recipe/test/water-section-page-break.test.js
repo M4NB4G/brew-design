@@ -96,7 +96,10 @@ describe('the Water Treatment section may break between its tables (docs/items/w
     // PB-S4: the sheet as the code drew it before the item (captured then,
     // water-section-page-break.before.json), equal to it now, every figure,
     // every word, in the same order and style, once the keep-whole classes
-    // and the blocks that carry them are taken out.
+    // and the blocks that carry them are taken out. Since the starter follows
+    // the calculator's growth formula (docs/items/starter-calculator-formula.md,
+    // SC-S1): the 100B starter at 390 billion reads 4.12 L and 474 g, edited by
+    // hand in the capture (Rev 4's curve: 4.01 and 462).
     const plain = (html) => {
       const doc = parse(html);
       for (const el of [...doc.querySelectorAll('*')]) {

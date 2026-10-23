@@ -21,6 +21,19 @@ cached values are pinned by the golden-master tests.
    (Starter Vol Solver N11, whose strict boundary at 900 disagreed with its
    own note; the owner's rule since 2026-09-21,
    `packages/engine/src/starter.js`).
+   The starter's volume departs from Rev 4, on the owner's decision
+   (2026-10-23): in place of Rev 4's Starter Vol Solver curves, fitted to
+   MoreBeer's yeast starter calculator read with a 97 %-viable pack, it
+   follows the calculator's own growth formula as Brewer's Friend publishes
+   it from C. White's data, stir plate, on a fresh pack, 100 % viable:
+   N = S × (1 + g), g = 12.54793776 × x^−0.4594858324 − 0.9994994906 + 1.0,
+   x = S ÷ V, solved for V; never below S ÷ 200 L, the calculator's
+   saturation at 200 million cells per mL; and never above 5 L, the largest
+   starter a homebrewer makes (the owner, 2026-10-23): the 200B pack takes
+   its extra 200B pack from 670 billion, and the range ends at 1,270 billion,
+   counts in tens. Its constants are reproduced exactly from that source; the golden
+   master and the smoke test pin the starter by hand from the formula, Rev
+   4's figure beside each (`docs/items/starter-calculator-formula.md`).
 3. When faithful transcription produces a result that looks wrong, keep it and
    add a `// FLAG:` comment saying what and why. Never silently fix.
 4. Golden-master tolerances are fixed and never loosened:

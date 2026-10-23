@@ -194,7 +194,7 @@ describe('yeast card', () => {
     expect(d.grist.ABV).toBeCloseTo(0.0757708, 4);
     expect(d.pitchRate).toBe(selectPitchRate('ale', 'mod'));
     expect(d.cells).toBe(570);
-    expect(d.starter[0].volumeL).toBeCloseTo(3.0, 2);
+    expect(d.starter[0].volumeL).toBeCloseTo(3.09998, 2); // SC-S6 (Rev 4's curve: 3.00)
 
     // A lager pick gives exactly the numbers of the same recipe set to lager by hand.
     const lager = { ...ref, yeast: pickIngredient('yeasts', ref.yeast, strain('SafLager W-34/70')) };
