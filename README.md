@@ -3,7 +3,7 @@
 Monorepo for Brew Design, the recipe designer of Persyn Chemical Engineering
 and Consulting, live at https://brew-design.netlify.app (deployed from
 `main`). Source of truth for the math:
-`Experiments_Are_Fun_Recipe_Designer_Rev_3.xlsm`.
+`docs/sources/Experiments Are Fun Recipe Designer Rev 4.xlsm`.
 
 ## The app
 
@@ -13,16 +13,18 @@ recipe at a time — grist, volumes, hops, yeast, pitch and starter — in Home
 and nothing computed in the app (SPEC.md rule 7). It keeps the recipe and
 the brewery's own figures in the browser, exports and imports a recipe file,
 prints a brew-day sheet, and offers the owner's ingredient list
-(`data/`) in searchable boxes. The water-chemistry screens are next on the
-roadmap; their engine functions are already ported and tested.
+(`data/`) in searchable boxes. A Water tab takes the water test and shows the
+salt and acid additions, the predicted mash pH and the style's targets, from
+the engine's water functions.
 
 ## The calculation engine
 
 `packages/engine` (`@brew/engine`) is a pure, framework-agnostic JavaScript
 calculation engine — no DOM, no network, no I/O, no global state. Every function
 takes inputs and returns outputs. Constants are reproduced exactly from the
-reference spreadsheet; deviations are documented in `// FLAG:` comments rather
-than changed.
+reference spreadsheet; where the result looks wrong it is kept and documented
+in a `// FLAG:` comment rather than changed, and the owner's decided departures
+from it are in SPEC.md rule 2.
 
 Modules:
 
@@ -32,7 +34,7 @@ Modules:
 | `grist.js` | Grain bill → gravity, attenuation, ABV, color, mash thickness |
 | `hops.js` | Tinseth utilization + whirlpool temp factor → IBU |
 | `yeast.js` | Pitch-rate selection and cell-count requirement |
-| `starter.js` | Analytic quadratic starter solver (replaces an Excel GoalSeek) |
+| `starter.js` | Starter volume solved directly from the yeast starter calculator's growth formula (no GoalSeek) |
 | `solver.js` | Inverse grist solver (closed-form, gravity-only, OG target) |
 | `economics.js` | Cost rollup |
 | `water/` | Water chemistry: salt and acid additions, residual alkalinity, the salt solver, style targets (from Brew Water Chem) |
