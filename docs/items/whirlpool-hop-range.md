@@ -1,6 +1,7 @@
 # A whirlpool hop outside the model's range, Tier A
 
-Status: agreed 2026-11-10, not started. Written by the planning session of
+Status: landed 2026-11-10, "A hop below 176 °F is held at the 176 °F factor,
+and one above 212 °F at the 212 °F factor" (agreed 2026-11-10). Written by the planning session of
 the run "wrong-on-first-use"; batch 1, item 1 (docs/ROADMAP.md, Sessions).
 
 ## Why
@@ -89,4 +90,44 @@ and no other* (through `computeRecipe`, in °F and in °C).
 
 ## Builder's notes
 
-(to be filled in)
+Built 2026-11-10 (Opus 5.5, high effort). Choices the sentences did not make:
+
+- **The engine.** `packages/engine/src/hops.js` exports `WHIRLPOOL_RANGE_F`
+  (`{ low: 176, high: 212 }`, through `index.js`), the only two numbers the
+  item adds. The temperature is held into the range before the existing
+  quadratic (`Math.min(Math.max(T, 176), 212)`), so the held figures are the
+  quadratic's own at 176 and 212 °F (0.24992434 and 0.99989002) and a blank
+  temperature stays blank (`Math.max(NaN, 176)` is NaN). Each addition also
+  returns `belowRange`, true only for a temperature strictly below 176 °F
+  (false for a blank); the card and the sheet read it. A hop above 212 °F is
+  held but carries no note (WH-S4 names only the hops below). A `// FLAG:`
+  beside the factor names the reference recipe's three hops at 175 °F (H-5).
+  The existing comment "212 F -> 1.0" is left as it was, though the curve's
+  figure there is 0.99989002 (no drive-bys).
+- **The note's words**, the same on the card and the sheet
+  (`apps/recipe/src/components/held-hop-notes.js`): "<hop>, <minutes> min:
+  below 176 °F, its bitterness is held at the 176 °F figure." — in °C, 80 °C.
+  The hop is named as the card names it (an unnamed one "Kettle hop 5");
+  the minutes tell two hops of one name apart (the reference recipe's two
+  Helios), in whole minutes as the sheet prints them, and are left out when
+  blank. The limit is the engine's, through the display boundary.
+- **Where it shows.** On the card, one amber warning line per hop, under the
+  kettle hops and above "+ Add kettle hop". The lines share the add button's
+  place among the card's parts, so the boxes' generated ids, and every
+  captured card, are drawn as before. On the sheet, one italic line per hop
+  under the kettle table; the sheet's data carries the lines only when there
+  are any, as it does "from kettle", so a captured sheet with no hop below
+  176 °F is unchanged.
+- **The References page** states the range on one line between the equation
+  and its symbols, in °F whatever the header's unit, as the equation's T is
+  in °F: "Used from 176 to 212 °F. A wort cooler than 176 °F takes f(176),
+  and one hotter than 212 °F takes f(212)." Both limits are read from the
+  engine.
+- **Tests changed with it.** `notes-page.test.js` evaluates the factor at the
+  range the page states (read from the page) and gains a hop at 220 °F, and
+  lists the two limits among the engine's own figures;
+  `print-sheet-legibility.test.js`'s captured reference sheet takes Citra
+  LupoMAX 5.8 and the 20 min Helios 3.1 IBU (Rev 4's 5.7 and 3.0 beside them)
+  and the three lines; the References digest of `page-error.before.json` and
+  `error-outside-the-tabs.before.json` is re-captured, the page compared line
+  by line before and after in °F and °C, its one new line the range.

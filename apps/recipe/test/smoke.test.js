@@ -88,6 +88,17 @@ describe('parity through the UI selector (computeRecipe)', () => {
   it('totalIBU = 46 (exact)', () => {
     expect(d.hops.totalIBU).toBe(46);
   });
+  it('the three whirlpool hops at 175 °F take the 176 °F factor', () => {
+    // The golden master's figures (docs/items/whirlpool-hop-range.md, WH-S7),
+    // by hand there: f(176) = 11.9505408 − 22.67901152 + 10.97839506 =
+    // 0.24992434 (Rev 4, Hops!H5:H7: 0.24336656); each bitterness Rev 4's
+    // times 0.24992434 / 0.24336656 = 1.02694610.
+    const [citra, hopstiener, helios] = d.hops.additions.slice(2);
+    for (const a of [citra, hopstiener, helios]) expect(a.tempFactor).toBeCloseTo(0.24992434, 4);
+    expect(citra.ibu).toBeCloseTo(5.82623756, 4); // Rev 4, J5: 5.67336256
+    expect(hopstiener.ibu).toBeCloseTo(1.94207918, 4); // Rev 4, J6: 1.89112085
+    expect(helios.ibu).toBeCloseTo(3.07495871, 4); // Rev 4, J7: 2.99427468
+  });
   it('cells needed = 570 billion (exact)', () => {
     expect(d.cells).toBe(570);
   });

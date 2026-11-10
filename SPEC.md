@@ -46,6 +46,22 @@ cached values are pinned by the golden-master tests.
    or build the starter in steps."; "No usable starter band for this cell
    count." stays only where the cell count is blank, zero or negative
    (`docs/items/starter-card-both-ends.md`).
+   The whirlpool temperature factor departs from Rev 4 at both ends, on the
+   owner's decision (2026-11-10): Rev 4's quadratic (Hops!H3) is used from
+   176 to 212 °F, the range its own temperature factor table ties it to
+   (Hops!M10:O12: 80, 90 and 100 °C at 0.25, 0.5 and 1), and outside it is
+   held at its own figure at the nearer end, f(176) below and f(212) above
+   (`WHIRLPOOL_RANGE_F`), so a cooler stand never shows more bitterness than
+   a hotter one and no hop counts for more than at the boil; a blank
+   temperature stays a blank figure. Rev 4's reference recipe whirlpools
+   three hops at 175 °F (Hops!B5:B7): they take the 176 °F factor,
+   0.24992434 in place of Rev 4's 0.24336656 (H5:H7), 0.28 IBU more
+   together, the total still 46; the golden master and the smoke test pin
+   them by hand, Rev 4's figure beside each. The Hops card and the printed
+   hop schedule name each kettle hop below 176 °F and say its bitterness is
+   held at the 176 °F figure, in the header's unit; the References page
+   states the range beside the equation
+   (`docs/items/whirlpool-hop-range.md`).
 3. When faithful transcription produces a result that looks wrong, keep it and
    add a `// FLAG:` comment saying what and why. Never silently fix.
 4. Golden-master tolerances are fixed and never loosened:

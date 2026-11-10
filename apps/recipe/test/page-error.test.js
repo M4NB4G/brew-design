@@ -198,6 +198,9 @@ describe('page keeps working after an error', () => {
     // recipe's 210 billion offers 100B, 0.50 L, 58 g where it read "No usable
     // starter band for this cell count." and the stats bar "No starter band";
     // Pro reads SB-S5's sentence; the References page names the new bands.
+    // Re-captured 2026-11-10 for docs/items/whirlpool-hop-range.md, the
+    // References entry alone, its one new line the whirlpool factor's range
+    // (WH-S6; the page compared line by line, °F and °C).
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(2026, 9, 9));
     expect(pageDigests()).toEqual(BEFORE);

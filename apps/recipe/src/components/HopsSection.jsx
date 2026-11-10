@@ -6,6 +6,10 @@
 // Total IBU and the dry-hop rate come from the engine; with water back on the
 // total says it is the wort from kettle's (WF-S7). On a phone each hop is
 // a block (IngredientBlock) holding the same boxes instead of a table row.
+// Under the kettle hops, a line names each hop cooler than the whirlpool
+// factor's range and says its bitterness is held at the range's low end, in
+// the header's unit (docs/items/whirlpool-hop-range.md, WH-S4; the engine
+// decides which, held-hop-notes.js words it, as the printed sheet does).
 import NumberField from './NumberField.jsx';
 import IngredientSearch from './IngredientSearch.jsx';
 import { rowName } from './shared/rowName.js';
@@ -28,6 +32,7 @@ import {
 } from '../display.js';
 import { num } from '../format.js';
 import { newRow } from '../ingredient-search.js';
+import { heldHopNotes } from './held-hop-notes.js';
 
 // A hop weight box away from the cursor shows the printed sheet's precision:
 // 0.01 oz at Home, 0.001 lb in Pro (docs/items/boxes-and-access.md, BA1).
@@ -277,9 +282,18 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, waterBackO
       </div>
       )}
 
-      <AddBtn onClick={() => addRow('kettleAdditions', newRow('kettleAdditions'))}>
-        + Add kettle hop
-      </AddBtn>
+      {/* The held hops' lines share the add button's place among the card's
+          parts, so every other part, and each box's id, is drawn as before. */}
+      <>
+        {heldHopNotes(kettleAdditions, hops, temperatureUnit).map((note, i) => (
+          <p key={i} role="status" style={tokens.warning}>
+            {note}
+          </p>
+        ))}
+        <AddBtn onClick={() => addRow('kettleAdditions', newRow('kettleAdditions'))}>
+          + Add kettle hop
+        </AddBtn>
+      </>
 
       {/* Divider */}
       <div style={{ height: '1px', background: colors.border, margin: '1.1rem 0 0.85rem' }} />

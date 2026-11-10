@@ -7,8 +7,9 @@
 //
 // Reference text, not brewing math (SPEC rule 7): the equations are written
 // out for the reader and nothing here is computed. What the engine exports
-// (pitch rates, mash ranges, the density table, the reference temperature,
-// litres per gallon, quarts per gallon, grams per pound, the acid table) is
+// (pitch rates, the whirlpool factor's range, mash ranges, the density
+// table, the reference temperature, litres per gallon, quarts per gallon,
+// grams per pound, the acid table) is
 // read from the engine; every other coefficient is written once, in
 // COEFFICIENTS below, and notes-page.test.js evaluates each equation with
 // that list and compares the result with the engine's own (RF-S5). The
@@ -19,6 +20,7 @@ import Card from './shared/Card.jsx';
 import { colors, tokens, radii } from './shared/styles.js';
 import {
   PITCH_RATES,
+  WHIRLPOOL_RANGE_F,
   MASH_RV_RANGE_QT_PER_LB,
   MASH_R_RANGE_LB_PER_LB,
   MASH_PH_RANGE,
@@ -411,7 +413,13 @@ export default function ReferencesPage({ onBack, temperatureUnit }) {
             ['T', 'temperature of the wort at the addition', '°F'],
           ]}
           source={MEINERS}
-        />
+        >
+          <p style={bodyStyle}>
+            Used from {WHIRLPOOL_RANGE_F.low} to {WHIRLPOOL_RANGE_F.high} °F. A wort cooler than{' '}
+            {WHIRLPOOL_RANGE_F.low} °F takes f({WHIRLPOOL_RANGE_F.low}), and one hotter than {WHIRLPOOL_RANGE_F.high} °F
+            takes f({WHIRLPOOL_RANGE_F.high}).
+          </p>
+        </Block>
         <Block
           label="International Bitterness Units"
           equations={[`IBU_{i} = H_{i} × α_{i} × U_{i} × f_{i} × ${k.mgPerLPerOzPerGal} / V_{post}`, 'IBU = Σ IBU_{i}']}

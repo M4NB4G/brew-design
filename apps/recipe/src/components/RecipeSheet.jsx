@@ -357,6 +357,11 @@ export default function RecipeSheet({
             </tr>
           </tbody>
         </table>
+        {s.hops.heldNotes?.map((note, i) => (
+          <p key={i} style={heldNoteStyle}>
+            {note}
+          </p>
+        ))}
 
         <table style={{ ...tbl, marginTop: '5px' }}>
           <thead>
@@ -613,6 +618,14 @@ const tempNoteStyle = {
   fontSize: '11px',
   fontStyle: 'italic',
   color: C.navy,
+};
+
+// A kettle hop below the whirlpool factor's range (WH-S4).
+const heldNoteStyle = {
+  fontSize: '11px',
+  fontStyle: 'italic',
+  color: C.navy,
+  margin: '2px 0 0',
 };
 
 const noData = {

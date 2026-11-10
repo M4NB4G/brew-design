@@ -34,6 +34,7 @@ import {
   residualAlkalinity,
   mashPh,
   PITCH_RATES,
+  WHIRLPOOL_RANGE_F,
   REFERENCE_TEMP_F,
   LITERS_PER_GALLON,
   QT_PER_GAL,
@@ -490,11 +491,19 @@ describe('every coefficient on the page reproduces the engine\'s result', () => 
   it('bitterness: Tinseth utilization, the whirlpool temperature factor and the IBU', async () => {
     const k = await coefficients();
     const U = (t, sgPre) => k.tinseth.k * k.tinseth.base ** (sgPre - 1) * ((1 - Math.exp(-k.tinseth.rate * t)) / k.tinseth.divisor);
-    const f = (T) => k.whirlpool.c2 * T * T + k.whirlpool.c1 * T + k.whirlpool.c0;
+    // The range the factor is used on, read as the page renders it beside the
+    // equation (docs/items/whirlpool-hop-range.md, WH-S6): outside it, T is
+    // taken at the nearer end.
+    const t = text(cardsOf(await pageHtml())['Bitterness'] ?? '');
+    const [, low, high, ...ends] = (t.match(/Used from (\d+) to (\d+) °F\. A wort cooler than (\d+) °F takes f\((\d+)\), and one hotter than (\d+) °F takes f\((\d+)\)\./) ?? []).map(Number);
+    expect([low, high, ...ends]).toEqual([176, 212, 176, 176, 212, 212]);
+    const quadratic = (T) => k.whirlpool.c2 * T * T + k.whirlpool.c1 * T + k.whirlpool.c0;
+    const f = (T) => quadratic(Math.min(Math.max(T, low), high));
     const additions = [
       { name: 'Bittering', timeMin: 60, wortTempF: 212, weightOz: 1.5, alphaAcidFraction: 0.12 },
       { name: 'Flavour', timeMin: 15, wortTempF: 180, weightOz: 2, alphaAcidFraction: 0.055 },
       { name: 'Whirlpool', timeMin: 30, wortTempF: 160, weightOz: 3, alphaAcidFraction: 0.09 },
+      { name: 'Above the boil', timeMin: 10, wortTempF: 220, weightOz: 1, alphaAcidFraction: 0.1 },
     ];
     for (const [preBoilSg, postBoilVolGal] of [[1.05, 6], [1.07, 12.5]]) {
       const h = computeHops({ kettleAdditions: additions, preBoilSg, postBoilVolGal, dryHops: [], fermentVolGal: 5.5 });
@@ -687,6 +696,8 @@ describe('every coefficient on the page reproduces the engine\'s result', () => 
       QT_PER_GAL,
       G_PER_LB,
       ...Object.values(PITCH_RATES).flatMap((r) => Object.values(r)),
+      WHIRLPOOL_RANGE_F.low,
+      WHIRLPOOL_RANGE_F.high,
       ...[MASH_RV_RANGE_QT_PER_LB, MASH_R_RANGE_LB_PER_LB, MASH_PH_RANGE].flatMap((r) => [r.low, r.high]),
       ...[MASH_PH_TESTED_RANGE.residualAlkalinityMeq, MASH_PH_TESTED_RANGE.thicknessLPerKg].flatMap((r) => [r.low, r.high]),
       ...Object.entries(WATER_DENSITY_TABLE_C).flat(),
