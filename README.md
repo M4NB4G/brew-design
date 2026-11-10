@@ -71,3 +71,7 @@ data/                the owner's ingredient workbook
 docs/                test coverage, roadmap, item scope tables
 tools/               git hooks, Netlify build-skip rule
 ```
+
+## Licence
+
+All rights reserved; see `LICENSE`.
