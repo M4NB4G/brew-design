@@ -37,6 +37,8 @@ Modules:
 | `starter.js` | Starter volume solved directly from the yeast starter calculator's growth formula (no GoalSeek) |
 | `solver.js` | Inverse grist solver (closed-form, gravity-only, OG target) |
 | `economics.js` | Cost rollup |
+| `scale.js` | Scaling a recipe to another batch |
+| `water-back.js` | Water back: hot-liquor-tank water added to the fermenter after knock-out |
 | `water/` | Water chemistry: salt and acid additions, residual alkalinity, the salt solver, style targets (from Brew Water Chem) |
 
 ## Getting started
