@@ -57,7 +57,10 @@ import { withoutWaterBack, sheetWithoutWaterBack, documentWithoutWaterBack } fro
 // the printed sheet's figures it moves are re-pinned in the captured bytes:
 // cells 4660 -> 4710 billion (4.66 -> 4.71 trillion); in Pro, OG 4.32 -> 4.36 °P
 // and FG 1.00 -> 1.01 °P. With the IBU's 7489.1 (item 3), Magnum's IBU
-// 60.1 -> 60.0 on the sheet and the Hops card.
+// 60.1 -> 60.0 on the sheet and the Hops card. Since the starter card says
+// what to do above 1,270 billion (docs/items/starter-card-both-ends.md,
+// SB-S5), the sheet at 4,710 billion carries the flag that prints SB-S5's
+// sentence (before: no flag, "No usable starter band for this cell count.").
 const BEFORE = JSON.parse(readFileSync(new URL('./pro-unit-choices.before.json', import.meta.url), 'utf8'));
 
 const GAL = { proVolumeUnit: 'gal', proMaltUnit: 'lb' };

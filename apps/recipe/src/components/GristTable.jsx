@@ -12,6 +12,8 @@
 // Each malt's % of total grain weight is always shown, read from the engine's
 // share, and "Design to target OG" sits at the card's foot (design to a target
 // OG, IS-S1, IS-S2).
+// The weight, FGDB, colour and efficiency boxes refuse an entry outside its
+// limits (docs/items/impossible-entries.md, IE-S1, IE-S2; entry-limits.js).
 import NumberField from './NumberField.jsx';
 import IngredientSearch from './IngredientSearch.jsx';
 import { rowName } from './shared/rowName.js';
@@ -34,6 +36,7 @@ import {
 } from '../display.js';
 import { num, roundForInput } from '../format.js';
 import { newRow, chooseMaltType } from '../ingredient-search.js';
+import { typed } from '../entry-limits.js';
 
 // The mash pH model's malt types, as the choice names them; blank until set.
 const MALT_TYPE_LABELS = {
@@ -98,7 +101,10 @@ export default function GristTable({
             digits={2}
             step={sacks ? '0.01' : '0.1'}
             min="0"
-            onChange={(v) => setRow('malts', i, 'weightLb', maltWeightToCanonical(v, mode, proMaltUnit))}
+            limited
+            onChange={(v) =>
+              typed('malts', 'weightLb', maltWeightToCanonical(v, mode, proMaltUnit), (lb) => setRow('malts', i, 'weightLb', lb))
+            }
           />
           {sacks && Number.isFinite(m.weightLb) && (
             <div style={sackSplitStyle}>{sackSplitText(m.weightLb, (lb) => roundForInput(lb))}</div>
@@ -115,7 +121,8 @@ export default function GristTable({
           step="1"
           min="0"
           max="100"
-          onChange={(v) => setRow('malts', i, 'fgdb', percentToFraction(v))}
+          limited
+          onChange={(v) => typed('malts', 'fgdb', percentToFraction(v), (f) => setRow('malts', i, 'fgdb', f))}
         />
       ),
     },
@@ -127,7 +134,8 @@ export default function GristTable({
           value={m.colorL}
           step="0.1"
           min="0"
-          onChange={(v) => setRow('malts', i, 'colorL', v)}
+          limited
+          onChange={(v) => typed('malts', 'colorL', v, (c) => setRow('malts', i, 'colorL', c))}
         />
       ),
     },
@@ -276,7 +284,8 @@ export default function GristTable({
           label="Brewhouse efficiency"
           unit={percentUnit()}
           value={Number(fractionToPercent(efficiency).toFixed(4))}
-          onChange={(e) => setField('efficiency', percentToFraction(parseFloat(e.target.value)))}
+          limited
+          onChange={(e) => typed(null, 'efficiency', percentToFraction(parseFloat(e.target.value)), (f) => setField('efficiency', f))}
           step={1}
           min={0}
           max={100}

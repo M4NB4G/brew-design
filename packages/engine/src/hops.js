@@ -2,6 +2,15 @@
 // Tinseth utilization with a Zymurgy whirlpool temperature factor -> IBU.
 // Pure functions. Every constant reproduced exactly from the spec.
 
+// The range the whirlpool temperature factor is used on, degF: the three
+// points of Rev 4's own temperature factor table (Hops!M10:O12: 100, 90 and
+// 80 degC at 1, 0.5 and 0.25), which the quadratic passes through. Below it
+// the factor is held at the curve's own figure at 176 F, so a cooler stand
+// never shows more bitterness than a hotter one; above it at the curve's own
+// figure at 212 F, so no hop counts for more than at the boil. The owner's
+// decision, 2026-11-10 (docs/items/whirlpool-hop-range.md, H-1 to H-3).
+export const WHIRLPOOL_RANGE_F = { low: 176, high: 212 };
+
 /**
  * Compute IBU contributions and dry-hop ratio.
  *
@@ -23,8 +32,15 @@ export function computeHops(input) {
 
     // Zymurgy May/Jun 2022 whirlpool temperature factor (quadratic fit).
     // 212 F -> 1.0, so full-boil additions are unaffected.
-    const tempFactor =
-      0.0003858 * a.wortTempF * a.wortTempF - 0.12885802 * a.wortTempF + 10.97839506;
+    // Used on WHIRLPOOL_RANGE_F only: a temperature outside it takes the
+    // curve's figure at the nearer end. A blank temperature stays blank.
+    // FLAG: Rev 4's reference recipe whirlpools three hops at 175 F
+    // (Hops!B5:B7), one degree below the range; they take the 176 F factor,
+    // 0.24992434 in place of Rev 4's 0.24336656 (H5:H7), 0.28 IBU more
+    // together, the total still 46. Kept: the owner's decision H-5
+    // (2026-11-10), recorded in SPEC rule 2.
+    const tempF = Math.min(Math.max(a.wortTempF, WHIRLPOOL_RANGE_F.low), WHIRLPOOL_RANGE_F.high);
+    const tempFactor = 0.0003858 * tempF * tempF - 0.12885802 * tempF + 10.97839506;
 
     const adjUtil = utilization * tempFactor;
 
@@ -36,6 +52,9 @@ export function computeHops(input) {
       name: a.name,
       utilization,
       tempFactor,
+      // Below the range: the factor is held at its low end, and the Hops card
+      // and the printed hop schedule name the hop (WH-S4).
+      belowRange: a.wortTempF < WHIRLPOOL_RANGE_F.low,
       adjUtil,
       ibu,
     };

@@ -6,6 +6,14 @@
 // Total IBU and the dry-hop rate come from the engine; with water back on the
 // total says it is the wort from kettle's (WF-S7). On a phone each hop is
 // a block (IngredientBlock) holding the same boxes instead of a table row.
+// Under the kettle hops, a line names each hop cooler than the whirlpool
+// factor's range and says its bitterness is held at the range's low end, in
+// the header's unit (docs/items/whirlpool-hop-range.md, WH-S4; the engine
+// decides which, held-hop-notes.js words it, as the printed sheet does).
+// Each kettle hop's time, weight and alpha and each dry hop's weight refuse a
+// negative entry, the alpha one above 100 %, and the temperature one above
+// 213 °F (in °C the same temperature) (docs/items/impossible-entries.md,
+// IE-S1 to IE-S3; entry-limits.js).
 import NumberField from './NumberField.jsx';
 import IngredientSearch from './IngredientSearch.jsx';
 import { rowName } from './shared/rowName.js';
@@ -28,6 +36,8 @@ import {
 } from '../display.js';
 import { num } from '../format.js';
 import { newRow } from '../ingredient-search.js';
+import { heldHopNotes } from './held-hop-notes.js';
+import { typed } from '../entry-limits.js';
 
 // A hop weight box away from the cursor shows the printed sheet's precision:
 // 0.01 oz at Home, 0.001 lb in Pro (docs/items/boxes-and-access.md, BA1).
@@ -127,7 +137,8 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, waterBackO
           value={a.timeMin}
           step="1"
           min="0"
-          onChange={(v) => setRow('kettleAdditions', i, 'timeMin', v)}
+          limited
+          onChange={(v) => typed('kettleAdditions', 'timeMin', v, (t) => setRow('kettleAdditions', i, 'timeMin', t))}
         />
       ),
     },
@@ -138,7 +149,16 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, waterBackO
           aria-label={`Temp (${tempUnit(temperatureUnit)}), ${rowName(a, 'Kettle hop', i)}`}
           value={tempBoxValue(a.wortTempF, temperatureUnit)}
           step={temperatureUnit === 'C' ? '0.1' : '1'}
-          onChange={(v) => setRow('kettleAdditions', i, 'wortTempF', tempToCanonical(v, temperatureUnit))}
+          limited
+          onChange={(v) =>
+            typed(
+              'kettleAdditions',
+              'wortTempF',
+              tempToCanonical(v, temperatureUnit),
+              (f) => setRow('kettleAdditions', i, 'wortTempF', f),
+              temperatureUnit,
+            )
+          }
         />
       ),
     },
@@ -151,7 +171,8 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, waterBackO
           digits={hopDigits(mode)}
           step="0.1"
           min="0"
-          onChange={(v) => setRow('kettleAdditions', i, 'weightOz', hopWeightToCanonical(v, mode))}
+          limited
+          onChange={(v) => typed('kettleAdditions', 'weightOz', hopWeightToCanonical(v, mode), (oz) => setRow('kettleAdditions', i, 'weightOz', oz))}
         />
       ),
     },
@@ -164,7 +185,10 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, waterBackO
           step="0.1"
           min="0"
           max="100"
-          onChange={(v) => setRow('kettleAdditions', i, 'alphaAcidFraction', percentToFraction(v))}
+          limited
+          onChange={(v) =>
+            typed('kettleAdditions', 'alphaAcidFraction', percentToFraction(v), (f) => setRow('kettleAdditions', i, 'alphaAcidFraction', f))
+          }
         />
       ),
     },
@@ -181,7 +205,8 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, waterBackO
           digits={hopDigits(mode)}
           step="0.1"
           min="0"
-          onChange={(v) => setRow('dryHops', i, 'weightOz', hopWeightToCanonical(v, mode))}
+          limited
+          onChange={(v) => typed('dryHops', 'weightOz', hopWeightToCanonical(v, mode), (oz) => setRow('dryHops', i, 'weightOz', oz))}
         />
       ),
     },
@@ -277,9 +302,18 @@ export default function HopsSection({ kettleAdditions, dryHops, hops, waterBackO
       </div>
       )}
 
-      <AddBtn onClick={() => addRow('kettleAdditions', newRow('kettleAdditions'))}>
-        + Add kettle hop
-      </AddBtn>
+      {/* The held hops' lines share the add button's place among the card's
+          parts, so every other part, and each box's id, is drawn as before. */}
+      <>
+        {heldHopNotes(kettleAdditions, hops, temperatureUnit).map((note, i) => (
+          <p key={i} role="status" style={tokens.warning}>
+            {note}
+          </p>
+        ))}
+        <AddBtn onClick={() => addRow('kettleAdditions', newRow('kettleAdditions'))}>
+          + Add kettle hop
+        </AddBtn>
+      </>
 
       {/* Divider */}
       <div style={{ height: '1px', background: colors.border, margin: '1.1rem 0 0.85rem' }} />

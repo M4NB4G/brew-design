@@ -3,7 +3,7 @@
 // and the intentional boundary gaps.
 
 import { describe, it, expect } from 'vitest';
-import { solveStarter } from '../src/index.js';
+import { solveStarter, starterAboveRange } from '../src/index.js';
 
 describe('solveStarter band selection', () => {
   it("the reference recipe's starter is 3.10 L and 356 g", () => {
@@ -115,9 +115,6 @@ describe('solveStarter band selection', () => {
     expect(solveStarter(NaN)).toEqual([]);
   });
 
-  it('below all ranges (200B) -> no options', () => {
-    expect(solveStarter(200)).toEqual([]);
-  });
 });
 
 describe('intentional boundary gaps (strict inequalities, transcribed as-is)', () => {
@@ -245,5 +242,138 @@ describe("the calculator's growth formula, fresh pack", () => {
     // 0.1155169; x = 0.1155169^(-1 / 0.4594858324) = 109.650;
     // V = 200 / 109.650 = 1.8240 L.
     expect(solveStarter(690)[0].volumeL).toBeCloseTo(1.824, 3);
+  });
+});
+
+// docs/items/starter-card-both-ends.md: the starter card always says what to
+// do. Below 250 billion cells the 100B pack serves (SB-S3), and a pack that
+// holds the count needs no starter (SB-S1, SB-S2, SB-S7); from 250 up every
+// option is as before (SB-S4); above 1,270 no single starter reaches the
+// count (SB-S5).
+describe('the starter card at both ends', () => {
+  const bandsAt = (cells) => solveStarter(cells).map((o) => o.band);
+  const optionFor = (cells, band) => solveStarter(cells).find((o) => o.band === band);
+
+  it('below 250 billion cells the 100B pack serves, and a pack that holds the count needs no starter', () => {
+    // Before this item every count below 250 had no option at all (the old
+    // test "below all ranges (200B) -> no options": solveStarter(200) was []),
+    // and the card read "No usable starter band for this cell count".
+
+    // SB-S1 and SB-S2: at or below 100 billion both packs hold the count, so
+    // each is offered with no starter: no volume, no extract.
+    for (const cells of [80, 100]) {
+      const options = solveStarter(cells);
+      expect(options.map((o) => [o.band, o.packNote]), `cells=${cells}`).toEqual([
+        ['100B', 'One 100B pack, no starter'],
+        ['200B', 'One 200B pack, no starter'],
+      ]);
+      for (const o of options) {
+        expect(o.volumeL, `${o.band} at ${cells}`).toBe(0);
+        expect(o.dmeGrams, `${o.band} at ${cells}`).toBe(0);
+      }
+    }
+    // A pack with no starter: its multiple is the count over the pack, N / S
+    // with N = C, at most 1 (worked by hand: 80 / 100 = 0.8, 80 / 200 = 0.4,
+    // 100 / 100 = 1, 100 / 200 = 0.5, 110 / 200 = 0.55, 200 / 200 = 1).
+    expect(optionFor(80, '100B').neededMultiple).toBeCloseTo(0.8, 12);
+    expect(optionFor(80, '200B').neededMultiple).toBeCloseTo(0.4, 12);
+    expect(optionFor(100, '100B').neededMultiple).toBeCloseTo(1, 12);
+    expect(optionFor(100, '200B').neededMultiple).toBeCloseTo(0.5, 12);
+    expect(optionFor(110, '200B').neededMultiple).toBeCloseTo(0.55, 12);
+    expect(optionFor(200, '200B').neededMultiple).toBeCloseTo(1, 12);
+
+    // A count not above zero (a zero or negative batch) has no option, as
+    // before this item (N-4): the card keeps "No usable starter band for this
+    // cell count".
+    for (const cells of [0, -10, -250]) {
+      expect(solveStarter(cells), `cells=${cells}`).toEqual([]);
+      expect(starterAboveRange(cells), `cells=${cells}`).toBe(false);
+    }
+
+    // SB-S3 and SB-S2: above 100 and through 200 the 100B pack needs a
+    // starter, the 200B pack still none. The starter is the calculator's
+    // smallest for the 100B pack, 100 / 200 = 0.50 L (115 x 0.50 = 57.5 g):
+    // 110 / 100 = 1.1x and 200 / 100 = 2.0x need no more growth than the
+    // step gives (the formula meets the step at 2.1002x, below).
+    for (const cells of [110, 200]) {
+      expect(bandsAt(cells), `cells=${cells}`).toEqual(['100B', '200B']);
+      const b100 = optionFor(cells, '100B');
+      expect(b100.packNote).toBe('');
+      expect(b100.volumeL).toBeCloseTo(0.5, 6);
+      expect(b100.dmeGrams).toBeCloseTo(57.5, 4);
+      expect(optionFor(cells, '200B').packNote).toBe('One 200B pack, no starter');
+      expect(optionFor(cells, '200B').volumeL).toBe(0);
+    }
+
+    // SB-S6's count, 210: the 200B pack no longer holds it (SB-S7), so the
+    // 100B pack alone, in 0.50 L with 57.5 g. Worked by hand: 210 / 100 =
+    // 2.1, g = 1.1; 1.1 - 1.0 + 0.9994994906 = 1.0994994906; / 12.54793776 =
+    // 0.0876239; x = 0.0876239^(-1 / 0.4594858324) = 200.087 million cells
+    // per mL; V = 100 / 200.087 = 0.49978 L, below the step, so 0.50 L;
+    // 0.50 x 115 = 57.5 g.
+    const at210 = solveStarter(210);
+    expect(at210).toHaveLength(1);
+    expect(at210[0].band).toBe('100B');
+    expect(at210[0].packNote).toBe('');
+    expect(at210[0].volumeL).toBeCloseTo(0.5, 6);
+    expect(at210[0].dmeGrams).toBeCloseTo(57.5, 4);
+
+    // SB-S3: then rising by the same growth formula, hand pins worked without
+    // the code (the 100B pack, N = C):
+    // 220: 220 / 100 = 2.2, g = 1.2; 1.2 - 1.0 + 0.9994994906 = 1.1994994906;
+    //   / 12.54793776 = 0.0955934; x = 0.0955934^(-1 / 0.4594858324) =
+    //   165.555; V = 100 / 165.555 = 0.60403 L; x 115 = 69.463 g.
+    // 230: 2.3, g = 1.3; 1.2994994906 / 12.54793776 = 0.1035628; x = 139.078;
+    //   V = 100 / 139.078 = 0.71902 L; x 115 = 82.688 g.
+    // 240: 2.4, g = 1.4; 1.3994994906 / 12.54793776 = 0.1115322; x = 118.355;
+    //   V = 100 / 118.355 = 0.84492 L; x 115 = 97.165 g.
+    // 250 (SB-S4, as before): 2.5, g = 1.5; 1.4994994906 / 12.54793776 =
+    //   0.1195017; x = 101.848; V = 100 / 101.848 = 0.98185 L, today's 0.98 L.
+    for (const [cells, litres, grams] of [
+      [220, 0.60403, 69.463],
+      [230, 0.71902, 82.688],
+      [240, 0.84492, 97.165],
+      [250, 0.98185, 112.913],
+    ]) {
+      const options = solveStarter(cells);
+      expect(options.map((o) => o.band), `cells=${cells}`).toEqual(['100B']);
+      expect(options[0].packNote).toBe('');
+      expect(options[0].volumeL, `cells=${cells}`).toBeCloseTo(litres, 4);
+      expect(options[0].dmeGrams, `cells=${cells}`).toBeCloseTo(grams, 2);
+    }
+
+    // The 100B pack's starter never falls as the count rises, from above 100
+    // to the end of its range without an extra pack, and never below 0.50 L.
+    let before = 0;
+    for (let cells = 110; cells <= 390; cells += 10) {
+      const v = optionFor(cells, '100B').volumeL;
+      expect(v, `cells=${cells}`).toBeGreaterThanOrEqual(before);
+      expect(v, `cells=${cells}`).toBeGreaterThanOrEqual(0.5);
+      before = v;
+    }
+
+    // SB-S7: a pack needs no starter only when it holds at least the count,
+    // between the tens too; nothing is rounded in the brewer's favour.
+    expect(optionFor(100.5, '100B').packNote).toBe('');
+    expect(optionFor(100.5, '100B').volumeL).toBeCloseTo(0.5, 6);
+    expect(optionFor(199.9, '200B').packNote).toBe('One 200B pack, no starter');
+    expect(bandsAt(200.1)).toEqual(['100B']);
+    // No 400B pack is offered below 250 (SB-S4: the 400B band as before).
+    for (const cells of [80, 200, 240]) expect(bandsAt(cells)).not.toContain('400B');
+  });
+
+  it('above 1,270 billion cells no single starter of 5 L or less reaches the count', () => {
+    // SB-S5: the engine says so, so the card and the sheet can; through 1,270
+    // it does not, and a blank count is not above the range (it stays "No
+    // usable starter band for this cell count").
+    for (const cells of [1280, 1270.5, 2000, 12100, Infinity]) {
+      expect(starterAboveRange(cells), `cells=${cells}`).toBe(true);
+      expect(solveStarter(cells), `cells=${cells}`).toEqual([]);
+    }
+    for (const cells of [80, 210, 570, 1270]) {
+      expect(starterAboveRange(cells), `cells=${cells}`).toBe(false);
+      expect(solveStarter(cells).length, `cells=${cells}`).toBeGreaterThan(0);
+    }
+    expect(starterAboveRange(NaN)).toBe(false);
   });
 });

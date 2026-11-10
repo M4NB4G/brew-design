@@ -357,6 +357,11 @@ export default function RecipeSheet({
             </tr>
           </tbody>
         </table>
+        {s.hops.heldNotes?.map((note, i) => (
+          <p key={i} style={heldNoteStyle}>
+            {note}
+          </p>
+        ))}
 
         <table style={{ ...tbl, marginTop: '5px' }}>
           <thead>
@@ -423,7 +428,11 @@ export default function RecipeSheet({
           </tbody>
         </GridTable>
         {s.yeast.starter.length === 0 ? (
-          <p style={noData}>No usable starter band for this cell count.</p>
+          <p style={noData}>
+            {s.yeast.starterAboveRange
+              ? 'No single starter of 5 L or less reaches this count. Pitch more packs, or build the starter in steps.'
+              : 'No usable starter band for this cell count.'}
+          </p>
         ) : (
           <GridTable>
             <thead>
@@ -609,6 +618,14 @@ const tempNoteStyle = {
   fontSize: '11px',
   fontStyle: 'italic',
   color: C.navy,
+};
+
+// A kettle hop below the whirlpool factor's range (WH-S4).
+const heldNoteStyle = {
+  fontSize: '11px',
+  fontStyle: 'italic',
+  color: C.navy,
+  margin: '2px 0 0',
 };
 
 const noData = {

@@ -14,6 +14,7 @@ import {
   selectPitchRate,
   computeCellsNeeded,
   solveStarter,
+  starterAboveRange,
   correctVolumeToRef,
 } from '@brew/engine';
 import { defaultRecipeState } from '../src/state.js';
@@ -65,6 +66,8 @@ function engineNumbers(s) {
     pitchRate,
     cells,
     starter: solveStarter(cells),
+    // Above the largest single starter (docs/items/starter-card-both-ends.md).
+    starterAboveRange: starterAboveRange(cells),
   };
 }
 

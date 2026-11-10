@@ -7,7 +7,7 @@
 // down to cleanly separated section components. No brewing math and no unit
 // conversion live here — those are in selectors.js and display.js
 // respectively.
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   defaultRecipeState,
@@ -23,7 +23,7 @@ import {
 } from './state.js';
 import { computeRecipe, computeWater, solveTargetOG, computeCost } from './selectors.js';
 import { mashWaterChanged, grainBillChanged, MASH_PH_MALT_FIELDS } from './water-state.js';
-import { emptyFields, emptyFieldsLine } from './empty-fields.js';
+import { emptyFields, outsideFields, emptyFieldsLine } from './empty-fields.js';
 import {
   loadStartingState,
   savePersisted,
@@ -64,6 +64,7 @@ import Footer from './components/Footer.jsx';
 import ReferencesPage from './components/ReferencesPage.jsx';
 import PageError from './components/PageError.jsx';
 import { MyIngredientsContext } from './components/IngredientSearch.jsx';
+import { EntryContext } from './components/shared/entry.js';
 import { colors } from './components/shared/styles.js';
 
 // window.localStorage itself can throw when storage is blocked; treat that as
@@ -118,8 +119,28 @@ export default function App() {
   const [waterScreen, setWaterScreen] = useState('water'); // 'water' | 'style' | 'salts' | 'notes'
 
   const derived = useMemo(() => computeRecipe(recipe), [recipe]);
-  // The empty number boxes, named under the stats bar (null when none).
-  const emptyLine = useMemo(() => emptyFieldsLine(emptyFields(recipe, derived)), [recipe, derived]);
+  // The empty number boxes, and the figures outside their limits
+  // (docs/items/impossible-entries.md, IE-S4, IE-S6), named under the stats
+  // bar (null when none).
+  const emptyLine = useMemo(
+    () => emptyFieldsLine(emptyFields(recipe, derived), outsideFields(recipe), temperatureUnit),
+    [recipe, derived, temperatureUnit],
+  );
+
+  // A box that refuses an entry (IE-S1 to IE-S3) puts the recipe back as it
+  // was when the typing in it began, so the figures typed on the way to the
+  // refused one are not kept either; the autosave then saves that recipe.
+  const recipeNow = useRef(recipe);
+  recipeNow.current = recipe;
+  const typingFrom = useRef(null);
+  const [entry] = useState(() => ({
+    begin: () => {
+      typingFrom.current = recipeNow.current;
+    },
+    restore: () => {
+      if (typingFrom.current) setRecipe(typingFrom.current);
+    },
+  }));
   // The water figures read the recipe's grain, mash water and pre-boil volume.
   const waterFigures = useMemo(() => computeWater(recipe.water, recipe), [recipe]);
   // The Cost card's figures (cost of a batch): read by no other figure.
@@ -377,6 +398,7 @@ export default function App() {
 
   return (
     <MyIngredientsContext.Provider value={{ mine: brewery.ingredients, onSave: saveMyIngredient }}>
+    <EntryContext.Provider value={entry}>
     <div style={{ minHeight: '100vh', paddingBottom: '4rem' }}>
 
       {/* Header with the recipe actions (Export, Import, Reset, Print) and the Pro/Home, °F/°C and Pro unit toggles */}
@@ -575,6 +597,7 @@ export default function App() {
       )}
 
     </div>
+    </EntryContext.Provider>
     </MyIngredientsContext.Provider>
   );
 }

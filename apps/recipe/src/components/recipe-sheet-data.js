@@ -10,6 +10,7 @@
 
 import { REFERENCE_TEMP_F } from '@brew/engine';
 import { testedRangeNote } from './water/tested-range-note.js';
+import { heldHopNotes } from './held-hop-notes.js';
 import {
   resolveGravityUnit,
   gravityUnitLabel,
@@ -98,7 +99,7 @@ export function recipeSheet({
   brewery,
   today,
 }) {
-  const { grist, hops, pitchRate, cells, starter, stats } = derived;
+  const { grist, hops, pitchRate, cells, starter, starterAboveRange, stats } = derived;
   const pro = sheetProUnits(brewery, proVolumeUnit, proMaltUnit);
   const sacks = maltInSacks(mode, pro.malt);
   const tUnit = tempUnit(temperatureUnit);
@@ -114,6 +115,9 @@ export function recipeSheet({
   // WF-S8): the wort from kettle, the water back and the fermentation volume,
   // their sum, and the OG from kettle and the OG at pitch.
   const waterBack = recipe.waterBack?.on ? recipe.waterBack : null;
+  // Each hop below the whirlpool factor's range, as the Hops card names it
+  // (docs/items/whirlpool-hop-range.md, WH-S4).
+  const heldNotes = heldHopNotes(recipe.kettleAdditions, hops, temperatureUnit);
 
   const meta = [];
   if (text(recipe.style)) meta.push({ label: 'Style', value: recipe.style });
@@ -221,6 +225,9 @@ export function recipeSheet({
       totalIbu: num(hops.totalIBU, 0),
       // With water back on, the total is the wort from kettle's (WF-S7).
       ...(waterBack && { totalFromKettle: true }),
+      // The lines for the hops below the whirlpool factor's range, only when
+      // there are any, as totalFromKettle.
+      ...(heldNotes.length > 0 && { heldNotes }),
       dry: recipe.dryHops.map((d) => ({ name: d.name, weight: hopWt(d.weightOz) })),
       dryRate: num(dryHopRateFromCanonical(hops.dryHopRatio, mode), 2),
       dryRateUnit: dryHopRateUnit(mode),
@@ -247,6 +254,10 @@ export function recipeSheet({
         dme: num(o.dmeGrams, 0),
         note: o.packNote,
       })),
+      // Above the largest single starter there is no option, and the sheet
+      // says what to do instead (SB-S5), flagged only then, as the hops'
+      // totalFromKettle; with no option and a blank count, the old line.
+      ...(starterAboveRange && { starterAboveRange: true }),
     },
 
     // The Water tab's additions, volumes and treated-water profile

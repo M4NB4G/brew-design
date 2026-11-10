@@ -7,7 +7,8 @@
 // the cost per gal (per bbl in Pro's barrels) come from computeCost through
 // the display edge, in $ to two decimals (EC-S2); an unpriced line shows "—"
 // and the total counts it (EC-Q6). Not on the printed sheet (EC-S5).
-// Computes nothing.
+// Every price box refuses a negative entry (docs/items/impossible-
+// entries.md, IE-S1; entry-limits.js). Computes nothing.
 import NumberField from './NumberField.jsx';
 import Card from './shared/Card.jsx';
 import { colors, tokens, radii } from './shared/styles.js';
@@ -27,6 +28,7 @@ import {
   volumeUnit,
 } from '../display.js';
 import { num, dollars } from '../format.js';
+import { typed } from '../entry-limits.js';
 
 const TH = {
   padding: '0.45rem 0.6rem',
@@ -73,31 +75,31 @@ export default function CostCard({ recipe, cost, mode, proVolumeUnit, proMaltUni
       quantity: (q) => `${num(maltWeightFromCanonical(q, mode, proMaltUnit), 2)} ${maltWeightUnit(mode, proMaltUnit)}`,
       unit: maltPriceUnit(mode, proMaltUnit),
       shown: (p) => maltPriceFromCanonical(p, mode, proMaltUnit),
-      set: (i, v) => setRow('malts', i, 'pricePerLb', maltPriceToCanonical(v, mode, proMaltUnit)),
+      set: (i, v) => typed('malts', 'pricePerLb', maltPriceToCanonical(v, mode, proMaltUnit), (p) => setRow('malts', i, 'pricePerLb', p)),
     },
     kettleAdditions: {
       quantity: (q) => `${num(hopWeightFromCanonical(q, mode), 2)} ${hopWeightUnit(mode)}`,
       unit: hopPriceUnit(mode),
       shown: (p) => hopPriceFromCanonical(p, mode),
-      set: (i, v) => setRow('kettleAdditions', i, 'pricePerOz', hopPriceToCanonical(v, mode)),
+      set: (i, v) => typed('kettleAdditions', 'pricePerOz', hopPriceToCanonical(v, mode), (p) => setRow('kettleAdditions', i, 'pricePerOz', p)),
     },
     dryHops: {
       quantity: (q) => `${num(hopWeightFromCanonical(q, mode), 2)} ${hopWeightUnit(mode)}`,
       unit: hopPriceUnit(mode),
       shown: (p) => hopPriceFromCanonical(p, mode),
-      set: (i, v) => setRow('dryHops', i, 'pricePerOz', hopPriceToCanonical(v, mode)),
+      set: (i, v) => typed('dryHops', 'pricePerOz', hopPriceToCanonical(v, mode), (p) => setRow('dryHops', i, 'pricePerOz', p)),
     },
     yeast: {
       quantity: () => '1 batch',
       unit: batchPriceUnit(),
       shown: (p) => p,
-      set: (i, v) => setYeast('pricePerBatch', v),
+      set: (i, v) => typed('yeast', 'pricePerBatch', v, (p) => setYeast('pricePerBatch', p)),
     },
     otherCosts: {
       quantity: () => '1 batch',
       unit: batchPriceUnit(),
       shown: (p) => p,
-      set: (i, v) => setRow('otherCosts', i, 'costPerBatch', v),
+      set: (i, v) => typed('otherCosts', 'costPerBatch', v, (p) => setRow('otherCosts', i, 'costPerBatch', p)),
     },
   };
 
@@ -142,12 +144,15 @@ export default function CostCard({ recipe, cost, mode, proVolumeUnit, proMaltUni
                   </td>
                   <td style={{ ...TD_NUM, color: colors.textSecondary }}>{kind.quantity(line.quantity)}</td>
                   <td style={TD}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    {/* The box and its unit side by side, and under them the
+                        line when the box refuses an entry (IE-S1). */}
+                    <span style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', alignItems: 'center', gap: '0.3rem' }}>
                       <NumberField
                         aria-label={`Price of ${name} (${kind.unit})`}
                         value={kind.shown(line.unitPrice)}
                         step="0.01"
                         min="0"
+                        limited
                         onChange={(v) => kind.set(line.index, v)}
                       />
                       <span style={{ fontSize: '0.78rem', color: colors.textMuted }}>{kind.unit}</span>

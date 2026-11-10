@@ -34,6 +34,34 @@ cached values are pinned by the golden-master tests.
    counts in tens. Its constants are reproduced exactly from that source; the golden
    master and the smoke test pin the starter by hand from the formula, Rev
    4's figure beside each (`docs/items/starter-calculator-formula.md`).
+   Below 250 billion cells the starter departs from Rev 4 a second time,
+   whose 100B band starts at 250, on the owner's decision (2026-11-10): a
+   pack that holds the cells needed needs no starter — the 100B pack at or
+   below 100 billion, the 200B pack at or below 200, a count above zero (a
+   zero or negative count has no option, as before) — and nothing is rounded
+   in the brewer's favour; above 100 the 100B pack is grown in a starter by
+   the same formula and its same floor, S ÷ 200 L, so 0.50 L through 210
+   billion. Above 1,270 billion the Yeast card and the printed sheet read
+   "No single starter of 5 L or less reaches this count. Pitch more packs,
+   or build the starter in steps."; "No usable starter band for this cell
+   count." stays only where the cell count is blank, zero or negative
+   (`docs/items/starter-card-both-ends.md`).
+   The whirlpool temperature factor departs from Rev 4 at both ends, on the
+   owner's decision (2026-11-10): Rev 4's quadratic (Hops!H3) is used from
+   176 to 212 °F, the range its own temperature factor table ties it to
+   (Hops!M10:O12: 80, 90 and 100 °C at 0.25, 0.5 and 1), and outside it is
+   held at its own figure at the nearer end, f(176) below and f(212) above
+   (`WHIRLPOOL_RANGE_F`), so a cooler stand never shows more bitterness than
+   a hotter one and no hop counts for more than at the boil; a blank
+   temperature stays a blank figure. Rev 4's reference recipe whirlpools
+   three hops at 175 °F (Hops!B5:B7): they take the 176 °F factor,
+   0.24992434 in place of Rev 4's 0.24336656 (H5:H7), 0.28 IBU more
+   together, the total still 46; the golden master and the smoke test pin
+   them by hand, Rev 4's figure beside each. The Hops card and the printed
+   hop schedule name each kettle hop below 176 °F and say its bitterness is
+   held at the 176 °F figure, in the header's unit; the References page
+   states the range beside the equation
+   (`docs/items/whirlpool-hop-range.md`).
 3. When faithful transcription produces a result that looks wrong, keep it and
    add a `// FLAG:` comment saying what and why. Never silently fix.
 4. Golden-master tolerances are fixed and never loosened:
@@ -63,6 +91,28 @@ cached values are pinned by the golden-master tests.
    printed sheet, names every empty number box that feeds a figure, and
    any measurement temperature the correction cannot use — read from the
    recipe's own figures, not from a range written in the app.
+   A Recipe-tab number box refuses a figure that cannot be
+   (`docs/items/impossible-entries.md`): a negative malt weight, FGDB or
+   colour, mash water, pre-boil volume, boil-off rate, boil time,
+   fermentation volume (the wort from kettle with water back on), water back,
+   kettle hop time, weight or alpha, dry-hop weight, brewhouse efficiency,
+   apparent attenuation or price; an FGDB, alpha, efficiency or attenuation
+   above 100 %; a kettle hop temperature above 213 °F, in °C the same
+   temperature. A line under the box says why ("Negative: nothing is
+   saved."), nothing is saved — the recipe goes back to what it was when the
+   typing in the box began — and the box shows its figure again once left; a
+   minus sign alone, a figure still being typed, saves nothing. The limits
+   (0, 100 % and 213 °F) are written once (`entry-limits.js`). Zero, a blank,
+   every other temperature box, the Water tab's boxes and My brewery's take an
+   entry as before. A recipe saved or exported before holds such a figure as
+   saved, loads as saved and is never refused; the line under the stats bar
+   names each such box after the empty ones ("Negative: Magnum weight",
+   "Above 100 %: Brewhouse efficiency", "Above 213 °F: Cascade temperature",
+   in °C "Above 100.56 °C: …"), and every figure that reads it — the
+   recipe's, the Water tab's and the Cost card's — reads it as a blank
+   figure, "—", until it is corrected; the Water tab's own lines of blank
+   figures do not call it blank. The Home/Pro scale multiplies it as any
+   other amount, and it stays named.
    The recipe carries prices, typed by the brewer and read by no recipe
    figure: each malt's per lb, each kettle and dry hop's per oz, the yeast's
    per batch, and the Cost card's other lines, each a name and a cost per
@@ -260,7 +310,9 @@ cached values are pinned by the golden-master tests.
     total of the priced lines (counting the rest) and the cost per gal at the
     fermentation volume at 60 °F (with water back on, the wort from kettle plus the water back), by the engine's `rollupCost` and
     `costPerUnit`, blank for a zero, negative or blank volume. With no line
-    priced, the total and the cost per gal are blank ("—"), not $0.00. It is
+    priced, the total and the cost per gal are blank ("—"), not $0.00. A
+    quantity or price outside its limits (rule 8) blanks its line's cost, the
+    total and the cost per gal; such a price is a priced line. It is
     not on the printed sheet.
     The Grist card shows each malt's % of total grain weight, the engine's
     share ("—" where blank). "Design to target OG" sets every malt's weight,
@@ -282,6 +334,10 @@ cached values are pinned by the golden-master tests.
     solved for that; after Solve the stats bar's OG and the predicted OG the
     card shows are the target, within the same mismatch; a blank or
     uncorrectable wort from kettle or water back refuses Solve and is named.
+    A figure Solve reads that is outside its limits (rule 8) refuses it the
+    same way, named with its limit ("Above 100 %: the brewhouse
+    efficiency."); a figure it does not read — a hop, a price, a malt weight,
+    which Solve replaces — leaves it working.
     The mash water
     is not touched. The target and the percents are never saved; "Undo solve"
     restores the weights until the next edit.

@@ -34,6 +34,7 @@ import {
   residualAlkalinity,
   mashPh,
   PITCH_RATES,
+  WHIRLPOOL_RANGE_F,
   REFERENCE_TEMP_F,
   LITERS_PER_GALLON,
   QT_PER_GAL,
@@ -133,7 +134,8 @@ const rangeText = (r) =>
   r.to === Infinity
     ? `C ${r.fromIncluded === false ? '>' : '≥'} ${r.from}`
     : `${r.from} ${r.fromIncluded === false ? '<' : '≤'} C ${r.toIncluded ? '≤' : '<'} ${r.to}`;
-const effectiveText = (r) => (r.takes ? `N = C − ${r.takes}` : 'N = C');
+// A pack that holds C needs no starter (docs/items/starter-card-both-ends.md).
+const effectiveText = (r) => (r.noStarter ? 'no starter, the pack alone' : r.takes ? `N = C − ${r.takes}` : 'N = C');
 
 describe('the References page', () => {
   // RF-S1
@@ -290,6 +292,8 @@ describe('the References page', () => {
           // The stir plate's boost, its figure in its definition.
           `g_stir growth a stir plate adds, ${k.starter.growth.stirPlate} (×)`,
           `No starter is larger than ${k.starter.maxStarterL} L; the limits keep every starter within it.`,
+          // Above the top, what to do (SB-S5): the last band's last limit.
+          `Above C = ${k.starter.bands.at(-1).ranges.at(-1).to}, no single starter reaches C: pitch more packs, or build the starter in steps.`,
           ...k.starter.bands.flatMap((b) => [
             `${b.band} ${b.packCells}`,
             ...b.ranges.map((r) => `${rangeText(r)}: ${effectiveText(r)}`),
@@ -487,11 +491,19 @@ describe('every coefficient on the page reproduces the engine\'s result', () => 
   it('bitterness: Tinseth utilization, the whirlpool temperature factor and the IBU', async () => {
     const k = await coefficients();
     const U = (t, sgPre) => k.tinseth.k * k.tinseth.base ** (sgPre - 1) * ((1 - Math.exp(-k.tinseth.rate * t)) / k.tinseth.divisor);
-    const f = (T) => k.whirlpool.c2 * T * T + k.whirlpool.c1 * T + k.whirlpool.c0;
+    // The range the factor is used on, read as the page renders it beside the
+    // equation (docs/items/whirlpool-hop-range.md, WH-S6): outside it, T is
+    // taken at the nearer end.
+    const t = text(cardsOf(await pageHtml())['Bitterness'] ?? '');
+    const [, low, high, ...ends] = (t.match(/Used from (\d+) to (\d+) °F\. A wort cooler than (\d+) °F takes f\((\d+)\), and one hotter than (\d+) °F takes f\((\d+)\)\./) ?? []).map(Number);
+    expect([low, high, ...ends]).toEqual([176, 212, 176, 176, 212, 212]);
+    const quadratic = (T) => k.whirlpool.c2 * T * T + k.whirlpool.c1 * T + k.whirlpool.c0;
+    const f = (T) => quadratic(Math.min(Math.max(T, low), high));
     const additions = [
       { name: 'Bittering', timeMin: 60, wortTempF: 212, weightOz: 1.5, alphaAcidFraction: 0.12 },
       { name: 'Flavour', timeMin: 15, wortTempF: 180, weightOz: 2, alphaAcidFraction: 0.055 },
       { name: 'Whirlpool', timeMin: 30, wortTempF: 160, weightOz: 3, alphaAcidFraction: 0.09 },
+      { name: 'Above the boil', timeMin: 10, wortTempF: 220, weightOz: 1, alphaAcidFraction: 0.1 },
     ];
     for (const [preBoilSg, postBoilVolGal] of [[1.05, 6], [1.07, 12.5]]) {
       const h = computeHops({ kettleAdditions: additions, preBoilSg, postBoilVolGal, dryHops: [], fermentVolGal: 5.5 });
@@ -531,7 +543,9 @@ describe('every coefficient on the page reproduces the engine\'s result', () => 
       return lo && hi;
     };
     // The bands present at each cells-needed count, with the limits' neighbours.
-    const counts = [249, 250, 300, 399, 400, 450, 499, 500, 660, 669, 670, 699, 700, 750, 799, 800, 830, 850, 900, 1000, 1001, 1010, 1100, 1270, 1271, 1280, 1700];
+    // Below 250 since docs/items/starter-card-both-ends.md: the packs with no
+    // starter, and the 100B pack's starter from above 100.
+    const counts = [-10, 0, 80, 100, 101, 110, 199, 200, 201, 210, 240, 249, 250, 300, 399, 400, 450, 499, 500, 660, 669, 670, 699, 700, 750, 799, 800, 830, 850, 900, 1000, 1001, 1010, 1100, 1270, 1271, 1280, 1700];
     const g = k.starter.growth;
     for (const cells of counts) {
       const options = solveStarter(cells);
@@ -541,6 +555,13 @@ describe('every coefficient on the page reproduces the engine\'s result', () => 
         expect(Boolean(option), `${band.band} at ${cells}`).toBe(Boolean(range));
         if (!range) continue;
         expect(option.startCells).toBe(band.packCells);
+        if (range.noStarter) {
+          // The pack holds C: no starter, no extract.
+          expect(cells, `${band.band} at ${cells}`).toBeLessThanOrEqual(band.packCells);
+          expect(option.volumeL).toBe(0);
+          expect(option.dmeGrams).toBe(0);
+          continue;
+        }
         const n = cells - (range.takes ?? 0);
         const v = option.volumeL;
         const S = band.packCells;
@@ -675,6 +696,8 @@ describe('every coefficient on the page reproduces the engine\'s result', () => 
       QT_PER_GAL,
       G_PER_LB,
       ...Object.values(PITCH_RATES).flatMap((r) => Object.values(r)),
+      WHIRLPOOL_RANGE_F.low,
+      WHIRLPOOL_RANGE_F.high,
       ...[MASH_RV_RANGE_QT_PER_LB, MASH_R_RANGE_LB_PER_LB, MASH_PH_RANGE].flatMap((r) => [r.low, r.high]),
       ...[MASH_PH_TESTED_RANGE.residualAlkalinityMeq, MASH_PH_TESTED_RANGE.thicknessLPerKg].flatMap((r) => [r.low, r.high]),
       ...Object.entries(WATER_DENSITY_TABLE_C).flat(),

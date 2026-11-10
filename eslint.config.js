@@ -41,6 +41,7 @@ export default [
   {
     files: [
       'apps/recipe/test/accessible-names.test.js',
+      'apps/recipe/test/boil-time-emptied.test.js',
       'apps/recipe/test/my-ingredients.test.js',
       'apps/recipe/test/my-yeast-strains.test.js',
       'apps/recipe/test/saved-ingredient-on-owner-list.test.js',
@@ -60,6 +61,7 @@ export default [
       'apps/recipe/test/way-out-of-page-error.test.js',
       'apps/recipe/test/volumes-card-blank-figures.test.js',
       'apps/recipe/test/my-ingredients-empty-note.test.js',
+      'apps/recipe/test/impossible-entries.test.js',
     ],
     languageOptions: { globals: globals.browser },
   },

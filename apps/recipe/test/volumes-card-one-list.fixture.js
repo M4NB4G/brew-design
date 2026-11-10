@@ -4,7 +4,11 @@
 // docs/items/volumes-card-one-list.md), and from which
 // `volumes-card-one-list.before.json` was captured before the change
 // (2026-10-15): "nothing changes on screen" (VO-S2) compares against text and
-// bytes the change did not write. The captures are never re-made.
+// bytes the change did not write. The captures are never re-made, with one
+// exception: the 48 card digests of a page with the boil time emptied (alone,
+// or among all) were re-captured on 2026-11-10 when the emptied boil time box
+// became an empty box (docs/ROADMAP.md, run R1, decision K-1); the line's
+// text and every other digest are as first captured.
 //
 // What is captured: the line under the stats bar for each Volumes card box
 // left empty alone, for every two of them, for all of them (and a malt weight

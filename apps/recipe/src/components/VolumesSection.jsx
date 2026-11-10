@@ -34,6 +34,9 @@
 // The rows are drawn in the order of the shared list of the card's rows,
 // volumes-card-rows.js, which the line under the stats bar reads too
 // (docs/items/volumes-card-one-list.md, VO-S1 to VO-S3).
+// Each volume box and the boil time refuse a negative entry
+// (docs/items/impossible-entries.md, IE-S1; entry-limits.js); the measurement
+// temperatures take any entry, as before (IE-S5).
 import { Fragment } from 'react';
 import { MASH_RV_RANGE_QT_PER_LB, MASH_R_RANGE_LB_PER_LB } from '@brew/engine';
 import Card from './shared/Card.jsx';
@@ -58,6 +61,7 @@ import {
 } from '../display.js';
 import { num, gravity, trimmed } from '../format.js';
 import { VOLUMES_CARD_ROWS, rowsShown } from '../volumes-card-rows.js';
+import { typed } from '../entry-limits.js';
 
 // "Should be 1.25–2 qt/lb": a recommended range, as the owner's cell reads it.
 function shouldBe({ low, high }, unit) {
@@ -74,8 +78,9 @@ function Warning({ children }) {
 
 // A volume box's change: the entry in the display unit, converted to
 // canonical gal. An emptied box is a blank figure (NaN), never the old number.
+// A negative one is refused: the line under the box is returned, nothing set.
 export const volumeChange = (setField, field, mode, proVolumeUnit) => (e) =>
-  setField(field, volumeToCanonical(parseFloat(e.target.value), mode, proVolumeUnit));
+  typed(null, field, volumeToCanonical(parseFloat(e.target.value), mode, proVolumeUnit), (gal) => setField(field, gal));
 
 // A canonical-gal figure as a volume box shows it: blank shows empty.
 // Away from the cursor it shows the printed sheet's precision, gal to 0.01
@@ -164,6 +169,7 @@ export default function VolumesSection({
     value: volumeShown(recipe[field], mode, proVolumeUnit, volumeDigits(mode, proVolumeUnit)),
     editValue: volumeShown(recipe[field], mode, proVolumeUnit),
     onChange: volumeChange(setField, field, mode, proVolumeUnit),
+    limited: true,
   });
 
   // Each row of the card by its key in the shared list of the card's rows
@@ -206,8 +212,9 @@ export default function VolumesSection({
     boilTime: () => (
       <InputRow
         label="Boil time (min)"
-        value={recipe.boilTimeMin}
-        onChange={(e) => setField('boilTimeMin', parseFloat(e.target.value))}
+        value={Number.isFinite(recipe.boilTimeMin) ? recipe.boilTimeMin : ''}
+        onChange={(e) => typed(null, 'boilTimeMin', parseFloat(e.target.value), (min) => setField('boilTimeMin', min))}
+        limited
         step={1}
         min={0}
       />
@@ -248,7 +255,12 @@ export default function VolumesSection({
         min={0}
         value={volumeShown(waterBack.volumeGal, mode, proVolumeUnit, volumeDigits(mode, proVolumeUnit))}
         editValue={volumeShown(waterBack.volumeGal, mode, proVolumeUnit)}
-        onChange={(e) => setWaterBack('volumeGal', volumeToCanonical(parseFloat(e.target.value), mode, proVolumeUnit))}
+        onChange={(e) =>
+          typed('waterBack', 'volumeGal', volumeToCanonical(parseFloat(e.target.value), mode, proVolumeUnit), (gal) =>
+            setWaterBack('volumeGal', gal),
+          )
+        }
+        limited
       />
     ),
     waterBackTemp: () => (

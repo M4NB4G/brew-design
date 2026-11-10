@@ -6,7 +6,9 @@
 // lab figures as plain text; they are information only and never copied into
 // a box. Picking a strain sets ale/lager and nothing else; typing sets the
 // name alone. A fermentation temperature outside the strain's lab range shows
-// a warning, which changes no number and blocks nothing.
+// a warning, which changes no number and blocks nothing. The attenuation box
+// refuses a negative entry or one above 100 % (docs/items/impossible-
+// entries.md, IE-S1, IE-S2; entry-limits.js).
 //
 // My yeast strains (docs/items/my-yeast-strains.md): the brewer's own strains
 // are offered first, marked as yours, and a name on neither list can be saved
@@ -17,6 +19,7 @@ import { useContext } from 'react';
 import IngredientSearch, { MyIngredientsContext } from './IngredientSearch.jsx';
 import Card from './shared/Card.jsx';
 import InputRow from './shared/InputRow.jsx';
+import { typed } from '../entry-limits.js';
 import { colors, tokens } from './shared/styles.js';
 import usePhone from './shared/usePhone.js';
 import {
@@ -93,7 +96,10 @@ export default function YeastCard({ yeast, apparentAttenuation, temperatureUnit,
           label="Apparent attenuation"
           unit={percentUnit()}
           value={Number(fractionToPercent(apparentAttenuation).toFixed(4))}
-          onChange={(e) => setField('apparentAttenuation', percentToFraction(parseFloat(e.target.value)))}
+          limited
+          onChange={(e) =>
+            typed(null, 'apparentAttenuation', percentToFraction(parseFloat(e.target.value)), (f) => setField('apparentAttenuation', f))
+          }
           step={1}
           min={0}
           max={100}

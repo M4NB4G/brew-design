@@ -26,6 +26,7 @@ import {
 } from '../display.js';
 import { num, roundForInput } from '../format.js';
 import { percentTotal } from '../selectors.js';
+import { limitText } from '../entry-limits.js';
 
 // The name each blank figure goes by in the refusal (IS-S4).
 const BLANK_NAMES = {
@@ -49,7 +50,8 @@ const TEMP_NAMES = {
 };
 
 // Why Solve changed nothing, as the card says it: the total when the boxes
-// do not total 100 %, then each blank figure (IS-S4).
+// do not total 100 %, then each blank figure (IS-S4), then each figure
+// outside its limits (IE-S7).
 export function solveRefusalText(result) {
   const parts = [];
   const blanks = result.blank ?? [];
@@ -58,6 +60,14 @@ export function solveRefusalText(result) {
     parts.push(`The percents total ${num(result.totalPercent, 1)} ${percentUnit()}, not 100 ${percentUnit()}.`);
   }
   if (named.length > 0) parts.push(`Blank: ${named.map((b) => BLANK_NAMES[b.field](b)).join(', ')}.`);
+  // A figure outside its limits, in the words of the line under the stats bar
+  // (docs/items/impossible-entries.md, IE-S7, IE-Q2): "Above 100 %: the
+  // brewhouse efficiency." Solve reads no temperature that has one.
+  const outside = result.outside ?? [];
+  for (const limit of ['negative', 'above100']) {
+    const these = outside.filter((b) => b.limit === limit && BLANK_NAMES[b.field]);
+    if (these.length > 0) parts.push(`${limitText(limit)}: ${these.map((b) => BLANK_NAMES[b.field](b)).join(', ')}.`);
+  }
   for (const [field, volume] of Object.entries(TEMP_NAMES)) {
     if (blanks.some((b) => b.field === field)) parts.push(`${volume} cannot be corrected at its measurement temperature.`);
   }

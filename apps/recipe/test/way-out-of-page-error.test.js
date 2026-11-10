@@ -303,7 +303,10 @@ describe('a saved recipe the page cannot draw has a way out', () => {
 
     // NW-S5, no error: every tab, in Home and in Pro, and the References page,
     // byte for byte as before the change (error-outside-the-tabs.before.json,
-    // drawn from that file's saved documents: no saved ingredient).
+    // drawn from that file's saved documents: no saved ingredient), as
+    // re-captured 2026-11-10 for docs/items/starter-card-both-ends.md (the
+    // starter's lines alone changed; error-outside-the-tabs.test.js says which),
+    // and for docs/items/whirlpool-hop-range.md (the References entry alone).
     parts.throwing.clear();
     vi.restoreAllMocks();
     vi.spyOn(console, 'error').mockImplementation(() => {});

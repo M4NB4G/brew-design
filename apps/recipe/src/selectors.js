@@ -15,6 +15,7 @@ import {
   selectPitchRate,
   computeCellsNeeded,
   solveStarter,
+  starterAboveRange,
   mashRatioWarnings,
   REFERENCE_TEMP_F,
   SALT_CONTRIBUTIONS_PER_G_GAL,
@@ -58,6 +59,13 @@ import { toReferenceVolume } from './reference-volume.js';
 import { fractionToPercent } from './display.js';
 import { num } from './format.js';
 import { TEST_RESULT_KEYS, effectiveSetup } from './water-state.js';
+import { withinLimits, limitCrossed } from './entry-limits.js';
+
+// A figure outside its limits (docs/items/impossible-entries.md, IE-S4): a
+// recipe saved before the boxes refused one holds it as saved, and every
+// figure here reads it as a blank figure (entry-limits.js's withinLimits), so
+// the figures that depend on it read "—" until it is corrected. The boxes
+// show it as saved; the line under the stats bar names it.
 
 // Water back (docs/items/water-back.md): the fermentation volume at 60 degF
 // (the volume at knock-out); with water back on, the water back at 60 degF,
@@ -112,7 +120,14 @@ export function percentTotal(shares) {
 // corrected volumes computeRecipe reads, and the bill is solved for that. A
 // blank or uncorrectable wort from kettle or water back refuses Solve and is
 // named.
-export function solveTargetOG(recipe, targetOG, shares) {
+// A figure Solve reads that is outside its limits refuses it and is named,
+// with the limit it crosses (IE-S7, IE-Q2): a malt's FGDB, the efficiency,
+// the pre-boil volume, the boil-off rate, the boil time, and with water back
+// on the wort from kettle and the water back. A figure it does not read (a
+// hop, a price, a malt weight, which Solve replaces) leaves it working.
+// -> also { outside: [{ field, malt?, limit }] } when refused.
+export function solveTargetOG(recipeAsSaved, targetOG, shares) {
+  const recipe = withinLimits(recipeAsSaved);
   const preBoilRefGal = toReferenceVolume(recipe.preBoilVolGal, 'preBoil', recipe.measurementTempF);
   const postBoilRawGal = computePostBoilVol(recipe.preBoilVolGal, recipe.boilOffRateGalPerHr, recipe.boilTimeMin);
   const postBoilRefGal = toReferenceVolume(postBoilRawGal, 'postBoil', recipe.measurementTempF);
@@ -122,28 +137,37 @@ export function solveTargetOG(recipe, targetOG, shares) {
   shares.forEach((p, i) => {
     if (!entered(p)) blank.push({ field: 'percent', malt: maltName(recipe.malts[i], i) });
   });
-  recipe.malts.forEach((m, i) => {
-    if (!entered(m.fgdb)) blank.push({ field: 'fgdb', malt: maltName(m, i) });
-  });
-  if (!entered(recipe.efficiency)) blank.push({ field: 'efficiency' });
-  if (!entered(recipe.preBoilVolGal)) blank.push({ field: 'preBoilVolGal' });
-  else if (!entered(preBoilRefGal)) blank.push({ field: 'preBoilTemp' });
-  if (!entered(recipe.boilOffRateGalPerHr)) blank.push({ field: 'boilOffRateGalPerHr' });
-  if (!entered(recipe.boilTimeMin)) blank.push({ field: 'boilTimeMin' });
+  // Each figure Solve reads: blank, or outside its limits (IE-S7), as saved.
+  const outside = [];
+  const read = (part, key, value, item) => {
+    const limit = limitCrossed(part, key, value);
+    if (limit) outside.push({ ...item, limit });
+    else if (!entered(value)) blank.push(item);
+    return !limit && entered(value);
+  };
+  recipeAsSaved.malts.forEach((m, i) => read('malts', 'fgdb', m.fgdb, { field: 'fgdb', malt: maltName(m, i) }));
+  read(null, 'efficiency', recipeAsSaved.efficiency, { field: 'efficiency' });
+  if (read(null, 'preBoilVolGal', recipeAsSaved.preBoilVolGal, { field: 'preBoilVolGal' }) && !entered(preBoilRefGal)) {
+    blank.push({ field: 'preBoilTemp' });
+  }
+  read(null, 'boilOffRateGalPerHr', recipeAsSaved.boilOffRateGalPerHr, { field: 'boilOffRateGalPerHr' });
+  read(null, 'boilTimeMin', recipeAsSaved.boilTimeMin, { field: 'boilTimeMin' });
   if (entered(postBoilRawGal) && !entered(postBoilRefGal)) blank.push({ field: 'postBoilTemp' });
   const pitch = pitchVolumes(recipe);
   if (pitch.on) {
-    if (!entered(recipe.fermentVolGal)) blank.push({ field: 'fermentVolGal' });
-    else if (!entered(pitch.fermentRefGal)) blank.push({ field: 'fermentTemp' });
-    if (!entered(recipe.waterBack.volumeGal)) blank.push({ field: 'waterBackGal' });
-    else if (!entered(pitch.waterBackRefGal)) blank.push({ field: 'waterBackTemp' });
+    if (read(null, 'fermentVolGal', recipeAsSaved.fermentVolGal, { field: 'fermentVolGal' }) && !entered(pitch.fermentRefGal)) {
+      blank.push({ field: 'fermentTemp' });
+    }
+    if (read('waterBack', 'volumeGal', recipeAsSaved.waterBack.volumeGal, { field: 'waterBackGal' }) && !entered(pitch.waterBackRefGal)) {
+      blank.push({ field: 'waterBackTemp' });
+    }
   }
 
   // The boxes total 100 when their total, shown to one decimal, reads 100.0
   // (IS-Q7); blank while a box is.
   const totalPercent = percentTotal(shares);
   const totalOff = num(totalPercent, 1) !== num(100, 1);
-  if (blank.length > 0 || totalOff) return { ok: false, totalPercent, totalOff, blank };
+  if (blank.length > 0 || outside.length > 0 || totalOff) return { ok: false, totalPercent, totalOff, blank, outside };
 
   // The OG from the kettle the target asks for (TO-S1): the target itself
   // without water back.
@@ -166,7 +190,7 @@ export function solveTargetOG(recipe, targetOG, shares) {
   // or FGDB, a boil that leaves no wort, a negative %) give weights that are
   // not numbers or are below zero; the sentences do not say, so Solve changes
   // nothing then, as for a blank (IS-S4's rule: nothing the brewer did not enter).
-  if (!weightsLb.every((w) => entered(w) && w >= 0)) return { ok: false, totalPercent, totalOff, blank, unusable: true };
+  if (!weightsLb.every((w) => entered(w) && w >= 0)) return { ok: false, totalPercent, totalOff, blank, outside, unusable: true };
   return { ok: true, weightsLb };
 }
 
@@ -181,29 +205,37 @@ export function solveTargetOG(recipe, targetOG, shares) {
 // negative or blank volume (EC-S4), or a blank total. With water back on, the
 // volume at pitch (WB-S4).
 // -> { lines: [{ kind, index, name, quantity, unitPrice, cost }], total, unpriced, perGal }
-export function computeCost(recipe) {
+// A quantity or price outside its limits (IE-S4, IE-N) blanks its line's
+// cost and so the total and the cost per gal, as a blank quantity does; a
+// price outside its limits is a priced line, not an unpriced one. Each line
+// carries its quantity and price as saved, for the card's boxes.
+export function computeCost(recipeAsSaved) {
+  const recipe = withinLimits(recipeAsSaved);
   const line = (kind, index, name, quantity, unitPrice) => ({ kind, index, name, label: name, quantity, unitPrice });
   const named = (row, kind, i) => String(row.name ?? '').trim() || `${kind} ${i + 1}`;
-  const lineItems = [
-    ...recipe.malts.map((m, i) => line('malts', i, named(m, 'Malt', i), m.weightLb, m.pricePerLb)),
-    ...recipe.kettleAdditions.map((a, i) => line('kettleAdditions', i, named(a, 'Kettle hop', i), a.weightOz, a.pricePerOz)),
-    ...recipe.dryHops.map((d, i) => line('dryHops', i, named(d, 'Dry hop', i), d.weightOz, d.pricePerOz)),
-    line('yeast', 0, String(recipe.yeast.name ?? '').trim() || 'Yeast', 1, recipe.yeast.pricePerBatch),
-    ...recipe.otherCosts.map((o, i) => line('otherCosts', i, o.name, 1, o.costPerBatch)),
+  const linesOf = (r) => [
+    ...r.malts.map((m, i) => line('malts', i, named(m, 'Malt', i), m.weightLb, m.pricePerLb)),
+    ...r.kettleAdditions.map((a, i) => line('kettleAdditions', i, named(a, 'Kettle hop', i), a.weightOz, a.pricePerOz)),
+    ...r.dryHops.map((d, i) => line('dryHops', i, named(d, 'Dry hop', i), d.weightOz, d.pricePerOz)),
+    line('yeast', 0, String(r.yeast.name ?? '').trim() || 'Yeast', 1, r.yeast.pricePerBatch),
+    ...r.otherCosts.map((o, i) => line('otherCosts', i, o.name, 1, o.costPerBatch)),
   ];
+  const lineItems = linesOf(recipe);
+  const asSaved = linesOf(recipeAsSaved);
   const { items } = rollupCost(lineItems);
-  const priced = lineItems.filter((li) => entered(li.unitPrice));
+  const priced = lineItems.filter((li, k) => entered(asSaved[k].unitPrice));
   const total = priced.length > 0 ? rollupCost(priced).total : NaN;
   const { pitchGal } = pitchVolumes(recipe);
   return {
-    lines: items.map(({ label, ...li }) => li),
+    lines: items.map(({ label, ...li }, k) => ({ ...li, quantity: asSaved[k].quantity, unitPrice: asSaved[k].unitPrice })),
     total,
     unpriced: lineItems.length - priced.length,
     perGal: costPerUnit(total, pitchGal),
   };
 }
 
-export function computeRecipe(state) {
+export function computeRecipe(stateAsSaved) {
+  const state = withinLimits(stateAsSaved);
   // Boil-off is applied to the measured (hot) pre-boil volume; the resulting
   // pre-/post-boil and ferment volumes are then taken to the 60 degF reference
   // the engine expects, each at its own measurement temperature.
@@ -268,6 +300,9 @@ export function computeRecipe(state) {
     fermentVolGal: pitchGal,
   });
   const starter = solveStarter(cells);
+  // Above the largest single starter the card says what to do instead
+  // (docs/items/starter-card-both-ends.md, SB-S5); the engine decides.
+  const starterBeyondRange = starterAboveRange(cells);
 
   // The post-boil volume as it reads at its measurement temperature (the
   // measured pre-boil volume less the boil-off, before correction), shown
@@ -306,6 +341,7 @@ export function computeRecipe(state) {
     pitchRate,
     cells,
     starter,
+    starterAboveRange: starterBeyondRange,
     // Design warnings (true = warn), shown on the Volumes card; they change no
     // number. The mash ratios against the engine's recommended ranges; the
     // post-boil volume against the fermentation volume (with water back on,
@@ -356,7 +392,12 @@ const ACID_KEYS = Object.keys(ACIDS);
 const SOLVER_IONS = ['Ca', 'Mg', 'Na', 'SO4', 'Cl', 'Alkalinity'];
 const entered = (v) => Number.isFinite(v);
 
-export function computeWater(water, recipe) {
+// A Recipe-tab figure outside its limits (IE-S8, IE-Q3) reads blank here
+// too, so the Water tab's figures that depend on it read "—"; the line under
+// the stats bar names it, and the Water tab's own lines of blank figures do
+// not call it blank: they read the recipe as saved.
+export function computeWater(water, recipeAsSaved) {
+  const recipe = withinLimits(recipeAsSaved);
   const style = findStyle(water.styleId);
   const target = { ...style.profile };
   const s = water.source;
@@ -408,7 +449,20 @@ export function computeWater(water, recipe) {
       ['waterBackGal', waterBackGal],
     );
   }
-  const blank = needed.filter(([, v]) => !entered(v)).map(([k]) => k);
+  // Blank as saved: a figure outside its limits reads blank above but is not
+  // called blank (IE-Q3); the grain is called blank only while a malt's
+  // weight is blank as saved.
+  const outsideAsSaved = {
+    mashWaterGal: limitCrossed(null, 'mashWaterGal', recipeAsSaved.mashWaterGal),
+    preBoilGal: limitCrossed(null, 'preBoilVolGal', recipeAsSaved.preBoilVolGal),
+    malts: !recipeAsSaved.malts.some((m) => !entered(m.weightLb)),
+    efficiency: limitCrossed(null, 'efficiency', recipeAsSaved.efficiency),
+    boilOffRateGalPerHr: limitCrossed(null, 'boilOffRateGalPerHr', recipeAsSaved.boilOffRateGalPerHr),
+    boilTimeMin: limitCrossed(null, 'boilTimeMin', recipeAsSaved.boilTimeMin),
+    fermentVolGal: limitCrossed(null, 'fermentVolGal', recipeAsSaved.fermentVolGal),
+    waterBackGal: limitCrossed('waterBack', 'volumeGal', recipeAsSaved.waterBack?.volumeGal),
+  };
+  const blank = needed.filter(([k, v]) => !entered(v) && !outsideAsSaved[k]).map(([k]) => k);
 
   const overrides = water.saltOverrides;
   const primary = water.primaryAcid;
@@ -445,8 +499,10 @@ export function computeWater(water, recipe) {
   const acidDosable = !!recommendation && entered(acidGal) && acidGal > 0;
 
   // The malt figures the predicted mash pH needs (MP-S5), named on the tab.
+  // Named from the malts as saved: a figure outside its limits is not blank
+  // (IE-Q3).
   const mashPhNeeds = [];
-  recipe.malts.forEach((m, i) => {
+  recipeAsSaved.malts.forEach((m, i) => {
     if (m.type === 'none') return;
     const malt = String(m.name ?? '').trim() || `Malt ${i + 1}`;
     if (!MALT_TYPES.includes(m.type)) mashPhNeeds.push({ malt, field: 'type' });
@@ -551,7 +607,7 @@ export function computeWater(water, recipe) {
     targetBlank,
     // AA-Q1: the figures the predicted mash pH needs, named with the style's aim.
     styleBecause: styleAcid
-      ? [...mashPhNeeds, ...(entered(mashWaterGal) ? [] : [{ malt: null, field: 'mashWaterGal' }])]
+      ? [...mashPhNeeds, ...(entered(recipeAsSaved.mashWaterGal) ? [] : [{ malt: null, field: 'mashWaterGal' }])]
       : [],
     totals: acidKnown ? applyAcids(amounts, acidGal) : { total_meq: NaN, ppm_alk_reduced: NaN },
     rows: ACID_KEYS.map((k) => {

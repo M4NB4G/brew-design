@@ -160,7 +160,8 @@
    "cells": "4710",
    "cellsUnit": "billion",
    "starterVolumeUnit": "L",
-   "starter": []
+   "starter": [],
+   "starterAboveRange": true
   },
   "water": {
    "treated": "The Hot Liquor Tank (HLT) first fill",
@@ -506,7 +507,8 @@
    "cells": "4.71",
    "cellsUnit": "trillion",
    "starterVolumeUnit": "L",
-   "starter": []
+   "starter": [],
+   "starterAboveRange": true
   },
   "water": {
    "treated": "The Hot Liquor Tank (HLT) first fill",

@@ -104,10 +104,47 @@ describe('hops golden master', () => {
     expect(bravo.ibu).toBeCloseTo(23.4769679, 4);
   });
   it('totalIBU', () => {
+    // Rev 4, Hops!O2: 46, from 45.6959302 (J3:J7); with the three whirlpool
+    // hops held (below) 45.6959302 + 0.2845174 = 45.9804476, still 46.
     expect(hops.totalIBU).toBe(46);
   });
   it('dryHopRatio', () => {
     expect(hops.dryHopRatio).toBeCloseTo(1.25, 6);
+  });
+});
+
+// The three whirlpool hops are not Rev 4's cached cells: Rev 4 stands them at
+// 175 °F (Hops!B5:B7), one degree below the range its own temperature table
+// ties the curve to (Hops!M10:O12, 80 to 100 °C), and the factor is held at
+// the curve's own figure at 176 °F (SPEC rule 2; the owner's decision H-5,
+// docs/items/whirlpool-hop-range.md, WH-S7). Pinned by hand:
+//   f(176) = 0.0003858 × 30976 − 0.12885802 × 176 + 10.97839506
+//          = 11.9505408 − 22.67901152 + 10.97839506 = 0.24992434
+//   (Rev 4, Hops!H5:H7: f(175) = 11.815125 − 22.5501535 + 10.97839506 = 0.24336656)
+//   held over Rev 4's: 0.24992434 / 0.24336656 = 1 + 0.00655778 / 0.24336656 = 1.02694610
+// Each hop's bitterness is Rev 4's times that, all else in its cell alike:
+//   Citra LupoMAX   5.67336256 (J5) × 1.02694610 = 5.67336256 + 0.15287500 = 5.82623756
+//   Hopstiener 9326 1.89112085 (J6) × 1.02694610 = 1.89112085 + 0.05095833 = 1.94207918
+//   Helios          2.99427468 (J7) × 1.02694610 = 2.99427468 + 0.08068403 = 3.07495871
+//   together 0.15287500 + 0.05095833 + 0.08068403 = 0.2845174 more, and the
+//   unrounded sum, Rev 4's 45.6959302 (J3:J7), becomes 45.9804476.
+describe("hops golden master: the reference recipe's whirlpool hops at 175 °F, held at 176 °F", () => {
+  const [citra, hopstiener, helios] = hops.additions.slice(2);
+  it('each tempFactor = 0.24992434 (Rev 4, H5:H7: 0.24336656)', () => {
+    for (const a of [citra, hopstiener, helios]) expect(a.tempFactor).toBeCloseTo(0.24992434, 4);
+  });
+  it('Citra LupoMAX ibu = 5.82623756 (Rev 4, J5: 5.67336256)', () => {
+    expect(citra.ibu).toBeCloseTo(5.82623756, 4);
+  });
+  it('Hopstiener 9326 ibu = 1.94207918 (Rev 4, J6: 1.89112085)', () => {
+    expect(hopstiener.ibu).toBeCloseTo(1.94207918, 4);
+  });
+  it('Helios (20 min) ibu = 3.07495871 (Rev 4, J7: 2.99427468)', () => {
+    expect(helios.ibu).toBeCloseTo(3.07495871, 4);
+  });
+  it('the unrounded sum = 45.9804476 (Rev 4: 45.6959302), the total still 46', () => {
+    expect(hops.sumIBU).toBeCloseTo(45.9804476, 4);
+    expect(hops.totalIBU).toBe(46);
   });
 });
 

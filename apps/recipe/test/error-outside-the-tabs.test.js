@@ -230,6 +230,13 @@ describe('an error outside the tabs shows a message', () => {
     // EO-S5: every tab, in Home and in Pro, and the References page, drawn as
     // main.jsx drew them before the change, byte for byte
     // (error-outside-the-tabs.before.json, captured 2026-10-15 before it).
+    // Re-captured 2026-11-10 for docs/items/starter-card-both-ends.md, every
+    // entry, the starter's lines alone changed (compared line by line): the
+    // starter options at the recipe's 160 billion where it read "No usable
+    // starter band for this cell count.", the stats bar's starter, Pro's
+    // SB-S5 sentence and the References page's bands. Re-captured
+    // 2026-11-10 for docs/items/whirlpool-hop-range.md, the References entry
+    // alone, its one new line the whirlpool factor's range (WH-S6).
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(2026, 9, 15));
     const before = saved();
