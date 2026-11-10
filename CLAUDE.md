@@ -3,8 +3,9 @@
 `SPEC.md` is the specification: the invariants every diff is checked against.
 `docs/TEST_COVERAGE.md` says what proves each one. `docs/ROADMAP.md` holds
 outstanding work, sorted by tier. Read `SPEC.md` before changing anything.
-The method these rules implement is Fable's `METHOD.md` (builder and
-inspector); where this file is silent, that document governs.
+This file holds only what a session must do. The dated decisions behind it,
+and the rules as they stood before 2026-11-10, are in
+`docs/rules-history.md`; nothing there governs a session.
 
 ## Change control
 
@@ -38,262 +39,150 @@ doubt, it is Tier B.
 
 ## Roles
 
-- **Owner** (Michael) decides in sentences, reads the report, and says
+- **Owner** (Michael) decides in sentences, reads the summary, and says
   "merge and push". He is never asked to pick a number a rule should derive.
   He is an engineer, not a programmer: everything put to him — scope
-  tables, questions, reports — is written in engineering language, what the
-  brewer sees and what happens to the numbers, never code identifiers. File
-  names, signatures, and implementation choices go in the item file, for
-  the builder.
-- **Builder** (the session) writes the scope table, the test, the change, and
-  the docs; starts the inspector; never writes its own box; never commits on
-  FAIL; never merges or pushes `main` before the owner's "merge and push".
-- **Inspector** (a fresh subagent) runs the suite itself, reads the diff
-  against the sentences, and returns the box. It changes no file.
+  tables, questions, summaries — is written in engineering language, what
+  the brewer sees and what happens to the numbers, never code identifiers.
+  File names, signatures, and implementation choices go in the item file,
+  for the builder.
+- **Planning session** writes the run's scope tables, gets the owner's
+  reply, commits the agreed tables, and then goes on as the orchestrator.
+- **Orchestrator** starts every other role as a fresh subagent, each with
+  its model named and only its own prompt. It writes no code and no box.
+- **Builder** (a fresh subagent per item) writes the test, the change, and
+  the docs; never writes its own box; never commits on FAIL.
+- **Inspector** (a fresh subagent, Tier A and B) runs the suite itself,
+  reads the diff against the sentences, and returns the box. It changes no
+  file.
+- **Advisor** (a fresh subagent, Tier C and D) reads the staged diff and
+  confirms that no number it adds is a recipe value (the catch-all).
+- **Reviewer** (a fresh subagent per batch) reads the batch's diff against
+  its item files and `SPEC.md`, and runs every check itself.
+
+No role merges or pushes `main` before the owner's "merge and push".
 
 Open questions go to the owner as a decision table: id, the question, the
-recommended answer, the rule behind it — in engineering language (Roles).
-"Agree to all" is a complete reply. A row left unanswered is not built.
+recommended answer, the rule behind it — in engineering language. "Agree to
+all" is a complete reply. A row left unanswered is not built.
+
+## A run — one planning round, one summary
+
+All work is built as a run: one planning round with the owner, then the
+build, unattended, then one summary. The owner starts one session, on
+Opus 5.5, and pastes nothing after it. One item is a run of one.
+
+**Planning.** The session writes every scope table for the run and puts
+their questions to the owner in one decision table. Each item is written as
+sentences — one per behaviour that must be true afterwards — plus its
+decisions. Tier A and B items also get three fixed rows: the builder's
+model, the inspector's model (see Models), and the silent-property
+question, by name: what does this depend on that nobody decided
+(durability, atomicity, idempotence, ordering, storage disabled, schema
+migration, multi-tab)? On the owner's reply it commits the agreed tables as
+`docs/items/<item>.md` (Tier D; first line of the status: agreed <date>,
+not started) and the `docs/ROADMAP.md` Sessions rows naming the run's
+batches and items, in order, and pushes. A Tier C or D item needs no scope
+table beyond its roadmap line unless it raises a question for the owner.
+
+**Size.** A batch holds at most three items; a batch whose items are all
+Tier C or D and change no figure may hold up to five, and so may a batch of
+Tier B items that touch neither the engine nor saved data. A run holds at
+most three items that change the engine or a saved format. The owner
+approves a diff he has read in full: a run is no larger than that allows.
+
+**Building.** The same session then goes on as the orchestrator; it does
+not wait for a new session or a prompt. Its first act is to switch on the
+commit guards (Hooks) and confirm they are on. The run is built on one
+branch — the one the session is given, otherwise one named after the run,
+from `main` — with one pull request. Items are built in the Sessions
+table's order, one at a time, never two builders at once: every item edits
+the same documents. For each item the orchestrator spawns:
+
+1. the **builder**, given only the item file's path (or the roadmap line)
+   and the instruction to run the procedure below from step 1 to step 5,
+   then stage and stop;
+2. for Tier A and B the **inspector**, exactly as this file specifies, on
+   the staged change; for Tier C and D the **advisor**;
+3. on PASS, or the advisor's confirmation, the builder again, to commit
+   (step 7). On FAIL the builder is resumed with the reasons, then the same
+   inspector with the delta.
+
+Each item is pushed as soon as it is committed, so a run that is cut off
+loses nothing that passed.
+
+**A question stops the item, not the run.** An item whose builder meets a
+question the item file does not answer, a row it thinks wrong, or a
+catch-all promotion it cannot take (a Tier B number in a Sonnet-built item)
+is not committed. Agreed decisions are not re-opened: a row a builder
+thinks wrong goes back to the owner as a question, not a change. The
+summary names the item with its question in the decision-table form, it
+returns to the roadmap, and the rest of the run goes on.
+
+**Review.** When a batch's items are committed, a fresh reviewer reads the
+batch's diff against its item files and `SPEC.md`, and runs `npm test`,
+`npm run build`, `npm run lint` and `npm run e2e` itself. A finding it
+confirms is fixed by the builder in a new commit, recorded in the summary,
+and re-reviewed; one it does not confirm is listed.
+
+**Summary.** At the end the orchestrator opens the pull request, or gives
+the compare link when no PR tooling is available, and returns one summary
+to the owner, in engineering language: per batch, what changed for the
+brewer; every box and advisor confirmation; every FAIL round and reviewer
+finding; anything not built, with its question; anything deferred to the
+roadmap; the far-end checks' screenshots; whether the commit guards were
+on; and the pull request's link (it carries the full diff). Then it stops.
+Nothing more happens until the owner replies.
+
+**Merge and push on the owner's word.** When the owner says "merge and
+push", fast-forward `main` to the run's branch and push `main`; that push
+is the deploy (see Deploy). If `main` has moved since the summary, the
+fast-forward fails: rebase, re-prove, re-report, and wait again — the
+owner approved a diff, not a branch name. Without those words, `main` is
+not touched.
 
 ## Procedure — one item, one commit
 
-1. **Scope table first.** Write the item as sentences — one per behaviour
-   that must be true afterwards — plus its decisions. Tier A and B items
-   also get three fixed rows: the builder's model, the inspector's model
-   (see Models), and the silent-property question, by name: what does this
-   depend on that nobody decided (durability, atomicity, idempotence,
-   ordering, storage disabled, schema migration, multi-tab)? Get the
-   owner's reply. Commit the agreed table as `docs/items/<item>.md` (Tier
-   D; first line of its status: agreed <date>, not started) and stop: the
-   session that writes the table does not build it. Give the owner the
-   kickoff prompt (see Handoff) for a new session.
-2. **Test first, and it must fail.** Write the scenario from the sentences,
+1. **Test first, and it must fail.** Write the scenario from the sentences,
    named after them. Run it alone against the unchanged code. Record the
    failure (the assertion lines, trimmed). A scenario that passes before the
-   change does not test the change — rewrite it before touching code.
-3. **Smallest change** in the files the item names. No reformatting, no
+   change does not test the change — rewrite it before touching code. A
+   Tier C or D item with nothing a test can see says so.
+2. **Smallest change** in the files the item names. No reformatting, no
    drive-bys. Anything else noticed becomes a `docs/ROADMAP.md` line with a
    tier, in this same commit; such a line is in scope and the inspector is
    told so.
-4. **Prove it.** The scenario passes; `npm test` (root) passes;
-   `npm run build` passes. Tier B: check the far end — the running app in a
-   browser, not the unit test's word for it.
-5. **Docs in the same change.** `SPEC.md` if an invariant changed;
+3. **Prove it.** The scenario passes; `npm test` (root) passes;
+   `npm run build` passes. Tier A and B: check the far end — the running app
+   in a browser, not the unit test's word for it.
+4. **Docs in the same change.** `SPEC.md` if an invariant changed;
    `docs/TEST_COVERAGE.md` gets a row per new scenario; the roadmap line, if
    any, is removed.
-6. **Stage and run the inspector** (below) — Tier A, Tier B, and
-   number-introducing changes. Nothing is committed until it returns PASS.
-7. **Commit.** Subject: the specification sentence. Body: `Tier: X`, the
-   scenario name, the recorded failure, the box (A/B), and any FAIL rounds
-   with what changed after each. The item file's status line becomes
-   landed, naming the commit subject; its builder's notes are filled in.
-8. **Report and wait.** Push the branch; open the PR, or give the compare
-   link when no PR tooling is available. The report carries everything the
-   owner needs to decide without opening anything else: what landed, the
-   verdict and every box, any FAIL rounds, anything deferred to the
-   roadmap, the PR link, and the full diff (`git diff main...<branch>`).
-   Then stop. Nothing more happens until the owner replies.
-9. **Merge and push on the owner's word.** When the owner says "merge and
-   push", fast-forward `main` to the branch and push `main`; that push is
-   the deploy (see Deploy). If `main` has moved since the report, the
-   fast-forward fails: rebase, re-prove, re-report, and wait again — the
-   owner approved a diff, not a branch name. Without those words, `main`
-   is not touched.
-
-## Handoff — the session that writes the spec does not build it
-
-After the owner agrees the scope table, the writing session commits
-`docs/items/<item>.md` and stops. A new session builds from that file. The
-kickoff prompt, with `<item>` filled in:
-
-> You are the builder for one item in Brew Design
-> (C:/Users/micha/Documents/Code/Brew-Design). Read, in order: `CLAUDE.md`,
-> `SPEC.md`, `docs/items/<item>.md`. The item file holds the sentences, the
-> agreed decisions — including your model and the inspector's — the scenario
-> names, and notes from the session that wrote it. Do not re-open the
-> decisions; a row you think is wrong goes back to the owner as a question,
-> not a change.
->
-> Then run `CLAUDE.md`'s procedure from step 2: branch `<item>` from `main`;
-> write the scenarios first and run them alone — they must fail, and you
-> record the failure; make the smallest change in the files the item names;
-> prove it (scenario, `npm test`, `npm run build`, and for Tier A/B the far
-> end in a browser); update the docs in the same change; stage; run the
-> inspector exactly as `CLAUDE.md` specifies, with the model the item file
-> names; commit once, with the box(es) in the body; push the branch, open
-> the PR (or give the compare link), and report: what landed, the verdict
-> and the box(es), any FAIL rounds, anything deferred to the roadmap, the
-> PR link, and the full diff. Then stop and wait. `main` is merged and
-> pushed only when the owner replies "merge and push" — that push deploys —
-> and never on your own initiative. Stop after this one item.
-
-## Batches — several items in one session
-
-The owner's decision (2026-09-23): the roadmap's Sessions table groups the
-work into batches, and a session builds one batch. Nothing per item
-changes: each item runs the procedure from step 2 as its own item — its
-own scenario and recorded failure (a Tier C or D item with nothing a test
-can see says so, as phone width did), its own commit, and for Tier A/B its
-own fresh inspector and box. What the batch shares is one branch, one PR,
-one report (every item, every box, one combined diff) and one "merge and
-push" — one deploy. Items are built in the table's order; an item that
-cannot pass is not committed, is named in the report, and returns to the
-roadmap, and the rest land. A Tier C or D item needs no scope table beyond
-its roadmap line unless building it raises a question for the owner.
-
-A batch holds at most three items (the owner's decision, 2026-10-02):
-shorter sessions cost less per step and leave less to go wrong. A batch
-whose items are all Tier C or D and change no figure may hold up to five
-(the owner's decision, 2026-10-15, for cost and review count).
-
-After its report, while the owner reads it, the session writes the scope
-tables for the next batch (procedure step 1) and puts their questions to
-the owner. The agreed tables go on their own branch, `<next batch>-tables`,
-with their own PR — the owner approved the batch's diff, which must not
-change under him. The session that writes a table still does not build it:
-the next session does. A Tier C and D trial session (Models) writes no
-scope tables: the Opus session before it writes them, for the batch after
-the trial as well. The batch kickoff prompt, with `<batch>` and
-`<next batch>` filled in:
-
-> You are the builder for batch `<batch>` in Brew Design
-> (C:/Users/micha/Documents/Code/Brew-Design). Read, in order: `CLAUDE.md`,
-> `SPEC.md`, `docs/ROADMAP.md` (its Sessions table names this batch's
-> items, in order), and each item's file in `docs/items/` where there is
-> one. Do not re-open agreed decisions; a row you think is wrong goes back
-> to the owner as a question, not a change.
->
-> Branch `<batch>` from `main`. Build the items in order, each by
-> `CLAUDE.md`'s procedure from step 2: the scenario first, run alone — it
-> must fail, and you record the failure; the smallest change in the files
-> the item names; prove it (scenario, `npm test`, `npm run build`, and for
-> Tier A/B the far end in a browser); docs in the same change; stage; for
-> Tier A/B run the inspector exactly as `CLAUDE.md` specifies, with the
-> model the item file names; commit once per item, with its box in the
-> body. An item that cannot pass is not committed. Then push the branch,
-> open one PR, and report: for each item what landed, the verdict and its
-> box, any FAIL rounds, anything deferred to the roadmap; the PR link; and
-> the full diff. Then write the scope tables for batch `<next batch>`, put
-> their questions to the owner, and commit the agreed tables on branch
-> `<next batch>-tables` with its own PR. Stop and wait. `main` is merged
-> and pushed only when the owner replies "merge and push" — that push
-> deploys — and never on your own initiative.
-
-For a Tier C and D trial batch, the prompt ends at the report: it leaves
-out the scope tables for the next batch.
-
-## Orchestrated run — one planning round, one summary
-
-The owner's decision (2026-10-15, O-1 to O-5): the remaining work is
-planned in one session and built in one more, unattended. Nothing per item
-changes: each item runs the procedure from step 2, with its own scenario,
-recorded failure, commit, and, for Tier A/B, its own fresh inspector and
-box. What changes is who starts each role, and when the owner is asked.
-
-- **Planning session.** Writes every scope table for the run in one
-  decision table, gets the owner's reply, commits the agreed tables (and
-  the Sessions rows naming the run's batches, in order) on their own
-  branch with their own PR, and gives the owner the orchestrator's kickoff
-  prompt. It builds nothing.
-- **Orchestrator** (a new session, Opus). Builds the batches one after
-  another, never in parallel: they edit the same documents. Batch 1
-  branches from `main`; each later batch branches from the one before. For
-  each item it spawns the roles as fresh subagents, each with its model
-  named and only its own prompt: the **builder** (writes the scenario, runs
-  it alone, makes the change, proves it, writes the docs, stages, and
-  stops); for Tier A/B the **inspector**, exactly as this file specifies,
-  on the staged change; for Tier C/D the **advisor**, an Opus subagent that
-  reads the staged diff and confirms no number it adds is a recipe value
-  (the catch-all). On PASS (or the advisor's confirmation) the builder is
-  resumed to commit; on FAIL it is resumed with the reasons, then the same
-  inspector is resumed with the delta. The orchestrator writes no code and
-  no box.
-- **A question stops the item, not the run.** An item whose builder meets a
-  question the item file does not answer, a row it thinks wrong, or a
-  catch-all promotion it cannot take (a Tier B number in a Sonnet-built
-  item) is not committed; the summary names it with the question in the
-  decision-table form (Roles), and the rest of the run goes on.
-- **Reviewer.** When a batch's items are committed, its branch is pushed
-  and its PR opened (base: the batch before, or `main` for the first, so
-  each PR shows its own diff). A fresh Opus reviewer then reads the PR's
-  diff against its item files and `SPEC.md`, and runs `npm test`,
-  `npm run build`, `npm run lint` and `npm run e2e` itself. A finding it
-  confirms is fixed by the builder in a new commit, recorded in the
-  summary, re-reviewed; one it does not confirm is listed.
-- **Models.** Tier C and D: Sonnet 5.5 builds, the Opus
-  advisor confirms the numbers. Tier A and B: Opus builds (high effort), a
-  fresh Opus inspector (default effort) returns the box. One fresh Opus
-  reviewer per batch. An item file's model rows govern where they differ.
-- **Summary.** At the end the orchestrator returns one summary to the
-  owner, in engineering language (Roles): per batch, what changed for the
-  brewer, every box and advisor confirmation, every FAIL round and
-  reviewer finding, anything not built and its question, the far-end
-  checks' screenshots, and each PR's link (the PRs carry the full diffs).
-  Then it stops. One "merge and push" fast-forwards `main` to the last
-  batch's branch and pushes it: one deploy.
-
-The kickoff prompt for the orchestrator, with `<run>` filled in:
-
-> You are the orchestrator for the run `<run>` in Brew Design
-> (C:/Users/micha/Documents/Code/Brew-Design). Read, in order: `CLAUDE.md`
-> (its "Orchestrated run" section above all), `SPEC.md`, `docs/ROADMAP.md`
-> (its Sessions table names the run's batches and items, in order), and
-> each item's file in `docs/items/`. Do not re-open agreed decisions.
->
-> Build the batches in order, each on its own branch from the one before
-> (the first from `main`), each item by `CLAUDE.md`'s procedure from step
-> 2, every role a fresh subagent you spawn with its model named: the
-> builder, then the inspector (Tier A/B) or the advisor (Tier C/D), then,
-> per batch, the reviewer. You write no code and no box. An item that
-> cannot pass, or that raises a question, is not committed; it goes in the
-> summary with its question. Push each batch and open its PR. Then return
-> one summary as `CLAUDE.md` specifies, and stop. `main` is merged and
-> pushed only when the owner replies "merge and push", never on your own
-> initiative.
+5. **Stage and stop.** The builder reports every number its change adds.
+6. **Inspector or advisor** (below; the orchestrator starts it). Tier A,
+   Tier B, and number-introducing changes get the inspector. Nothing is
+   committed until it returns PASS, or the advisor confirms.
+7. **Commit and push.** Subject: the specification sentence. Body:
+   `Tier: X`, the scenario name, the recorded failure, the box (A/B) or the
+   advisor's confirmation (C/D), and any FAIL rounds with what changed after
+   each. The item file's status line becomes landed, naming the commit
+   subject; its builder's notes are filled in.
 
 ## Models
 
-Both the builder's and the inspector's model are decision rows in every
-Tier A/B scope table — proposed by whoever writes the table, agreed by the
-owner before building. The box records the inspector's.
-
-- **Default: Opus builds, Opus inspects, Tier A and B** (the owner's
-  decision, 2026-09-23). Builder at high effort; inspector at default
-  effort (its value is in reading and running, not reasoning depth).
-  Scope-table sessions run on Opus.
-- **Tier C and D trial: Sonnet 5.5 builds, Opus advises** (the owner's
-  decision, 2026-10-02). A batch of only Tier C and D items runs on
-  Sonnet 5.5 with Opus as its advisor (`/advisor opus`). An item the
-  catch-all promotes to Tier B is not built in that session: it returns
-  to the roadmap for an Opus session, and the report names it. Because
-  the catch-all is the builder's call, each item's report lists every
-  number its change adds, and the Opus advisor confirms none is a
-  recipe value before the item is committed (the owner's decision,
-  2026-10-02). The report states the session's builder model and
-  advisor, and its `/usage` at the start and at the report. When a
-  Tier C and D batch runs on Opus instead, the builder runs at medium
-  effort. Review after the first trial batch, S6a (the owner's
-  decision, 2026-10-02: the roadmap holds no second): the owner weighs
-  the items he sent back after a report, the fixes made after a commit,
-  and `/usage` per item (no Opus Tier C and D batch was measured to
-  compare against), then keeps, widens, or ends the trial. If kept, it
-  widens first to a batch of Tier B items that change neither the
-  engine nor saved data, with a named Opus inspector and the far-end
-  check's screenshots in the report; engine and saved-data items stay
-  on Opus (the owner's decision, 2026-10-02).
-- **Widened trial: Sonnet 5.5 builds Tier B, Opus advises and inspects**
-  (the owner's decision after S6a, 2026-10-05: widen). Batch S6c holds
-  the Tier B items that change neither the engine nor saved data. Sonnet
-  5.5 builds at high effort, as an Opus Tier B builder does (WT-6); the Opus advisor (`/advisor opus`) checks the approach
-  before building and confirms every number before each commit; a fresh
-  Opus inspector, default effort, returns each item's box as for any
-  Tier B item. The report carries per item the box, the advisor's
-  confirmation, the owner's send-backs, fixes after a commit, `/usage`
-  at the start and at the report, and the far-end check's screenshots.
-  The owner reviews again after S6c.
-- **The inspector's model is always named when it is spawned.** It
-  never inherits the session's model. The box's `Inspector:` line
-  confirms it.
+- **Tier A and B: Opus 5.5 builds, a fresh Opus 5.5 inspects.** Builder at
+  high effort; inspector at default effort (its value is in reading and
+  running, not reasoning depth).
+- **Tier C and D: Sonnet 5.5 builds, a fresh Opus 5.5 advises.** An item
+  the catch-all promotes to Tier B is not built by Sonnet: it stops with
+  its question (A run).
+- **Planning, the orchestrator and the reviewer: Opus 5.5.**
+- **Fable is not used:** it needs usage credits on the owner's plan. The
+  owner can still choose another model for an item; the choice is recorded
+  in the item file's model rows, which govern where they differ.
+- **Every subagent's model is named when it is spawned.** It never
+  inherits the session's model. The box's `Inspector:` line confirms the
+  inspector's.
 - **Independence comes from the session, not the model.** The inspector is
   always a separate, fresh subagent — never the builder checking its own
   work — and receives only the prompt below: no chat history, no builder
@@ -307,12 +196,6 @@ owner before building. The box records the inspector's.
   (100 for percent, 1000 for trillion) needs a hand-calculated pin: a value
   worked out independently of the code, with the working written beside it
   in the test, so the check is a fact rather than a reading.
-- **Fable, and Sonnet outside the Tier C and D trial**, are not
-  recommended by default. The owner can still choose either for an
-  item; the choice is recorded in its model rows.
-
-This departs from METHOD.md's cross-model inspection, on the owner's
-decision; where the two differ, this section governs.
 
 ## Inspector — standing rule, do not ask, just run it
 
@@ -348,7 +231,7 @@ commit body.
 >    change under inspection. Read `SPEC.md`. Read the diff line by line
 >    against the sentences and against `SPEC.md`. Note every file the diff
 >    touches outside those the item names. A `docs/ROADMAP.md` line that
->    records something noticed while building (procedure step 3) is in
+>    records something noticed while building (procedure step 2) is in
 >    scope.
 > 3. For every numeric literal or arithmetic the diff adds or changes that
 >    produces or changes a recipe value: name its rule (the spreadsheet cell,
@@ -392,10 +275,14 @@ any ingredient file is staged — the workbook, its copy, the refresh tool or
 the ingredient test (Change control, Ingredient data).
 `tools/hooks/commit-msg` refuses any commit whose body names no `Tier:`,
 and any commit whose body has no `Verdict: PASS` when it stages a Tier A/B
-file, the refresh tool or the ingredient test. Activate once per clone:
+file, the refresh tool or the ingredient test. They are off in a fresh
+clone, and every cloud session starts from one, so the orchestrator
+switches them on before anything else and checks that the setting reads
+back:
 
 ```
 git config core.hooksPath tools/hooks
+git config core.hooksPath
 ```
 
 Never bypass them (`--no-verify`).
@@ -407,16 +294,17 @@ changes the app, the engine or the package files is a deploy; a push that
 changes only documents, the workbook, tooling or tests is canceled before it
 builds and costs no credits (`tools/netlify/skip-unchanged.mjs`). The build
 runs `npm test` first, so a failing suite does not deploy.
-The builder works on a branch, opens the PR, and reports (procedure
-step 8). The owner reads the report and decides. On the owner's "merge and
-push" — in chat, per item, after the report — the session fast-forwards
-`main` to the branch and pushes it; that push is the deploy. The session
-never pushes `main` before those words, and never merges anything the owner
-has not seen in full.
+A run is built on a branch, with a pull request and a summary. The owner
+reads the summary and decides. On the owner's "merge and push" — in chat,
+after the summary — the session fast-forwards `main` to the branch and
+pushes it; that push is the deploy. The session never pushes `main` before
+those words, and never merges anything the owner has not seen in full.
 
 ## Verification
 
 ```
 npm test          # both suites — the canonical entry point the hooks use
 npm run build     # apps/recipe production build
+npm run lint      # ESLint over apps/ and packages/
+npm run e2e       # the browser checks, against the built app
 ```
