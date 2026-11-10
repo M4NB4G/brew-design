@@ -60,6 +60,7 @@ export default [
       'apps/recipe/test/way-out-of-page-error.test.js',
       'apps/recipe/test/volumes-card-blank-figures.test.js',
       'apps/recipe/test/my-ingredients-empty-note.test.js',
+      'apps/recipe/test/impossible-entries.test.js',
     ],
     languageOptions: { globals: globals.browser },
   },

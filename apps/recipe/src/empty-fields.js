@@ -17,7 +17,14 @@
 // card's rows (volumes-card-rows.js), which the card draws from too
 // (docs/items/volumes-card-one-list.md, VO-S1 to VO-S3).
 
+//
+// A figure outside its limits (docs/items/impossible-entries.md, IE-S4,
+// IE-S6) — a negative one, a percent above 100, a kettle hop above 213 °F —
+// is named on the same line, by the same names, after the empty boxes; the
+// limits are entry-limits.js's, and its figures read blank (withinLimits).
+
 import { VOLUMES_CARD_ROWS, rowsShown } from './volumes-card-rows.js';
+import { limitCrossed, limitText, withinLimits } from './entry-limits.js';
 
 const blank = (v) => !Number.isFinite(v);
 
@@ -56,6 +63,9 @@ export function emptyFields(recipe, derived) {
   // fermentation volume's box then the wort from kettle (WF-S2).
   const wb = recipe.waterBack;
   const refs = derived.refVolumesGal;
+  // A volume outside its limits reads blank (IE-S4), so its temperature is
+  // not named as one the correction cannot use.
+  const read = withinLimits(recipe);
   const boxes = {
     mashWater: recipe.mashWaterGal,
     preBoilVolume: recipe.preBoilVolGal,
@@ -68,10 +78,10 @@ export function emptyFields(recipe, derived) {
   // Each temperature with its volume at 60 degF and the volume it corrects.
   // The post-boil volume is worked out, not entered.
   const temps = {
-    preBoilTemp: [recipe.measurementTempF?.preBoil, refs.preBoil, recipe.preBoilVolGal],
+    preBoilTemp: [recipe.measurementTempF?.preBoil, refs.preBoil, read.preBoilVolGal],
     postBoilTemp: [recipe.measurementTempF?.postBoil, refs.postBoil, derived.postBoilMeasuredGal],
-    fermentTemp: [recipe.measurementTempF?.ferment, refs.ferment, recipe.fermentVolGal],
-    waterBackTemp: [wb?.tempF, refs.waterBack, wb?.volumeGal],
+    fermentTemp: [recipe.measurementTempF?.ferment, refs.ferment, read.fermentVolGal],
+    waterBackTemp: [wb?.tempF, refs.waterBack, read.waterBack?.volumeGal],
   };
   for (const part of VOLUMES_CARD_ROWS) {
     for (const row of rowsShown(part.rows, Boolean(wb?.on))) {
@@ -105,9 +115,94 @@ export function emptyFields(recipe, derived) {
   return names;
 }
 
-/** The line under the stats bar for `names`, or null when none is empty. */
-export function emptyFieldsLine(names) {
-  if (names.length === 0) return null;
-  const them = names.length === 1 ? 'it' : 'them';
-  return `Empty: ${names.join(', ')} — figures that depend on ${them} show —`;
+// The Volumes card's boxes a limit holds, by their keys in the shared list of
+// the card's rows: where the recipe holds each figure.
+const VOLUME_BOXES = {
+  mashWater: [null, 'mashWaterGal'],
+  preBoilVolume: [null, 'preBoilVolGal'],
+  boilOffRate: [null, 'boilOffRateGalPerHr'],
+  boilTime: [null, 'boilTimeMin'],
+  fermentVolume: [null, 'fermentVolGal'],
+  wortFromKettle: [null, 'fermentVolGal'],
+  waterBack: ['waterBack', 'volumeGal'],
+};
+
+/**
+ * The figures of `recipe` outside their limits (IE-S4), in screen order, the
+ * Volumes card, the Grist table and its efficiency, the Yeast card's
+ * attenuation, the kettle and dry hops, then the Cost card's prices; each
+ * { name, limit }, named as emptyFields names a box, a price as its row's
+ * name and "price".
+ */
+export function outsideFields(recipe) {
+  const out = [];
+  const check = (part, key, value, name) => {
+    const limit = limitCrossed(part, key, value);
+    if (limit) out.push({ name, limit });
+  };
+
+  const wb = recipe.waterBack;
+  for (const part of VOLUMES_CARD_ROWS) {
+    for (const row of rowsShown(part.rows, Boolean(wb?.on))) {
+      const at = VOLUME_BOXES[row.key];
+      if (!at) continue;
+      const [where, key] = at;
+      check(where, key, where ? recipe[where]?.[key] : recipe[key], row.name);
+    }
+  }
+
+  recipe.malts.forEach((m, i) => {
+    const name = rowName(m, 'Malt', i);
+    check('malts', 'weightLb', m.weightLb, `${name} weight`);
+    check('malts', 'fgdb', m.fgdb, `${name} FGDB`);
+    check('malts', 'colorL', m.colorL, `${name} color`);
+  });
+  check(null, 'efficiency', recipe.efficiency, 'Brewhouse efficiency');
+  check(null, 'apparentAttenuation', recipe.apparentAttenuation, 'Apparent attenuation');
+
+  recipe.kettleAdditions.forEach((a, i) => {
+    const name = rowName(a, 'Kettle hop', i);
+    check('kettleAdditions', 'timeMin', a.timeMin, `${name} time`);
+    check('kettleAdditions', 'wortTempF', a.wortTempF, `${name} temperature`);
+    check('kettleAdditions', 'weightOz', a.weightOz, `${name} weight`);
+    check('kettleAdditions', 'alphaAcidFraction', a.alphaAcidFraction, `${name} alpha`);
+  });
+  recipe.dryHops.forEach((d, i) => {
+    const name = typedName(d);
+    check('dryHops', 'weightOz', d.weightOz, name ? `${name} dry-hop weight` : `Dry hop ${i + 1} weight`);
+  });
+
+  // The Cost card's prices, each by its line's name as the card shows it.
+  recipe.malts.forEach((m, i) => check('malts', 'pricePerLb', m.pricePerLb, `${rowName(m, 'Malt', i)} price`));
+  recipe.kettleAdditions.forEach((a, i) =>
+    check('kettleAdditions', 'pricePerOz', a.pricePerOz, `${rowName(a, 'Kettle hop', i)} price`),
+  );
+  recipe.dryHops.forEach((d, i) => {
+    const name = typedName(d);
+    check('dryHops', 'pricePerOz', d.pricePerOz, name ? `${name} dry-hop price` : `Dry hop ${i + 1} price`);
+  });
+  check('yeast', 'pricePerBatch', recipe.yeast?.pricePerBatch, `${typedName(recipe.yeast) || 'Yeast'} price`);
+  (recipe.otherCosts ?? []).forEach((o, i) =>
+    check('otherCosts', 'costPerBatch', o.costPerBatch, `${typedName(o) || `Line ${i + 1}`} price`),
+  );
+  return out;
+}
+
+// The order the line names the limits in.
+const LIMITS = ['negative', 'above100', 'aboveHopTemp'];
+
+/**
+ * The line under the stats bar for the empty boxes `names` and the figures
+ * outside their limits `outside` (outsideFields), each limit in the header's
+ * temperature unit; or null when there is none.
+ */
+export function emptyFieldsLine(names, outside = [], temperatureUnit = 'F') {
+  const parts = names.length > 0 ? [`Empty: ${names.join(', ')}`] : [];
+  for (const limit of LIMITS) {
+    const named = outside.filter((o) => o.limit === limit).map((o) => o.name);
+    if (named.length > 0) parts.push(`${limitText(limit, temperatureUnit)}: ${named.join(', ')}`);
+  }
+  if (parts.length === 0) return null;
+  const them = names.length + outside.length === 1 ? 'it' : 'them';
+  return `${parts.join('; ')} — figures that depend on ${them} show —`;
 }

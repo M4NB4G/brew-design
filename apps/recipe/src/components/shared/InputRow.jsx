@@ -11,9 +11,15 @@
 // The optional `editValue` and `editPlaceholder` are what the box and its
 // greyed figure show while the cursor is in it (the full figure), `value` and
 // `placeholder` what they show otherwise (boxes-and-access, BA1).
+// With `limited`, the box can refuse an entry (docs/items/impossible-
+// entries.md, IE-S1 to IE-S3), as NumberField does: `onChange` returns the
+// line under the box when it refuses the figure, and the box keeps the entry
+// while the cursor is in it, says why under it, puts the recipe back as it
+// was when the typing began, and shows its figure again once left.
 
-import { useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { colors, tokens } from './styles.js';
+import { EntryContext, stillTyping } from './entry.js';
 
 export default function InputRow({
   label,
@@ -30,8 +36,13 @@ export default function InputRow({
   rightAdornment, // optional element rendered to the right of the input (e.g. unit picker)
   editValue,
   editPlaceholder,
+  limited = false,
 }) {
   const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(null); // the text typed while it is not a saved figure
+  const [refused, setRefused] = useState(null); // the line under the box
+  const entry = useContext(EntryContext);
+  const typing = useRef(false); // the brewer has begun typing since the cursor came in
 
   const rowStyle = {
     display: 'flex',
@@ -101,15 +112,46 @@ export default function InputRow({
             step={step}
             min={min}
             max={max}
-            value={editing && editValue !== undefined ? editValue : value}
+            value={draft ?? (editing && editValue !== undefined ? editValue : value)}
             placeholder={editing && editPlaceholder !== undefined ? editPlaceholder : placeholder}
-            onChange={onChange}
+            onChange={(e) => {
+              if (!limited) {
+                onChange(e);
+                return;
+              }
+              if (!typing.current) {
+                typing.current = true;
+                entry.begin();
+              }
+              if (stillTyping(e.target)) {
+                setDraft(e.target.value);
+                return;
+              }
+              const line = onChange(e);
+              if (typeof line === 'string') {
+                setDraft(e.target.value);
+                setRefused(line);
+                entry.restore();
+              } else {
+                setDraft(null);
+                setRefused(null);
+              }
+            }}
             onFocus={() => setEditing(true)}
-            onBlur={() => setEditing(false)}
+            onBlur={() => {
+              setEditing(false);
+              setDraft(null);
+              typing.current = false;
+            }}
             style={inputStyle}
           />
           {rightAdornment}
         </div>
+        {refused && (
+          <div role="alert" style={tokens.refusedLine}>
+            {refused}
+          </div>
+        )}
         {hint && (
           <div
             style={{

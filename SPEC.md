@@ -91,6 +91,28 @@ cached values are pinned by the golden-master tests.
    printed sheet, names every empty number box that feeds a figure, and
    any measurement temperature the correction cannot use — read from the
    recipe's own figures, not from a range written in the app.
+   A Recipe-tab number box refuses a figure that cannot be
+   (`docs/items/impossible-entries.md`): a negative malt weight, FGDB or
+   colour, mash water, pre-boil volume, boil-off rate, boil time,
+   fermentation volume (the wort from kettle with water back on), water back,
+   kettle hop time, weight or alpha, dry-hop weight, brewhouse efficiency,
+   apparent attenuation or price; an FGDB, alpha, efficiency or attenuation
+   above 100 %; a kettle hop temperature above 213 °F, in °C the same
+   temperature. A line under the box says why ("Negative: nothing is
+   saved."), nothing is saved — the recipe goes back to what it was when the
+   typing in the box began — and the box shows its figure again once left; a
+   minus sign alone, a figure still being typed, saves nothing. The limits
+   (0, 100 % and 213 °F) are written once (`entry-limits.js`). Zero, a blank,
+   every other temperature box, the Water tab's boxes and My brewery's take an
+   entry as before. A recipe saved or exported before holds such a figure as
+   saved, loads as saved and is never refused; the line under the stats bar
+   names each such box after the empty ones ("Negative: Magnum weight",
+   "Above 100 %: Brewhouse efficiency", "Above 213 °F: Cascade temperature",
+   in °C "Above 100.56 °C: …"), and every figure that reads it — the
+   recipe's, the Water tab's and the Cost card's — reads it as a blank
+   figure, "—", until it is corrected; the Water tab's own lines of blank
+   figures do not call it blank. The Home/Pro scale multiplies it as any
+   other amount, and it stays named.
    The recipe carries prices, typed by the brewer and read by no recipe
    figure: each malt's per lb, each kettle and dry hop's per oz, the yeast's
    per batch, and the Cost card's other lines, each a name and a cost per
@@ -288,7 +310,9 @@ cached values are pinned by the golden-master tests.
     total of the priced lines (counting the rest) and the cost per gal at the
     fermentation volume at 60 °F (with water back on, the wort from kettle plus the water back), by the engine's `rollupCost` and
     `costPerUnit`, blank for a zero, negative or blank volume. With no line
-    priced, the total and the cost per gal are blank ("—"), not $0.00. It is
+    priced, the total and the cost per gal are blank ("—"), not $0.00. A
+    quantity or price outside its limits (rule 8) blanks its line's cost, the
+    total and the cost per gal; such a price is a priced line. It is
     not on the printed sheet.
     The Grist card shows each malt's % of total grain weight, the engine's
     share ("—" where blank). "Design to target OG" sets every malt's weight,
@@ -310,6 +334,10 @@ cached values are pinned by the golden-master tests.
     solved for that; after Solve the stats bar's OG and the predicted OG the
     card shows are the target, within the same mismatch; a blank or
     uncorrectable wort from kettle or water back refuses Solve and is named.
+    A figure Solve reads that is outside its limits (rule 8) refuses it the
+    same way, named with its limit ("Above 100 %: the brewhouse
+    efficiency."); a figure it does not read — a hop, a price, a malt weight,
+    which Solve replaces — leaves it working.
     The mash water
     is not touched. The target and the percents are never saved; "Undo solve"
     restores the weights until the next edit.

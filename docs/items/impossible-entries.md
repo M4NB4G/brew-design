@@ -1,6 +1,7 @@
 # An entry that cannot be is refused, Tier B
 
-Status: agreed 2026-11-10, not started. The first builder stopped before any
+Status: landed 2026-11-10, "An entry that cannot be is refused, and a saved one
+is named with its figures blank" (agreed 2026-11-10). The first builder stopped before any
 change with three questions (IE-Q1 to IE-Q3), answered by the owner the same
 day ("Agree to all"). Written by the planning session of
 the run "wrong-on-first-use"; batch 1, item 3 (docs/ROADMAP.md, Sessions).
@@ -72,4 +73,72 @@ file).
 
 ## Builder's notes
 
-(to be filled in)
+Built 2026-11-10 (Opus 5.5, high effort). Choices the sentences did not make,
+as claims to verify:
+
+- **Where the limits live.** A new file, `apps/recipe/src/entry-limits.js`,
+  holds the three limits once (0, a fraction of 1 for 100 %, 213 °F), the
+  table of which recipe figure each holds, the judging (`limitCrossed`), the
+  words ("Negative", "Above 100 %", "Above 213 °F" / "Above 100.56 °C"), the
+  typed-entry step the boxes call (`typed`) and the recipe read within the
+  limits (`withinLimits`). No component writes a limit. The °C figure is
+  `display.js`'s new `tempLimitText`: the engine's `fToC(213)` to two
+  decimals (IE-Q1), "213 °F" by the readout rule in °F.
+- **Judged in the recipe's units.** Each box converts as before (°C by
+  `tempToCanonical`, Pro's lb, sacks, barrels and $/lb or $/sack) and the
+  figure is judged after, so a °C or Pro entry meets the same limit.
+- **Nothing saved, the figures typed on the way included.** Each keystroke
+  saves, so "120" would leave "12" saved. A refused entry puts the whole
+  recipe back as it was when the typing in that box began, as the salt and
+  acid boxes put the water back (N-1a): `EntryContext`
+  (`components/shared/entry.js`), provided by `App.jsx`. The saved document
+  is then byte for byte as before (the scenarios check it).
+- **Typing (K).** A minus sign alone, "1e" (a number box reports these as no
+  figure) and "-0" are held as a figure still being typed: not handed on,
+  nothing saved, the box's figure back once left. Only the boxes IE-S1 names
+  do this (`limited`); every other box behaves as today (IE-S5).
+- **The line under the box** reads "<limit>: nothing is saved." and, as the
+  salt and acid boxes' line, stays until the box takes an entry, also once
+  left (`// FLAG:` in `NumberField.jsx`).
+- **Only typing is refused.** A pick from the ingredient list or My
+  ingredients copies its figures as before; one outside the limits is then
+  named as a saved one (`// FLAG:` in `entry-limits.js`). Solve's weights are
+  never negative (its existing check).
+- **The line under the stats bar.** After "Empty: …", one part per limit, in
+  the order Negative, Above 100 %, Above 213 °F, each naming its boxes in
+  screen order by the names the empty boxes go by; parts joined by "; ",
+  then one " — figures that depend on it/them show —". A price is named
+  "<row> price" ("Pale 2-Row price", "Citra dry-hop price", "Yeast price",
+  "Line 1 price"), after the other boxes, as the Cost card is last. The water
+  back is named only while water back is on, as its box shows only then.
+- **Blank figures.** `computeRecipe`, `computeCost`, `computeWater` and
+  `solveTargetOG` read the recipe within its limits; the boxes, the Cost
+  card's quantity and price, the printed sheet's entries and the scale read
+  it as saved. A volume outside its limits is not also named as one whose
+  measurement temperature the correction cannot use.
+- **The Water tab (IE-S8, IE-Q3).** Its lines of blank figures read the
+  recipe as saved: the mash water, pre-boil volume, efficiency, boil,
+  wort from kettle and water back outside their limits are not called blank;
+  the grain is called blank only while a malt's weight is blank as saved;
+  the predicted mash pH's needs and the style aim's "needs the mash water"
+  likewise.
+- **Solve (IE-S7, IE-Q2)** names a figure outside its limits after the blank
+  ones, by the card's own names, grouped by limit: "Above 100 %: the
+  brewhouse efficiency. Nothing changed." Solve reads no temperature with a
+  limit, so its words never need the header's unit.
+- **The Cost card's price cell** lays the box and its unit in a grid in
+  place of a row, so the line can sit under both; the card looks as before
+  (screenshots before and after identical, Home and phone). The Recipe-tab
+  digests of `page-error.before.json` and `error-outside-the-tabs.before.json`
+  are re-captured for it; putting that one style back returns the old
+  digests, so it is the only change to the drawn pages.
+- **A browser check** (`apps/recipe/test/browser/impossible-entries.spec.js`)
+  types key by key in Chromium: jsdom cannot report a minus sign alone as
+  no figure. `eslint.config.js` lists the new jsdom scenario file with the
+  others that read the browser's globals.
+- **SPEC.** Rule 8 gains the refusal and the named line; rule 10 gains
+  Solve's refusal and the Cost card's blank lines. Rule 13 is unchanged: no
+  saved field, version or reader changes, and a saved figure outside the
+  limits is readable as before.
+- **Numbers added:** the three limits (0, 1, 213) and the display precision
+  2 of the °C limit (IE-Q1). Nothing else.

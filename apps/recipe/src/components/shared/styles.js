@@ -160,6 +160,19 @@ export const tokens = {
     fontSize: '0.82rem',
     fontWeight: 600,
   },
+  // The line under a number box that refused an entry (docs/items/
+  // impossible-entries.md, IE-S1), as the salt and acid boxes' line reads.
+  refusedLine: {
+    fontSize: '0.72rem',
+    color: colors.textWarn,
+    marginTop: '0.2rem',
+    maxWidth: '12rem',
+    textAlign: 'right',
+    marginLeft: 'auto',
+    // In a grid of the box and its unit (the Cost card), across both.
+    gridColumn: '1 / -1',
+    gridRow: 2,
+  },
   // Text a screen reader reads and the screen does not show (the remove
   // columns' header, docs/items/boxes-and-access.md, BA3-S2). Its parent is
   // given position: relative, so the text stays inside a scrolling table.

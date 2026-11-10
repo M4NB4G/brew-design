@@ -272,6 +272,14 @@ export function tempReadout(tempF, temperatureUnit) {
   return num(tempF, Number.isInteger(tempF) ? 0 : 1);
 }
 
+// A temperature limit as text, with its unit: °F as a readout shows it,
+// "213 °F"; °C to two decimals, "100.56 °C", the fewest at which every tenth
+// a box takes lands on the side the limit says (100.5 °C is 212.9 °F, 100.6 °C
+// 213.08 °F; docs/items/impossible-entries.md, IE-Q1, IE-S6).
+export function tempLimitText(tempF, temperatureUnit) {
+  return temperatureUnit === 'C' ? `${num(fToC(tempF), 2)} °C` : `${tempReadout(tempF, 'F')} °F`;
+}
+
 // The engine's reference temperature as text: "60" in °F, "15.6" in °C — one
 // decimal, as 60 °F is not a whole °C (C-Q3).
 export function referenceTemp(temperatureUnit) {
