@@ -30,7 +30,9 @@ jobs:
       - run: npm run build
 
   browser:
-    runs-on: ubuntu-latest
+    # Pinned: GitHub's default machine moved to Ubuntu 26.04, where Playwright 1.56.1
+    # cannot install its Chromium. Return to ubuntu-latest when Playwright is upgraded.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

@@ -94,5 +94,4 @@ keeps its line below.
 
 | Item | Sentence (draft) | Re-test | Session |
 |---|---|---|---|
-| The GitHub browser check runs again | The GitHub check's browser job has failed on every push since at least 2026-11-09, `main` included, before a single browser check runs: GitHub's default machine moved to Ubuntu 26.04, where the repository's Playwright (1.56.1) cannot install its Chromium ("Playwright does not support chromium on ubuntu26.04-x64"). The lint, suites and build job passes, and the 23 browser checks pass in the run's own container. Run the browser job on Ubuntu 24.04, the version it last passed on; upgrading Playwright is a larger change for later (the owner, 2026-11-10, CI-1) | build + the GitHub check passes on the push | R1 |
 | Type checking | The code is plain JavaScript with no type checking (6 files carry JSDoc). Add checking, by TypeScript or JSDoc types under `tsc --checkJs`, engine first; it catches a class of errors the inspector now finds by reading. Large: touches every file, each gated by its tier (structural review, 2026-10-06) | suites + inspector | unassigned |
