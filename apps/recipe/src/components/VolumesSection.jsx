@@ -212,7 +212,7 @@ export default function VolumesSection({
     boilTime: () => (
       <InputRow
         label="Boil time (min)"
-        value={recipe.boilTimeMin}
+        value={Number.isFinite(recipe.boilTimeMin) ? recipe.boilTimeMin : ''}
         onChange={(e) => typed(null, 'boilTimeMin', parseFloat(e.target.value), (min) => setField('boilTimeMin', min))}
         limited
         step={1}

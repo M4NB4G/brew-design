@@ -41,6 +41,7 @@ export default [
   {
     files: [
       'apps/recipe/test/accessible-names.test.js',
+      'apps/recipe/test/boil-time-emptied.test.js',
       'apps/recipe/test/my-ingredients.test.js',
       'apps/recipe/test/my-yeast-strains.test.js',
       'apps/recipe/test/saved-ingredient-on-owner-list.test.js',
