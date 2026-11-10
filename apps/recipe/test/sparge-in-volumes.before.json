@@ -151,7 +151,20 @@
       "cells": "170",
       "cellsUnit": "billion",
       "starterVolumeUnit": "L",
-      "starter": []
+      "starter": [
+        {
+          "band": "100B",
+          "volume": "0.50",
+          "dme": "58",
+          "note": ""
+        },
+        {
+          "band": "200B",
+          "volume": "0.00",
+          "dme": "0",
+          "note": "One 200B pack, no starter"
+        }
+      ]
     },
     "water": {
       "treated": "The mash water",
@@ -390,7 +403,20 @@
       "cells": "0.17",
       "cellsUnit": "trillion",
       "starterVolumeUnit": "L",
-      "starter": []
+      "starter": [
+        {
+          "band": "100B",
+          "volume": "0.50",
+          "dme": "58",
+          "note": ""
+        },
+        {
+          "band": "200B",
+          "volume": "0.00",
+          "dme": "0",
+          "note": "One 200B pack, no starter"
+        }
+      ]
     },
     "water": {
       "treated": "The mash water",
@@ -629,7 +655,20 @@
       "cells": "170",
       "cellsUnit": "billion",
       "starterVolumeUnit": "L",
-      "starter": []
+      "starter": [
+        {
+          "band": "100B",
+          "volume": "0.50",
+          "dme": "58",
+          "note": ""
+        },
+        {
+          "band": "200B",
+          "volume": "0.00",
+          "dme": "0",
+          "note": "One 200B pack, no starter"
+        }
+      ]
     },
     "water": {
       "treated": "The mash water",
@@ -868,7 +907,20 @@
       "cells": "0.17",
       "cellsUnit": "trillion",
       "starterVolumeUnit": "L",
-      "starter": []
+      "starter": [
+        {
+          "band": "100B",
+          "volume": "0.50",
+          "dme": "58",
+          "note": ""
+        },
+        {
+          "band": "200B",
+          "volume": "0.00",
+          "dme": "0",
+          "note": "One 200B pack, no starter"
+        }
+      ]
     },
     "water": {
       "treated": "The mash water",
@@ -1107,7 +1159,14 @@
       "cells": "210",
       "cellsUnit": "billion",
       "starterVolumeUnit": "L",
-      "starter": []
+      "starter": [
+        {
+          "band": "100B",
+          "volume": "0.50",
+          "dme": "58",
+          "note": ""
+        }
+      ]
     },
     "water": null,
     "notes": null

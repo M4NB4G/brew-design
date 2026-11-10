@@ -17,6 +17,15 @@
 // top at 1,270 (below). The 400B band's 800-1000 boundary is Rev 4's own rule: the
 // owner's correction of Rev 3's N11 (2026-10-08), his rule since 2026-09-21
 // (SPEC.md rule 2). Do not alter the boundary logic.
+//
+// Below 250 billion cells, a second departure from Rev 4, whose 100B band
+// starts at 250: the owner's decision, 2026-11-10
+// (docs/items/starter-card-both-ends.md, SPEC.md rule 2). A pack that holds
+// the cells needed needs no starter (the 100B pack at or below 100, the 200B
+// pack at or below 200, a count above 0; a zero or negative count has no
+// option, as before), a pack holding what its name says, nothing rounded
+// in the brewer's favour; above 100 the 100B pack is grown in a starter by
+// the same formula and its same floor, pack / 200 L. No new constant.
 
 // DME loading: 115 g per liter of starter.
 const DME_GRAMS_PER_LITER = 115;
@@ -71,12 +80,17 @@ const BANDS = [
     band: '100B',
     startCells: 100,
     effectiveCells(cells) {
-      // cells<250 -> not usable
-      // 250<=cells<400 -> N=cells
+      // 0<cells<=100 -> the pack alone, no starter (the owner, 2026-11-10);
+      //   a count not above 0 (a zero or negative batch) is not usable, as
+      //   before (N-4)
+      // 100<cells<400 -> N=cells (Rev 4: from 250; below it, the owner,
+      //   2026-11-10: the same formula, never below the step, 0.50 L)
       // 400<=cells<500 -> N=cells-100 (100B starter + one extra 100B pack)
       // cells>500 -> not usable
       // FLAG: cells===500 falls through every branch (boundary gap at 500).
-      if (cells < 250) return null;
+      if (cells <= this.startCells) {
+        return cells > 0 ? { noStarter: true, packNote: 'One 100B pack, no starter' } : null;
+      }
       if (cells < 400) return { N: cells, packNote: '' };
       if (cells < 500) {
         return { N: cells - 100, packNote: '100B starter plus one extra 100B pack' };
@@ -88,13 +102,18 @@ const BANDS = [
     band: '200B',
     startCells: 200,
     effectiveCells(cells) {
-      // cells<400 -> not usable
+      // 0<cells<=200 -> the pack alone, no starter (the owner, 2026-11-10);
+      //   a count not above 0 is not usable, as before (N-4)
+      // 200<cells<400 -> not usable
       // 400<=cells<670 -> N=cells
       // 670<=cells<800 -> N=cells-200 (200B starter + one extra 200B pack)
       // The pack alone up to 670 (SINGLE_200B_BELOW), not Rev 4's 700: above
       // it the starter would pass 5 L (SL-2).
       // cells>800 -> not usable
       // FLAG: cells===800 falls through every branch (boundary gap at 800).
+      if (cells <= this.startCells) {
+        return cells > 0 ? { noStarter: true, packNote: 'One 200B pack, no starter' } : null;
+      }
       if (cells < 400) return null;
       if (cells < SINGLE_200B_BELOW) return { N: cells, packNote: '' };
       if (cells < 800) {
@@ -148,16 +167,21 @@ function solveVolume(startCells, neededMultiple) {
  * Each option: { band, startCells, neededMultiple, volumeL, dmeGrams, packNote }.
  *
  * Note: 400..500 billion is usable by BOTH the 100B and 200B bands, so more
- * than one option can be returned; the user chooses. Returns an empty array
- * when no band is usable.
+ * than one option can be returned; the user chooses. At or below 200 billion
+ * both packs can be (the 200B pack with no starter). A pack that needs no
+ * starter is an option of no starter: volume 0 L, no extract, its note naming
+ * the pack, and its multiple the count over the pack (N / S with N = C, at
+ * most 1). Returns an empty array when no band is usable: a blank count, or
+ * one above the range (starterAboveRange).
  */
 export function solveStarter(cellsNeededBillion) {
   const options = [];
   for (const band of BANDS) {
     const eff = band.effectiveCells(cellsNeededBillion);
     if (!eff) continue;
-    const neededMultiple = eff.N / band.startCells;
-    const volumeL = solveVolume(band.startCells, neededMultiple);
+    const neededMultiple = eff.noStarter ? cellsNeededBillion / band.startCells : eff.N / band.startCells;
+    // No starter, no volume: nothing to solve.
+    const volumeL = eff.noStarter ? 0 : solveVolume(band.startCells, neededMultiple);
     options.push({
       band: band.band,
       startCells: band.startCells,
@@ -168,4 +192,15 @@ export function solveStarter(cellsNeededBillion) {
     });
   }
   return options;
+}
+
+/**
+ * starterAboveRange(cellsNeededBillion) -> true when the count is above the
+ * largest any single starter of 5 L or less reaches (MAX_CELLS, 1,270
+ * billion), so solveStarter offers nothing and the brewer pitches more packs
+ * or builds the starter in steps (docs/items/starter-card-both-ends.md,
+ * SB-S5). False through the top and for a blank count (NaN).
+ */
+export function starterAboveRange(cellsNeededBillion) {
+  return cellsNeededBillion > MAX_CELLS;
 }

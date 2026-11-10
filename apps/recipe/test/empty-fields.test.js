@@ -18,6 +18,7 @@ import {
   selectPitchRate,
   computeCellsNeeded,
   solveStarter,
+  starterAboveRange,
   mashRatioWarnings,
 } from '@brew/engine';
 import { defaultRecipeState, DEFAULT_DISPLAY } from '../src/state.js';
@@ -323,6 +324,8 @@ describe('empty-field handling', () => {
       pitchRate,
       cells,
       starter: solveStarter(cells),
+      // Above the largest single starter (docs/items/starter-card-both-ends.md).
+      starterAboveRange: starterAboveRange(cells),
       warnings: { ...mashRatioWarnings(grist), postBoilBelowFerment: false },
     });
     expect(d.grist.mashRv).toBeCloseTo((5 * 4) / 11, 12); // 5 gal x 4 qt/gal over 11 lb, as entered

@@ -39,7 +39,7 @@ export { computeHops } from './hops.js';
 
 export { PITCH_RATES, selectPitchRate, computeCellsNeeded } from './yeast.js';
 
-export { solveStarter } from './starter.js';
+export { solveStarter, starterAboveRange } from './starter.js';
 
 export { solveGrist } from './solver.js';
 

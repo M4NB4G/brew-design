@@ -159,7 +159,14 @@
    "cells": "220",
    "cellsUnit": "billion",
    "starterVolumeUnit": "L",
-   "starter": []
+   "starter": [
+    {
+     "band": "100B",
+     "volume": "0.60",
+     "dme": "69",
+     "note": ""
+    }
+   ]
   },
   "water": null,
   "notes": null
@@ -324,7 +331,14 @@
    "cells": "0.22",
    "cellsUnit": "trillion",
    "starterVolumeUnit": "L",
-   "starter": []
+   "starter": [
+    {
+     "band": "100B",
+     "volume": "0.60",
+     "dme": "69",
+     "note": ""
+    }
+   ]
   },
   "water": null,
   "notes": null

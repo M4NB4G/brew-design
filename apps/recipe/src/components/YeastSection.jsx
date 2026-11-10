@@ -53,7 +53,7 @@ export default function YeastSection({ yeast, derived, mode, setYeast }) {
   // Phone: tighter starter-table cells, so the note column has room to read.
   const th = phone ? { ...TH, padding: '0.45rem 0.35rem', letterSpacing: '0.04em' } : TH;
   const td = phone ? { ...TD, padding: '0.45rem 0.35rem' } : TD;
-  const { pitchRate, cells, starter } = derived;
+  const { pitchRate, cells, starter, starterAboveRange } = derived;
 
   return (
     <Card>
@@ -86,7 +86,14 @@ export default function YeastSection({ yeast, derived, mode, setYeast }) {
       </span>
 
       {starter.length === 0 ? (
-        <p style={tokens.notice}>No usable starter band for this cell count.</p>
+        // Above the largest single starter (the engine's starterAboveRange),
+        // what to do instead, in the owner's words (SB-S5); the old line only
+        // where the cell count is blank. The printed sheet says the same.
+        <p style={tokens.notice}>
+          {starterAboveRange
+            ? 'No single starter of 5 L or less reaches this count. Pitch more packs, or build the starter in steps.'
+            : 'No usable starter band for this cell count.'}
+        </p>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           {/* Phone: no minimum width; the columns share the card's width */}

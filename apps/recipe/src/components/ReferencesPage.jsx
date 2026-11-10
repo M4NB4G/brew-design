@@ -49,16 +49,18 @@ export const COEFFICIENTS = {
     // boost, and the saturation rate (million cells per mL).
     growth: { k: 12.54793776, p: 0.4594858324, offset: 0.9994994906, stirPlate: 1.0, saturation: 200 },
     // Each band: its pack and the cells needed, C, it serves; the cells an
-    // extra pack supplies are taken off (takes), else N = C. No starter is
-    // larger than 5 L, so the 200B pack takes its extra pack from 670 and
-    // the range ends at 1,270.
+    // extra pack supplies are taken off (takes), else N = C. A pack that
+    // holds C needs no starter (noStarter; since 2026-11-10, below 250). No
+    // starter is larger than 5 L, so the 200B pack takes its extra pack from
+    // 670 and the range ends at 1,270.
     maxStarterL: 5,
     bands: [
       {
         band: '100B',
         packCells: 100,
         ranges: [
-          { from: 250, to: 400, toIncluded: false },
+          { from: 0, fromIncluded: false, to: 100, toIncluded: true, noStarter: true },
+          { from: 100, fromIncluded: false, to: 400, toIncluded: false },
           { from: 400, to: 500, toIncluded: false, takes: 100 },
         ],
       },
@@ -66,6 +68,7 @@ export const COEFFICIENTS = {
         band: '200B',
         packCells: 200,
         ranges: [
+          { from: 0, fromIncluded: false, to: 200, toIncluded: true, noStarter: true },
           { from: 400, to: 670, toIncluded: false },
           { from: 670, to: 800, toIncluded: false, takes: 200 },
         ],
@@ -283,6 +286,8 @@ const rangeText = (r) =>
   r.to === Infinity
     ? `C ${r.fromIncluded === false ? '>' : '≥'} ${r.from}`
     : `${r.from} ${r.fromIncluded === false ? '<' : '≤'} C ${r.toIncluded ? '≤' : '<'} ${r.to}`;
+// What a band's range does with C: no starter, or the cells the starter reaches.
+const effectiveText = (r) => (r.noStarter ? 'no starter, the pack alone' : r.takes ? `N = C − ${r.takes}` : 'N = C');
 
 export default function ReferencesPage({ onBack, temperatureUnit }) {
   const ref = `${referenceTemp(temperatureUnit)} ${tempUnit(temperatureUnit)}`;
@@ -291,6 +296,8 @@ export default function ReferencesPage({ onBack, temperatureUnit }) {
   const thickness = MASH_PH_TESTED_RANGE.thicknessLPerKg;
   const lactic = ACIDS.acidulated_malt;
   const growth = k.starter.growth;
+  // The top of the range: the last band's last limit.
+  const starterTop = k.starter.bands.at(-1).ranges.at(-1).to;
   const litresPerGal = String(LITERS_PER_GALLON);
   const gPerLb = String(G_PER_LB);
   const p = k.mashPh;
@@ -514,7 +521,7 @@ export default function ReferencesPage({ onBack, temperatureUnit }) {
             {k.starter.bands.flatMap((b) =>
               b.ranges.map((r) => (
                 <li key={`${b.band}${r.from}`}>
-                  {b.band} {rangeText(r)}: {r.takes ? `N = C − ${r.takes}` : 'N = C'}
+                  {b.band} {rangeText(r)}: {effectiveText(r)}
                   {r.takes ? ` (one extra ${r.takes}B pack)` : ''}
                 </li>
               )),
@@ -522,6 +529,7 @@ export default function ReferencesPage({ onBack, temperatureUnit }) {
           </ul>
           <p style={bodyStyle}>
             No starter is larger than {k.starter.maxStarterL} L; the limits keep every starter within it.
+            Above C = {starterTop}, no single starter reaches C: pitch more packs, or build the starter in steps.
           </p>
           <Source>none; the bands are the app&apos;s own rule.</Source>
         </Block>

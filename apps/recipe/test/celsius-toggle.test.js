@@ -54,6 +54,9 @@ import { withoutWaterBack, sheetWithoutWaterBack, documentWithoutWaterBack } fro
 // Since the engine follows Rev 4 (docs/items/engine-corrections.md, EC-Q7),
 // the printed sheet's figures it moves are re-pinned in the captured bytes:
 // ABV 5.9 -> 6.0 %; in Pro, OG 14.01 -> 14.15 °P and FG 3.34 -> 3.38 °P.
+// Since the starter card says what to do below 250 billion
+// (docs/items/starter-card-both-ends.md, S-4), the sheet's starter at 220
+// billion is re-pinned: none -> 100B, 0.60 L, 69 g.
 const BEFORE = JSON.parse(readFileSync(new URL('./celsius-toggle.before.json', import.meta.url), 'utf8'));
 
 const text = (markup) =>

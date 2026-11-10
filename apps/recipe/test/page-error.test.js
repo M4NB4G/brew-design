@@ -192,7 +192,12 @@ describe('page keeps working after an error', () => {
 
   it('nothing else changes when nothing goes wrong', () => {
     // Every tab, in Home and in Pro, and the References page, drawn as
-    // before the change, byte for byte (page-error.before.json).
+    // before the change, byte for byte (page-error.before.json). Re-captured
+    // 2026-11-10 for docs/items/starter-card-both-ends.md, every entry, the
+    // starter's lines alone changed (compared line by line): the built-in
+    // recipe's 210 billion offers 100B, 0.50 L, 58 g where it read "No usable
+    // starter band for this cell count." and the stats bar "No starter band";
+    // Pro reads SB-S5's sentence; the References page names the new bands.
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(2026, 9, 9));
     expect(pageDigests()).toEqual(BEFORE);

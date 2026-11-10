@@ -98,7 +98,7 @@ export function recipeSheet({
   brewery,
   today,
 }) {
-  const { grist, hops, pitchRate, cells, starter, stats } = derived;
+  const { grist, hops, pitchRate, cells, starter, starterAboveRange, stats } = derived;
   const pro = sheetProUnits(brewery, proVolumeUnit, proMaltUnit);
   const sacks = maltInSacks(mode, pro.malt);
   const tUnit = tempUnit(temperatureUnit);
@@ -247,6 +247,10 @@ export function recipeSheet({
         dme: num(o.dmeGrams, 0),
         note: o.packNote,
       })),
+      // Above the largest single starter there is no option, and the sheet
+      // says what to do instead (SB-S5), flagged only then, as the hops'
+      // totalFromKettle; with no option and a blank count, the old line.
+      ...(starterAboveRange && { starterAboveRange: true }),
     },
 
     // The Water tab's additions, volumes and treated-water profile

@@ -34,6 +34,18 @@ cached values are pinned by the golden-master tests.
    counts in tens. Its constants are reproduced exactly from that source; the golden
    master and the smoke test pin the starter by hand from the formula, Rev
    4's figure beside each (`docs/items/starter-calculator-formula.md`).
+   Below 250 billion cells the starter departs from Rev 4 a second time,
+   whose 100B band starts at 250, on the owner's decision (2026-11-10): a
+   pack that holds the cells needed needs no starter — the 100B pack at or
+   below 100 billion, the 200B pack at or below 200, a count above zero (a
+   zero or negative count has no option, as before) — and nothing is rounded
+   in the brewer's favour; above 100 the 100B pack is grown in a starter by
+   the same formula and its same floor, S ÷ 200 L, so 0.50 L through 210
+   billion. Above 1,270 billion the Yeast card and the printed sheet read
+   "No single starter of 5 L or less reaches this count. Pitch more packs,
+   or build the starter in steps."; "No usable starter band for this cell
+   count." stays only where the cell count is blank, zero or negative
+   (`docs/items/starter-card-both-ends.md`).
 3. When faithful transcription produces a result that looks wrong, keep it and
    add a `// FLAG:` comment saying what and why. Never silently fix.
 4. Golden-master tolerances are fixed and never loosened:

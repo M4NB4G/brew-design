@@ -15,6 +15,7 @@ import {
   selectPitchRate,
   computeCellsNeeded,
   solveStarter,
+  starterAboveRange,
   mashRatioWarnings,
   REFERENCE_TEMP_F,
   SALT_CONTRIBUTIONS_PER_G_GAL,
@@ -268,6 +269,9 @@ export function computeRecipe(state) {
     fermentVolGal: pitchGal,
   });
   const starter = solveStarter(cells);
+  // Above the largest single starter the card says what to do instead
+  // (docs/items/starter-card-both-ends.md, SB-S5); the engine decides.
+  const starterBeyondRange = starterAboveRange(cells);
 
   // The post-boil volume as it reads at its measurement temperature (the
   // measured pre-boil volume less the boil-off, before correction), shown
@@ -306,6 +310,7 @@ export function computeRecipe(state) {
     pitchRate,
     cells,
     starter,
+    starterAboveRange: starterBeyondRange,
     // Design warnings (true = warn), shown on the Volumes card; they change no
     // number. The mash ratios against the engine's recommended ranges; the
     // post-boil volume against the fermentation volume (with water back on,

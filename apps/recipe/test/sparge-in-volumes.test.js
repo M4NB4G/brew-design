@@ -26,6 +26,11 @@ const TODAY = new Date(2026, 9, 5);
 // in Pro, OG 10.93 -> 11.04 °P and FG 2.59 -> 2.61 °P; without the water
 // argument, OG 1.055 -> 1.056 and ABV 5.7 -> 5.8 %. With the IBU's 7489.1
 // (item 3), Magnum's IBU 18.3 -> 18.2 (40.1 -> 40.0 without the water argument).
+// Since the starter card says what to do below 250 billion
+// (docs/items/starter-card-both-ends.md, S-4), the sheet's starter is
+// re-pinned: at 170 billion none -> 100B, 0.50 L, 58 g and 200B, 0.00 L, 0 g,
+// "One 200B pack, no starter"; without the water argument, at 210, none ->
+// 100B, 0.50 L, 58 g.
 const BEFORE = JSON.parse(
   readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'sparge-in-volumes.before.json'), 'utf8'),
 );

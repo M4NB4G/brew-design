@@ -423,7 +423,11 @@ export default function RecipeSheet({
           </tbody>
         </GridTable>
         {s.yeast.starter.length === 0 ? (
-          <p style={noData}>No usable starter band for this cell count.</p>
+          <p style={noData}>
+            {s.yeast.starterAboveRange
+              ? 'No single starter of 5 L or less reaches this count. Pitch more packs, or build the starter in steps.'
+              : 'No usable starter band for this cell count.'}
+          </p>
         ) : (
           <GridTable>
             <thead>

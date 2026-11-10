@@ -52,7 +52,10 @@ import { withoutWaterBack, sheetWithoutWaterBack, documentWithoutWaterBack } fro
 // the printed sheet's figures it moves are re-pinned in the captured bytes:
 // OG 1.055 -> 1.056 and ABV 5.7 -> 5.8 %; in Pro, OG 13.62 -> 13.76 °P and
 // FG 3.25 -> 3.28 °P. With the IBU's 7489.1 (item 3), Magnum's IBU 40.1 -> 40.0
-// on the sheet and the Hops card.
+// on the sheet and the Hops card. Since the starter card says what to do
+// below 250 billion (docs/items/starter-card-both-ends.md, S-4), the starter
+// at 210 billion is re-pinned on the sheet and the Pitch & Starter card: none
+// ("No usable starter band for this cell count.") -> 100B, 0.50 L, 58 g.
 const BEFORE = JSON.parse(readFileSync(new URL('./economics.before.json', import.meta.url), 'utf8'));
 const computeCost = (...a) => selectors.computeCost(...a);
 // The card's module, loaded per scenario (it is new with this item).
